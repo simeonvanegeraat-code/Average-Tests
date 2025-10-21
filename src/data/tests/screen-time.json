@@ -1,0 +1,23 @@
+{
+  "slug": "screen-time",
+  "title": "Screen Time: How average is your daily usage?",
+  "metric": "screen_time_hours",
+  "unit": "h",
+  "intro": "Estimate your average daily screen time (hours per day). We’ll compare it with typical usage.",
+  "inputs": [
+    { "type": "range", "name": "value", "label": "Average hours per day:", "min": 0, "max": 16, "step": 0.5, "default": 3 }
+  ],
+  "value_buckets": [
+    { "min": 0, "max": 2, "avg": 1.5 },
+    { "min": 2, "max": 4, "avg": 3 },
+    { "min": 4, "max": 6, "avg": 5 },
+    { "min": 6, "max": 24, "avg": 7 }
+  ],
+  "labels": [
+    { "minDelta": -999, "maxDelta": -1, "label": "Below average", "advice": "Nice balance. Keep using focus blocks and breaks." },
+    { "minDelta": -1, "maxDelta": 1, "label": "Around average", "advice": "You’re around the norm. Consider app timers for better habits." },
+    { "minDelta": 1, "maxDelta": 999, "label": "Above average", "advice": "Try reducing notifications and batching social media time." }
+  ],
+  "heroImage": "/images/tests/screen-time-hero.jpg",
+  "seo": { "title": "Screen Time Test — How average is your daily usage?", "description": "Compare your daily screen time with typical usage and get simple tips to improve your digital balance." }
+}
