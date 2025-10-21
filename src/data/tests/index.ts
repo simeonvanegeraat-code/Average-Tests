@@ -1,4 +1,7 @@
-import moneyHabits from "./money-habits.json";
-import screenTime from "./screen-time.json";
+import globalSavingsWealth from "./global-monthly-savings-plus-wealth.json";
+// import other existing tests...
 
-export default [moneyHabits, screenTime];
+export default [
+  globalSavingsWealth
+  // , …other tests
+];

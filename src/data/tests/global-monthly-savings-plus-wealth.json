@@ -1,0 +1,103 @@
+{
+  "slug": "global-monthly-savings-plus-wealth",
+  "title": "Savings & Wealth Snapshot",
+  "intro": "Enter a few details about your savings, income and wealth, then see how you compare with others in your region and age-group.",
+  "inputs": [
+    {
+      "type": "select",
+      "name": "region",
+      "label": "Which continent/region do you live in?",
+      "options": ["Europe","North America","Asia","South America","Africa","Oceania"],
+      "required": true
+    },
+    {
+      "type": "number",
+      "name": "age",
+      "label": "How old are you?",
+      "min": 16,
+      "max": 100,
+      "step": 1,
+      "required": true
+    },
+    {
+      "type": "number",
+      "name": "monthly_savings",
+      "label": "How much do you save per month (€)?",
+      "min": 0,
+      "step": 1,
+      "required": true
+    },
+    {
+      "type": "number",
+      "name": "monthly_income",
+      "label": "What is your net monthly income (€)?",
+      "min": 0,
+      "step": 1,
+      "required": true
+    },
+    {
+      "type": "number",
+      "name": "current_savings_balance",
+      "label": "What is your current savings balance (€)?",
+      "min": 0,
+      "step": 1,
+      "required": false
+    },
+    {
+      "type": "number",
+      "name": "gross_wealth",
+      "label": "What is your estimated gross wealth (€)?",
+      "min": 0,
+      "step": 1,
+      "required": false
+    }
+  ],
+  "benchmark": {
+    "region_age_buckets": [
+      {
+        "region": "Europe",
+        "min": 16,
+        "max": 24,
+        "avgSavings": 150,
+        "medianSavings": 140,
+        "avgWealth": 20000,
+        "medianWealth": 15000
+      },
+      {
+        "region": "Europe",
+        "min": 25,
+        "max": 34,
+        "avgSavings": 250,
+        "medianSavings": 230,
+        "avgWealth": 40000,
+        "medianWealth": 30000
+      }
+      // … add other region/bucket entries …
+    ]
+  },
+  "labels": [
+    {
+      "minDelta": -999,
+      "maxDelta": -30,
+      "label": "Below average",
+      "advice": "Consider increasing your savings and building your wealth gradually."
+    },
+    {
+      "minDelta": -30,
+      "maxDelta": 30,
+      "label": "Around average",
+      "advice": "You're in line with many peers. Maintain growth and plan ahead."
+    },
+    {
+      "minDelta": 30,
+      "maxDelta": 999,
+      "label": "Above average",
+      "advice": "Excellent! Consider investing part of your savings for long-term growth."
+    }
+  ],
+  "unit": "€/month or €",
+  "seo": {
+    "title": "Savings & Wealth Test — Compare your savings and wealth by region and age",
+    "description": "Enter your monthly savings and estimated wealth to see how you compare with your region and age-group."
+  }
+}
