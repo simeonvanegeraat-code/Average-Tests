@@ -1,4 +1,4 @@
-// src/components/TestRunner.tsx
+// src/components/TestRunner.tsx  (alleen dit bestand vervangen)
 
 import { useRouter } from "next/router";
 import tests from "@/data/tests";
@@ -49,9 +49,7 @@ export default function TestRunner({ slug }: { slug: string }) {
   const router = useRouter();
   const test = (tests as TestConfig[]).find((t) => t.slug === slug);
 
-  if (!test) {
-    return <div className="card">Test not found.</div>;
-  }
+  if (!test) return <div className="card">Test not found.</div>;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,7 +62,6 @@ export default function TestRunner({ slug }: { slug: string }) {
     const currentSavings = Number(fd.get("current_savings_balance") ?? 0);
     const grossWealth = Number(fd.get("gross_wealth") ?? 0);
 
-    // Vind benchmark bucket op basis van regio + leeftijd
     const bucket =
       test.benchmark.region_age_buckets.find(
         (b) => b.region === region && age >= b.min && age <= b.max
@@ -72,15 +69,12 @@ export default function TestRunner({ slug }: { slug: string }) {
 
     const median = Number(bucket.medianSavings) || 0;
     const avg = Number(bucket.avgSavings) || 0;
+    const avgWealth = Number(bucket.avgWealth ?? 0);
+    const medianWealth = Number(bucket.medianWealth ?? 0);
 
-    // Delta t.o.v. mediaan; voorkom delen door 0
-    const rawDelta =
-      median > 0 ? ((monthlySavings - median) / median) * 100 : 0;
+    const rawDelta = median > 0 ? ((monthlySavings - median) / median) * 100 : 0;
     const delta = Number(rawDelta.toFixed(1));
-
-    // Spaargraad (% van inkomen); voorkom delen door 0 en NaN
-    const rawSavingsRate =
-      monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
+    const rawSavingsRate = monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
     const savingsRate = Number(rawSavingsRate.toFixed(1));
 
     const labelObj =
@@ -100,6 +94,8 @@ export default function TestRunner({ slug }: { slug: string }) {
       label: labelObj.label,
       savings_rate: String(savingsRate),
       advice: labelObj.advice,
+      avg_wealth: String(avgWealth),
+      median_wealth: String(medianWealth)
     });
 
     router.push(`/results/${slug}?${params.toString()}`);
@@ -120,13 +116,9 @@ export default function TestRunner({ slug }: { slug: string }) {
                 required={input.required}
                 defaultValue=""
               >
-                <option value="" disabled>
-                  Select…
-                </option>
+                <option value="" disabled>Select…</option>
                 {input.options.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
+                  <option key={opt} value={opt}>{opt}</option>
                 ))}
               </select>
             ) : (
@@ -136,18 +128,14 @@ export default function TestRunner({ slug }: { slug: string }) {
                 min={input.min}
                 max={input.max}
                 step={input.step}
-                defaultValue={
-                  (input.default as number | string | undefined) as number | undefined
-                }
+                defaultValue={input.default as number | undefined}
                 className="w-full p-2 border rounded-xl bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
                 required={input.required}
               />
             )}
           </div>
         ))}
-        <button type="submit" className="btn btn-primary">
-          Submit
-        </button>
+        <button type="submit" className="btn btn-primary">Submit</button>
       </form>
     </div>
   );
