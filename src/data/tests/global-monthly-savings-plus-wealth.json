@@ -7,7 +7,7 @@
       "type": "select",
       "name": "region",
       "label": "Which continent/region do you live in?",
-      "options": ["Europe","North America","Asia","South America","Africa","Oceania"],
+      "options": ["Europe", "North America", "Asia", "South America", "Africa", "Oceania"],
       "required": true
     },
     {
@@ -71,8 +71,25 @@
         "medianSavings": 230,
         "avgWealth": 40000,
         "medianWealth": 30000
+      },
+      {
+        "region": "North America",
+        "min": 25,
+        "max": 34,
+        "avgSavings": 300,
+        "medianSavings": 270,
+        "avgWealth": 50000,
+        "medianWealth": 35000
+      },
+      {
+        "region": "Asia",
+        "min": 25,
+        "max": 34,
+        "avgSavings": 180,
+        "medianSavings": 160,
+        "avgWealth": 25000,
+        "medianWealth": 20000
       }
-      // … add other region/bucket entries …
     ]
   },
   "labels": [
