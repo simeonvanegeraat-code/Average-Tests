@@ -64,22 +64,28 @@ export default function TestRunner({ slug }: { slug: string }) {
     const currentSavings = Number(fd.get("current_savings_balance") ?? 0);
     const grossWealth = Number(fd.get("gross_wealth") ?? 0);
 
+    // Vind benchmark bucket op basis van regio + leeftijd
     const bucket =
       test.benchmark.region_age_buckets.find(
         (b) => b.region === region && age >= b.min && age <= b.max
       ) ?? test.benchmark.region_age_buckets[0];
 
-    const median = bucket.medianSavings;
-    const avg = bucket.avgSavings;
+    const median = Number(bucket.medianSavings) || 0;
+    const avg = Number(bucket.avgSavings) || 0;
 
-    const delta = Number((((monthlySavings - median) / median) * 100).toFixed(1));
-    const savingsRate = Number(
-      (((monthlySavings / monthlyIncome) * 100) ?? 0).toFixed(1)
-    );
+    // Delta t.o.v. mediaan; voorkom delen door 0
+    const rawDelta =
+      median > 0 ? ((monthlySavings - median) / median) * 100 : 0;
+    const delta = Number(rawDelta.toFixed(1));
+
+    // Spaargraad (% van inkomen); voorkom delen door 0 en NaN
+    const rawSavingsRate =
+      monthlyIncome > 0 ? (monthlySavings / monthlyIncome) * 100 : 0;
+    const savingsRate = Number(rawSavingsRate.toFixed(1));
 
     const labelObj =
       test.labels.find((l) => delta >= l.minDelta && delta < l.maxDelta) ??
-      test.labels[1];
+      test.labels[Math.floor(test.labels.length / 2)];
 
     const params = new URLSearchParams({
       region,
@@ -112,8 +118,11 @@ export default function TestRunner({ slug }: { slug: string }) {
                 name={input.name}
                 className="w-full p-2 border rounded-xl bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
                 required={input.required}
+                defaultValue=""
               >
-                <option value="">Select …</option>
+                <option value="" disabled>
+                  Select…
+                </option>
                 {input.options.map((opt) => (
                   <option key={opt} value={opt}>
                     {opt}
@@ -127,7 +136,9 @@ export default function TestRunner({ slug }: { slug: string }) {
                 min={input.min}
                 max={input.max}
                 step={input.step}
-                defaultValue={input.default as number | undefined}
+                defaultValue={
+                  (input.default as number | string | undefined) as number | undefined
+                }
                 className="w-full p-2 border rounded-xl bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
                 required={input.required}
               />
