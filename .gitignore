@@ -1,3 +1,4 @@
+# Node.js & Next.js standaard
 node_modules
 .next
 out
@@ -5,3 +6,8 @@ out
 *.log
 .env*
 .vercel
+
+# Zorg dat build-scripts en data meegaan in Git
+!scripts/**
+!data/**
+!src/data/averages/**
