@@ -1,9 +1,8 @@
+// src/pages/index.tsx
 import Layout from "@/components/Layout";
 import CategoryCard from "@/components/CategoryCard";
 import categories from "@/data/categories.json";
 import BlobBackground from "@/components/BlobBackground";
-import HighlightStats from "@/components/HighlightStats";
-import { motion } from "framer-motion";
 
 type Cat = { slug: string; title: string; subtitle: string; emoji: string; color: string };
 
@@ -14,6 +13,8 @@ const demoStats = [
   { id: "s3", emoji: "😴", label: "Sleep per night", value: "7.1 h", sub: "Median: 7.0 h" },
   { id: "s4", emoji: "📚", label: "Books per year", value: "6", sub: "Median: 4" }
 ];
+
+import HighlightStats from "@/components/HighlightStats";
 
 export default function Home() {
   return (
@@ -26,42 +27,31 @@ export default function Home() {
 
         {/* HERO */}
         <section className="mb-10">
-          <motion.h1
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="text-4xl font-extrabold tracking-tight mb-2"
-          >
+          <h1 className="text-4xl font-extrabold tracking-tight mb-2
+                         opacity-0 translate-y-3 animate-[fadeUp_.5s_ease-out_.05s_forwards]">
             Discover how average you really are
-          </motion.h1>
-          <motion.p
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.05, ease: "easeOut" }}
-            className="text-gray-700 dark:text-gray-300 max-w-2xl"
-          >
+          </h1>
+          <p className="text-gray-700 dark:text-gray-300 max-w-2xl
+                        opacity-0 translate-y-3 animate-[fadeUp_.5s_ease-out_.1s_forwards]">
             Browse trusted stats with playful neon accents. Later, take quick tests for a personal comparison.
-          </motion.p>
+          </p>
         </section>
 
         {/* GRID: 1 → 2 → 3 → 4 kolommen */}
         <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 mb-10">
-          {(categories as Cat[]).map((c, idx) => (
-            <motion.div
+          {(categories as Cat[]).map((c) => (
+            <div
               key={c.slug}
-              initial={{ y: 12, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.45, delay: idx * 0.04, ease: "easeOut" }}
+              className="opacity-0 translate-y-2 animate-[fadeUp_.45s_ease-out_forwards]"
             >
               <CategoryCard {...c} />
-            </motion.div>
+            </div>
           ))}
         </section>
 
         {/* HIGHLIGHT STATS */}
         <div className="mb-10">
-          <HighlightStats stats={demoStats} />
+          <HighlightStats stats={demoStats as any} />
         </div>
 
         {/* INTRO BLOK */}
@@ -79,6 +69,13 @@ export default function Home() {
           </div>
         </section>
       </div>
+
+      {/* Kleine keyframes voor fadeUp */}
+      <style jsx global>{`
+        @keyframes fadeUp {
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </Layout>
   );
 }
