@@ -1,8 +1,11 @@
 // src/pages/category/[slug].tsx
 import { useRouter } from "next/router";
+import Head from "next/head";
 import Layout from "@/components/Layout";
 import categories from "@/data/categories.json";
 import CategoryPage from "@/components/CategoryPage";
+import SEOIntroMoney from "@/components/SEOIntroMoney";
+import FAQ from "@/components/FAQ";
 
 type Cat = {
   slug: string;
@@ -12,6 +15,21 @@ type Cat = {
   color: string;
   dataFile: string;
 };
+
+const moneyFaq = [
+  {
+    q: "What is a good savings rate?",
+    a: "Personal finance guides often recommend 10–20% of disposable income, but your ideal rate depends on income stability, debt, and goals. Our page shows typical mean and median savings rates for context."
+  },
+  {
+    q: "Why do you show median as well as mean?",
+    a: "Median better represents the typical household because a small number of very high earners can push the mean up. Seeing both gives a fairer picture."
+  },
+  {
+    q: "Where do these numbers come from?",
+    a: "We use official sources such as Eurostat for saving rates and income, and the ECB HFCS for wealth distribution. Each card links to the underlying source."
+  }
+];
 
 export default function CategorySlugPage() {
   const { query } = useRouter();
@@ -35,99 +53,56 @@ export default function CategorySlugPage() {
     );
   }
 
-  // JSON met gemiddelden (MVP: eenvoudige require)
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const stats = require(`@/data/averages/${cat.dataFile}`);
 
-  // SEO-intro per categorie
-  const introBySlug: Record<string, JSX.Element> = {
-    money: (
+  // Intro per categorie
+  const intro =
+    slug === "money" ? (
+      <SEOIntroMoney />
+    ) : (
       <div>
-        <h2 className="text-xl font-bold mb-2">Average savings and wealth</h2>
+        <h2 className="text-xl font-bold mb-2">{cat.title}</h2>
         <p className="text-gray-700">
-          This page shows typical money metrics like <strong>average monthly savings</strong>, the
-          <strong> median</strong> for your age group, and snapshots of <strong>net wealth</strong>.
-          We include both mean and median so the view is fair even when a few high earners skew the data.
-        </p>
-        <ul className="list-disc pl-5 mt-3 text-gray-700 space-y-1">
-          <li>Compare savings by age and region</li>
-          <li>See the gap between mean and median</li>
-          <li>Use the test to check your own savings rate</li>
-        </ul>
-        <p className="mt-3 text-gray-700">
-          Numbers come from official statistics or large surveys. Replace placeholder values with your verified sources in the data files.
+          Browse typical values and distributions for this topic. We include both mean and median where possible, with links to official sources.
         </p>
       </div>
-    ),
-    // generieke intro voor andere categorieën (kan je per stuk uitbreiden)
-    work: (
-      <div>
-        <h2 className="text-xl font-bold mb-2">Average income and work hours</h2>
-        <p className="text-gray-700">
-          Explore typical net income by age and region. Check weekly hours and how they vary by country.
-        </p>
-      </div>
-    ),
-    debt: (
-      <div>
-        <h2 className="text-xl font-bold mb-2">Debt and spending patterns</h2>
-        <p className="text-gray-700">
-          See average rent, common consumer debt balances and spending habits across regions.
-        </p>
-      </div>
-    ),
-    lifestyle: (
-      <div>
-        <h2 className="text-xl font-bold mb-2">Lifestyle and relationships</h2>
-        <p className="text-gray-700">
-          Learn how living situations and relationship patterns differ by age group.
-        </p>
-      </div>
-    ),
-    health: (
-      <div>
-        <h2 className="text-xl font-bold mb-2">Health and fitness averages</h2>
-        <p className="text-gray-700">
-          Typical sleep, steps and basic wellbeing indicators from trusted sources.
-        </p>
-      </div>
-    ),
-    tech: (
-      <div>
-        <h2 className="text-xl font-bold mb-2">Technology and screen time</h2>
-        <p className="text-gray-700">
-          Average daily screen time and social media use for different age groups.
-        </p>
-      </div>
-    ),
-    productivity: (
-      <div>
-        <h2 className="text-xl font-bold mb-2">Productivity and focus</h2>
-        <p className="text-gray-700">
-          Typical focus session length and study hours so you can benchmark your routine.
-        </p>
-      </div>
-    ),
-    habits: (
-      <div>
-        <h2 className="text-xl font-bold mb-2">Daily habits</h2>
-        <p className="text-gray-700">
-          Caffeine intake and reading habits gathered from surveys and reports.
-        </p>
-      </div>
-    ),
+    );
+
+  // CTA alleen voor money (nu)
+  const ctaHref = slug === "money" ? "/test/global-monthly-savings-plus-wealth" : undefined;
+  const ctaLabel = slug === "money" ? "Take the savings test" : "Take the test";
+
+  // JSON-LD: Breadcrumb + FAQ (voor money)
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://humanaverage.com/" },
+      { "@type": "ListItem", "position": 2, "name": cat.title, "item": `https://humanaverage.com/category/${slug}` }
+    ]
   };
 
-  const intro = introBySlug[slug] ?? null;
-
-  // CTA alleen tonen bij Money (voor nu)
-  const ctaHref =
-    slug === "money" ? "/test/global-monthly-savings-plus-wealth" : undefined;
-  const ctaLabel =
-    slug === "money" ? "Take the savings test" : "Take the test";
+  const faqLd =
+    slug === "money"
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": moneyFaq.map((x) => ({
+            "@type": "Question",
+            "name": x.q,
+            "acceptedAnswer": { "@type": "Answer", "text": x.a }
+          }))
+        }
+      : null;
 
   return (
     <Layout title={cat.title} description={cat.subtitle}>
+      <Head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+        {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
+      </Head>
+
       <CategoryPage
         title={cat.title}
         subtitle={cat.subtitle}
@@ -137,6 +112,8 @@ export default function CategorySlugPage() {
         ctaHref={ctaHref}
         ctaLabel={ctaLabel}
       />
+
+      {slug === "money" ? <div className="mt-8"><FAQ items={moneyFaq} /></div> : null}
     </Layout>
   );
 }

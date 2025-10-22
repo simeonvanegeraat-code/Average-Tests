@@ -1,15 +1,80 @@
 [
   {
-    "id": "example",
-    "title": "Example average metric",
-    "metric": "example_metric",
-    "unit": "unit",
+    "id": "eu-monthly-savings-25-34",
+    "title": "Average monthly savings (Europe, 25–34)",
+    "metric": "monthly_savings_eur",
+    "unit": "€",
     "value_mean": null,
     "value_median": null,
-    "geo": "Global",
-    "age": "All",
+    "geo": "Europe",
+    "age": "25–34",
     "year": "2024",
-    "source": { "name": "Source name", "url": "" },
-    "note": "Replace with actual data."
+    "source": { "name": "Eurostat – Gross household saving rate (derived)", "url": "" },
+    "note": "Calculated from saving rate × median disposable income; replace with confirmed figures."
+  },
+  {
+    "id": "eu-savings-rate-25-34",
+    "title": "Average savings rate of income (Europe, 25–34)",
+    "metric": "savings_rate_pct",
+    "unit": "%",
+    "value_mean": null,
+    "value_median": null,
+    "geo": "Europe",
+    "age": "25–34",
+    "year": "2024",
+    "source": { "name": "Eurostat – Gross household saving rate", "url": "" },
+    "note": "Share of disposable income saved."
+  },
+  {
+    "id": "eu-net-wealth-all",
+    "title": "Average net household wealth (Europe)",
+    "metric": "net_wealth_eur",
+    "unit": "€",
+    "value_mean": null,
+    "value_median": null,
+    "geo": "Europe",
+    "age": "All households",
+    "year": "2023",
+    "source": { "name": "ECB – Household Finance and Consumption Survey (HFCS)", "url": "" },
+    "note": "Median is typically lower than mean due to inequality."
+  },
+  {
+    "id": "eu-no-savings-share",
+    "title": "Share of people with no savings",
+    "metric": "no_savings_share_pct",
+    "unit": "%",
+    "value_mean": null,
+    "value_median": null,
+    "geo": "Europe",
+    "age": "Adults",
+    "year": "2024",
+    "source": { "name": "EU surveys / national stats (derive & cite)", "url": "" },
+    "note": "Replace with an official survey figure for accuracy."
+  },
+  {
+    "id": "eu-emergency-fund-months",
+    "title": "Typical emergency fund coverage (months of expenses)",
+    "metric": "emergency_fund_months",
+    "unit": "months",
+    "value_mean": null,
+    "value_median": null,
+    "geo": "Europe",
+    "age": "Adults",
+    "year": "2024",
+    "source": { "name": "Consumer finance surveys / central banks", "url": "" },
+    "note": "Often reported as a distribution; use median."
+  },
+  {
+    "id": "eu-debt-to-income",
+    "title": "Household debt-to-income ratio",
+    "metric": "debt_to_income_pct",
+    "unit": "%",
+    "value_mean": null,
+    "value_median": null,
+    "geo": "Europe",
+    "age": "Households",
+    "year": "2024",
+    "source": { "name": "ECB / Eurostat – sector accounts", "url": "" },
+    "note": "Context for savings and wealth building."
   }
 ]
