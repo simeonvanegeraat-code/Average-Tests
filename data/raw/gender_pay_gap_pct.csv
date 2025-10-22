@@ -1,0 +1,37 @@
+continent,age,year,gender_pay_gap_pct
+Europe,18-24,2024,5
+Europe,25-34,2024,8
+Europe,35-44,2024,10
+Europe,45-54,2024,9
+Europe,55-64,2024,7
+Europe,65+,2024,5
+Asia,18-24,2024,8
+Asia,25-34,2024,12
+Asia,35-44,2024,15
+Asia,45-54,2024,14
+Asia,55-64,2024,12
+Asia,65+,2024,9
+North America,18-24,2024,6
+North America,25-34,2024,9
+North America,35-44,2024,11
+North America,45-54,2024,10
+North America,55-64,2024,8
+North America,65+,2024,6
+South America,18-24,2024,7
+South America,25-34,2024,10
+South America,35-44,2024,12
+South America,45-54,2024,11
+South America,55-64,2024,9
+South America,65+,2024,7
+Africa,18-24,2024,10
+Africa,25-34,2024,13
+Africa,35-44,2024,15
+Africa,45-54,2024,14
+Africa,55-64,2024,12
+Africa,65+,2024,10
+Oceania,18-24,2024,6
+Oceania,25-34,2024,8
+Oceania,35-44,2024,10
+Oceania,45-54,2024,9
+Oceania,55-64,2024,7
+Oceania,65+,2024,6
