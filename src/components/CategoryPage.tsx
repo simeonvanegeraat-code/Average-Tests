@@ -1,3 +1,4 @@
+// src/components/CategoryPage.tsx
 type StatItem = {
   id: string;
   title: string;
@@ -17,47 +18,74 @@ type Props = {
   subtitle: string;
   emoji: string;
   stats: StatItem[];
+  intro?: React.ReactNode; // SEO-intro blok
+  ctaHref?: string;        // link naar test
+  ctaLabel?: string;
 };
 
 const fmt = (n: number | null, unit: string) => {
   if (n === null || !isFinite(n)) return "N/A";
   if (unit.startsWith("€")) {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: "EUR",
+      maximumFractionDigits: 0,
+    }).format(n);
   }
+  // simpele units achter toevoegen
   return `${n} ${unit}`;
 };
 
-export default function CategoryPage({ title, subtitle, emoji, stats }: Props) {
+export default function CategoryPage({
+  title,
+  subtitle,
+  emoji,
+  stats,
+  intro,
+  ctaHref,
+  ctaLabel = "Take the savings test",
+}: Props) {
   return (
-    <div className="space-y-6">
-      <header className="card bg-gradient-to-r from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
+    <div className="space-y-8">
+      {/* HERO */}
+      <header className="card p-4 md:p-6">
         <div className="flex items-center gap-3">
-          <div className="text-4xl">{emoji}</div>
+          <div className="text-3xl md:text-4xl">{emoji}</div>
           <div>
-            <h1 className="text-2xl font-bold">{title}</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{subtitle}</p>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">{title}</h1>
+            <p className="text-sm text-gray-600">{subtitle}</p>
           </div>
         </div>
       </header>
 
+      {/* SEO INTRO BLOK */}
+      {intro ? (
+        <section className="card p-6 bg-white/90">
+          {intro}
+        </section>
+      ) : null}
+
+      {/* STAT CARDS */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {stats.map((s) => (
-          <article key={s.id} className="card">
+          <article key={s.id} className="card p-5">
             <h3 className="text-lg font-semibold mb-1">{s.title}</h3>
-            <p className="text-xs text-gray-500">{s.geo} · {s.age} · {s.year}</p>
+            <p className="text-xs text-gray-500">
+              {s.geo} · {s.age} · {s.year}
+            </p>
 
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
+              <div className="p-4 rounded-2xl bg-emerald-50">
                 <div className="text-xs text-gray-500">Mean</div>
                 <div className="text-xl font-bold">{fmt(s.value_mean, s.unit)}</div>
               </div>
-              <div className="p-4 rounded-xl bg-cyan-50 dark:bg-cyan-900/20">
+              <div className="p-4 rounded-2xl bg-cyan-50">
                 <div className="text-xs text-gray-500">Median</div>
                 <div className="text-xl font-bold">{fmt(s.value_median, s.unit)}</div>
               </div>
             </div>
 
-            <div className="mt-4 text-xs text-gray-600 dark:text-gray-400">
+            <div className="mt-4 text-xs text-gray-600">
               {s.source?.name ? (
                 <a className="link" href={s.source.url || "#"} target="_blank" rel="noopener noreferrer">
                   Source: {s.source.name}
@@ -71,15 +99,20 @@ export default function CategoryPage({ title, subtitle, emoji, stats }: Props) {
         ))}
       </section>
 
-      <aside className="card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-        <h4 className="font-semibold mb-1">Compare yourself</h4>
-        <p className="text-sm text-gray-700 dark:text-gray-300">
-          Ready for a personal check? Try a quick test that compares your input with your peers.
-        </p>
-        <div className="mt-3">
-          <a href="/test/global-monthly-savings-plus-wealth" className="btn btn-primary">Take the savings test</a>
-        </div>
-      </aside>
+      {/* CTA NA ONDEREN */}
+      {ctaHref ? (
+        <section className="card p-6 flex items-center justify-between gap-4">
+          <div>
+            <h4 className="text-lg font-semibold">Compare yourself</h4>
+            <p className="text-sm text-gray-600">
+              Ready for a personal check? Enter your numbers and see how you compare with your age group and region.
+            </p>
+          </div>
+          <a href={ctaHref} className="btn btn-primary h-10 inline-flex items-center px-5 rounded-full bg-sky-600 text-white hover:bg-sky-700">
+            {ctaLabel}
+          </a>
+        </section>
+      ) : null}
     </div>
   );
 }
