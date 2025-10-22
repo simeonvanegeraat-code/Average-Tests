@@ -4,17 +4,17 @@ import ContinentSelector from "@/components/ContinentSelector";
 import AgeSelector from "@/components/AgeSelector";
 
 type StatItem = {
-  id: string;                 // e.g. "monthly_savings"
+  id: string;
   title: string;
-  metric: string;             // internal key
-  unit: string;               // "€" | "%" | "h" | "months"
+  metric: string;
+  unit: string;
   value_mean: number | null;
   value_median: number | null;
   year?: string;
   source?: { name?: string; url?: string };
   note?: string;
-  continent?: string;         // "Europe" | "Global" ...
-  age?: string;               // "18-24" ...
+  continent?: string;
+  age?: string;
 };
 
 type Props = {
@@ -64,35 +64,25 @@ export default function CategoryPage({
   const continent = (router.query.continent as string) || "Global";
   const age = (router.query.age as string) || "18-24";
 
-  // Zorg dat de URL altijd een standaard continent + leeftijd heeft (fijn voor deep-links en SEO)
+  // Zorg voor defaults in de URL
   useEffect(() => {
     if (!router.isReady) return;
-    const q: Record<string, string> = {
-      continent: (router.query.continent as string) || "Global",
-      age: (router.query.age as string) || "18-24",
-      // behoud eventuele andere query’s
-      ...Object.fromEntries(
-        Object.entries(router.query).filter(([k]) => k !== "continent" && k !== "age") as [string, string][]
-      ),
-    };
-    // Alleen vervangen als iets ontbreekt
     if (!router.query.continent || !router.query.age) {
-      router.replace({ pathname: router.pathname, query: q }, undefined, { shallow: true });
+      router.replace(
+        { pathname: router.pathname, query: { ...router.query, continent, age } },
+        undefined,
+        { shallow: true }
+      );
     }
-  }, [router.isReady, router.query, router]);
+  }, [router.isReady, router.query, router, continent, age]);
 
-  // Filter data op continent + leeftijd. Wealth met "All" leeftijd mag ook getoond worden.
   const filtered = useMemo(() => {
     const rows = stats.filter((s) => {
-      const okContinent = continent === "Global"
-        ? (s.continent ?? "Global") === "Global"
-        : s.continent === continent;
-
-      const okAge = s.age ? s.age === age : true; // metrics met "All" leeftijd komen altijd mee
+      const okContinent =
+        continent === "Global" ? (s.continent ?? "Global") === "Global" : s.continent === continent;
+      const okAge = s.age ? s.age === age : true;
       return okContinent && okAge;
     });
-
-    // Zorg voor stabiele volgorde: eerst vaste volgorde op metric id, daarna alfabetisch
     const order = [
       "monthly_savings",
       "savings_rate",
@@ -115,32 +105,35 @@ export default function CategoryPage({
     <div className="space-y-8">
       {/* HERO + Filters */}
       <header className="card p-4 md:p-6">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3">
-            <div className="text-3xl md:text-4xl">{emoji}</div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">{title}</h1>
-              <p className="text-sm text-gray-600">{subtitle}</p>
-            </div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="text-3xl md:text-4xl">{emoji}</div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">{title}</h1>
+            <p className="text-sm text-gray-600">{subtitle}</p>
           </div>
+        </div>
 
-          <div className="flex flex-col md:flex-row gap-3 md:items-center">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 w-20">Continent</span>
-              <ContinentSelector />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 w-20">Age</span>
-              <AgeSelector />
-            </div>
+        {/* Filter bar met label-chips */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+              <span>🌍</span> Continent
+            </span>
+            <ContinentSelector />
+          </div>
+          <div className="flex items-center flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+              <span>👤</span> Age
+            </span>
+            <AgeSelector />
           </div>
         </div>
       </header>
 
-      {/* INTRO COPY */}
+      {/* INTRO */}
       {intro ? <section className="card p-6 bg-white/90">{intro}</section> : null}
 
-      {/* GRID OF METRIC CARDS */}
+      {/* GRID OF CARDS */}
       <section>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.length === 0 ? (
@@ -149,9 +142,10 @@ export default function CategoryPage({
             </div>
           ) : (
             filtered.map((s, i) => (
-              <article key={`${s.id}-${s.continent || "global"}-${s.age || "all"}-${i}`}
-                className="rounded-3xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition p-5 relative overflow-hidden">
-                {/* zachte neon-accentlaag */}
+              <article
+                key={`${s.id}-${s.continent || "global"}-${s.age || "all"}-${i}`}
+                className="rounded-3xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition p-5 relative overflow-hidden"
+              >
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-cyan-400/10 to-sky-400/10" />
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-2">
@@ -179,7 +173,7 @@ export default function CategoryPage({
                   <div className="mt-3 text-xs text-gray-600">
                     {s.source?.name ? (
                       <a
-                        className="link underline underline-offset-2 hover:text-sky-700"
+                        className="underline underline-offset-2 hover:text-sky-700"
                         href={s.source.url || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -209,7 +203,7 @@ export default function CategoryPage({
           </div>
           <a
             href={ctaHref}
-            className="btn btn-primary h-10 inline-flex items-center px-5 rounded-full bg-sky-600 text-white hover:bg-sky-700"
+            className="h-10 inline-flex items-center px-5 rounded-full bg-sky-600 text-white hover:bg-sky-700"
           >
             {ctaLabel}
           </a>
