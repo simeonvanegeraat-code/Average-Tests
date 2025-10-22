@@ -1,19 +1,20 @@
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import ContinentSelector from "@/components/ContinentSelector";
+import AgeSelector from "@/components/AgeSelector";
 
 type StatItem = {
-  id: string;
+  id: string;                 // e.g. "monthly_savings"
   title: string;
-  metric: string;
-  unit: string;
+  metric: string;             // internal key
+  unit: string;               // "€" | "%" | "h" | "months"
   value_mean: number | null;
   value_median: number | null;
-  geo?: string;      // legacy
-  age?: string;      // legacy
   year?: string;
-  source: { name: string; url: string };
+  source?: { name?: string; url?: string };
   note?: string;
-  continent?: string; // NEW
+  continent?: string;         // "Europe" | "Global" ...
+  age?: string;               // "18-24" ...
 };
 
 type Props = {
@@ -26,8 +27,19 @@ type Props = {
   ctaLabel?: string;
 };
 
+const EMOJI_BY_ID: Record<string, string> = {
+  monthly_savings: "💶",
+  savings_rate: "📈",
+  savings_balance: "🏦",
+  net_wealth: "💰",
+  debt_total: "💳",
+  annual_return: "📊",
+  starter_capital: "🌱",
+  no_savings_share: "⚠️",
+};
+
 const fmt = (n: number | null, unit: string) => {
-  if (n === null || !isFinite(n)) return "N/A";
+  if (n === null || !Number.isFinite(n)) return "N/A";
   if (unit === "€" || unit.startsWith("€")) {
     return new Intl.NumberFormat(undefined, {
       style: "currency",
@@ -48,18 +60,60 @@ export default function CategoryPage({
   ctaHref,
   ctaLabel = "Take the test",
 }: Props) {
-  const { query } = useRouter();
-  const selectedContinent = (query.continent as string) || "Global";
+  const router = useRouter();
+  const continent = (router.query.continent as string) || "Global";
+  const age = (router.query.age as string) || "18-24";
 
-  const filtered = stats.filter((s) =>
-    selectedContinent === "Global"
-      ? (s.continent ?? "Global") === "Global"
-      : s.continent === selectedContinent
-  );
+  // Zorg dat de URL altijd een standaard continent + leeftijd heeft (fijn voor deep-links en SEO)
+  useEffect(() => {
+    if (!router.isReady) return;
+    const q: Record<string, string> = {
+      continent: (router.query.continent as string) || "Global",
+      age: (router.query.age as string) || "18-24",
+      // behoud eventuele andere query’s
+      ...Object.fromEntries(
+        Object.entries(router.query).filter(([k]) => k !== "continent" && k !== "age") as [string, string][]
+      ),
+    };
+    // Alleen vervangen als iets ontbreekt
+    if (!router.query.continent || !router.query.age) {
+      router.replace({ pathname: router.pathname, query: q }, undefined, { shallow: true });
+    }
+  }, [router.isReady, router.query, router]);
+
+  // Filter data op continent + leeftijd. Wealth met "All" leeftijd mag ook getoond worden.
+  const filtered = useMemo(() => {
+    const rows = stats.filter((s) => {
+      const okContinent = continent === "Global"
+        ? (s.continent ?? "Global") === "Global"
+        : s.continent === continent;
+
+      const okAge = s.age ? s.age === age : true; // metrics met "All" leeftijd komen altijd mee
+      return okContinent && okAge;
+    });
+
+    // Zorg voor stabiele volgorde: eerst vaste volgorde op metric id, daarna alfabetisch
+    const order = [
+      "monthly_savings",
+      "savings_rate",
+      "savings_balance",
+      "net_wealth",
+      "debt_total",
+      "annual_return",
+      "starter_capital",
+      "no_savings_share",
+    ];
+    return rows.sort((a, b) => {
+      const ia = order.indexOf(a.id);
+      const ib = order.indexOf(b.id);
+      if (ia !== -1 || ib !== -1) return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      return a.title.localeCompare(b.title);
+    });
+  }, [stats, continent, age]);
 
   return (
     <div className="space-y-8">
-      {/* HERO */}
+      {/* HERO + Filters */}
       <header className="card p-4 md:p-6">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
@@ -69,52 +123,79 @@ export default function CategoryPage({
               <p className="text-sm text-gray-600">{subtitle}</p>
             </div>
           </div>
-          {/* Continent selector */}
-          <ContinentSelector />
+
+          <div className="flex flex-col md:flex-row gap-3 md:items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 w-20">Continent</span>
+              <ContinentSelector />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600 w-20">Age</span>
+              <AgeSelector />
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* INTRO */}
+      {/* INTRO COPY */}
       {intro ? <section className="card p-6 bg-white/90">{intro}</section> : null}
 
-      {/* STAT CARDS */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {filtered.length === 0 ? (
-          <div className="card p-6">
-            <p className="text-gray-700">No data yet for <strong>{selectedContinent}</strong>. Try another continent or check back later.</p>
-          </div>
-        ) : (
-          filtered.map((s) => (
-            <article key={`${s.id}-${s.continent || "global"}`} className="card p-5">
-              <h3 className="text-lg font-semibold mb-1">{s.title}</h3>
-              <p className="text-xs text-gray-500">
-                {s.continent ? s.continent : s.geo || "Global"} {s.age ? `· ${s.age}` : ""} {s.year ? `· ${s.year}` : ""}
-              </p>
+      {/* GRID OF METRIC CARDS */}
+      <section>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          {filtered.length === 0 ? (
+            <div className="card p-6 col-span-full">
+              No data yet for <strong>{continent}</strong> · <strong>{age}</strong>. Try another filter.
+            </div>
+          ) : (
+            filtered.map((s, i) => (
+              <article key={`${s.id}-${s.continent || "global"}-${s.age || "all"}-${i}`}
+                className="rounded-3xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition p-5 relative overflow-hidden">
+                {/* zachte neon-accentlaag */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-emerald-400/10 via-cyan-400/10 to-sky-400/10" />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">{EMOJI_BY_ID[s.id] ?? "📊"}</span>
+                    <h3 className="font-semibold text-lg">{s.title}</h3>
+                  </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="p-4 rounded-2xl bg-emerald-50">
-                  <div className="text-xs text-gray-500">Mean</div>
-                  <div className="text-xl font-bold">{fmt(s.value_mean, s.unit)}</div>
-                </div>
-                <div className="p-4 rounded-2xl bg-cyan-50">
-                  <div className="text-xs text-gray-500">Median</div>
-                  <div className="text-xl font-bold">{fmt(s.value_median, s.unit)}</div>
-                </div>
-              </div>
+                  <p className="text-xs text-gray-500">
+                    {s.continent ?? "Global"}
+                    {s.age ? ` · ${s.age}` : ""}
+                    {s.year ? ` · ${s.year}` : ""}
+                  </p>
 
-              <div className="mt-4 text-xs text-gray-600">
-                {s.source?.name ? (
-                  <a className="link" href={s.source.url || "#"} target="_blank" rel="noopener noreferrer">
-                    Source: {s.source.name}
-                  </a>
-                ) : (
-                  <span>Source to be added</span>
-                )}
-                {s.note ? <div className="mt-1 italic">{s.note}</div> : null}
-              </div>
-            </article>
-          ))
-        )}
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    <div className="p-4 rounded-2xl bg-emerald-50">
+                      <div className="text-xs text-gray-500">Mean</div>
+                      <div className="text-xl font-bold">{fmt(s.value_mean, s.unit)}</div>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-cyan-50">
+                      <div className="text-xs text-gray-500">Median</div>
+                      <div className="text-xl font-bold">{fmt(s.value_median, s.unit)}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 text-xs text-gray-600">
+                    {s.source?.name ? (
+                      <a
+                        className="link underline underline-offset-2 hover:text-sky-700"
+                        href={s.source.url || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Source: {s.source.name}
+                      </a>
+                    ) : (
+                      <span>Source to be added</span>
+                    )}
+                    {s.note ? <div className="mt-1 italic">{s.note}</div> : null}
+                  </div>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
       </section>
 
       {/* CTA */}
@@ -126,7 +207,10 @@ export default function CategoryPage({
               Ready for a personal check? Enter your numbers and see how you compare within your region and age group.
             </p>
           </div>
-          <a href={ctaHref} className="btn btn-primary h-10 inline-flex items-center px-5 rounded-full bg-sky-600 text-white hover:bg-sky-700">
+          <a
+            href={ctaHref}
+            className="btn btn-primary h-10 inline-flex items-center px-5 rounded-full bg-sky-600 text-white hover:bg-sky-700"
+          >
             {ctaLabel}
           </a>
         </section>

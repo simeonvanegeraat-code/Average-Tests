@@ -1,3 +1,4 @@
+// src/components/ContinentSelector.tsx
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 
@@ -21,10 +22,9 @@ export default function ContinentSelector() {
 
   useEffect(() => {
     if (!router.isReady) return;
-    const current = (router.query.continent as Continent) || "Global";
-    setValue(current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
+    const cur = (router.query.continent as Continent) || "Global";
+    setValue(cur);
+  }, [router.isReady, router.query.continent]);
 
   const onSelect = (c: Continent) => {
     setValue(c);
