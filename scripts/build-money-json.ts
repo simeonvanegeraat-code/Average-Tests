@@ -8,11 +8,28 @@ type Row = Record<string, string>;
 const RAW = path.join(process.cwd(), "data", "raw");
 const OUT = path.join(process.cwd(), "src", "data", "averages", "money.json");
 
-const CONTINENTS = ["Europe", "Asia", "North America", "South America", "Africa", "Oceania"] as const;
-type Continent = typeof CONTINENTS[number];
-type MaybeNum = number | null;
+// Define which continents and age groups we’ll process
+const CONTINENTS = [
+  "Europe",
+  "Asia",
+  "North America",
+  "South America",
+  "Africa",
+  "Oceania",
+] as const;
+const AGE_GROUPS = [
+  "18-24",
+  "25-34",
+  "35-44",
+  "45-54",
+  "55-64",
+  "65+",
+] as const;
 
-const N = (v?: string | number | null): MaybeNum => {
+type Continent = typeof CONTINENTS[number];
+type Age = typeof AGE_GROUPS[number];
+
+const N = (v?: string | number | null): number | null => {
   if (v === undefined || v === null) return null;
   const n = typeof v === "number" ? v : Number(String(v).replace(/[^\d\.\-]/g, ""));
   return Number.isFinite(n) ? n : null;
@@ -26,20 +43,18 @@ function loadCSV(file: string) {
 }
 
 /**
- * CSV formats (simple):
+ * CSV formats expected:
  *
  * saving_rate_by_continent.csv
  *   continent,age,year,saving_rate_pct
- *   Europe,25-34,2024,10.5
  *
  * median_income_by_continent.csv
  *   continent,age,year,median_income_eur_year
- *   Europe,25-34,2024,27500
  *
  * wealth_by_continent.csv
  *   continent,age,year,net_wealth_mean_eur,net_wealth_median_eur
- *   Europe,All,2023,180000,100000
  */
+
 function build() {
   const srRows = loadCSV("saving_rate_by_continent.csv");
   const incRows = loadCSV("median_income_by_continent.csv");
@@ -50,94 +65,101 @@ function build() {
 
   const items: any[] = [];
 
-  // Derived monthly savings per continent (age 25–34)
+  // ---- Derived monthly savings for each continent × age group ----
   CONTINENTS.forEach((c) => {
-    const SR = pick(srRows, c, "25-34");
-    const INC = pick(incRows, c, "25-34");
-    const year = SR?.year || INC?.year || "2024";
-    const sr = SR ? N(SR.saving_rate_pct) : null;
-    const incomeYear = INC ? N(INC.median_income_eur_year) : null;
-    const incomeMonth = incomeYear ? incomeYear / 12 : null;
-    const monthlyDerived = sr != null && incomeMonth != null ? Math.round((sr / 100) * incomeMonth) : null;
+    AGE_GROUPS.forEach((a) => {
+      const SR = pick(srRows, c, a);
+      const INC = pick(incRows, c, a);
+      if (!SR && !INC) return; // skip empty combination
 
-    items.push({
-      id: "monthly_savings_25_34",
-      title: "Average monthly savings (25–34)",
-      metric: "monthly_savings_eur",
-      unit: "€",
-      value_mean: monthlyDerived,
-      value_median: monthlyDerived,
-      continent: c,
-      age: "25–34",
-      year,
-      source: {
-        name: c === "Europe" ? "Eurostat (derived)" : "World Bank / national stats (derived)",
-        url: ""
-      },
-      note: c === "Europe" ? "Derived from saving rate × median disposable income." : ""
+      const sr = SR ? N(SR.saving_rate_pct) : null;
+      const incYear = INC ? N(INC.median_income_eur_year) : null;
+      const incMonth = incYear ? incYear / 12 : null;
+      const monthly = sr && incMonth ? Math.round((sr / 100) * incMonth) : null;
+      const year = SR?.year || INC?.year || "2024";
+
+      items.push({
+        id: "monthly_savings",
+        title: `Average monthly savings (${a})`,
+        metric: "monthly_savings_eur",
+        unit: "€",
+        value_mean: monthly,
+        value_median: monthly,
+        continent: c,
+        age: a,
+        year,
+        source: {
+          name: c === "Europe" ? "Eurostat (derived)" : "World Bank / national stats (derived)",
+          url: ""
+        },
+        note: "Derived from saving rate × median disposable income per capita."
+      });
     });
   });
 
-  // Wealth per continent (All households)
+  // ---- Net wealth per continent × broad age categories ----
   CONTINENTS.forEach((c) => {
-    const WL = pick(wlRows, c, "All");
-    const mean = WL ? N(WL.net_wealth_mean_eur) : null;
-    const median = WL ? N(WL.net_wealth_median_eur) : null;
-    const year = WL?.year || "2023";
+    const WLAll = wlRows.filter((r) => r.continent === c);
+    if (!WLAll.length) return;
 
-    items.push({
-      id: "net_wealth_all",
-      title: "Average net household wealth (all households)",
-      metric: "net_wealth_eur",
-      unit: "€",
-      value_mean: mean,
-      value_median: median,
-      continent: c,
-      age: "All households",
-      year,
-      source: {
-        name: c === "Europe" ? "ECB HFCS" : "Credit Suisse Global Wealth / national stats",
-        url: ""
-      },
-      note: ""
+    WLAll.forEach((r) => {
+      const mean = N(r.net_wealth_mean_eur);
+      const median = N(r.net_wealth_median_eur);
+      const age = r.age || "All";
+      const year = r.year || "2023";
+
+      items.push({
+        id: "net_wealth",
+        title: `Average net household wealth (${age})`,
+        metric: "net_wealth_eur",
+        unit: "€",
+        value_mean: mean,
+        value_median: median,
+        continent: c,
+        age,
+        year,
+        source: {
+          name: c === "Europe" ? "ECB HFCS" : "Credit Suisse Global Wealth / national stats",
+          url: ""
+        },
+        note: "Median is typically lower due to inequality."
+      });
     });
   });
 
-  // Compute Global as simple average across available continents (TODO: weight by population/income)
+  // ---- Derive global averages (simple mean across continents per age) ----
   function globalize(metricId: string) {
-    const byMetric = items.filter((x) => x.id === metricId);
-    const yrs = new Set(byMetric.map((x) => x.year));
-    const year = [...yrs].sort().pop();
+    AGE_GROUPS.forEach((a) => {
+      const byMetric = items.filter((x) => x.id === metricId && x.age === a);
+      if (!byMetric.length) return;
+      const valsMean = byMetric.map((x) => x.value_mean).filter((x): x is number => typeof x === "number");
+      const valsMedian = byMetric.map((x) => x.value_median).filter((x): x is number => typeof x === "number");
+      const avg = (arr: number[]) => (arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : null);
+      const mean = avg(valsMean);
+      const median = avg(valsMedian);
+      const year = byMetric[0].year;
 
-    const valsMean = byMetric.map((x) => x.value_mean).filter((x): x is number => typeof x === "number");
-    const valsMedian = byMetric.map((x) => x.value_median).filter((x): x is number => typeof x === "number");
-    const avg = (arr: number[]) => (arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : null);
-
-    const mean = avg(valsMean);
-    const median = avg(valsMedian);
-
-    const sample = byMetric[0];
-    items.push({
-      ...sample,
-      continent: "Global",
-      year,
-      value_mean: mean,
-      value_median: median,
-      source: {
-        name: "Aggregated from continents (unweighted)",
-        url: ""
-      },
-      note: "Global derived as an unweighted average of continents. Replace with weighted method when population weights are added."
+      const sample = byMetric[0];
+      items.push({
+        ...sample,
+        continent: "Global",
+        value_mean: mean,
+        value_median: median,
+        source: {
+          name: "Aggregated from continents (unweighted)",
+          url: ""
+        },
+        note: "Global derived as an unweighted average of continents."
+      });
     });
   }
 
-  globalize("monthly_savings_25_34");
-  globalize("net_wealth_all");
+  globalize("monthly_savings");
+  globalize("net_wealth");
 
-  // Write JSON
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(OUT, JSON.stringify(items, null, 2), "utf8");
-  console.log(`✔ Wrote ${OUT} with ${items.length} items`);
+  console.log(`✔ Wrote ${OUT} with ${items.length} records (${CONTINENTS.length} continents × ${AGE_GROUPS.length} ages + Global)`);
 }
 
 build();
