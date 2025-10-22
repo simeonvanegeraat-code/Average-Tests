@@ -1,0 +1,37 @@
+continent,age,year,rent_median_eur
+Europe,18-24,2024,850
+Europe,25-34,2024,850
+Europe,35-44,2024,850
+Europe,45-54,2024,850
+Europe,55-64,2024,850
+Europe,65+,2024,850
+Asia,18-24,2024,520
+Asia,25-34,2024,520
+Asia,35-44,2024,520
+Asia,45-54,2024,520
+Asia,55-64,2024,520
+Asia,65+,2024,520
+North America,18-24,2024,1100
+North America,25-34,2024,1100
+North America,35-44,2024,1100
+North America,45-54,2024,1100
+North America,55-64,2024,1100
+North America,65+,2024,1100
+South America,18-24,2024,600
+South America,25-34,2024,600
+South America,35-44,2024,600
+South America,45-54,2024,600
+South America,55-64,2024,600
+South America,65+,2024,600
+Africa,18-24,2024,300
+Africa,25-34,2024,300
+Africa,35-44,2024,300
+Africa,45-54,2024,300
+Africa,55-64,2024,300
+Africa,65+,2024,300
+Oceania,18-24,2024,950
+Oceania,25-34,2024,950
+Oceania,35-44,2024,950
+Oceania,45-54,2024,950
+Oceania,55-64,2024,950
+Oceania,65+,2024,950

@@ -1,0 +1,37 @@
+continent,age,year,smartphone_penetration_pct
+Europe,18-24,2024,73
+Europe,25-34,2024,73
+Europe,35-44,2024,73
+Europe,45-54,2024,73
+Europe,55-64,2024,73
+Europe,65+,2024,73
+Asia,18-24,2024,68
+Asia,25-34,2024,68
+Asia,35-44,2024,68
+Asia,45-54,2024,68
+Asia,55-64,2024,68
+Asia,65+,2024,68
+North America,18-24,2024,76
+North America,25-34,2024,76
+North America,35-44,2024,76
+North America,45-54,2024,76
+North America,55-64,2024,76
+North America,65+,2024,76
+South America,18-24,2024,65
+South America,25-34,2024,65
+South America,35-44,2024,65
+South America,45-54,2024,65
+South America,55-64,2024,65
+South America,65+,2024,65
+Africa,18-24,2024,40
+Africa,25-34,2024,40
+Africa,35-44,2024,40
+Africa,45-54,2024,40
+Africa,55-64,2024,40
+Africa,65+,2024,40
+Oceania,18-24,2024,72
+Oceania,25-34,2024,72
+Oceania,35-44,2024,72
+Oceania,45-54,2024,72
+Oceania,55-64,2024,72
+Oceania,65+,2024,72

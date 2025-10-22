@@ -1,0 +1,37 @@
+continent,age,year,books_per_year_median
+Europe,18-24,2024,6
+Europe,25-34,2024,6
+Europe,35-44,2024,6
+Europe,45-54,2024,6
+Europe,55-64,2024,6
+Europe,65+,2024,6
+Asia,18-24,2024,4
+Asia,25-34,2024,4
+Asia,35-44,2024,4
+Asia,45-54,2024,4
+Asia,55-64,2024,4
+Asia,65+,2024,4
+North America,18-24,2024,6
+North America,25-34,2024,6
+North America,35-44,2024,6
+North America,45-54,2024,6
+North America,55-64,2024,6
+North America,65+,2024,6
+South America,18-24,2024,5
+South America,25-34,2024,5
+South America,35-44,2024,5
+South America,45-54,2024,5
+South America,55-64,2024,5
+South America,65+,2024,5
+Africa,18-24,2024,2
+Africa,25-34,2024,2
+Africa,35-44,2024,2
+Africa,45-54,2024,2
+Africa,55-64,2024,2
+Africa,65+,2024,2
+Oceania,18-24,2024,6
+Oceania,25-34,2024,6
+Oceania,35-44,2024,6
+Oceania,45-54,2024,6
+Oceania,55-64,2024,6
+Oceania,65+,2024,6

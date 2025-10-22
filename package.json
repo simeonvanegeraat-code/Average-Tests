@@ -1,6 +1,6 @@
 {
   "name": "average-tests",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "private": true,
   "description": "HumanAverage.com – Modern data hub for global/continental averages with tests",
   "scripts": {
@@ -8,9 +8,18 @@
     "prebuild": "npm run build:data",
     "build": "next build",
     "start": "next start",
-    "build:money": "node build-money-json.cjs",
-    "build:income": "node ./build-income-json.cjs || node ./scripts/build-income-json.cjs",
-    "build:data": "npm run build:money && npm run build:income",
+
+    "build:money": "node ./scripts/build-money-json.cjs || node ./build-money-json.cjs",
+    "build:income": "node ./scripts/build-income-json.cjs || node ./build-income-json.cjs",
+    "build:debt": "node ./scripts/build-debt-json.cjs || node ./build-debt-json.cjs",
+    "build:lifestyle": "node ./scripts/build-lifestyle-json.cjs || node ./build-lifestyle-json.cjs",
+    "build:health": "node ./scripts/build-health-json.cjs || node ./build-health-json.cjs",
+    "build:tech": "node ./scripts/build-tech-json.cjs || node ./build-tech-json.cjs",
+    "build:productivity": "node ./scripts/build-productivity-json.cjs || node ./build-productivity-json.cjs",
+    "build:habits": "node ./scripts/build-habits-json.cjs || node ./build-habits-json.cjs",
+
+    "build:data": "npm run build:money && npm run build:income && npm run build:debt && npm run build:lifestyle && npm run build:health && npm run build:tech && npm run build:productivity && npm run build:habits",
+
     "lint": "next lint"
   },
   "dependencies": {

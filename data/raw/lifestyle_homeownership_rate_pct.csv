@@ -1,0 +1,37 @@
+continent,age,year,homeownership_rate_pct
+Europe,18-24,2024,55
+Europe,25-34,2024,55
+Europe,35-44,2024,55
+Europe,45-54,2024,55
+Europe,55-64,2024,55
+Europe,65+,2024,55
+Asia,18-24,2024,60
+Asia,25-34,2024,60
+Asia,35-44,2024,60
+Asia,45-54,2024,60
+Asia,55-64,2024,60
+Asia,65+,2024,60
+North America,18-24,2024,52
+North America,25-34,2024,52
+North America,35-44,2024,52
+North America,45-54,2024,52
+North America,55-64,2024,52
+North America,65+,2024,52
+South America,18-24,2024,58
+South America,25-34,2024,58
+South America,35-44,2024,58
+South America,45-54,2024,58
+South America,55-64,2024,58
+South America,65+,2024,58
+Africa,18-24,2024,62
+Africa,25-34,2024,62
+Africa,35-44,2024,62
+Africa,45-54,2024,62
+Africa,55-64,2024,62
+Africa,65+,2024,62
+Oceania,18-24,2024,54
+Oceania,25-34,2024,54
+Oceania,35-44,2024,54
+Oceania,45-54,2024,54
+Oceania,55-64,2024,54
+Oceania,65+,2024,54
