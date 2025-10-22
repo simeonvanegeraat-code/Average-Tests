@@ -1,0 +1,15 @@
+[
+  {
+    "id": "example",
+    "title": "Example average metric",
+    "metric": "example_metric",
+    "unit": "unit",
+    "value_mean": null,
+    "value_median": null,
+    "geo": "Global",
+    "age": "All",
+    "year": "2024",
+    "source": { "name": "Source name", "url": "" },
+    "note": "Replace with actual data."
+  }
+]

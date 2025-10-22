@@ -1,0 +1,66 @@
+[
+  {
+    "slug": "money",
+    "title": "Money & Savings",
+    "subtitle": "Savings, wealth, investing",
+    "emoji": "💰",
+    "color": "from-emerald-400 to-cyan-500",
+    "dataFile": "money.json"
+  },
+  {
+    "slug": "work",
+    "title": "Income & Work",
+    "subtitle": "Salary by age, hours, side gigs",
+    "emoji": "💼",
+    "color": "from-blue-500 to-indigo-500",
+    "dataFile": "work.json"
+  },
+  {
+    "slug": "debt",
+    "title": "Debt & Spending",
+    "subtitle": "Debts, rent, spending habits",
+    "emoji": "🧾",
+    "color": "from-rose-400 to-orange-400",
+    "dataFile": "debt.json"
+  },
+  {
+    "slug": "lifestyle",
+    "title": "Lifestyle & Relationships",
+    "subtitle": "Status, housing, friends, kids",
+    "emoji": "❤️",
+    "color": "from-fuchsia-500 to-pink-500",
+    "dataFile": "lifestyle.json"
+  },
+  {
+    "slug": "health",
+    "title": "Health & Fitness",
+    "subtitle": "Sleep, steps, nutrition",
+    "emoji": "🏋️",
+    "color": "from-lime-400 to-emerald-500",
+    "dataFile": "health.json"
+  },
+  {
+    "slug": "tech",
+    "title": "Technology & Screen Time",
+    "subtitle": "Screen time, social media",
+    "emoji": "📱",
+    "color": "from-violet-500 to-purple-500",
+    "dataFile": "tech.json"
+  },
+  {
+    "slug": "productivity",
+    "title": "Productivity & Focus",
+    "subtitle": "Focus span, study, hours",
+    "emoji": "⚡",
+    "color": "from-amber-400 to-yellow-500",
+    "dataFile": "productivity.json"
+  },
+  {
+    "slug": "habits",
+    "title": "Habits & Daily Life",
+    "subtitle": "Caffeine, morning or night, books",
+    "emoji": "☕",
+    "color": "from-teal-400 to-sky-500",
+    "dataFile": "habits.json"
+  }
+]
