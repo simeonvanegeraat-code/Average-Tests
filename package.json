@@ -8,7 +8,7 @@
     "prebuild": "npm run build:data",
     "build": "next build",
     "start": "next start",
-    "build:money": "node scripts/build-money-json.cjs",
+    "build:money": "node build-money-json.cjs",
     "build:data": "npm run build:money",
     "lint": "next lint"
   },
