@@ -1,6 +1,6 @@
 {
   "name": "average-tests",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "HumanAverage.com – Modern data hub for global/continental averages with tests",
   "scripts": {
@@ -8,7 +8,7 @@
     "prebuild": "npm run build:data",
     "build": "next build",
     "start": "next start",
-    "build:money": "ts-node -P tsconfig.scripts.json scripts/build-money-json.ts",
+    "build:money": "node scripts/build-money-json.cjs",
     "build:data": "npm run build:money",
     "lint": "next lint"
   },
@@ -24,21 +24,9 @@
     "autoprefixer": "10.4.0",
     "postcss": "8.4.0",
     "tailwindcss": "3.4.0",
-    "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
   "engines": {
-    "node": "18.x"
-  },
-  "keywords": [
-    "nextjs",
-    "typescript",
-    "data",
-    "averages",
-    "continent",
-    "seo",
-    "adsense"
-  ],
-  "author": "Simeon & ChatGPT",
-  "license": "MIT"
+    "node": "22.x"
+  }
 }
