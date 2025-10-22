@@ -1,115 +1,79 @@
-import { useRouter } from "next/router";
+// src/pages/category/[slug].tsx
 import Head from "next/head";
-import Layout from "@/components/Layout";
-import categories from "@/data/categories.json";
+import { useRouter } from "next/router";
 import CategoryPage from "@/components/CategoryPage";
-import SEOIntroMoney from "@/components/SEOIntroMoney";
-import FAQ from "@/components/FAQ";
 
-type Cat = {
-  slug: string;
-  title: string;
-  subtitle: string;
-  emoji: string;
-  color: string;
-  dataFile: string;
-};
-
-const moneyFaq = [
-  {
-    q: "What is a good savings rate?",
-    a: "Personal finance guides often recommend 10–20% of disposable income, but your ideal rate depends on income stability, debt, and goals. Our page shows typical mean and median savings rates for context."
-  },
-  {
-    q: "Why do you show median as well as mean?",
-    a: "Median better represents the typical household because a small number of very high earners can push the mean up. Seeing both gives a fairer picture."
-  },
-  {
-    q: "Where do these numbers come from?",
-    a: "We use official sources such as Eurostat for saving rates and income, and the ECB HFCS for wealth distribution. Each card links to the underlying source."
-  }
-];
+// Data imports per categorie
+import moneyStats from "@/data/averages/money.json"; // gebouwd door build-money-json.cjs
 
 export default function CategorySlugPage() {
-  const { query, isReady } = useRouter();
-  const { slug } = query as { slug?: string };
+  const router = useRouter();
+  const slug = (router.query.slug as string) || "money";
 
-  if (!isReady) {
+  if (slug !== "money") {
+    // Placeholder voor andere categorieën totdat data beschikbaar is
     return (
-      <Layout title="Category">
-        <div className="card p-6">Loading…</div>
-      </Layout>
+      <>
+        <Head>
+          <title>Category • Human Average</title>
+        </Head>
+        <main className="container space-y-6 py-6">
+          <header className="card p-6">
+            <h1 className="text-2xl font-bold">Coming soon</h1>
+            <p className="text-gray-600">This category is not live yet.</p>
+          </header>
+        </main>
+      </>
     );
   }
 
-  const cat = (categories as Cat[]).find((c) => c.slug === slug);
-
-  if (!cat) {
-    return (
-      <Layout title="Not found">
-        <div className="card p-6">Category not found.</div>
-      </Layout>
-    );
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const stats = require(`@/data/averages/${cat.dataFile}`);
-
-  const intro =
-    slug === "money" ? (
-      <SEOIntroMoney />
-    ) : (
-      <div>
-        <h2 className="text-xl font-bold mb-2">{cat.title}</h2>
-        <p className="text-gray-700">
-          Browse typical values and distributions for this topic. We include both mean and median where possible, with links to official sources.
-        </p>
-      </div>
-    );
-
-  const ctaHref = slug === "money" ? "/test/global-monthly-savings-plus-wealth" : undefined;
-  const ctaLabel = slug === "money" ? "Take the savings test" : "Take the test";
-
-  const breadcrumbLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://humanaverage.com/" },
-      { "@type": "ListItem", "position": 2, "name": cat.title, "item": `https://humanaverage.com/category/${slug}` }
-    ]
-  };
-
-  const faqLd =
-    slug === "money"
-      ? {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": moneyFaq.map((x) => ({
-            "@type": "Question",
-            "name": x.q,
-            "acceptedAnswer": { "@type": "Answer", "text": x.a }
-          }))
-        }
-      : null;
+  // Money & Savings content
+  const intro = (
+    <div className="prose max-w-none">
+      <h3>Average savings and net wealth by age and region</h3>
+      <p>
+        On this page you’ll find <strong>average monthly savings</strong>, the{" "}
+        <strong>median savings rate</strong>, and snapshots of{" "}
+        <strong>net household wealth</strong>. We show both <em>mean</em> and{" "}
+        <em>median</em> so you get a fair picture that isn’t skewed by a few very high earners.
+      </p>
+      <h4>Why this matters</h4>
+      <ul>
+        <li>Compare typical monthly savings for your age group and region.</li>
+        <li>See how a savings rate turns income into long-term net wealth.</li>
+        <li>Understand why medians are useful when distributions are skewed.</li>
+      </ul>
+      <h4>Method and sources</h4>
+      <p>
+        Benchmarks are compiled from official statistics such as <strong>Eurostat</strong> (saving rate and
+        income) and the <strong>ECB HFCS</strong> for wealth distributions. Where needed we derive monthly
+        amounts from saving rates and disposable income. Always check the source link under each card for details.
+      </p>
+    </div>
+  );
 
   return (
-    <Layout title={cat.title} description={cat.subtitle}>
+    <>
       <Head>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-        {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
+        <title>Money &amp; Savings • Human Average</title>
+        <meta
+          name="description"
+          content="See average monthly savings, savings rates and household net wealth by continent and age group. Compare mean vs median to get the full picture."
+        />
       </Head>
 
-      <CategoryPage
-        title={cat.title}
-        subtitle={cat.subtitle}
-        emoji={cat.emoji}
-        stats={stats}
-        intro={intro}
-        ctaHref={ctaHref}
-        ctaLabel={ctaLabel}
-      />
-
-      {slug === "money" ? <div className="mt-8"><FAQ items={moneyFaq} /></div> : null}
-    </Layout>
+      <main className="container space-y-6 py-6">
+        <CategoryPage
+          title="Money & Savings"
+          subtitle="Savings, wealth, investing"
+          emoji="💰"
+          // Belangrijk: geef ALLE money-metrics door – de component filtert zelf op continent + age
+          stats={moneyStats as any}
+          intro={intro}
+          ctaHref="/test/savings"
+          ctaLabel="Try the savings test"
+        />
+      </main>
+    </>
   );
 }
