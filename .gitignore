@@ -6,8 +6,10 @@ out
 .env*
 .vercel
 
-# Zorg dat build-scripts en data meegaan in Git
+# Zorg dat build scripts meegecommit worden
+!build-income-json.cjs
 !build-money-json.cjs
 !scripts/**
 !data/**
 !src/data/averages/**
+

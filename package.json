@@ -1,6 +1,6 @@
 {
   "name": "average-tests",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "HumanAverage.com – Modern data hub for global/continental averages with tests",
   "scripts": {
@@ -9,7 +9,7 @@
     "build": "next build",
     "start": "next start",
     "build:money": "node build-money-json.cjs",
-    "build:income": "node build-income-json.cjs",
+    "build:income": "node ./build-income-json.cjs || node ./scripts/build-income-json.cjs",
     "build:data": "npm run build:money && npm run build:income",
     "lint": "next lint"
   },
