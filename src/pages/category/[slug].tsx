@@ -1,4 +1,3 @@
-// src/pages/category/[slug].tsx
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Layout from "@/components/Layout";
@@ -32,10 +31,10 @@ const moneyFaq = [
 ];
 
 export default function CategorySlugPage() {
-  const { query } = useRouter();
+  const { query, isReady } = useRouter();
   const { slug } = query as { slug?: string };
 
-  if (!slug) {
+  if (!isReady) {
     return (
       <Layout title="Category">
         <div className="card p-6">Loading…</div>
@@ -56,7 +55,6 @@ export default function CategorySlugPage() {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const stats = require(`@/data/averages/${cat.dataFile}`);
 
-  // Intro per categorie
   const intro =
     slug === "money" ? (
       <SEOIntroMoney />
@@ -69,11 +67,9 @@ export default function CategorySlugPage() {
       </div>
     );
 
-  // CTA alleen voor money (nu)
   const ctaHref = slug === "money" ? "/test/global-monthly-savings-plus-wealth" : undefined;
   const ctaLabel = slug === "money" ? "Take the savings test" : "Take the test";
 
-  // JSON-LD: Breadcrumb + FAQ (voor money)
   const breadcrumbLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
