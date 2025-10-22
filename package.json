@@ -8,7 +8,7 @@
     "prebuild": "npm run build:data",
     "build": "next build",
     "start": "next start",
-    "build:money": "ts-node scripts/build-money-json.ts",
+    "build:money": "ts-node -P tsconfig.scripts.json scripts/build-money-json.ts",
     "build:data": "npm run build:money",
     "lint": "next lint"
   },
@@ -39,6 +39,6 @@
     "seo",
     "adsense"
   ],
-  "author": "Simeon van Egeraat & ChatGPT",
+  "author": "Simeon & ChatGPT",
   "license": "MIT"
 }
