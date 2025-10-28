@@ -1,37 +1,5 @@
-continent,age,year,steps_per_day_mean
-Europe,18-24,2024,6500
-Europe,25-34,2024,6500
-Europe,35-44,2024,6500
-Europe,45-54,2024,6500
-Europe,55-64,2024,6500
-Europe,65+,2024,5500
-Asia,18-24,2024,5500
-Asia,25-34,2024,5500
-Asia,35-44,2024,5500
-Asia,45-54,2024,5500
-Asia,55-64,2024,5500
-Asia,65+,2024,4500
-North America,18-24,2024,6000
-North America,25-34,2024,6000
-North America,35-44,2024,6000
-North America,45-54,2024,6000
-North America,55-64,2024,6000
-North America,65+,2024,5000
-South America,18-24,2024,7000
-South America,25-34,2024,7000
-South America,35-44,2024,7000
-South America,45-54,2024,7000
-South America,55-64,2024,7000
-South America,65+,2024,6000
-Africa,18-24,2024,8000
-Africa,25-34,2024,8000
-Africa,35-44,2024,8000
-Africa,45-54,2024,8000
-Africa,55-64,2024,8000
-Africa,65+,2024,7000
-Oceania,18-24,2024,6500
-Oceania,25-34,2024,6500
-Oceania,35-44,2024,6500
-Oceania,45-54,2024,6500
-Oceania,55-64,2024,6500
-Oceania,65+,2024,5500
+continent,age,year,value_mean,value_median,source_name,source_url
+Europe,18-24,2024,,,,
+Asia,18-24,2024,,,,
+North America,18-24,2024,,,,
+Global,18-24,2024,,,,

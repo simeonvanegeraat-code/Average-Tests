@@ -1,37 +1,5 @@
-continent,age,year,internet_penetration_pct
-Europe,18-24,2024,88
-Europe,25-34,2024,88
-Europe,35-44,2024,88
-Europe,45-54,2024,88
-Europe,55-64,2024,88
-Europe,65+,2024,88
-Asia,18-24,2024,83
-Asia,25-34,2024,83
-Asia,35-44,2024,83
-Asia,45-54,2024,83
-Asia,55-64,2024,83
-Asia,65+,2024,83
-North America,18-24,2024,91
-North America,25-34,2024,91
-North America,35-44,2024,91
-North America,45-54,2024,91
-North America,55-64,2024,91
-North America,65+,2024,91
-South America,18-24,2024,80
-South America,25-34,2024,80
-South America,35-44,2024,80
-South America,45-54,2024,80
-South America,55-64,2024,80
-South America,65+,2024,80
-Africa,18-24,2024,49
-Africa,25-34,2024,49
-Africa,35-44,2024,49
-Africa,45-54,2024,49
-Africa,55-64,2024,49
-Africa,65+,2024,49
-Oceania,18-24,2024,89
-Oceania,25-34,2024,89
-Oceania,35-44,2024,89
-Oceania,45-54,2024,89
-Oceania,55-64,2024,89
-Oceania,65+,2024,89
+continent,age,year,value_mean,value_median,source_name,source_url
+Europe,18-24,2024,,,,
+Asia,18-24,2024,,,,
+North America,18-24,2024,,,,
+Global,18-24,2024,,,,

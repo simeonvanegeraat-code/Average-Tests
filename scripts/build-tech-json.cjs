@@ -1,48 +1,92 @@
-// Auto-generated build script (Node 22, CommonJS)
-// Reads CSV under data/raw and writes JSON to src/data/averages/{cat}.json
+/**
+ * Build script (Node 22, CommonJS)
+ * Reads CSV files under /data/raw and writes JSON to /src/data/averages/<category>.json.
+ * Defensive: skips missing CSVs and still writes what's available.
+ */
 const fs = require("fs");
 const path = require("path");
 const { parse } = require("csv-parse/sync");
 
 const ROOT = process.cwd();
 const RAW = path.join(ROOT, "data", "raw");
-const OUT = (file) => path.join(ROOT, "src", "data", "averages", file);
+const OUTDIR = path.join(ROOT, "src", "data", "averages");
 
-function N(v){ if(v==null) return null; const n = typeof v === "number" ? v : Number(String(v).replace(/[^\d.\-]/g,"")); return Number.isFinite(n)?n:null; }
-function loadCsv(name){ const p = path.join(RAW, name); if(!fs.existsSync(p)) return null; const raw=fs.readFileSync(p,"utf8"); return parse(raw,{columns:true,skip_empty_lines:true}); }
-function pushSimple(rows, id, title, unit, col, source, items){
-  if(!rows) return;
-  rows.forEach(r=>{
-    const v = N(r[col]);
-    items.push({ id, title:`${title} (${r.age})`, metric:col, unit,
-      value_mean:v, value_median:v, continent:r.continent, age:r.age,
-      year:r.year || "2024", source:{name:source, url:""}, note:"" });
+function N(v){
+  if (v == null || v === "") return null;
+  const n = typeof v === "number" ? v : Number(String(v).replace(/[^\d.\-]/g,""));
+  return Number.isFinite(n) ? n : null;
+}
+function loadCsv(name){
+  const p = path.join(RAW, name + ".csv");
+  if (!fs.existsSync(p)) return null;
+  const raw = fs.readFileSync(p, "utf8");
+  return parse(raw, { columns: true, skip_empty_lines: true });
+}
+function pushRows(rows, {id, title, unit, meanCol, medianCol, defaultYear, sourceName}, items){
+  if (!rows) return;
+  rows.forEach(r => {
+    const mean = meanCol ? N(r[meanCol]) : null;
+    const median = medianCol ? N(r[medianCol]) : (meanCol ? N(r[meanCol]) : null);
+    items.push({
+      id,
+      title: `${title} (${r.age})`,
+      metric: meanCol || medianCol || id,
+      unit,
+      value_mean: mean,
+      value_median: median,
+      continent: r.continent || "Global",
+      age: r.age || "18-24",
+      year: String(r.year || defaultYear || new Date().getFullYear()),
+      source: { name: r.source_name || sourceName || "", url: r.source_url || "" },
+      note: ""
+    });
   });
 }
 const AGE_GROUPS = ["18-24","25-34","35-44","45-54","55-64","65+"];
 function globalize(items, metricId){
   AGE_GROUPS.forEach(a=>{
-    const arr = items.filter(x=>x.id===metricId && x.age===a && x.continent!=="Global");
-    if(!arr.length) return;
-    const avg = vals => vals.length ? Math.round(vals.reduce((p,q)=>p+q,0)/vals.length) : null;
-    const mean = avg(arr.map(x=>x.value_mean).filter(n=>typeof n==="number"));
-    const median = avg(arr.map(x=>x.value_median).filter(n=>typeof n==="number"));
-    const sample = {...arr[0], continent:"Global", value_mean:mean, value_median:median,
-      source:{name:"Aggregated from continents (unweighted)", url:""} };
+    const arr = items.filter(x => x.id===metricId && x.age===a && x.continent!=="Global");
+    if (!arr.length) return;
+    const valsMean = arr.map(x=>x.value_mean).filter(x=>typeof x==="number");
+    const valsMedian = arr.map(x=>x.value_median).filter(x=>typeof x==="number");
+    const avg = vs => vs.length ? Math.round(vs.reduce((p,q)=>p+q,0)/vs.length) : null;
+    const sample = { ...arr[0] };
+    sample.continent = "Global";
+    sample.value_mean = avg(valsMean);
+    sample.value_median = avg(valsMedian);
+    sample.source = { name: "Aggregated from continents (unweighted)", url: "" };
     items.push(sample);
   });
 }
+function writeOut(filename, items){
+  if (!fs.existsSync(OUTDIR)) fs.mkdirSync(OUTDIR, { recursive: true });
+  const outPath = path.join(OUTDIR, filename);
+  fs.writeFileSync(outPath, JSON.stringify(items, null, 2), "utf8");
+  console.log(`✔ Wrote ${outPath} with ${items.length} records`);
+}
 
-(function main(){
-  const screen = loadCsv("tech_screen_time_hours_mean.csv");
-  const net = loadCsv("tech_internet_penetration_pct.csv");
-  const phone = loadCsv("tech_smartphone_penetration_pct.csv");
+// === TECH ===
+(function main() {
   const items = [];
-  pushSimple(screen, "screen_time", "Screen time per day", "h", "screen_time_hours_mean", "Usage surveys (demo)", items);
-  pushSimple(net, "internet_penetration", "Internet penetration", "%", "internet_penetration_pct", "ITU/World Bank (demo)", items);
-  pushSimple(phone, "smartphone_penetration", "Smartphone penetration", "%", "smartphone_penetration_pct", "Consumer reports (demo)", items);
-  ["screen_time","internet_penetration","smartphone_penetration"].forEach(id=>globalize(items, id));
-  fs.mkdirSync(path.dirname(OUT("tech.json")), {recursive:true});
-  fs.writeFileSync(OUT("tech.json"), JSON.stringify(items, null, 2));
-  console.log(`✔ Wrote ${OUT("tech.json")} with ${items.length} records`);
+  const Y = new Date().getFullYear();
+  const rows_tech_internet_penetration_pct = loadCsv("tech_internet_penetration_pct");
+  pushRows(rows_tech_internet_penetration_pct, { id: "internet_penetration", title: "Internet penetration", unit: "%", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "ITU / World Bank" }, items);
+  const rows_tech_smartphone_penetration_pct = loadCsv("tech_smartphone_penetration_pct");
+  pushRows(rows_tech_smartphone_penetration_pct, { id: "smartphone_penetration", title: "Smartphone penetration", unit: "%", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "ITU / industry reports" }, items);
+  const rows_tech_screen_time_hours_mean = loadCsv("tech_screen_time_hours_mean");
+  pushRows(rows_tech_screen_time_hours_mean, { id: "screen_time", title: "Screen time", unit: "h/day", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "Digital wellbeing surveys" }, items);
+  const rows_tech_social_media_hours_mean = loadCsv("tech_social_media_hours_mean");
+  pushRows(rows_tech_social_media_hours_mean, { id: "social_media_time", title: "Social media time", unit: "h/day", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "Surveys" }, items);
+  const rows_tech_pc_access_pct = loadCsv("tech_pc_access_pct");
+  pushRows(rows_tech_pc_access_pct, { id: "pc_access", title: "PC access at home", unit: "%", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "Eurostat / ITU" }, items);
+  const rows_tech_broadband_speed_median = loadCsv("tech_broadband_speed_median");
+  pushRows(rows_tech_broadband_speed_median, { id: "broadband_speed", title: "Broadband speed (median)", unit: "Mbps", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "Ookla / ITU" }, items);
+  // Globalize per metric & age
+  globalize(items, "internet_penetration");
+  globalize(items, "smartphone_penetration");
+  globalize(items, "screen_time");
+  globalize(items, "social_media_time");
+  globalize(items, "pc_access");
+  globalize(items, "broadband_speed");
+  writeOut("tech.json", items);
 })();

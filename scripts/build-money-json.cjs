@@ -1,109 +1,92 @@
-// scripts/build-money-json.cjs
-// Node 22 CJS – bouwt src/data/averages/money.json uit CSV's in /data/raw
+/**
+ * Build script (Node 22, CommonJS)
+ * Reads CSV files under /data/raw and writes JSON to /src/data/averages/<category>.json.
+ * Defensive: skips missing CSVs and still writes what's available.
+ */
 const fs = require("fs");
 const path = require("path");
 const { parse } = require("csv-parse/sync");
 
 const ROOT = process.cwd();
 const RAW = path.join(ROOT, "data", "raw");
-const OUT = path.join(ROOT, "src", "data", "averages", "money.json");
+const OUTDIR = path.join(ROOT, "src", "data", "averages");
 
-function N(v) {
-  if (v == null) return null;
-  const n = typeof v === "number" ? v : Number(String(v).replace(/[^\d.\-]/g, ""));
+function N(v){
+  if (v == null || v === "") return null;
+  const n = typeof v === "number" ? v : Number(String(v).replace(/[^\d.\-]/g,""));
   return Number.isFinite(n) ? n : null;
 }
-function loadCsv(name) {
-  const p = path.join(RAW, name);
+function loadCsv(name){
+  const p = path.join(RAW, name + ".csv");
   if (!fs.existsSync(p)) return null;
   const raw = fs.readFileSync(p, "utf8");
   return parse(raw, { columns: true, skip_empty_lines: true });
 }
-function push(rows, id, title, unit, meanCol, medianCol, source, items) {
+function pushRows(rows, {id, title, unit, meanCol, medianCol, defaultYear, sourceName}, items){
   if (!rows) return;
-  rows.forEach((r) => {
+  rows.forEach(r => {
+    const mean = meanCol ? N(r[meanCol]) : null;
+    const median = medianCol ? N(r[medianCol]) : (meanCol ? N(r[meanCol]) : null);
     items.push({
       id,
       title: `${title} (${r.age})`,
-      metric: meanCol || medianCol,
+      metric: meanCol || medianCol || id,
       unit,
-      value_mean: meanCol ? N(r[meanCol]) : N(r[medianCol]),
-      value_median: medianCol ? N(r[medianCol]) : N(r[meanCol]),
-      continent: r.continent,
-      age: r.age,
-      year: r.year || "2024",
-      source: { name: source, url: "" },
+      value_mean: mean,
+      value_median: median,
+      continent: r.continent || "Global",
+      age: r.age || "18-24",
+      year: String(r.year || defaultYear || new Date().getFullYear()),
+      source: { name: r.source_name || sourceName || "", url: r.source_url || "" },
       note: ""
     });
   });
 }
 const AGE_GROUPS = ["18-24","25-34","35-44","45-54","55-64","65+"];
-function globalize(items, metricId) {
-  AGE_GROUPS.forEach((a) => {
-    const arr = items.filter(x => x.id === metricId && x.age === a && x.continent !== "Global");
+function globalize(items, metricId){
+  AGE_GROUPS.forEach(a=>{
+    const arr = items.filter(x => x.id===metricId && x.age===a && x.continent!=="Global");
     if (!arr.length) return;
-    const avg = (vals) => (vals.length ? Math.round(vals.reduce((p, q) => p + q, 0) / vals.length) : null);
-    const mean = avg(arr.map(x => x.value_mean).filter((n) => typeof n === "number"));
-    const median = avg(arr.map(x => x.value_median).filter((n) => typeof n === "number"));
-    const sample = {
-      ...arr[0],
-      continent: "Global",
-      value_mean: mean,
-      value_median: median,
-      source: { name: "Aggregated from continents (unweighted)", url: "" }
-    };
+    const valsMean = arr.map(x=>x.value_mean).filter(x=>typeof x==="number");
+    const valsMedian = arr.map(x=>x.value_median).filter(x=>typeof x==="number");
+    const avg = vs => vs.length ? Math.round(vs.reduce((p,q)=>p+q,0)/vs.length) : null;
+    const sample = { ...arr[0] };
+    sample.continent = "Global";
+    sample.value_mean = avg(valsMean);
+    sample.value_median = avg(valsMedian);
+    sample.source = { name: "Aggregated from continents (unweighted)", url: "" };
     items.push(sample);
   });
 }
+function writeOut(filename, items){
+  if (!fs.existsSync(OUTDIR)) fs.mkdirSync(OUTDIR, { recursive: true });
+  const outPath = path.join(OUTDIR, filename);
+  fs.writeFileSync(outPath, JSON.stringify(items, null, 2), "utf8");
+  console.log(`✔ Wrote ${outPath} with ${items.length} records`);
+}
 
+// === MONEY ===
 (function main() {
-  // Verwachte CSV-bestanden (zet ze in /data/raw). Kolommen per bestand staan in comments.
-  const monthly = loadCsv("money_monthly_savings_eur.csv");        // continent,age,year,mean_eur,median_eur
-  const rate    = loadCsv("money_savings_rate_pct.csv");           // continent,age,year,mean_pct,median_pct
-  const balance = loadCsv("money_savings_balance_eur.csv");        // continent,age,year,mean_eur,median_eur
-  const wealth  = loadCsv("money_net_wealth_eur.csv");             // continent,age,year,mean_eur,median_eur
-  const debt    = loadCsv("money_total_debt_eur.csv");             // continent,age,year,mean_eur,median_eur
-
   const items = [];
-  push(monthly, "monthly_savings", "Monthly savings", "€", "mean_eur", "median_eur", "Official stats & surveys", items);
-  push(rate,    "savings_rate",    "Savings rate", "%",  "mean_pct",  "median_pct",  "Official stats & surveys", items);
-  push(balance, "savings_balance", "Savings balance", "€", "mean_eur", "median_eur", "Official stats & surveys", items);
-  push(wealth,  "net_wealth",      "Net household wealth", "€", "mean_eur", "median_eur", "Household finance surveys", items);
-  push(debt,    "debt_total",      "Total household debt", "€", "mean_eur", "median_eur", "Household finance surveys", items);
-
-  ["monthly_savings", "savings_rate", "savings_balance", "net_wealth", "debt_total"].forEach((id) =>
-    globalize(items, id)
-  );
-
-  fs.mkdirSync(path.dirname(OUT), { recursive: true });
-
-  // Als er niets is ingelezen (CSV's ontbreken), houd bestaande JSON in stand,
-  // of schrijf één nette placeholder zodat de build niet faalt.
-  if (!items.length) {
-    if (fs.existsSync(OUT)) {
-      console.log("ⓘ No CSVs found for money; keeping existing money.json");
-      return;
-    }
-    const placeholder = [
-      {
-        id: "monthly_savings",
-        title: "Monthly savings (25–34)",
-        metric: "mean_eur",
-        unit: "€",
-        value_mean: null,
-        value_median: null,
-        continent: "Global",
-        age: "25-34",
-        year: "2024",
-        source: { name: "Pending data import", url: "" },
-        note: ""
-      }
-    ];
-    fs.writeFileSync(OUT, JSON.stringify(placeholder, null, 2), "utf8");
-    console.log("ⓘ Wrote money.json placeholder (no CSVs present)");
-    return;
-  }
-
-  fs.writeFileSync(OUT, JSON.stringify(items, null, 2), "utf8");
-  console.log(`✔ Wrote ${OUT} with ${items.length} records`);
+  const Y = new Date().getFullYear();
+  const rows_money_monthly_savings_by_continent_age = loadCsv("money_monthly_savings_by_continent_age");
+  pushRows(rows_money_monthly_savings_by_continent_age, { id: "monthly_savings", title: "Average monthly savings", unit: "€", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "Eurostat/OECD (derived)" }, items);
+  const rows_money_savings_rate_pct = loadCsv("money_savings_rate_pct");
+  pushRows(rows_money_savings_rate_pct, { id: "savings_rate", title: "Savings rate vs income", unit: "%", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "Eurostat/OECD" }, items);
+  const rows_money_net_wealth_median = loadCsv("money_net_wealth_median");
+  pushRows(rows_money_net_wealth_median, { id: "net_wealth", title: "Net household wealth (median)", unit: "€", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "OECD / ECB HFCS" }, items);
+  const rows_money_savings_balance_median = loadCsv("money_savings_balance_median");
+  pushRows(rows_money_savings_balance_median, { id: "savings_balance", title: "Savings balance (median)", unit: "€", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "HFCS / national stats" }, items);
+  const rows_money_no_savings_share_pct = loadCsv("money_no_savings_share_pct");
+  pushRows(rows_money_no_savings_share_pct, { id: "no_savings_share", title: "Adults with no savings", unit: "%", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "Household surveys" }, items);
+  const rows_money_starter_capital_25_34 = loadCsv("money_starter_capital_25_34");
+  pushRows(rows_money_starter_capital_25_34, { id: "starter_capital", title: "Starter capital (25–34)", unit: "€", meanCol: "value_mean", medianCol: "value_median", defaultYear: Y, sourceName: "HFCS / surveys" }, items);
+  // Globalize per metric & age
+  globalize(items, "monthly_savings");
+  globalize(items, "savings_rate");
+  globalize(items, "net_wealth");
+  globalize(items, "savings_balance");
+  globalize(items, "no_savings_share");
+  globalize(items, "starter_capital");
+  writeOut("money.json", items);
 })();
