@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import ContinentSelector from "@/components/ContinentSelector";
-import AgeSelector from "@/components/AgeSelector";
+import FilterBar from "@/components/FilterBar";
 
 type StatItem = {
   id: string;
@@ -65,24 +64,18 @@ export default function CategoryPage({
   const continent = (router.query.continent as string) || "Global";
   const age = (router.query.age as string) || "18-24";
 
-  // Zet defaults in de URL (zodat delen/bookmarken altijd werkt)
+  // Zorg dat deelbare URL altijd defaults heeft
   useEffect(() => {
     if (!router.isReady) return;
-    const needContinent = !router.query.continent;
-    const needAge = !router.query.age;
-    if (needContinent || needAge) {
+    if (!router.query.continent || !router.query.age) {
       router.replace(
-        {
-          pathname: router.pathname,
-          query: { ...router.query, continent, age },
-        },
+        { pathname: router.pathname, query: { ...router.query, continent, age } },
         undefined,
         { shallow: true }
       );
     }
   }, [router.isReady, router.query, router, continent, age]);
 
-  // Filter en sorteer kaarten
   const filtered = useMemo(() => {
     const rows = stats.filter((s) => {
       const okContinent =
@@ -114,7 +107,7 @@ export default function CategoryPage({
 
   return (
     <div className="space-y-6">
-      {/* Hero */}
+      {/* HERO */}
       <header className="card p-4 md:p-6">
         <div className="flex items-center gap-3">
           <div className="text-3xl md:text-4xl">{emoji}</div>
@@ -125,27 +118,12 @@ export default function CategoryPage({
         </div>
       </header>
 
-      {/* Sticky filters – mobielvriendelijk */}
-      <nav className="sticky top-16 z-30">
-        <div className="card p-3 md:p-4 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-          <div className="flex flex-col gap-3">
-            <div>
-              <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 mr-2">
-                <span>🌍</span> Continent
-              </span>
-              <ContinentSelector />
-            </div>
-            <div>
-              <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 mr-2">
-                <span>👤</span> Age
-              </span>
-              <AgeSelector />
-            </div>
-          </div>
-        </div>
-      </nav>
+      {/* STICKY & COMPACT FILTERS */}
+      <div className="sticky top-16 z-30">
+        <FilterBar />
+      </div>
 
-      {/* Stat kaarten eerst */}
+      {/* STAT CARDS */}
       <section>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.length === 0 ? (
@@ -204,10 +182,10 @@ export default function CategoryPage({
         </div>
       </section>
 
-      {/* Uitleg onderaan (SEO en transparantie) */}
+      {/* UITLEG / SEO */}
       {intro ? <section className="card p-6 bg-white/90">{intro}</section> : null}
 
-      {/* CTA optioneel */}
+      {/* CTA */}
       {ctaHref ? (
         <section className="card p-6 flex items-center justify-between gap-4">
           <div>
