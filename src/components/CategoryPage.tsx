@@ -1,7 +1,8 @@
+"use client";
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
-import ContinentSelector from "@/components/ContinentSelector";
-import AgeSelector from "@/components/AgeSelector";
+import StickyFilterBar from "@/components/StickyFilterBar";
+import QuickStatsRow from "@/components/QuickStatsRow";
 
 type StatItem = {
   id: string;
@@ -36,9 +37,14 @@ const EMOJI_BY_ID: Record<string, string> = {
   annual_return: "📊",
   starter_capital: "🌱",
   no_savings_share: "⚠️",
+  annual_salary: "💼",
+  hours_worked: "⏱️",
+  books_per_year: "📚",
+  morning_person_share: "🌅",
+  restaurant_meals_per_week: "🍽️",
 };
 
-const fmt = (n: number | null, unit: string) => {
+function fmt(n: number | null, unit: string) {
   if (n === null || !Number.isFinite(n)) return "N/A";
   if (unit === "€" || unit.startsWith("€")) {
     return new Intl.NumberFormat(undefined, {
@@ -49,7 +55,7 @@ const fmt = (n: number | null, unit: string) => {
   }
   if (unit === "%") return `${n}%`;
   return `${n} ${unit}`;
-};
+}
 
 export default function CategoryPage({
   title,
@@ -64,7 +70,7 @@ export default function CategoryPage({
   const continent = (router.query.continent as string) || "Global";
   const age = (router.query.age as string) || "18-24";
 
-  // Zorg voor defaults in de URL
+  // Default query voor shareable links
   useEffect(() => {
     if (!router.isReady) return;
     if (!router.query.continent || !router.query.age) {
@@ -74,7 +80,8 @@ export default function CategoryPage({
         { shallow: true }
       );
     }
-  }, [router.isReady, router.query, router, continent, age]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady]);
 
   const filtered = useMemo(() => {
     const rows = stats.filter((s) => {
@@ -83,6 +90,8 @@ export default function CategoryPage({
       const okAge = s.age ? s.age === age : true;
       return okContinent && okAge;
     });
+
+    // volgorde: eerst een vaste basismatrix, daarna alfabetisch
     const order = [
       "monthly_savings",
       "savings_rate",
@@ -92,6 +101,11 @@ export default function CategoryPage({
       "annual_return",
       "starter_capital",
       "no_savings_share",
+      "annual_salary",
+      "hours_worked",
+      "books_per_year",
+      "morning_person_share",
+      "restaurant_meals_per_week",
     ];
     return rows.sort((a, b) => {
       const ia = order.indexOf(a.id);
@@ -101,47 +115,57 @@ export default function CategoryPage({
     });
   }, [stats, continent, age]);
 
+  const isDemo =
+    filtered.length > 0 &&
+    filtered.every((x) => {
+      const n = (x.source?.name || "").toLowerCase();
+      return n.includes("aggregated") || n.includes("demo");
+    });
+
+  // Split: 3 snelle KPI’s + rest
+  const quick = filtered.slice(0, 3);
+  const rest = filtered.slice(3);
+
   return (
-    <div className="space-y-8">
-      {/* HERO + Filters */}
+    <div className="space-y-6">
+      {/* Compact hero */}
       <header className="card p-4 md:p-6">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="text-3xl md:text-4xl">{emoji}</div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">{title}</h1>
-            <p className="text-sm text-gray-600">{subtitle}</p>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="text-3xl md:text-4xl">{emoji}</div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">{title}</h1>
+              <p className="text-sm text-gray-600">{subtitle}</p>
+            </div>
           </div>
+          {isDemo && (
+            <span className="inline-flex items-center gap-1 h-7 px-3 rounded-full text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">
+              ⏳ Demo data
+            </span>
+          )}
         </div>
 
-        {/* Filter bar met label-chips */}
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-              <span>🌍</span> Continent
-            </span>
-            <ContinentSelector />
-          </div>
-          <div className="flex items-center flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-              <span>👤</span> Age
-            </span>
-            <AgeSelector />
-          </div>
+        {/* Sticky, compacte filterbalk */}
+        <div className="mt-3">
+          <StickyFilterBar />
         </div>
       </header>
 
-      {/* INTRO */}
+      {/* Quick stats direct boven de vouw */}
+      {quick.length ? <QuickStatsRow items={quick} /> : null}
+
+      {/* Intro / methodiek (inklapbaar kun je later toevoegen) */}
       {intro ? <section className="card p-6 bg-white/90">{intro}</section> : null}
 
-      {/* GRID OF CARDS */}
+      {/* Overige kaarten */}
       <section>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-          {filtered.length === 0 ? (
+          {rest.length === 0 ? (
             <div className="card p-6 col-span-full">
-              No data yet for <strong>{continent}</strong> · <strong>{age}</strong>. Try another filter.
+              Geen gegevens voor <strong>{continent}</strong> · <strong>{age}</strong>. Pas je filters aan.
             </div>
           ) : (
-            filtered.map((s, i) => (
+            rest.map((s, i) => (
               <article
                 key={`${s.id}-${s.continent || "global"}-${s.age || "all"}-${i}`}
                 className="rounded-3xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition p-5 relative overflow-hidden"
@@ -155,8 +179,7 @@ export default function CategoryPage({
 
                   <p className="text-xs text-gray-500">
                     {s.continent ?? "Global"}
-                    {s.age ? ` · ${s.age}` : ""}
-                    {s.year ? ` · ${s.year}` : ""}
+                    {s.age ? ` · ${s.age}` : ""} {s.year ? `· ${s.year}` : ""}
                   </p>
 
                   <div className="mt-3 grid grid-cols-2 gap-3">
@@ -192,13 +215,13 @@ export default function CategoryPage({
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA onderaan (licht) */}
       {ctaHref ? (
         <section className="card p-6 flex items-center justify-between gap-4">
           <div>
             <h4 className="text-lg font-semibold">Compare yourself</h4>
             <p className="text-sm text-gray-600">
-              Ready for a personal check? Enter your numbers and see how you compare within your region and age group.
+              Enter your numbers and see how you compare within your region and age group.
             </p>
           </div>
           <a
