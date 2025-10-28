@@ -1,4 +1,3 @@
-// src/components/CategoryPage.tsx
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import ContinentSelector from "@/components/ContinentSelector";
@@ -37,12 +36,19 @@ const EMOJI_BY_ID: Record<string, string> = {
   annual_return: "📊",
   starter_capital: "🌱",
   no_savings_share: "⚠️",
-  // habits
+
+  // generiek voor andere categorieën
+  annual_salary: "💼",
+  hours_worked: "⏱️",
+  unemployment: "📉",
+  side_gig_share: "🧩",
+  remote_work_share: "🏠",
+  gender_pay_gap: "⚖️",
+  job_switch_rate: "🔁",
+
   morning_person: "🌅",
   books_per_year: "📚",
   restaurant_meals: "🍽️",
-  coffee_per_day: "☕",
-  drinks_per_week: "🍷"
 };
 
 const fmt = (n: number | null, unit: string) => {
@@ -51,7 +57,7 @@ const fmt = (n: number | null, unit: string) => {
     return new Intl.NumberFormat(undefined, {
       style: "currency",
       currency: "EUR",
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(n);
   }
   if (unit === "%") return `${n}%`;
@@ -65,19 +71,19 @@ export default function CategoryPage({
   stats,
   intro,
   ctaHref,
-  ctaLabel = "Take the test"
+  ctaLabel = "Take the test",
 }: Props) {
   const router = useRouter();
   const continent = (router.query.continent as string) || "Global";
   const age = (router.query.age as string) || "18-24";
 
-  // Defaults in URL houden
+  // Zorg dat URL altijd defaults bevat (SEO + sharable)
   useEffect(() => {
     if (!router.isReady) return;
-    const needs = !router.query.continent || !router.query.age;
-    if (needs) {
+    const q = router.query;
+    if (!q.continent || !q.age) {
       router.replace(
-        { pathname: router.pathname, query: { ...router.query, continent, age } },
+        { pathname: router.pathname, query: { ...q, continent, age } },
         undefined,
         { shallow: true }
       );
@@ -85,57 +91,84 @@ export default function CategoryPage({
   }, [router.isReady, router.query, router, continent, age]);
 
   const filtered = useMemo(() => {
-    const rows = stats.filter((s) => {
-      const okContinent =
+    const rows = (stats || []).filter((s) => {
+      const okC =
         continent === "Global" ? (s.continent ?? "Global") === "Global" : s.continent === continent;
-      const okAge = s.age ? s.age === age : true;
-      return okContinent && okAge;
+      const okA = s.age ? s.age === age : true;
+      return okC && okA;
     });
-    return rows;
+
+    // Standaard volgorde met fallback
+    const order = [
+      // money
+      "monthly_savings",
+      "savings_rate",
+      "savings_balance",
+      "net_wealth",
+      "debt_total",
+      "annual_return",
+      "starter_capital",
+      "no_savings_share",
+      // income
+      "annual_salary",
+      "hours_worked",
+      "unemployment",
+      "side_gig_share",
+      "remote_work_share",
+      "gender_pay_gap",
+      "job_switch_rate",
+      // habits
+      "books_per_year",
+      "morning_person",
+      "restaurant_meals",
+    ];
+
+    return rows.sort((a, b) => {
+      const ia = order.indexOf(a.id);
+      const ib = order.indexOf(b.id);
+      const sa = ia === -1 ? 999 : ia;
+      const sb = ib === -1 ? 999 : ib;
+      if (sa !== sb) return sa - sb;
+      return a.title.localeCompare(b.title);
+    });
   }, [stats, continent, age]);
 
   return (
     <div className="space-y-8">
-      {/* Hero */}
+      {/* HERO + filters */}
       <header className="card p-4 md:p-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-3">
           <div className="text-3xl md:text-4xl">{emoji}</div>
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">{title}</h1>
             <p className="text-sm text-gray-600">{subtitle}</p>
           </div>
         </div>
-      </header>
 
-      {/* Sticky filterbar */}
-      <div className="sticky top-14 z-20 bg-white/90 backdrop-blur border-b border-gray-200">
-        <div className="container py-3">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center flex-wrap gap-2">
-              <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                <span>🌍</span> Continent
-              </span>
-              <ContinentSelector />
-            </div>
-            <div className="flex items-center flex-wrap gap-2">
-              <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
-                <span>👤</span> Age
-              </span>
-              <AgeSelector />
-            </div>
+        {/* Compacte filterbalk */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+              <span>🌍</span> Continent
+            </span>
+            <ContinentSelector />
+          </div>
+          <div className="flex items-center flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1 h-8 px-3 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
+              <span>👤</span> Age
+            </span>
+            <AgeSelector />
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Intro */}
-      {intro ? <section className="card p-6 bg-white/90">{intro}</section> : null}
-
-      {/* Stat grid */}
+      {/* === BELANGRIJK: STAT-TEGELS BOVENAAN === */}
       <section>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.length === 0 ? (
             <div className="card p-6 col-span-full">
-              No data yet for <strong>{continent}</strong> · <strong>{age}</strong>.
+              No data yet for <strong>{continent}</strong> · <strong>{age}</strong>. Try another
+              filter.
             </div>
           ) : (
             filtered.map((s, i) => (
@@ -178,7 +211,7 @@ export default function CategoryPage({
                         Source: {s.source.name}
                       </a>
                     ) : (
-                      <span>Source</span>
+                      <span>Source to be added</span>
                     )}
                     {s.note ? <div className="mt-1 italic">{s.note}</div> : null}
                   </div>
@@ -189,13 +222,17 @@ export default function CategoryPage({
         </div>
       </section>
 
-      {/* CTA (optioneel) */}
+      {/* Intro tekst ONDER de tegels */}
+      {intro ? <section className="card p-6 bg-white/90">{intro}</section> : null}
+
+      {/* CTA */}
       {ctaHref ? (
         <section className="card p-6 flex items-center justify-between gap-4">
           <div>
             <h4 className="text-lg font-semibold">Compare yourself</h4>
             <p className="text-sm text-gray-600">
-              Ready for a personal check? Enter your numbers and see how you compare within your region and age group.
+              Ready for a personal check? Enter your numbers and see how you compare within your
+              region and age group.
             </p>
           </div>
           <a

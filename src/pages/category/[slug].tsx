@@ -1,120 +1,129 @@
-// src/pages/category/[slug].tsx
 import Head from "next/head";
 import { useRouter } from "next/router";
 import CategoryPage from "@/components/CategoryPage";
 
-// Data
+// Data per categorie
 import moneyStats from "@/data/averages/money.json";
+import incomeStats from "@/data/averages/income.json";
+import debtStats from "@/data/averages/debt.json";
+import healthStats from "@/data/averages/health.json";
+import lifestyleStats from "@/data/averages/lifestyle.json";
+import productivityStats from "@/data/averages/productivity.json";
+import techStats from "@/data/averages/tech.json";
 import habitsStats from "@/data/averages/habits.json";
 
-export default function CategorySlugPage() {
-  const router = useRouter();
-  const slug = (router.query.slug as string) || "money";
+const EMPTY: any[] = [];
 
-  // MONEY
-  if (slug === "money") {
-    const intro = (
+const META: Record<
+  string,
+  { title: string; subtitle: string; emoji: string; stats: any[]; cta?: { href: string; label?: string } }
+> = {
+  money: {
+    title: "Money & Savings",
+    subtitle: "Savings, wealth, investing",
+    emoji: "💰",
+    stats: (moneyStats as any[]) ?? EMPTY,
+    cta: { href: "/test/savings", label: "Try the savings test" }
+  },
+  income: {
+    title: "Income & Work",
+    subtitle: "Salary by age, hours, side gigs",
+    emoji: "💼",
+    stats: (incomeStats as any[]) ?? EMPTY
+  },
+  debt: {
+    title: "Debt & Spending",
+    subtitle: "Debts, rent, spending habits",
+    emoji: "🧾",
+    stats: (debtStats as any[]) ?? EMPTY
+  },
+  health: {
+    title: "Health & Fitness",
+    subtitle: "Sleep, steps, nutrition",
+    emoji: "🏋️",
+    stats: (healthStats as any[]) ?? EMPTY
+  },
+  lifestyle: {
+    title: "Lifestyle & Relationships",
+    subtitle: "Status, housing, friends, kids",
+    emoji: "💖",
+    stats: (lifestyleStats as any[]) ?? EMPTY
+  },
+  productivity: {
+    title: "Productivity & Focus",
+    subtitle: "Focus span, study, hours",
+    emoji: "⚡",
+    stats: (productivityStats as any[]) ?? EMPTY
+  },
+  tech: {
+    title: "Technology & Screen Time",
+    subtitle: "Screen time, social media",
+    emoji: "📱",
+    stats: (techStats as any[]) ?? EMPTY
+  },
+  habits: {
+    title: "Habits & Daily Life",
+    subtitle: "Caffeine, morning or night, books",
+    emoji: "☕",
+    stats: (habitsStats as any[]) ?? EMPTY
+  }
+};
+
+export default function CategorySlugPage() {
+  const { query } = useRouter();
+  const slug = (query.slug as string) || "money";
+  const M = META[slug] ?? META.money;
+
+  const intro =
+    slug === "money" ? (
       <div className="prose max-w-none">
         <h3>Average savings and net wealth by age and region</h3>
         <p>
-          On this page you’ll find <strong>average monthly savings</strong>, the{" "}
-          <strong>median savings rate</strong>, and snapshots of <strong>net household wealth</strong>. We
-          show both <em>mean</em> and <em>median</em> for a balanced picture.
+          This page shows <strong>average monthly savings</strong>, <strong>savings rates</strong> and
+          snapshots of <strong>net household wealth</strong>. We include both <em>mean</em> and <em>median</em>.
         </p>
-        <h4>Why this matters</h4>
-        <ul>
-          <li>Compare monthly savings for your age group and region.</li>
-          <li>See how a savings rate can compound into long-term wealth.</li>
-          <li>Understand why medians help when distributions are skewed.</li>
-        </ul>
-        <h4>Method & sources</h4>
+        <h4>Method and sources</h4>
         <p>
-          Benchmarks use official statistics such as <strong>Eurostat</strong> and the{" "}
-          <strong>ECB HFCS</strong>. Where needed, monthly amounts are derived from saving rates and disposable
-          income. Check the source link on each card for details.
+          Benchmarks are compiled from official statistics such as <strong>Eurostat</strong> and the{" "}
+          <strong>ECB HFCS</strong>. Where needed we derive monthly amounts from saving rates and
+          disposable income. Check the source link under each card for details.
         </p>
       </div>
-    );
-
-    return (
-      <>
-        <Head>
-          <title>Money &amp; Savings • Human Average</title>
-          <meta
-            name="description"
-            content="See average monthly savings, savings rates, and household net wealth by continent and age group. Compare mean and median."
-          />
-        </Head>
-        <main className="container space-y-6 py-6">
-          <CategoryPage
-            title="Money & Savings"
-            subtitle="Savings, wealth, investing"
-            emoji="💰"
-            stats={moneyStats as any}
-            intro={intro}
-            ctaHref="/test/savings"
-            ctaLabel="Try the savings test"
-          />
-        </main>
-      </>
-    );
-  }
-
-  // HABITS
-  if (slug === "habits") {
-    const intro = (
+    ) : slug === "income" ? (
+      <div className="prose max-w-none">
+        <h3>Income and work benchmarks</h3>
+        <p>
+          Explore <strong>annual salary</strong>, <strong>hours worked per week</strong> and other
+          labour-market metrics by continent and age group.
+        </p>
+      </div>
+    ) : slug === "habits" ? (
       <div className="prose max-w-none">
         <h3>Habits and daily life</h3>
         <p>
-          Morning person share, books per year, and eating-out frequency. Values are shown by{" "}
-          <strong>continent</strong> and <strong>age group</strong>. We present mean and median where relevant.
-        </p>
-        <h4>Why this matters</h4>
-        <ul>
-          <li>Understand typical daily patterns for your age group and region.</li>
-          <li>Use the metrics to benchmark lifestyle choices over time.</li>
-        </ul>
-        <h4>Method & sources</h4>
-        <p>
-          Benchmarks are compiled from recognized surveys and official statistics. Where appropriate, global
-          values are aggregated from continental data (unweighted).
+          Typical values by continent and age group for <strong>books per year</strong>,
+          <strong> morning/evening preference</strong> and <strong>eating-out</strong>.
         </p>
       </div>
-    );
+    ) : undefined;
 
-    return (
-      <>
-        <Head>
-          <title>Habits &amp; Daily Life • Human Average</title>
-          <meta
-            name="description"
-            content="See habits by continent and age group: morning person share, books per year, and eating-out frequency."
-          />
-        </Head>
-        <main className="container space-y-6 py-6">
-          <CategoryPage
-            title="Habits & Daily Life"
-            subtitle="Caffeine, morning or night, books"
-            emoji="☕"
-            stats={habitsStats as any}
-            intro={intro}
-          />
-        </main>
-      </>
-    );
-  }
-
-  // Placeholder voor (nog) niet gebouwde categorieën
   return (
     <>
       <Head>
-        <title>Category • Human Average</title>
+        <title>{M.title} • Human Average</title>
+        <meta name="description" content={`${M.title}: ${M.subtitle}. Compare mean & median by continent and age group.`} />
       </Head>
+
       <main className="container space-y-6 py-6">
-        <header className="card p-6">
-          <h1 className="text-2xl font-bold">Coming soon</h1>
-          <p className="text-gray-600">This category is not live yet.</p>
-        </header>
+        <CategoryPage
+          title={M.title}
+          subtitle={M.subtitle}
+          emoji={M.emoji}
+          stats={M.stats}
+          intro={intro}
+          ctaHref={M.cta?.href}
+          ctaLabel={M.cta?.label || "Take the test"}
+        />
       </main>
     </>
   );
