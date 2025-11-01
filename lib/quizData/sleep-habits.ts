@@ -21,7 +21,7 @@ export const sleepHabitsQuiz: SleepQuizData = {
   title: "Sleep Habits: Do You Rest Better Than Most?",
   description:
     "Measure the quality of your sleep habits across rhythm, environment, and recovery.",
-  image: "/og-default.png",
+  image: "/images/quizzes/sleep-habits-card.png",
   questions: [
     {
       id: "q1",
