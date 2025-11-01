@@ -12,11 +12,10 @@ export type SleepQuizData = {
   description: string;
   image?: string;
   questions: SleepQuestion[];
-  // interpret score% → label and summary
   interpret(percent: number): { label: string; summary: string };
 };
 
-// 12 carefully designed, behavior-focused questions (no medical claims)
+// 12 behavior-based, realistic questions about rhythm, recovery & environment
 export const sleepHabitsQuiz: SleepQuizData = {
   slug: "sleep-habits",
   title: "Sleep Habits: Do You Rest Better Than Most?",
@@ -78,8 +77,8 @@ export const sleepHabitsQuiz: SleepQuizData = {
       id: "q6",
       prompt: "How do you usually feel upon waking up?",
       options: [
-        { id: "a", label: "Still tired", weight: 1 },
-        { id: "b", label: "Neutral", weight: 2 },
+        { id: "a", label: "Still tired or groggy", weight: 1 },
+        { id: "b", label: "Neutral — depends on the day", weight: 2 },
         { id: "c", label: "Fairly refreshed", weight: 3 },
         { id: "d", label: "Fully rested and alert", weight: 4 },
       ],
@@ -89,7 +88,7 @@ export const sleepHabitsQuiz: SleepQuizData = {
       prompt: "How often do you consume caffeine after 3 PM?",
       options: [
         { id: "a", label: "Daily", weight: 1 },
-        { id: "b", label: "A few times a week", weight: 2 },
+        { id: "b", label: "A few times per week", weight: 2 },
         { id: "c", label: "Rarely", weight: 3 },
         { id: "d", label: "Never", weight: 4 },
       ],
@@ -98,16 +97,31 @@ export const sleepHabitsQuiz: SleepQuizData = {
       id: "q8",
       prompt: "How often do you nap during the day?",
       options: [
-        { id: "a", label: "Multiple times per day", weight: 1 },
-        { id: "b", label: "A few times per week", weight: 2 },
-        { id: "c", label: "Occasionally on weekends", weight: 3 },
-        { id: "d", label: "Never — I sleep well at night", weight: 4 },
+        {
+          id: "a",
+          label: "Every day — it’s part of my routine",
+          weight: 2, // structureel nap-ritme; kan gezond zijn, maar wijst op extra rustbehoefte
+        },
+        {
+          id: "b",
+          label: "2–5 times per week, depending on how tired I feel",
+          weight: 3, // regelmatig herstelmoment
+        },
+        {
+          id: "c",
+          label: "1–2 times per week, usually on weekends or after short nights",
+          weight: 4, // incidenteel herstel; gezonde balans
+        },
+        {
+          id: "d",
+          label: "Never — I generally stay energized without naps",
+          weight: 4, // stabiel energieniveau
+        },
       ],
     },
     {
       id: "q9",
-      prompt:
-        "How often do you go to bed with active thoughts about work or stress?",
+      prompt: "How often do you go to bed with active thoughts about work or stress?",
       options: [
         { id: "a", label: "Every night", weight: 1 },
         { id: "b", label: "Most nights", weight: 2 },
@@ -127,8 +141,7 @@ export const sleepHabitsQuiz: SleepQuizData = {
     },
     {
       id: "q11",
-      prompt:
-        "How often do you eat heavy meals or drink alcohol within 2–3 hours before bed?",
+      prompt: "How often do you eat heavy meals or drink alcohol within 2–3 hours before bed?",
       options: [
         { id: "a", label: "Several times per week", weight: 1 },
         { id: "b", label: "Once per week", weight: 2 },
