@@ -1,6 +1,7 @@
 // app/quiz/[slug]/result/page.tsx
 import type { Metadata } from "next";
 import ResultLearnMore from "@/components/ResultLearnMore";
+import ResultShare from "@/components/ResultShare";
 import { getQuizMetaBySlug, getQuizDataBySlug } from "@/lib/quizzes";
 import { getLearnMoreBySlug } from "@/lib/learnMore";
 
@@ -24,16 +25,6 @@ export function generateMetadata({
     description:
       meta?.description ??
       "See your personalized quiz result and learn how you compare to others.",
-    openGraph: {
-      title,
-      description:
-        meta?.description ??
-        "See your personalized quiz result and learn how you compare to others.",
-      url: `https://www.humanaverage.com/quiz/${params.slug}/result`,
-      siteName: "HumanAverage",
-      images: ["/og-default.png"],
-      type: "article",
-    },
   };
 }
 
@@ -62,7 +53,7 @@ export default function ResultPage({
 
   const { label, summary } = quiz.interpret(pct);
 
-  // JSON-LD (light)
+  // JSON-LD (server-only, veilig in Server Component)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -77,12 +68,10 @@ export default function ResultPage({
   const circumference = 2 * Math.PI * radius;
   const progress = (pct / 100) * circumference;
 
-  const shareUrl =
-    typeof window === "undefined"
-      ? `https://www.humanaverage.com/quiz/${quiz.slug}/result?score=${score}&max=${max}&pct=${pct}`
-      : window.location.href;
+  // Server-side fallback URL (client component overschrijft dit met window.href)
+  const shareUrl = `https://www.humanaverage.com/quiz/${quiz.slug}/result?score=${score}&max=${max}&pct=${pct}`;
 
-  // ⬇️ Per-quiz Learn More content
+  // Per-quiz Learn More content
   const lm = getLearnMoreBySlug(params.slug);
 
   return (
@@ -121,43 +110,8 @@ export default function ResultPage({
           </svg>
         </div>
 
-        {/* Share buttons */}
-        <div className="mt-6 flex flex-wrap gap-3 justify-center">
-          <a
-            className="px-4 py-2 rounded-lg bg-black text-white"
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              `My sleep habits score: ${pct}% — via HumanAverage`
-            )}&url=${encodeURIComponent(shareUrl)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Share on X
-          </a>
-          <a
-            className="px-4 py-2 rounded-lg bg-[#1877F2] text-white"
-            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Share on Facebook
-          </a>
-          <a
-            className="px-4 py-2 rounded-lg bg-[#FF4500] text-white"
-            href={`https://www.reddit.com/submit?url=${encodeURIComponent(
-              shareUrl
-            )}&title=${encodeURIComponent(`My sleep habits score: ${pct}%`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Share on Reddit
-          </a>
-          <button
-            className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50"
-            onClick={() => navigator.clipboard?.writeText(shareUrl)}
-          >
-            Copy Link
-          </button>
-        </div>
+        {/* Share buttons (client component) */}
+        <ResultShare url={shareUrl} pct={pct} slug={quiz.slug} />
 
         <div className="mt-8">
           <a href={`/quiz/${quiz.slug}`} className="text-sm text-blue-700 underline hover:no-underline">
@@ -166,7 +120,7 @@ export default function ResultPage({
         </div>
       </section>
 
-      {/* Per-quiz editorial block with sources */}
+      {/* Editorial block with sources */}
       <ResultLearnMore
         title={lm.title}
         intro={lm.intro}
