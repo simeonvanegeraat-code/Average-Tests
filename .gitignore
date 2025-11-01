@@ -1,15 +1,17 @@
-node_modules
-.next
-out
-.DS_Store
-*.log
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Build output
+.next/
+out/
+
+# Env files
 .env*
-.vercel
+!.env.example
 
-# Zorg dat build scripts meegecommit worden
-!build-income-json.cjs
-!build-money-json.cjs
-!scripts/**
-!data/**
-!src/data/averages/**
-
+# System
+.DS_Store
+Thumbs.db

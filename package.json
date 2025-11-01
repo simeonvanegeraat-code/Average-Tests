@@ -1,40 +1,23 @@
 {
-  "name": "average-tests",
-  "version": "0.4.0",
+  "name": "humanaverage",
+  "version": "1.0.0",
   "private": true,
-  "description": "HumanAverage.com – Modern data hub for global/continental averages with tests",
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run build:data",
     "build": "next build",
-    "start": "next start",
-    "build:money": "node ./scripts/build-money-json.cjs",
-    "build:income": "node ./scripts/build-income-json.cjs",
-    "build:debt": "node ./scripts/build-debt-json.cjs",
-    "build:lifestyle": "node ./scripts/build-lifestyle-json.cjs",
-    "build:health": "node ./scripts/build-health-json.cjs",
-    "build:tech": "node ./scripts/build-tech-json.cjs",
-    "build:productivity": "node ./scripts/build-productivity-json.cjs",
-    "build:habits": "node ./scripts/build-habits-json.cjs",
-    "build:data": "npm run build:money && npm run build:income && npm run build:debt && npm run build:lifestyle && npm run build:health && npm run build:tech && npm run build:productivity && npm run build:habits",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
-    "csv-parse": "^5.5.2",
-    "next": "14.0.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "@vercel/og": "0.6.2",
+    "lucide-react": "0.469.0",
+    "next": "14.2.13",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "devDependencies": {
-    "@types/node": "^20.11.30",
-    "@types/react": "^18.3.4",
-    "autoprefixer": "10.4.0",
-    "postcss": "8.4.0",
-    "tailwindcss": "3.4.0",
-    "typescript": "^5.6.3"
-  },
-  "engines": {
-    "node": "22.x"
-  },
-  "license": "UNLICENSED"
+    "autoprefixer": "10.4.19",
+    "postcss": "8.4.38",
+    "tailwindcss": "3.4.4",
+    "typescript": "5.6.2"
+  }
 }
