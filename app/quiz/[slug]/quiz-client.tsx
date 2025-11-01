@@ -11,18 +11,17 @@ export default function QuizClient({ slug }: { slug: string }) {
   const router = useRouter();
   const data = getQuizDataBySlug(slug);
   const [answers, setAnswers] = useState<Record<string, { id: string; weight: number }>>({});
-  const total = data?.questions.length || 0;
+
+  if (!data) return null; // hard guard for runtime
+
+  const total = data.questions.length;
 
   const currentIndex = useMemo(() => {
-    // first unanswered
-    if (!data) return 0;
     for (let i = 0; i < data.questions.length; i++) {
       if (!answers[data.questions[i].id]) return i;
     }
     return data.questions.length; // complete
-  }, [answers, data]);
-
-  if (!data) return null;
+  }, [answers, data.questions]);
 
   const current = data.questions[currentIndex];
 
@@ -37,16 +36,14 @@ export default function QuizClient({ slug }: { slug: string }) {
       alert("Please choose an answer.");
       return;
     }
-    // move to next (just state causes re-render)
+    // noop; state update in onSelect advances index
   }
 
   function onSubmit() {
-    // compute score
+    // TS-safe: data is non-null here; total is already derived
     const score = Object.values(answers).reduce((sum, a) => sum + a.weight, 0);
-    const max = (data.questions.length * 4);
+    const max = total * 4;
     const percent = Math.round((score / max) * 100);
-
-    // push to result page
     router.push(`/quiz/${slug}/result?score=${score}&max=${max}&pct=${percent}`);
   }
 
@@ -88,7 +85,6 @@ export default function QuizClient({ slug }: { slug: string }) {
           </div>
         </>
       ) : (
-        // All answered
         <div className="text-center space-y-4 bg-white border rounded-xl p-8">
           <h2 className="text-xl font-bold">Ready to see your score?</h2>
           <p className="text-gray-600">You’ve answered all {total} questions.</p>
