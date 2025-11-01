@@ -1,6 +1,6 @@
-import { clsx } from "clsx";
-import { twMerge } from "./twMerge";
-
-export function cn(...inputs: any[]) {
-  return twMerge(clsx(inputs));
+// lib/utils.ts
+// Minimalistische className helper zonder externe dependencies.
+// Gebruik: cn("p-4", condition && "bg-black")
+export function cn(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
 }
