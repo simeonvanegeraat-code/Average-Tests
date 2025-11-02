@@ -8,6 +8,9 @@ export type LearnMoreContent = {
 };
 
 const REGISTRY: Record<string, LearnMoreContent> = {
+  // ─────────────────────────────────────────────────────────────
+  // Sleep Habits
+  // ─────────────────────────────────────────────────────────────
   "sleep-habits": {
     title: "Learn More About Healthy Sleep",
     intro:
@@ -29,7 +32,30 @@ const REGISTRY: Record<string, LearnMoreContent> = {
       "This section is educational and not a medical assessment. If sleep issues persist, consider professional advice.",
   },
 
-  // Next quizzes later:
+  // ─────────────────────────────────────────────────────────────
+  // Introvert vs. Extravert
+  // ─────────────────────────────────────────────────────────────
+  "introvert-extrovert": {
+    title: "Learn More About Extraversion & Introversion",
+    intro:
+      "Personality isn’t a box — it’s a spectrum. Where you recharge (alone vs. with people) is a strong clue. Many people are ambiverts who flex by context.",
+    tips: [
+      "Plan your day around how you recharge: quiet deep-work blocks vs. social energy windows.",
+      "Protect your strengths: introverts benefit from buffer time; extraverts from regular social contact.",
+      "In meetings, decide your move: speak early for airtime, or note 2–3 points and share them clearly.",
+      "Design your environment: noise-canceling + focus rituals, or collaborative hubs that energize you.",
+      "Choose purpose-based social time: fewer random obligations, more meaningful conversations.",
+    ],
+    sources: [
+      { href: "https://www.apa.org/topics/personality", label: "APA — Personality (American Psychological Association)" },
+      { href: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6527838/", label: "NIH/PMC — Personality Traits Overview (Big Five)" },
+      { href: "https://www.psychologytoday.com/us/basics/introversion", label: "Psychology Today — Introversion (overview)" },
+    ],
+    disclaimer:
+      "Behavior-based content only. Personality is complex and context-dependent; this quiz is not a clinical assessment.",
+  },
+
+  // Future quizzes:
   // "screen-time": { ... },
   // "focus-habits": { ... },
 };
