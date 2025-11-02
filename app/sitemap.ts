@@ -5,7 +5,7 @@ import { QUIZZES } from "@/lib/quizzes";
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://www.humanaverage.com";
 
-  const staticPages = [
+  const staticPages: MetadataRoute.Sitemap = [
     "",
     "/about",
     "/privacy",
@@ -14,21 +14,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: new Date(),
-    changeFrequency: "monthly",
+    changeFrequency: "monthly" as const,
     priority: 0.8,
   }));
 
-  const quizPages = QUIZZES.flatMap((quiz) => [
+  const quizPages: MetadataRoute.Sitemap = QUIZZES.flatMap((quiz) => [
     {
       url: `${baseUrl}/quiz/${quiz.slug}`,
       lastModified: new Date(),
-      changeFrequency: "weekly",
+      changeFrequency: "weekly" as const,
       priority: 0.9,
     },
     {
       url: `${baseUrl}/quiz/${quiz.slug}/result`,
       lastModified: new Date(),
-      changeFrequency: "weekly",
+      changeFrequency: "weekly" as const,
       priority: 0.7,
     },
   ]);
