@@ -11,7 +11,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Home", match: "exact" },
   { href: "/take-a-test", label: "Take a Test", match: "startsWith" },
   { href: "/insights", label: "Insights", match: "startsWith" },
-  { href: "/polls", label: "Polls", match: "startsWith" },
+  // polls verwijderd
   { href: "/about", label: "About", match: "startsWith" },
   { href: "/privacy", label: "Privacy", match: "startsWith" },
   { href: "/contact", label: "Contact", match: "startsWith" },
@@ -19,7 +19,6 @@ const NAV_ITEMS: NavItem[] = [
 
 function isActive(pathname: string, item: NavItem) {
   if (item.match === "exact") return pathname === item.href;
-  // startsWith fallback
   return pathname === item.href || pathname.startsWith(item.href + "/");
 }
 
@@ -81,7 +80,7 @@ export default function Header() {
             <NavLink key={item.href} item={item} pathname={pathname} />
           ))}
 
-          {/* CTA */}
+        {/* CTA */}
           <Link
             href="/take-a-test"
             className="ml-2 inline-flex items-center rounded-lg bg-indigo-600 text-white px-3 py-2 text-sm font-medium hover:bg-indigo-700 transition"
