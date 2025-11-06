@@ -2,6 +2,8 @@
 import { sleepHabitsQuiz, SLEEP_MAX_SCORE } from "./quizData/sleep-habits";
 import { introExtroQuiz, INTRO_EXTRO_MAX_SCORE } from "./quizData/introvert-extrovert";
 import { digitalDetoxQuiz, DIGITAL_DETOX_MAX_SCORE } from "./quizData/digital-detox";
+import { sustainabilityQuiz, SUSTAINABILITY_MAX_SCORE } from "./quizData/sustainability-habits";
+import { empathyQuiz, EMPATHY_MAX_SCORE } from "./quizData/empathy";
 
 export type QuizMeta = {
   slug: string;
@@ -11,7 +13,7 @@ export type QuizMeta = {
   maxScore: number;
 };
 
-// Alle beschikbare quizzes
+// ✅ Alle beschikbare quizzes komen hier in
 export const QUIZZES: QuizMeta[] = [
   {
     slug: sleepHabitsQuiz.slug,
@@ -34,14 +36,28 @@ export const QUIZZES: QuizMeta[] = [
     image: digitalDetoxQuiz.image || "/og-default.png",
     maxScore: DIGITAL_DETOX_MAX_SCORE,
   },
+  {
+    slug: sustainabilityQuiz.slug,
+    title: sustainabilityQuiz.title,
+    description: sustainabilityQuiz.description,
+    image: sustainabilityQuiz.image || "/og-default.png",
+    maxScore: SUSTAINABILITY_MAX_SCORE,
+  },
+  {
+    slug: empathyQuiz.slug,
+    title: empathyQuiz.title,
+    description: empathyQuiz.description,
+    image: empathyQuiz.image || "/og-default.png",
+    maxScore: EMPATHY_MAX_SCORE,
+  },
 ];
 
-// Metadata helper
+// ✅ Voor metadata (homepage, SEO, etc.)
 export function getQuizMetaBySlug(slug: string): QuizMeta | null {
   return QUIZZES.find((q) => q.slug === slug) || null;
 }
 
-// Volledige quizdata (incl. vragen)
+// ✅ Volledige quizdata (alle vragen + interpretatie)
 export function getQuizDataBySlug(slug: string) {
   switch (slug) {
     case "sleep-habits":
@@ -50,6 +66,10 @@ export function getQuizDataBySlug(slug: string) {
       return introExtroQuiz;
     case "digital-detox":
       return digitalDetoxQuiz;
+    case "sustainability-habits":
+      return sustainabilityQuiz;
+    case "empathy":
+      return empathyQuiz;
     default:
       return null;
   }

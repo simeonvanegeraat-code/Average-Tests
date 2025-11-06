@@ -55,7 +55,9 @@ const REGISTRY: Record<string, LearnMoreContent> = {
       "Behavior-based content only. Personality is complex and context-dependent; this quiz is not a clinical assessment.",
   },
 
-  // ✅ NEW:
+  // ─────────────────────────────────────────────────────────────
+  // Digital Detox
+  // ─────────────────────────────────────────────────────────────
   "digital-detox": {
     title: "Learn More About Digital Balance and Screen Habits",
     intro:
@@ -72,12 +74,53 @@ const REGISTRY: Record<string, LearnMoreContent> = {
       { href: "https://www.apa.org/news/press/releases/2022/05/technology-well-being", label: "APA — Technology and Well-Being" },
       { href: "https://www.who.int/news-room/fact-sheets/detail/digital-health", label: "WHO — Digital Health & Mental Well-being" },
     ],
-    disclaimer:
-      "Educational content only; not medical or psychological advice.",
+    disclaimer: "Educational content only; not medical or psychological advice.",
   },
-  // Future quizzes:
-  // "screen-time": { ... },
-  // "focus-habits": { ... },
+
+  // ─────────────────────────────────────────────────────────────
+  // Sustainability Habits
+  // ─────────────────────────────────────────────────────────────
+  "sustainability-habits": {
+    title: "Learn More About Sustainable Daily Habits",
+    intro:
+      "Small, consistent choices add up — from commuting and meals to energy and repair. Start with the easiest wins in your routine.",
+    tips: [
+      "Make one swap this week: bike/foot for short trips, or a plant-based lunch.",
+      "Bundle deliveries and choose repairable products.",
+      "Use timers/smart plugs to cut standby waste.",
+      "Sort recycling + e-waste; donate or resell usable items.",
+      "Plan trips: rail/coach where practical, fewer short flights.",
+    ],
+    sources: [
+      { href: "https://www.un.org/en/actnow", label: "UN — ActNow Climate Action" },
+      { href: "https://www.iea.org", label: "IEA — Energy Efficiency Resources" },
+      { href: "https://www.eea.europa.eu/themes/climate", label: "EEA — Climate & Environment" },
+    ],
+    disclaimer:
+      "Educational content only; local guidance and context may vary.",
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // Empathy Test
+  // ─────────────────────────────────────────────────────────────
+  empathy: {
+    title: "Learn More About Everyday Empathy",
+    intro:
+      "Empathy grows with practice: reflective listening, perspective-taking, and repairing missteps strengthen trust and relationships.",
+    tips: [
+      "Reflect feelings before fixing problems.",
+      "Summarize what you heard to confirm understanding.",
+      "Match the other person’s pace and detail level.",
+      "Follow up later to show you care.",
+      "When wrong, name the impact and repair specifically.",
+    ],
+    sources: [
+      { href: "https://www.apa.org/topics/emotions/empathy", label: "APA — Empathy Overview" },
+      { href: "https://greatergood.berkeley.edu/topic/empathy", label: "UC Berkeley — Greater Good: Empathy" },
+      { href: "https://www.ncbi.nlm.nih.gov/pmc/", label: "NIH/PMC — Peer-Reviewed Articles (search ‘empathy’)" },
+    ],
+    disclaimer: "Not a diagnostic tool; for personal reflection and growth.",
+  },
 };
 
 const FALLBACK: LearnMoreContent = {
