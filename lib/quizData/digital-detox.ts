@@ -20,7 +20,7 @@ export const digitalDetoxQuiz: DigitalDetoxQuizData = {
   title: "Digital Detox Test — How Addicted Are You to Your Phone?",
   description:
     "Discover your digital balance — measure how often, why, and when you reach for your phone.",
-  image: "/images/quizzes/digital-detox-card.webp", // gebruik .png als je nog geen .webp hebt
+  image: "/images/quizzes/digital-detox-card.png", // gebruik .png als je nog geen .webp hebt
   questions: [
     {
       id: "q1",
