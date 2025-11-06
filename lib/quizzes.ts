@@ -1,6 +1,7 @@
 // lib/quizzes.ts
 import { sleepHabitsQuiz, SLEEP_MAX_SCORE } from "./quizData/sleep-habits";
 import { introExtroQuiz, INTRO_EXTRO_MAX_SCORE } from "./quizData/introvert-extrovert";
+import { digitalDetoxQuiz, DIGITAL_DETOX_MAX_SCORE } from "./quizData/digital-detox";
 
 export type QuizMeta = {
   slug: string;
@@ -10,7 +11,7 @@ export type QuizMeta = {
   maxScore: number;
 };
 
-// ✅ Alle beschikbare quizzes komen hier in
+// Alle beschikbare quizzes
 export const QUIZZES: QuizMeta[] = [
   {
     slug: sleepHabitsQuiz.slug,
@@ -26,20 +27,29 @@ export const QUIZZES: QuizMeta[] = [
     image: introExtroQuiz.image || "/og-default.png",
     maxScore: INTRO_EXTRO_MAX_SCORE,
   },
+  {
+    slug: digitalDetoxQuiz.slug,
+    title: digitalDetoxQuiz.title,
+    description: digitalDetoxQuiz.description,
+    image: digitalDetoxQuiz.image || "/og-default.png",
+    maxScore: DIGITAL_DETOX_MAX_SCORE,
+  },
 ];
 
-// ✅ Handige functie voor metadata (homepage, SEO, etc.)
+// Metadata helper
 export function getQuizMetaBySlug(slug: string): QuizMeta | null {
   return QUIZZES.find((q) => q.slug === slug) || null;
 }
 
-// ✅ Hiermee haal je de volledige quizdata (alle vragen)
+// Volledige quizdata (incl. vragen)
 export function getQuizDataBySlug(slug: string) {
   switch (slug) {
     case "sleep-habits":
       return sleepHabitsQuiz;
     case "introvert-extrovert":
       return introExtroQuiz;
+    case "digital-detox":
+      return digitalDetoxQuiz;
     default:
       return null;
   }
