@@ -55,6 +55,26 @@ const REGISTRY: Record<string, LearnMoreContent> = {
       "Behavior-based content only. Personality is complex and context-dependent; this quiz is not a clinical assessment.",
   },
 
+  // ✅ NEW:
+  "digital-detox": {
+    title: "Learn More About Digital Balance and Screen Habits",
+    intro:
+      "Phone use can enhance productivity and connection — but constant notifications fragment attention. Research shows that setting intentional boundaries improves mental focus, sleep, and emotional well-being.",
+    tips: [
+      "Use 'Do Not Disturb' during focus time or meals.",
+      "Keep your phone outside the bedroom at night.",
+      "Batch or turn off non-essential notifications.",
+      "Replace doomscrolling with a 5–10 minute outdoor walk.",
+      "Try a daily 'no-screen hour' to reset your attention.",
+    ],
+    sources: [
+      { href: "https://www.health.harvard.edu/mind-and-mood/why-you-cant-stop-checking-your-phone", label: "Harvard Health — Why You Can’t Stop Checking Your Phone" },
+      { href: "https://www.apa.org/news/press/releases/2022/05/technology-well-being", label: "APA — Technology and Well-Being" },
+      { href: "https://www.who.int/news-room/fact-sheets/detail/digital-health", label: "WHO — Digital Health & Mental Well-being" },
+    ],
+    disclaimer:
+      "Educational content only; not medical or psychological advice.",
+  },
   // Future quizzes:
   // "screen-time": { ... },
   // "focus-habits": { ... },
