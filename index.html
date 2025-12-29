@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HumanAverage | Compare yourself to the world</title>
+    <meta name="description" content="Discover global averages on health, finance, and lifestyle. Compare your stats with the rest of the world at HumanAverage.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e293b;
+            --accent: #10b981;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-links a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: var(--text-gray);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 5rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-gray);
+            margin-bottom: 2.5rem;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            border: 2px solid var(--border);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* AdSense Placeholder - Top Banner */
+        .ad-banner {
+            max-width: 900px;
+            height: 100px; /* Adjust based on ad unit */
+            background-color: #e2e8f0;
+            margin: 2rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        /* Categories / Grid */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 1.8rem;
+            color: var(--secondary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border-color: var(--primary);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+
+        .card p {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .stat-highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 4rem 1rem;
+            margin-top: 4rem;
+            text-align: center;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            margin: 0 1rem;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        .copyright {
+            margin-top: 2rem;
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        /* Mobile Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-links { display: none; } /* Simple hiding for now */
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="logo">
+            Human<span>Average</span>
+        </a>
+        <div class="nav-links">
+            <a href="#">Health</a>
+            <a href="#">Finance</a>
+            <a href="#">Society</a>
+            <a href="#">About</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Are you above average?</h1>
+        <p>Explore the data of human life. Compare your height, salary, habits, and more against global statistics.</p>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search for statistics (e.g., 'Average salary USA')...">
+            <button class="search-btn">Search</button>
+        </div>
+    </header>
+
+    <div class="ad-banner">
+        Google AdSense Banner (970x90 / 728x90)
+    </div>
+
+    <div class="container">
+        <h2 class="section-title">Popular Categories</h2>
+        
+        <div class="grid">
+            <a href="#" class="card">
+                <span class="card-icon">💰</span>
+                <h3>Income & Finance</h3>
+                <p>Global average salaries, savings rates, and debt statistics per country.</p>
+            </a>
+
+            <a href="#" class="card">
+                <span class="card-icon">📏</span>
+                <h3>Body & Health</h3>
+                <p>Average height, weight, BMI, and life expectancy by age and region.</p>
+            </a>
+
+            <a href="#" class="card">
+                <span class="card-icon">☕</span>
+                <h3>Lifestyle & Habits</h3>
+                <p>Coffee consumption, screen time, sleep hours, and travel frequency.</p>
+            </a>
+
+            <a href="#" class="card">
+                <span class="card-icon">👥</span>
+                <h3>Demographics</h3>
+                <p>Population density, average family size, and migration statistics.</p>
+            </a>
+            
+             <a href="#" class="card" style="border-color: var(--accent); background: #f0fdf4;">
+                <span class="card-icon">⚡</span>
+                <h3>Quick Compare Tool</h3>
+                <p>Input your data and see exactly where you rank in <span class="stat-highlight">30 seconds</span>.</p>
+            </a>
+
+             <a href="#" class="card">
+                <span class="card-icon">💼</span>
+                <h3>Work & Productivity</h3>
+                <p>Average working hours, commute times, and retirement ages.</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="ad-banner">
+        Google AdSense Banner (Responsive)
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Data Sources</a>
+            <a href="#">Contact</a>
+        </div>
+        <div class="copyright">
+            &copy; 2025 HumanAverage.com. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        const searchInput = document.querySelector('.search-input');
+        const searchBtn = document.querySelector('.search-btn');
+
+        searchBtn.addEventListener('click', () => {
+            if(searchInput.value) {
+                alert('This is a demo. In the full version, this searches the database for: ' + searchInput.value);
+            }
+        });
+    </script>
+</body>
+</html>
