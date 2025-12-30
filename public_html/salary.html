@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Average Salary by Country (2025 Statistics) - HumanAverage</title>
+    <meta name="description" content="Compare average salaries worldwide. See how your income ranks against the USA, Europe, and Asia in 2025.">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Reusing the same CSS for consistency */
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e293b;
+            --accent: #10b981;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
+
+        /* Nav (Simplified) */
+        nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--secondary); text-decoration: none; }
+        .logo span { color: var(--primary); }
+        .nav-back { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; }
+
+        /* Content Layout */
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+        
+        header { text-align: center; margin-bottom: 2rem; }
+        h1 { font-size: 2.5rem; color: var(--secondary); margin-bottom: 1rem; }
+        .meta { color: var(--text-gray); font-size: 0.9rem; margin-bottom: 2rem; }
+
+        /* Data Table */
+        .data-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 2rem; }
+        .data-table th { background: var(--secondary); color: var(--white); text-align: left; padding: 1rem; font-weight: 600; }
+        .data-table td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover { background-color: #f1f5f9; }
+        .rank { font-weight: 800; color: var(--text-gray); width: 50px; }
+        .amount { font-weight: 600; color: var(--accent); }
+
+        /* Article Content */
+        .content p { margin-bottom: 1.5rem; font-size: 1.1rem; color: #334155; }
+        .content h2 { margin-top: 2rem; margin-bottom: 1rem; color: var(--secondary); }
+
+        /* Ad Placeholder */
+        .ad-slot { background: #e2e8f0; height: 250px; width: 100%; display: flex; align-items: center; justify-content: center; margin: 2rem 0; border: 1px dashed #cbd5e1; color: #64748b; }
+
+        footer { text-align: center; padding: 2rem; color: var(--text-gray); font-size: 0.8rem; margin-top: 3rem; border-top: 1px solid var(--border); }
+        footer a { color: var(--primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">Human<span>Average</span></a>
+        <a href="index.html" class="nav-back">← Back to Home</a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Average Salary by Country (2025)</h1>
+            <p class="meta">Last Updated: January 2025 • Source: OECD / World Bank Data</p>
+        </header>
+
+        <div class="content">
+            <p>How does your income compare to the rest of the world? The gap between the highest and lowest paying countries continues to grow in 2025. Below is the data for the top developed nations based on average net monthly income (after tax).</p>
+        </div>
+
+        <div class="ad-slot">Google AdSense (Square)</div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Country</th>
+                    <th>Avg. Monthly (Net)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="rank">1</td><td>🇨🇭 Switzerland</td><td class="amount">$6,980</td></tr>
+                <tr><td class="rank">2</td><td>🇱🇺 Luxembourg</td><td class="amount">$5,600</td></tr>
+                <tr><td class="rank">3</td><td>🇺🇸 United States</td><td class="amount">$4,850</td></tr>
+                <tr><td class="rank">4</td><td>🇸🇬 Singapore</td><td class="amount">$4,600</td></tr>
+                <tr><td class="rank">5</td><td>🇦🇪 UAE</td><td class="amount">$3,900</td></tr>
+                <tr><td class="rank">6</td><td>🇳🇱 Netherlands</td><td class="amount">$3,750</td></tr>
+                <tr><td class="rank">7</td><td>🇦🇺 Australia</td><td class="amount">$3,600</td></tr>
+                <tr><td class="rank">8</td><td>🇩🇪 Germany</td><td class="amount">$3,450</td></tr>
+                <tr><td class="rank">9</td><td>🇬🇧 United Kingdom</td><td class="amount">$3,100</td></tr>
+                <tr><td class="rank">10</td><td>🇨🇦 Canada</td><td class="amount">$3,050</td></tr>
+            </tbody>
+        </table>
+
+        <div class="content">
+            <h2>Why is the difference so big?</h2>
+            <p>Switzerland and the United States continue to dominate due to their strong banking and tech sectors. In contrast, many European nations like the Netherlands and Germany have higher tax rates, which slightly lowers the <em>net</em> take-home pay, despite high gross salaries.</p>
+            
+            <h2>Cost of Living Adjustment</h2>
+            <p>Remember: a high salary doesn't always mean a better lifestyle. The cost of living in Zurich (Switzerland) or New York (USA) is significantly higher than in Berlin or Amsterdam. When adjusted for purchasing power parity (PPP), the gap narrows significantly.</p>
+        </div>
+
+        <div class="ad-slot">Google AdSense (Responsive)</div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 HumanAverage.com. <a href="legal/privacy.html">Privacy</a></p>
+    </footer>
+
+</body>
+</html>
