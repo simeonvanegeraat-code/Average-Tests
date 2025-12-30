@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work & Productivity Stats - HumanAverage</title>
+    <meta name="description" content="Average working hours per country, retirement ages, and commute times globally.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2563eb; --secondary: #1e293b; --accent: #f59e0b; --bg-light: #f8fafc; --white: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
+        nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--secondary); text-decoration: none; }
+        .logo span { color: var(--primary); }
+        .nav-back { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; }
+        
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+        header { text-align: center; margin-bottom: 3rem; }
+        h1 { font-size: 2.5rem; color: var(--secondary); margin-bottom: 1rem; }
+        
+        .data-card { background: var(--white); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 2rem; }
+        .data-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .bar-container { margin-bottom: 1rem; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.2rem; }
+        .bar-bg { background: #e2e8f0; height: 10px; border-radius: 5px; overflow: hidden; }
+        .bar-fill { background: var(--primary); height: 100%; border-radius: 5px; }
+        
+        .ad-slot { background: #e2e8f0; height: 250px; width: 100%; display: flex; align-items: center; justify-content: center; margin: 2rem 0; border: 1px dashed #cbd5e1; color: #64748b; }
+        footer { text-align: center; padding: 2rem; color: var(--text-gray); font-size: 0.8rem; border-top: 1px solid var(--border); }
+        footer a { color: var(--primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">Human<span>Average</span></a>
+        <a href="index.html" class="nav-back">← Back to Home</a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Work & Productivity</h1>
+            <p>Global statistics on how hard we work and when we retire.</p>
+        </header>
+
+        <div class="ad-slot">Google AdSense (Header)</div>
+
+        <div class="data-card">
+            <div class="data-title">⏰ Average Working Hours (Per Year)</div>
+            <p style="margin-bottom: 1.5rem; font-size: 0.9rem; color: #64748b;">Based on OECD data. Mexico consistently ranks highest, while Germany ranks lowest due to part-time work culture.</p>
+            
+            <div class="bar-container">
+                <div class="bar-label"><span>🇲🇽 Mexico</span><span>2,124 hrs</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width: 100%; background: #ef4444;"></div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>🇺🇸 USA</span><span>1,765 hrs</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width: 83%;"></div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>🇯🇵 Japan</span><span>1,598 hrs</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width: 75%;"></div></div>
+            </div>
+            <div class="bar-container">
+                <div class="bar-label"><span>🇩🇪 Germany</span><span>1,332 hrs</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width: 62%; background: #10b981;"></div></div>
+            </div>
+        </div>
+
+        <div class="ad-slot">Google AdSense (Middle)</div>
+
+        <div class="data-card">
+            <div class="data-title">🚗 Average Commute Time (One Way)</div>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                    <span>Global Average</span> <strong>40 mins</strong>
+                </li>
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                    <span>Tokyo, Japan</span> <strong>67 mins</strong>
+                </li>
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between;">
+                    <span>New York, USA</span> <strong>58 mins</strong>
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; justify-content: space-between;">
+                    <span>Amsterdam, NL</span> <strong>28 mins</strong>
+                </li>
+            </ul>
+        </div>
+
+        <div class="ad-slot">Google AdSense (Footer)</div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 HumanAverage.com. <a href="legal/privacy.html">Privacy</a></p>
+    </footer>
+</body>
+</html>

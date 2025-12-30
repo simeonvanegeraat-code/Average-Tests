@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Average Height & Weight Worldwide (2025 Data) - HumanAverage</title>
+    <meta name="description" content="Global statistics on average human height and weight. Compare male and female stats by country. Are you taller than the average?">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e293b;
+            --accent: #10b981;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+            --text-dark: #0f172a;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
+
+        /* Nav */
+        nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--secondary); text-decoration: none; }
+        .logo span { color: var(--primary); }
+        .nav-back { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; }
+
+        /* Layout */
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+        
+        header { text-align: center; margin-bottom: 3rem; }
+        h1 { font-size: 2.5rem; color: var(--secondary); margin-bottom: 1rem; }
+        .intro-text { font-size: 1.1rem; color: #334155; margin-bottom: 2rem; }
+
+        /* Tables */
+        .stat-card { background: var(--white); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .stat-header { background: var(--secondary); color: var(--white); padding: 1rem 1.5rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem; color: var(--text-gray); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border); font-weight: 500; }
+        tr:last-child td { border-bottom: none; }
+        
+        .flag { margin-right: 0.5rem; font-size: 1.2rem; }
+        .highlight { color: var(--primary); font-weight: 700; }
+        .male { color: #3b82f6; } /* Blue for men */
+        .female { color: #ec4899; } /* Pink for women */
+
+        /* Ad Slots */
+        .ad-slot { background: #f1f5f9; height: 250px; width: 100%; display: flex; align-items: center; justify-content: center; margin: 2rem 0; border: 1px dashed #cbd5e1; color: #94a3b8; border-radius: 8px; }
+
+        footer { text-align: center; padding: 2rem; color: var(--text-gray); font-size: 0.8rem; margin-top: 3rem; border-top: 1px solid var(--border); }
+        footer a { color: var(--primary); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">Human<span>Average</span></a>
+        <a href="index.html" class="nav-back">← Back to Home</a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Average Height & Weight</h1>
+            <p class="intro-text">Human height varies significantly across continents. Nutrition, genetics, and environment play a huge role. See where you stand compared to the global averages.</p>
+        </header>
+
+        <div class="ad-slot">Google AdSense (Responsive Display Ad)</div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span>📏 Average Height by Country</span>
+                <span style="font-size: 0.8rem; opacity: 0.8">Adults (18+)</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>Men (Avg)</th>
+                        <th>Women (Avg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="flag">🇳🇱</span> Netherlands</td>
+                        <td class="highlight">183.8 cm</td>
+                        <td>170.4 cm</td>
+                    </tr>
+                    <tr>
+                        <td><span class="flag">🇲🇪</span> Montenegro</td>
+                        <td>183.3 cm</td>
+                        <td>169.4 cm</td>
+                    </tr>
+                    <tr>
+                        <td><span class="flag">🇩🇰</span> Denmark</td>
+                        <td>181.9 cm</td>
+                        <td>168.9 cm</td>
+                    </tr>
+                    <tr>
+                        <td><span class="flag">🇳🇴</span> Norway</td>
+                        <td>180.5 cm</td>
+                        <td>167.6 cm</td>
+                    </tr>
+                    <tr>
+                        <td><span class="flag">🇩🇪</span> Germany</td>
+                        <td>180.3 cm</td>
+                        <td>166.2 cm</td>
+                    </tr>
+                    <tr>
+                        <td><span class="flag">🇺🇸</span> United States</td>
+                        <td>176.9 cm</td>
+                        <td>163.3 cm</td>
+                    </tr>
+                    <tr>
+                        <td><span class="flag">🇨🇳</span> China</td>
+                        <td>172.1 cm</td>
+                        <td>160.6 cm</td>
+                    </tr>
+                    <tr>
+                        <td><span class="flag">🇯🇵</span> Japan</td>
+                        <td>171.5 cm</td>
+                        <td>158.5 cm</td>
+                    </tr>
+                    <tr>
+                        <td><span class="flag">🌍</span> <strong>Global Average</strong></td>
+                        <td class="male"><strong>171 cm</strong></td>
+                        <td class="female"><strong>159 cm</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="intro-text">
+            <h3>Did you know?</h3>
+            <p>The Netherlands has held the title for the tallest nation for decades, but recent data suggests the average height is slightly decreasing. Meanwhile, nations in East Asia like South Korea and China are seeing the fastest growth in average height due to improved nutrition.</p>
+        </div>
+
+        <div class="ad-slot">Google AdSense (In-Article Ad)</div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span>⚖️ Average Weight (Global Context)</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Region / Country</th>
+                        <th>Average Weight</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🇺🇸 North America</td>
+                        <td class="highlight">80.7 kg</td>
+                        <td style="color: red;">Rising ↗</td>
+                    </tr>
+                    <tr>
+                        <td>🇪🇺 Europe</td>
+                        <td>70.8 kg</td>
+                        <td style="color: orange;">Stable →</td>
+                    </tr>
+                    <tr>
+                        <td>🌏 Asia</td>
+                        <td>57.7 kg</td>
+                        <td style="color: red;">Rising ↗</td>
+                    </tr>
+                    <tr>
+                        <td>🌍 Africa</td>
+                        <td>60.7 kg</td>
+                        <td style="color: green;">Mixed ↘↗</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="ad-slot">Google AdSense (Responsive)</div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2025 HumanAverage.com. Data sources: NCD-RisC / WHO. <a href="legal/privacy.html">Privacy</a></p>
+    </footer>
+
+</body>
+</html>

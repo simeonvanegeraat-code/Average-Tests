@@ -20,11 +20,7 @@
             --border: #e2e8f0;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -56,9 +52,7 @@
             gap: 0.5rem;
         }
 
-        .logo span {
-            color: var(--primary);
-        }
+        .logo span { color: var(--primary); }
 
         .nav-links a {
             margin-left: 2rem;
@@ -69,9 +63,7 @@
             transition: color 0.2s;
         }
 
-        .nav-links a:hover {
-            color: var(--primary);
-        }
+        .nav-links a:hover { color: var(--primary); }
 
         /* Hero Section */
         .hero {
@@ -111,9 +103,7 @@
             transition: border-color 0.2s;
         }
 
-        .search-input:focus {
-            border-color: var(--primary);
-        }
+        .search-input:focus { border-color: var(--primary); }
 
         .search-btn {
             position: absolute;
@@ -129,14 +119,12 @@
             transition: background 0.2s;
         }
 
-        .search-btn:hover {
-            background: #1d4ed8;
-        }
+        .search-btn:hover { background: #1d4ed8; }
 
-        /* AdSense Placeholder - Top Banner */
+        /* AdSense Placeholder */
         .ad-banner {
             max-width: 900px;
-            height: 100px; /* Adjust based on ad unit */
+            height: 100px;
             background-color: #e2e8f0;
             margin: 2rem auto;
             display: flex;
@@ -148,7 +136,7 @@
             border: 1px dashed #cbd5e1;
         }
 
-        /* Categories / Grid */
+        /* Categories Grid */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -185,27 +173,10 @@
             border-color: var(--primary);
         }
 
-        .card-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            color: var(--secondary);
-        }
-
-        .card p {
-            color: var(--text-gray);
-            font-size: 0.9rem;
-        }
-
-        .stat-highlight {
-            font-weight: 700;
-            color: var(--accent);
-        }
+        .card-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+        .card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--secondary); }
+        .card p { color: var(--text-gray); font-size: 0.9rem; }
+        .stat-highlight { font-weight: 700; color: var(--accent); }
 
         /* Footer */
         footer {
@@ -223,20 +194,12 @@
             font-size: 0.9rem;
         }
 
-        .footer-links a:hover {
-            color: var(--white);
-        }
+        .footer-links a:hover { color: var(--white); }
+        .copyright { margin-top: 2rem; color: #64748b; font-size: 0.8rem; }
 
-        .copyright {
-            margin-top: 2rem;
-            color: #64748b;
-            font-size: 0.8rem;
-        }
-
-        /* Mobile Responsive adjustments */
         @media (max-width: 768px) {
             .hero h1 { font-size: 2rem; }
-            .nav-links { display: none; } /* Simple hiding for now */
+            .nav-links { display: none; }
         }
     </style>
 </head>
@@ -247,10 +210,10 @@
             Human<span>Average</span>
         </a>
         <div class="nav-links">
-            <a href="#">Health</a>
+            <a href="body.html">Health</a>
             <a href="salary.html">Finance</a>
-            <a href="#">Society</a>
-            <a href="#">About</a>
+            <a href="lifestyle.html">Lifestyle</a>
+            <a href="compare.html">Compare Tool</a>
         </div>
     </nav>
 
@@ -265,7 +228,7 @@
     </header>
 
     <div class="ad-banner">
-        Google AdSense Banner (970x90 / 728x90)
+        Google AdSense Banner (970x90)
     </div>
 
     <div class="container">
@@ -278,31 +241,31 @@
                 <p>Global average salaries, savings rates, and debt statistics per country.</p>
             </a>
 
-            <a href="#" class="card">
+            <a href="body.html" class="card">
                 <span class="card-icon">📏</span>
                 <h3>Body & Health</h3>
                 <p>Average height, weight, BMI, and life expectancy by age and region.</p>
             </a>
 
-            <a href="#" class="card">
+            <a href="lifestyle.html" class="card">
                 <span class="card-icon">☕</span>
                 <h3>Lifestyle & Habits</h3>
                 <p>Coffee consumption, screen time, sleep hours, and travel frequency.</p>
             </a>
 
-            <a href="#" class="card">
+            <a href="demographics.html" class="card">
                 <span class="card-icon">👥</span>
                 <h3>Demographics</h3>
                 <p>Population density, average family size, and migration statistics.</p>
             </a>
             
-             <a href="#" class="card" style="border-color: var(--accent); background: #f0fdf4;">
+             <a href="compare.html" class="card" style="border-color: var(--accent); background: #f0fdf4;">
                 <span class="card-icon">⚡</span>
                 <h3>Quick Compare Tool</h3>
                 <p>Input your data and see exactly where you rank in <span class="stat-highlight">30 seconds</span>.</p>
             </a>
 
-             <a href="#" class="card">
+             <a href="work.html" class="card">
                 <span class="card-icon">💼</span>
                 <h3>Work & Productivity</h3>
                 <p>Average working hours, commute times, and retirement ages.</p>
@@ -329,11 +292,8 @@
     <script>
         const searchInput = document.querySelector('.search-input');
         const searchBtn = document.querySelector('.search-btn');
-
         searchBtn.addEventListener('click', () => {
-            if(searchInput.value) {
-                alert('This is a demo. In the full version, this searches the database for: ' + searchInput.value);
-            }
+            if(searchInput.value) { alert('Search feature coming soon in v2.0!'); }
         });
     </script>
 </body>
