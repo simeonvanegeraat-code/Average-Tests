@@ -3,197 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HumanAverage | Compare yourself to the world</title>
-    <meta name="description" content="Discover global averages on health, finance, and lifestyle. Compare your stats with the rest of the world at HumanAverage.">
+    <title>HumanAverage | The Data Behind Human Life</title>
+    <meta name="description" content="Stop guessing. Start comparing. HumanAverage provides data-driven insights on global salaries, health statistics, and lifestyle trends.">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571"
      crossorigin="anonymous"></script>
 
     <style>
+        /* HIER BEGINT HET DESIGN (PREMIUM DARK MODE) */
         :root {
-            --primary: #2563eb;
-            --secondary: #1e293b;
-            --accent: #10b981;
-            --bg-light: #f8fafc;
-            --white: #ffffff;
-            --text-dark: #0f172a;
-            --text-gray: #64748b;
-            --border: #e2e8f0;
+            --bg-main: #0a0a0a;         /* Diepzwart */
+            --bg-card: #171717;         /* Donkergrijs */
+            --accent: #6366f1;          /* Indigo */
+            --accent-glow: #818cf8;
+            --text-white: #ffffff;
+            --text-gray: #a3a3a3;
+            --border: #262626;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
 
-        /* Nav */
-        nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .logo { font-weight: 800; font-size: 1.5rem; color: var(--secondary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .logo span { color: var(--primary); }
-        .nav-links a { margin-left: 2rem; text-decoration: none; color: var(--text-gray); font-weight: 600; font-size: 0.9rem; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--primary); }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-white);
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            font-size: 17px;
+        }
 
-        /* Hero */
-        .hero { text-align: center; padding: 5rem 1rem; max-width: 800px; margin: 0 auto; }
-        .hero h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--secondary); line-height: 1.2; }
-        .hero p { font-size: 1.25rem; color: var(--text-gray); margin-bottom: 2.5rem; }
+        /* Navigatie: Glass Effect */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+        }
 
-        .search-container { position: relative; max-width: 500px; margin: 0 auto; }
-        .search-input { width: 100%; padding: 1rem 1.5rem; border-radius: 50px; border: 2px solid var(--border); font-size: 1rem; outline: none; transition: border-color 0.2s; }
-        .search-input:focus { border-color: var(--primary); }
-        .search-btn { position: absolute; right: 5px; top: 5px; background: var(--primary); color: var(--white); border: none; padding: 0.7rem 1.5rem; border-radius: 40px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .search-btn:hover { background: #1d4ed8; }
+        .wrapper { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
 
-        /* AdSense */
-        .ad-banner { max-width: 900px; height: 100px; background-color: #e2e8f0; margin: 2rem auto; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 0.8rem; letter-spacing: 1px; border: 1px dashed #cbd5e1; }
+        .brand { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            color: var(--text-white); 
+            text-decoration: none;
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
+        .brand span { color: var(--accent-glow); }
 
-        /* Grid */
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
-        .section-title { text-align: center; margin-bottom: 3rem; font-size: 1.8rem; color: var(--secondary); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 4rem; }
+        .nav-links a { 
+            color: var(--text-gray); 
+            text-decoration: none;
+            margin-left: 2rem; 
+            font-weight: 500; 
+            transition: 0.3s; 
+            font-size: 0.95rem; 
+        }
+        .nav-links a:hover { color: var(--text-white); }
         
-        .card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; text-decoration: none; color: inherit; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: var(--primary); }
-        .card-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
-        .card h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--secondary); }
-        .card p { color: var(--text-gray); font-size: 0.9rem; }
-        .stat-highlight { font-weight: 700; color: var(--accent); }
+        .btn-nav { 
+            background: var(--text-white); 
+            color: black !important; 
+            padding: 0.5rem 1.2rem; 
+            border-radius: 8px; 
+            font-weight: 700 !important;
+        }
 
-        /* New Articles Section */
-        .articles-section { padding-top: 2rem; border-top: 1px solid var(--border); }
-        .article-card { display: flex; flex-direction: column; background: var(--white); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); text-decoration: none; color: inherit; transition: border-color 0.2s; }
-        .article-card:hover { border-color: var(--primary); }
-        .article-content { padding: 1.5rem; }
-        .article-tag { font-size: 0.8rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; display: block; }
-        .article-title { font-size: 1.2rem; font-weight: 700; color: var(--secondary); margin-bottom: 0.5rem; }
-        .article-desc { font-size: 0.9rem; color: var(--text-gray); }
+        /* Hero: Grote impact */
+        .hero {
+            padding: 6rem 0 4rem;
+            text-align: center;
+            background: radial-gradient(circle at top center, #1e1b4b 0%, #0a0a0a 60%);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: white; /* Fallback */
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            font-weight: 300;
+        }
+
+        /* Zoekbalk: Modern */
+        .search-container {
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .search-container input {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            color: white;
+            padding: 1rem 1.5rem;
+            width: 100%;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: 0.3s;
+            outline: none;
+        }
+        .search-container input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Grids & Cards */
+        .grid-cols-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 16px;
+            transition: 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.2);
+            background: #1f1f1f;
+        }
+
+        .icon-box {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-white);
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .feature-card span.link-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-glow);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Sectie Koppen */
+        h2.section-title {
+            font-size: 1.8rem;
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+            margin: 4rem 0 2rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        /* AdSense Vlakken */
+        .ad-banner {
+            background: #111;
+            border: 1px dashed #333;
+            color: #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem auto;
+            border-radius: 12px;
+            height: 100px;
+            max-width: 900px;
+        }
 
         /* Footer */
-        footer { background: var(--secondary); color: var(--white); padding: 4rem 1rem; margin-top: 4rem; text-align: center; }
-        .footer-links a { color: #94a3b8; text-decoration: none; margin: 0 1rem; font-size: 0.9rem; }
-        .footer-links a:hover { color: var(--white); }
-        .copyright { margin-top: 2rem; color: #64748b; font-size: 0.8rem; }
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 4rem 0;
+            margin-top: 6rem;
+            color: var(--text-gray);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .footer-links { margin-bottom: 1.5rem; }
+        .footer-links a { color: var(--text-gray); margin: 0 1rem; text-decoration: none; }
+        .footer-links a:hover { color: var(--accent-glow); }
 
+        /* Mobiel */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
+            .hero h1 { font-size: 2.5rem; }
             .nav-links { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <nav>
-        <a href="#" class="logo">Human<span>Average</span></a>
-        <div class="nav-links">
-            <a href="body.html">Health</a>
-            <a href="salary.html">Finance</a>
-            <a href="compare.html">Tools</a>
-            <a href="about.html">About</a>
+    <nav class="navbar">
+        <div class="wrapper nav-content">
+            <a href="#" class="brand">Human<span>Average.</span></a>
+            <div class="nav-links">
+                <a href="salary.html">Finance</a>
+                <a href="body.html">Health</a>
+                <a href="lifestyle.html">Lifestyle</a>
+                <a href="compare.html" class="btn-nav">Compare Tool</a>
+            </div>
         </div>
     </nav>
 
     <header class="hero">
-        <h1>Are you above average?</h1>
-        <p>Explore the data of human life. Compare your height, salary, habits, and more against global statistics.</p>
-        
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search for statistics (e.g., 'Average salary USA')...">
-            <button class="search-btn">Search</button>
+        <div class="wrapper">
+            <h1>Where do you stand in the world?</h1>
+            <p>We aggregate complex datasets from the WHO, OECD, and World Bank to give you a clear picture of global human statistics.</p>
+            
+            <div class="search-container">
+                <input type="text" placeholder="Search data (e.g. 'Average Salary Germany')...">
+            </div>
         </div>
     </header>
 
-    <div class="ad-banner">Google AdSense Banner (970x90)</div>
+    <div class="ad-banner">Google AdSense - Top Banner</div>
 
-    <div class="container">
-        <h2 class="section-title">Popular Tools</h2>
+    <main class="wrapper">
         
-        <div class="grid">
-            <a href="salary.html" class="card">
-                <span class="card-icon">💰</span>
-                <h3>Income & Finance</h3>
-                <p>Global average salaries, savings rates, and debt statistics per country.</p>
+        <h2 class="section-title">Explore Data Categories</h2>
+
+        <div class="grid-cols-3">
+            <a href="salary.html" class="feature-card">
+                <span class="icon-box">💰</span>
+                <h3>Finance & Income</h3>
+                <p>Analyze global net salaries, cost of living indices, and purchasing power parity across 190+ countries.</p>
+                <span class="link-text">View 2025 Report &rarr;</span>
             </a>
-            <a href="body.html" class="card">
-                <span class="card-icon">📏</span>
-                <h3>Body & Health</h3>
-                <p>Average height, weight, BMI, and life expectancy by age and region.</p>
+
+            <a href="body.html" class="feature-card">
+                <span class="icon-box">📏</span>
+                <h3>Human Body Stats</h3>
+                <p>Compare average height, weight, and life expectancy. See the trends shaping human evolution.</p>
+                <span class="link-text">Check Body Stats &rarr;</span>
             </a>
-            <a href="lifestyle.html" class="card">
-                <span class="card-icon">☕</span>
-                <h3>Lifestyle & Habits</h3>
-                <p>Coffee consumption, screen time, sleep hours, and travel frequency.</p>
-            </a>
-            <a href="compare.html" class="card" style="border-color: var(--accent); background: #f0fdf4;">
-                <span class="card-icon">⚡</span>
-                <h3>Quick Compare Tool</h3>
-                <p>Input your data and see exactly where you rank in <span class="stat-highlight">30 seconds</span>.</p>
-            </a>
-            <a href="demographics.html" class="card">
-                <span class="card-icon">👥</span>
-                <h3>Demographics</h3>
-                <p>Population density, average family size, and migration statistics.</p>
-            </a>
-            <a href="work.html" class="card">
-                <span class="card-icon">💼</span>
+
+            <a href="work.html" class="feature-card">
+                <span class="icon-box">💼</span>
                 <h3>Work & Productivity</h3>
-                <p>Average working hours, commute times, and retirement ages.</p>
+                <p>Who works the longest hours? Who retires earliest? The global workforce decoded.</p>
+                <span class="link-text">Explore Work Data &rarr;</span>
             </a>
-        </div>
 
-        <h2 class="section-title">Latest Insights</h2>
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 400px)); justify-content: center;">
+            <a href="lifestyle.html" class="feature-card">
+                <span class="icon-box">☕</span>
+                <h3>Lifestyle & Habits</h3>
+                <p>From coffee consumption to screen time. How does your daily routine compare to the average?</p>
+                <span class="link-text">View Lifestyle Trends &rarr;</span>
+            </a>
+
+            <a href="compare.html" class="feature-card" style="border-color: var(--accent); background: rgba(99, 102, 241, 0.1);">
+                <span class="icon-box">⚡</span>
+                <h3>Interactive Tool</h3>
+                <p>Input your own data and get an instant percentile ranking against global averages.</p>
+                <span class="link-text" style="color: white; background: var(--accent); padding: 5px 10px; border-radius: 4px; display: inline-block;">Launch Tool</span>
+            </a>
             
-            <a href="articles/why-dutch-are-tall.html" class="article-card">
-                <div class="article-content">
-                    <span class="article-tag">Genetics & Health</span>
-                    <h3 class="article-title">Why are the Dutch so tall?</h3>
-                    <p class="article-desc">Analysis of why the Netherlands became the tallest nation on earth in just 150 years.</p>
-                </div>
+             <a href="demographics.html" class="feature-card">
+                <span class="icon-box">👥</span>
+                <h3>Global Demographics</h3>
+                <p>Population shifts, family sizes, and migration patterns that are changing the map.</p>
+                <span class="link-text">View Demographics &rarr;</span>
             </a>
-
-            <a href="articles/salary-usa-vs-europe.html" class="article-card">
-                <div class="article-content">
-                    <span class="article-tag">Finance</span>
-                    <h3 class="article-title">USA vs Europe Salaries</h3>
-                    <p class="article-desc">Why do Americans earn 50% more? We breakdown the gross vs net reality.</p>
-                </div>
-            </a>
-
-            <a href="articles/4-day-work-week.html" class="article-card">
-                <div class="article-content">
-                    <span class="article-tag">Work</span>
-                    <h3 class="article-title">The 4-Day Work Week</h3>
-                    <p class="article-desc">Future or Fantasy? Why Japan and Iceland are betting big on working less.</p>
-                </div>
-            </a>
-
-            <a href="articles/coffee-addiction.html" class="article-card">
-                <div class="article-content">
-                    <span class="article-tag">Lifestyle</span>
-                    <h3 class="article-title">Top Coffee Drinking Nations</h3>
-                    <p class="article-desc">It's not Italy. Discover which Nordic nation consumes 12kg of coffee per person.</p>
-                </div>
-            </a>
-
         </div>
-    </div>
 
-    <div class="ad-banner">Google AdSense Banner (Responsive)</div>
+        <h2 class="section-title">Latest Research</h2>
+        <div class="grid-cols-3">
+             <a href="articles/why-dutch-are-tall.html" class="feature-card">
+                <div style="height: 150px; background: #262626; border-radius: 12px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; color: #555;">Image Placeholder</div>
+                <h3>Why are the Dutch so tall?</h3>
+                <p>A deep dive into the genetics and nutrition behind the tallest nation on earth.</p>
+                <span class="link-text">Read Article &rarr;</span>
+            </a>
+             <a href="articles/salary-usa-vs-europe.html" class="feature-card">
+                <div style="height: 150px; background: #262626; border-radius: 12px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; color: #555;">Image Placeholder</div>
+                <h3>USA vs Europe Salaries</h3>
+                <p>The gross vs net reality: Why a high US salary might not mean you are richer.</p>
+                <span class="link-text">Read Article &rarr;</span>
+            </a>
+             <a href="articles/4-day-work-week.html" class="feature-card">
+                <div style="height: 150px; background: #262626; border-radius: 12px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; color: #555;">Image Placeholder</div>
+                <h3>The 4-Day Work Week</h3>
+                <p>Data from trials in Iceland and Japan show surprising results for productivity.</p>
+                <span class="link-text">Read Article &rarr;</span>
+            </a>
+        </div>
+
+    </main>
 
     <footer>
-        <div class="footer-links">
-            <a href="legal/privacy.html">Privacy Policy</a>
-            <a href="legal/terms.html">Terms of Service</a>
-            <a href="about.html">Data Sources</a>
-            <a href="about.html">Contact</a>
+        <div class="wrapper">
+            <div class="footer-links">
+                <a href="about.html">About & Data Sources</a>
+                <a href="legal/privacy.html">Privacy Policy</a>
+                <a href="legal/terms.html">Terms of Service</a>
+                <a href="about.html">Contact</a>
+            </div>
+            <p>&copy; 2025 HumanAverage.com. All data is aggregated from public international sources (WHO, OECD, World Bank).</p>
         </div>
-        <div class="copyright">&copy; 2025 HumanAverage.com. All rights reserved.</div>
     </footer>
 
     <script>
-        const searchInput = document.querySelector('.search-input');
-        const searchBtn = document.querySelector('.search-btn');
-        searchBtn.addEventListener('click', () => { if(searchInput.value) { alert('Search feature coming soon!'); } });
+        const searchInput = document.querySelector('.search-container input');
+        if(searchInput){
+            searchInput.addEventListener('keydown', (e) => { 
+                if(e.key === 'Enter') { alert('Full search functionality coming soon!'); } 
+            });
+        }
     </script>
 </body>
 </html>
