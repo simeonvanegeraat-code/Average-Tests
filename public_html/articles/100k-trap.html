@@ -70,6 +70,16 @@
         .btn-twitter { background: #000000; border-color: #333; }
         .btn-whatsapp { background: #25D366; }
         .btn-linkedin { background: #0077b5; }
+
+        /* FIX: Grafiek Wrapper (Voorkomt de infinite loop) */
+        .chart-wrapper-fix {
+            position: relative;
+            height: 300px; /* Vaste hoogte is cruciaal */
+            width: 100%;
+        }
+        @media (max-width: 600px) {
+            .chart-wrapper-fix { height: 250px; }
+        }
     </style>
 </head>
 <body>
@@ -101,7 +111,11 @@
 
         <div class="chart-container" style="background: var(--bg-card); padding: 2.5rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 4rem;">
             <h3 style="margin-bottom: 2rem; text-align: center; color: white;">Monthly Disposable Income: NYC vs. Berlin</h3>
-            <canvas id="trapChart" width="400" height="200"></canvas>
+            
+            <div class="chart-wrapper-fix">
+                <canvas id="trapChart"></canvas>
+            </div>
+            
             <p style="text-align: center; font-size: 0.85rem; color: var(--text-gray); margin-top: 1.5rem; font-style: italic;">
                 Data based on a single earner ($100k USD vs $60k EUR) living in a city center 1-bedroom apartment.
             </p>
@@ -289,7 +303,7 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: false, // Belangrijk voor responsive design
                 plugins: {
                     legend: { position: 'bottom', labels: { color: '#9ca3af', font: { family: "'Outfit', sans-serif" } } },
                     tooltip: {
