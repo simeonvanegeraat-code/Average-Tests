@@ -3,94 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Demographics 2025 - HumanAverage</title>
-    <meta name="description" content="Global population stats, average family size, and urbanization rates.">
+    <title>Global Demographics 2026 | Population & Family Trends</title>
+    <meta name="description" content="2026 Demographics Report: India vs China, the shrinking global family, and the aging workforce. Comprehensive population statistics.">
+    <link rel="stylesheet" href="assets/style.css">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/script.js" defer></script>
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571"
      crossorigin="anonymous"></script>
-
-    <style>
-        :root { --primary: #2563eb; --secondary: #1e293b; --bg-light: #f8fafc; --white: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
-        nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 800; font-size: 1.5rem; color: var(--secondary); text-decoration: none; }
-        .logo span { color: var(--primary); }
-        .nav-back { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; }
-        
-        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
-        header { text-align: center; margin-bottom: 2rem; }
-        h1 { font-size: 2.5rem; color: var(--secondary); margin-bottom: 1rem; }
-        
-        table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 8px; overflow: hidden; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        th { background: var(--secondary); color: var(--white); text-align: left; padding: 1rem; }
-        td { padding: 1rem; border-bottom: 1px solid var(--border); }
-        tr:last-child td { border-bottom: none; }
-        
-        .ad-slot { background: #e2e8f0; height: 250px; width: 100%; display: flex; align-items: center; justify-content: center; margin: 2rem 0; border: 1px dashed #cbd5e1; color: #64748b; border-radius: 8px; }
-        footer { text-align: center; padding: 2rem; color: var(--text-gray); font-size: 0.8rem; border-top: 1px solid var(--border); }
-        footer a { color: var(--primary); text-decoration: none; }
-    </style>
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo">Human<span>Average</span></a>
-        <a href="index.html" class="nav-back">← Back to Home</a>
+
+    <nav class="navbar">
+        <div class="wrapper nav-content">
+            <a href="index.html" class="brand">Human<span>Average.</span></a>
+            <div class="nav-links">
+                <a href="salary.html">Finance</a>
+                <a href="body.html">Health</a>
+                <a href="work.html">Work</a>
+                <a href="lifestyle.html">Lifestyle</a>
+                <a href="demographics.html" class="active" style="color: var(--text-white);">Demographics</a>
+                <a href="compare.html" class="btn-nav">Compare Tool</a>
+            </div>
+        </div>
     </nav>
 
-    <div class="container">
-        <header>
-            <h1>Global Demographics</h1>
-            <p>Understanding the shifts in human population and family structures.</p>
+    <main class="wrapper" style="max-width: 900px;">
+        
+        <header class="hero" style="padding: 4rem 0 2rem;">
+            <span style="color: #ec4899; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem;">Population Report 2026</span>
+            <h1 style="font-size: 3rem; margin-top: 0.5rem;">The Changing Human Map</h1>
+            <p>From the rise of India to the shrinking families of Europe. We visualize the massive shifts in global population dynamics.</p>
         </header>
 
-        <div class="ad-slot">Google AdSense (Billboard)</div>
+        <div class="chart-container" style="background: var(--bg-card); padding: 2rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Top 5 Most Populous Nations (Billions)</h3>
+            <canvas id="popChart" width="400" height="200"></canvas>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-gray); margin-top: 1rem;">Source: UN World Population Prospects 2026 Revision.</p>
+        </div>
 
-        <h3>Largest Populations (2025 Estimates)</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Country</th>
-                    <th>Population</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>1</td><td>🇮🇳 India</td><td>1.45 Billion</td></tr>
-                <tr><td>2</td><td>🇨🇳 China</td><td>1.41 Billion</td></tr>
-                <tr><td>3</td><td>🇺🇸 USA</td><td>340 Million</td></tr>
-                <tr><td>4</td><td>🇮🇩 Indonesia</td><td>280 Million</td></tr>
-                <tr><td>5</td><td>🇵🇰 Pakistan</td><td>245 Million</td></tr>
-            </tbody>
-        </table>
+        <div class="ad-banner" style="margin: 3rem 0;">Google AdSense - In Article</div>
 
-        <div class="ad-slot">Google AdSense (Square)</div>
+        <article style="font-size: 1.1rem; color: #d1d5db;">
+            <h2 class="section-title">The Great Shift: India vs. China</h2>
+            <p style="margin-bottom: 1.5rem;">For decades, China was the undisputed heavyweight of population. However, in late 2023, India officially took the crown. In 2026, the gap is widening. While India's population continues to grow (driven by a young median age of 28), China is facing a demographic crisis with a shrinking workforce and a median age nearing 40.</p>
+            
+            <h2 class="section-title">Global Population Rankings 2026</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Country</th>
+                        <th>Population</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>🇮🇳 India</td><td>1.46 Billion</td><td>Growing ↗</td></tr>
+                    <tr><td>2</td><td>🇨🇳 China</td><td>1.40 Billion</td><td>Shrinking ↘</td></tr>
+                    <tr><td>3</td><td>🇺🇸 USA</td><td>342 Million</td><td>Stable →</td></tr>
+                    <tr><td>4</td><td>🇮🇩 Indonesia</td><td>285 Million</td><td>Growing ↗</td></tr>
+                    <tr><td>5</td><td>🇵🇰 Pakistan</td><td>251 Million</td><td>Rapid Growth ↗↗</td></tr>
+                    <tr><td>6</td><td>🇳🇬 Nigeria</td><td>238 Million</td><td>Rapid Growth ↗↗</td></tr>
+                </tbody>
+            </table>
 
-        <h3>Average Household Size</h3>
-        <p style="margin-bottom: 1rem;">The global trend shows a shrinking family size, especially in developed nations.</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Region</th>
-                    <th>Avg. People per Household</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>Africa</td><td>4.8</td></tr>
-                <tr><td>Asia</td><td>3.6</td></tr>
-                <tr><td>South America</td><td>3.2</td></tr>
-                <tr><td>North America</td><td>2.5</td></tr>
-                <tr><td>Europe</td><td>2.3</td></tr>
-            </tbody>
-        </table>
+            <h2 class="section-title">The "Silver Tsunami"</h2>
+            <p style="margin-bottom: 1.5rem;">The world is getting older. In <strong>Europe</strong> and <strong>Japan</strong>, the number of people over 65 is reaching historic highs. This impacts everything from pension systems to healthcare costs.</p>
+            <p style="margin-bottom: 1.5rem;">Conversely, <strong>Africa</strong> remains the youngest continent, with 70% of the population under the age of 30. By 2050, it is estimated that 1 in 4 humans will be African.</p>
 
-        <div class="ad-slot">Google AdSense (Footer)</div>
-    </div>
+            <h2 class="section-title">Household Size: The Solo Living Era</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-gray); font-size: 0.95rem;">Average number of people per household by region.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Region</th>
+                        <th>Avg. Household Size</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>🌍 Africa</td><td>4.6 people</td></tr>
+                    <tr><td>🌏 Asia</td><td>3.4 people</td></tr>
+                    <tr><td>🌎 South America</td><td>3.1 people</td></tr>
+                    <tr><td>🇺🇸 North America</td><td>2.4 people</td></tr>
+                    <tr><td>🇪🇺 Europe</td><td>2.2 people</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <div style="background: rgba(236, 72, 153, 0.1); border-left: 4px solid #ec4899; padding: 2rem; margin: 3rem 0; border-radius: 12px;">
+            <h3 style="color: white; margin-bottom: 0.5rem;">Where do you fit in?</h3>
+            <p style="color: var(--text-gray); margin-bottom: 1.5rem;">Are you part of the global majority or a statistical outlier? Compare your age and lifestyle.</p>
+            <a href="compare.html" class="btn-cta" style="background: #ec4899;">Compare My Stats &rarr;</a>
+        </div>
+
+        <div class="ad-banner">Google AdSense - Bottom</div>
+
+    </main>
 
     <footer>
-        <p>&copy; 2025 HumanAverage.com. <a href="legal/privacy.html">Privacy</a></p>
+        <div class="wrapper">
+            <p>&copy; 2026 HumanAverage.com. Data updated: January 2026.</p>
+        </div>
     </footer>
+
+    <script>
+        const ctx = document.getElementById('popChart').getContext('2d');
+        const popChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['India', 'China', 'USA', 'Indonesia', 'Pakistan'],
+                datasets: [{
+                    label: 'Population (Billions)',
+                    data: [1.46, 1.40, 0.34, 0.28, 0.25],
+                    backgroundColor: [
+                        '#ec4899', // India (Pink - Highlight)
+                        '#374151',
+                        '#374151',
+                        '#374151',
+                        '#374151'
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                    x: { ticks: { color: '#9ca3af' }, grid: { display: false } }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
