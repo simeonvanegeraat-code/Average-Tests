@@ -3,90 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Lifestyle Statistics (2025) - HumanAverage</title>
-    <meta name="description" content="How much coffee does the average person drink? Check global stats on sleep, screen time, and travel habits.">
+    <title>Global Lifestyle Statistics 2026 | Screen Time & Habits</title>
+    <meta name="description" content="How much time does the average human spend on a phone? 2026 data on screen time, coffee consumption, and sleep patterns.">
+    <link rel="stylesheet" href="assets/style.css">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/script.js" defer></script>
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571"
      crossorigin="anonymous"></script>
-
-    <style>
-        :root { --primary: #2563eb; --secondary: #1e293b; --accent: #10b981; --bg-light: #f8fafc; --white: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
-        nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 800; font-size: 1.5rem; color: var(--secondary); text-decoration: none; }
-        .logo span { color: var(--primary); }
-        .nav-back { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; }
-        
-        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
-        header { text-align: center; margin-bottom: 3rem; }
-        h1 { font-size: 2.5rem; color: var(--secondary); margin-bottom: 1rem; }
-        
-        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .stat-box { background: var(--white); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
-        .stat-icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
-        .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--primary); display: block; margin-bottom: 0.5rem; }
-        .stat-label { font-size: 0.9rem; color: var(--text-gray); }
-
-        .content-section { background: var(--white); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 2rem; }
-        h2 { margin-bottom: 1rem; color: var(--secondary); }
-        
-        .ad-slot { background: #e2e8f0; height: 250px; width: 100%; display: flex; align-items: center; justify-content: center; margin: 2rem 0; border: 1px dashed #cbd5e1; color: #64748b; border-radius: 8px; }
-        footer { text-align: center; padding: 2rem; color: var(--text-gray); font-size: 0.8rem; margin-top: 3rem; border-top: 1px solid var(--border); }
-        footer a { color: var(--primary); text-decoration: none; }
-    </style>
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo">Human<span>Average</span></a>
-        <a href="index.html" class="nav-back">← Back to Home</a>
+
+    <nav class="navbar">
+        <div class="wrapper nav-content">
+            <a href="index.html" class="brand">Human<span>Average.</span></a>
+            <div class="nav-links">
+                <a href="salary.html">Finance</a>
+                <a href="body.html">Health</a>
+                <a href="work.html">Work</a>
+                <a href="lifestyle.html" class="active" style="color: var(--text-white);">Lifestyle</a>
+                <a href="compare.html" class="btn-nav">Compare Tool</a>
+            </div>
+        </div>
     </nav>
 
-    <div class="container">
-        <header>
-            <h1>Lifestyle & Habits</h1>
-            <p>From the coffee we drink to the hours we spend on our phones. Here is how the modern human lives in 2025.</p>
+    <main class="wrapper" style="max-width: 900px;">
+        
+        <header class="hero" style="padding: 4rem 0 2rem;">
+            <span style="color: #8b5cf6; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem;">Digital Wellbeing 2026</span>
+            <h1 style="font-size: 3rem; margin-top: 0.5rem;">The Digital Addiction</h1>
+            <p>We are spending more time online than sleeping. Explore the data behind our daily habits in the algorithm era.</p>
         </header>
 
-        <div class="ad-slot">Google AdSense (Top Banner)</div>
-
-        <div class="stat-grid">
-            <div class="stat-box">
-                <span class="stat-icon">📱</span>
-                <span class="stat-value">6h 58m</span>
-                <span class="stat-label">Avg. Daily Screen Time</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-icon">☕</span>
-                <span class="stat-value">2.4 Cups</span>
-                <span class="stat-label">Daily Coffee Consumption</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-icon">😴</span>
-                <span class="stat-value">7h 12m</span>
-                <span class="stat-label">Avg. Sleep Duration</span>
-            </div>
+        <div class="chart-container" style="background: var(--bg-card); padding: 2rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Daily Screen Time on Mobile (Hours)</h3>
+            <canvas id="screenChart" width="400" height="200"></canvas>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-gray); margin-top: 1rem;">Source: Digital Global Overview Report 2025.</p>
         </div>
 
-        <div class="content-section">
-            <h2>The Coffee Index</h2>
-            <p>While coffee is consumed globally, Northern Europe dominates the charts. Finland holds the top spot, with the average citizen consuming nearly 12kg of coffee per year. In contrast, tea remains the dominant beverage in China and the UK.</p>
+        <div class="ad-banner" style="margin: 3rem 0;">Google AdSense - In Article</div>
+
+        <article style="font-size: 1.1rem; color: #d1d5db;">
+            <h2 class="section-title">The "Always On" Generation</h2>
+            <p style="margin-bottom: 1.5rem;">The global average for screen time has hit <strong>6 hours and 37 minutes</strong> per day. However, looking at the chart, we see massive regional differences.</p>
+            <p style="margin-bottom: 1.5rem;">Emerging markets like <strong>South Africa</strong>, <strong>Brazil</strong>, and the <strong>Philippines</strong> lead the world, often exceeding 9 hours per day. In contrast, wealthy Asian nations like <strong>Japan</strong> have some of the lowest screen times, possibly due to an aging population and strict workplace rules banning phones.</p>
+
+            <h2 class="section-title">The Coffee Index 2026</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-gray); font-size: 0.95rem;">Who drinks the most caffeine? (kg per capita/year)</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Country</th>
+                        <th>Annual Consumption</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>🇫🇮 Finland</td><td>12.0 kg</td></tr>
+                    <tr><td>2</td><td>🇳🇴 Norway</td><td>9.9 kg</td></tr>
+                    <tr><td>3</td><td>🇮🇸 Iceland</td><td>9.0 kg</td></tr>
+                    <tr><td>4</td><td>🇩🇰 Denmark</td><td>8.7 kg</td></tr>
+                    <tr><td>5</td><td>🇳🇱 Netherlands</td><td>8.4 kg</td></tr>
+                    <tr><td>6</td><td>🇸🇪 Sweden</td><td>8.2 kg</td></tr>
+                    <tr><td>25</td><td>🇺🇸 USA</td><td>4.1 kg</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <div style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid #8b5cf6; padding: 2rem; margin: 3rem 0; border-radius: 12px;">
+            <h3 style="color: white; margin-bottom: 0.5rem;">Digital Detox needed?</h3>
+            <p style="color: var(--text-gray); margin-bottom: 1.5rem;">Compare your daily screen time hours. Are you above the 6h 37m average?</p>
+            <a href="compare.html" class="btn-cta" style="background: #8b5cf6;">Check My Screen Time &rarr;</a>
         </div>
 
-        <div class="ad-slot">Google AdSense (In-Article)</div>
+        <div class="ad-banner">Google AdSense - Bottom</div>
 
-        <div class="content-section">
-            <h2>Social Media Usage</h2>
-            <p>The average internet user spends nearly 2.5 hours per day on social media platforms. The Philippines and Brazil consistently rank highest for time spent online, while Japan and Germany rank among the lowest.</p>
-        </div>
-
-        <div class="ad-slot">Google AdSense (Bottom)</div>
-    </div>
+    </main>
 
     <footer>
-        <p>&copy; 2025 HumanAverage.com. <a href="legal/privacy.html">Privacy</a></p>
+        <div class="wrapper">
+            <p>&copy; 2026 HumanAverage.com. Data updated: January 2026.</p>
+        </div>
     </footer>
+
+    <script>
+        const ctx = document.getElementById('screenChart').getContext('2d');
+        const screenChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['South Africa', 'Brazil', 'Philippines', 'Colombia', 'Global Avg', 'USA', 'Germany', 'Japan'],
+                datasets: [{
+                    label: 'Daily Hours on Screen',
+                    data: [9.5, 9.2, 9.1, 8.8, 6.6, 6.3, 5.2, 3.8],
+                    backgroundColor: [
+                        '#ef4444', 
+                        '#ef4444',
+                        '#ef4444',
+                        '#f59e0b',
+                        '#6366f1', // Global
+                        '#374151',
+                        '#10b981',
+                        '#10b981'
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                    x: { ticks: { color: '#9ca3af' }, grid: { display: false } }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

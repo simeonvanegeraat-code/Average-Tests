@@ -3,187 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Compare Tool - HumanAverage</title>
-    <meta name="description" content="Interactive tool: Enter your stats and see how you compare to the global average in seconds.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571"
-     crossorigin="anonymous"></script>
-     
-    <style>
-        :root { --primary: #2563eb; --secondary: #1e293b; --accent: #10b981; --bg-light: #f8fafc; --white: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
-        
-        /* Navigation */
-        nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 800; font-size: 1.5rem; color: var(--secondary); text-decoration: none; }
-        .logo span { color: var(--primary); }
-        .nav-back { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; }
-
-        /* Main Container */
-        .container { max-width: 700px; margin: 0 auto; padding: 3rem 1rem; }
-        
-        header { text-align: center; margin-bottom: 3rem; }
-        h1 { font-size: 2.5rem; color: var(--secondary); margin-bottom: 1rem; }
-        
-        /* Calculator Card */
-        .calculator-card { background: var(--white); padding: 2.5rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
-        
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--secondary); }
-        select, input { width: 100%; padding: 1rem; border: 2px solid var(--border); border-radius: 8px; font-size: 1rem; transition: border-color 0.2s; }
-        select:focus, input:focus { border-color: var(--primary); outline: none; }
-        
-        .btn-calc { width: 100%; background: var(--primary); color: white; padding: 1rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 1rem; }
-        .btn-calc:hover { background: #1d4ed8; }
-
-        /* Result Section (Hidden by default) */
-        #result-area { display: none; margin-top: 2rem; text-align: center; padding-top: 2rem; border-top: 1px dashed var(--border); animation: fadeIn 0.5s ease; }
-        .result-score { font-size: 3rem; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 0.5rem; }
-        .result-text { font-size: 1.1rem; color: var(--text-gray); }
-        .badge { display: inline-block; background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; }
-
-        /* Ad Slots */
-        .ad-slot { background: #e2e8f0; height: 100px; width: 100%; display: flex; align-items: center; justify-content: center; margin: 2rem 0; border: 1px dashed #cbd5e1; color: #64748b; border-radius: 8px; font-size: 0.8rem; }
-
-        footer { text-align: center; padding: 2rem; color: var(--text-gray); font-size: 0.8rem; margin-top: 3rem; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    <title>Interactive Comparison Tool | HumanAverage 2026</title>
+    <meta name="description" content="Compare your salary, height, and lifestyle habits against global 2026 averages. See where you rank instantly.">
+    <link rel="stylesheet" href="assets/style.css">
+    <script src="assets/script.js" defer></script>
 </head>
 <body>
 
-    <nav>
-        <a href="index.html" class="logo">Human<span>Average</span></a>
-        <a href="index.html" class="nav-back">← Back to Home</a>
+    <nav class="navbar">
+        <div class="wrapper nav-content">
+            <a href="index.html" class="brand">Human<span>Average.</span></a>
+            <div class="nav-links">
+                <a href="salary.html">Finance</a>
+                <a href="body.html">Health</a>
+                <a href="compare.html" class="btn-cta active">Compare Tool</a>
+            </div>
+        </div>
     </nav>
 
-    <div class="container">
-        <header>
-            <h1>The Quick Comparator</h1>
-            <p>Select a category, enter your data, and see where you rank globally.</p>
+    <main class="wrapper">
+        <header class="hero" style="padding: 4rem 0;">
+            <h1>Global Comparator Tool</h1>
+            <p>Input your data. Get your percentile. All data is processed locally in your browser for privacy.</p>
         </header>
-
-        <div class="ad-slot">Google AdSense (Banner)</div>
 
         <div class="calculator-card">
             <div class="form-group">
-                <label>What do you want to compare?</label>
-                <select id="category" onchange="updateUnits()">
-                    <option value="salary">Monthly Income (Net)</option>
-                    <option value="height">Height</option>
-                    <option value="screen">Screen Time (Daily)</option>
+                <label for="category">I want to compare my...</label>
+                <select id="category">
+                    <option value="salary">Monthly Net Salary (USD)</option>
+                    <option value="height">Height (cm)</option>
+                    <option value="screen">Daily Screen Time (Hours)</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label id="input-label">Amount ($ USD)</label>
-                <input type="number" id="user-input" placeholder="e.g. 3000">
+                <label for="user-input">My Value</label>
+                <input type="number" id="user-input" placeholder="e.g. 2500" required>
             </div>
 
             <div class="form-group">
-                <label>Your Region (for context)</label>
+                <label for="region">Compare against</label>
                 <select id="region">
-                    <option value="global">Global (World)</option>
-                    <option value="us">North America</option>
-                    <option value="eu">Europe</option>
-                    <option value="asia">Asia</option>
+                    <option value="global">Global Average (World)</option>
+                    <option value="oecd" disabled>OECD Nations (Coming Soon)</option>
                 </select>
             </div>
 
-            <button class="btn-calc" onclick="calculate()">Compare Me</button>
+            <button id="run-compare" class="btn-cta" style="width: 100%; font-size: 1.1rem; padding: 1rem;">Calculate Rank</button>
 
-            <div id="result-area">
-                <span class="badge">RESULT</span>
-                <div class="result-score" id="score-display">Top 20%</div>
-                <p class="result-text" id="text-display">You earn more than 80% of the world population.</p>
+            <div id="result-area" style="display: none; margin-top: 2rem; padding-top: 2rem; border-top: 1px dashed var(--border);">
+                <h3 id="result-title" style="color: var(--accent); text-align: center; font-size: 1.5rem;"></h3>
+                <p id="result-text" style="color: var(--text-gray); text-align: center; margin: 1rem 0;"></p>
                 
-                <div class="ad-slot" style="margin-top: 1.5rem; height: 250px;">Google AdSense (Square Result Ad)</div>
+                <div style="background: #333; height: 16px; border-radius: 8px; overflow: hidden; margin-top: 1.5rem;">
+                    <div id="percentile-bar" style="width: 0%; height: 100%; background: var(--accent); transition: width 1s ease;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-gray); margin-top: 5px;">
+                    <span>Bottom 1%</span>
+                    <span>Global Avg</span>
+                    <span>Top 1%</span>
+                </div>
+
+                <div style="margin-top: 2rem; text-align: center; color: #444; border: 1px dashed #333; padding: 1rem;">
+                    [AdSense: Best Performing Ads appear here]
+                </div>
             </div>
         </div>
 
-        <div class="ad-slot">Google AdSense (Footer)</div>
-    </div>
+        <div style="text-align: center; margin-top: 2rem; color: var(--text-gray); font-size: 0.9rem;">
+            <p>🔒 Privacy Note: Your data is not stored. Calculations happen instantly on your device.</p>
+        </div>
+    </main>
 
     <footer>
-        <p>&copy; 2025 HumanAverage.com. Estimates based on aggregated data.</p>
+        <div class="wrapper">
+            <p>&copy; <span class="current-year">2026</span> HumanAverage.com.</p>
+        </div>
     </footer>
-
-    <script>
-        // Simple client-side logic for demo purposes
-        function updateUnits() {
-            const cat = document.getElementById('category').value;
-            const label = document.getElementById('input-label');
-            const input = document.getElementById('user-input');
-
-            if(cat === 'salary') {
-                label.innerText = 'Monthly Income ($ USD)';
-                input.placeholder = 'e.g. 3000';
-            } else if (cat === 'height') {
-                label.innerText = 'Height (cm)';
-                input.placeholder = 'e.g. 180';
-            } else {
-                label.innerText = 'Hours per day';
-                input.placeholder = 'e.g. 6';
-            }
-        }
-
-        function calculate() {
-            const cat = document.getElementById('category').value;
-            const val = parseFloat(document.getElementById('user-input').value);
-            const resultArea = document.getElementById('result-area');
-            const scoreDisplay = document.getElementById('score-display');
-            const textDisplay = document.getElementById('text-display');
-
-            if(!val) { alert('Please enter a number'); return; }
-
-            // Hardcoded "Averages" for comparison logic
-            // NOTE: In a full version, this would query a real database.
-            let globalAvg = 0;
-            let unit = "";
-            
-            if (cat === 'salary') {
-                globalAvg = 1200; // rough global average
-                unit = "earners";
-            } else if (cat === 'height') {
-                globalAvg = 171; // global men avg
-                unit = "people";
-            } else {
-                globalAvg = 6.5; // screen time
-                unit = "users";
-            }
-
-            // Simple calculation logic
-            let diff = ((val - globalAvg) / globalAvg) * 100;
-            let status = "";
-
-            if (cat === 'screen') {
-                // For screen time, lower is usually "better" (or at least different logic)
-                if (val > globalAvg) {
-                    status = "Above Average";
-                    textDisplay.innerHTML = `You use your phone <strong>${Math.round(diff)}% more</strong> than the average person.`;
-                } else {
-                    status = "Below Average";
-                    textDisplay.innerHTML = `You are disciplined! You use your phone <strong>${Math.round(Math.abs(diff))}% less</strong> than average.`;
-                }
-            } else {
-                // For height/salary, higher is "Top %"
-                if (val > globalAvg) {
-                    status = "Above Average";
-                    textDisplay.innerHTML = `You are <strong>${Math.round(diff)}% higher</strong> than the global average.`;
-                } else {
-                    status = "Below Average";
-                    textDisplay.innerHTML = `You are <strong>${Math.round(Math.abs(diff))}% lower</strong> than the global average.`;
-                }
-            }
-
-            scoreDisplay.innerText = status;
-            resultArea.style.display = 'block';
-            
-            // Smooth scroll to result
-            resultArea.scrollIntoView({behavior: "smooth"});
-        }
-    </script>
 </body>
 </html>

@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Average Salary by Country 2025 | Global Income Report</title>
-    <meta name="description" content="Detailed analysis of average salaries in 2025. Compare net income, purchasing power, and cost of living across 50+ countries.">
+    <title>Global Salary Report 2026 | Net vs Gross Income</title>
+    <meta name="description" content="2026 Salary Analysis: Compare Net vs Gross income in the USA, Europe, and Asia. See real purchasing power parity data.">
     <link rel="stylesheet" href="assets/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/script.js" defer></script>
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571"
      crossorigin="anonymous"></script>
@@ -16,116 +19,107 @@
         <div class="wrapper nav-content">
             <a href="index.html" class="brand">Human<span>Average.</span></a>
             <div class="nav-links">
-                <a href="salary.html" style="color: var(--accent);">Finance</a>
+                <a href="salary.html" class="active">Finance</a>
                 <a href="body.html">Health</a>
+                <a href="work.html">Work</a>
                 <a href="lifestyle.html">Lifestyle</a>
-                <a href="compare.html" class="btn-nav">Compare Tool</a>
+                <a href="compare.html" class="btn-cta">Compare Tool</a>
             </div>
         </div>
     </nav>
 
-    <main class="narrow-wrapper">
+    <main class="wrapper" style="max-width: 900px;">
         
-        <header style="padding: 4rem 0 2rem; text-align: center;">
-            <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem;">Global Finance Report 2025</span>
-            <h1 style="font-size: 2.5rem; margin-top: 0.5rem;">Average Salary by Country</h1>
-            <p style="font-size: 1.2rem; color: var(--text-light); max-width: 600px; margin: 1rem auto;">An in-depth look at global income inequality, purchasing power parity, and the true value of your paycheck.</p>
+        <header class="hero" style="padding: 4rem 0 2rem;">
+            <span style="color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem;">Financial Report 2026</span>
+            <h1 style="font-size: 3rem; margin-top: 0.5rem;">The Global Salary Gap</h1>
+            <p>Why earning $100k in New York feels like $50k in Berlin. We analyze the "Tax Wedge" and real Purchasing Power Parity (PPP).</p>
         </header>
 
-        <div class="ad-container">Google AdSense - In Article</div>
+        <div class="chart-container" style="background: var(--bg-card); padding: 2rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Gross vs. Net Monthly Income (Average)</h3>
+            <canvas id="salaryChart" width="400" height="200"></canvas>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-gray); margin-top: 1rem;">Source: OECD Tax Database 2025/2026 estimates.</p>
+        </div>
 
-        <article class="article-body">
-            <p>Understanding global salaries is about more than just converting currency. A monthly salary of $3,000 provides a luxurious lifestyle in Thailand, but barely covers rent in New York City or Zurich.</p>
-            <p>In this 2025 report, we analyze the <strong>Net Average Monthly Salary</strong> (after tax) across major developed and developing economies. We also adjust for Purchasing Power Parity (PPP) to give you a realistic comparison of living standards.</p>
+        <div class="ad-banner" style="margin: 3rem 0;">Google AdSense - In Article</div>
+
+        <article style="font-size: 1.1rem; color: #d1d5db;">
+            <h2 class="section-title">Analysis: The European "Social Contract"</h2>
+            <p style="margin-bottom: 1.5rem;">Looking at the chart above, you see a striking trend. While the <strong>United States</strong> offers the highest gross salaries, the gap between gross and net is surprisingly consistent with Europe when you factor in health insurance costs.</p>
+            <p style="margin-bottom: 1.5rem;">In countries like <strong>Belgium</strong> and <strong>Germany</strong>, nearly 40-50% of the gross salary is deducted before it hits your bank account. However, this "lost" money funds universal healthcare, free education, and robust unemployment benefits.</p>
+
+            <h2 class="section-title">2026 Rankings: Highest Disposable Income</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-gray); font-size: 0.95rem;">Table: Average Monthly Net Salary (After Tax) in USD.</p>
             
-            <div class="highlight-box">
-                <strong>Key Trend 2025:</strong> The gap between the US and Europe is widening in gross terms, but narrowing when factoring in healthcare and childcare costs. Meanwhile, Remote Work is causing salaries in Eastern Europe and Southeast Asia to rise faster than inflation.
-            </div>
-
-            <h2>Top 10 Highest Paying Countries</h2>
-            <p>The following data represents the average net take-home pay for full-time employees. Data is aggregated from OECD reports and local government statistics.</p>
-        </article>
-
-        <div class="data-table-wrapper">
             <table>
                 <thead>
                     <tr>
                         <th>Rank</th>
                         <th>Country</th>
-                        <th>Avg. Net Monthly ($ USD)</th>
-                        <th>Cost of Living Index</th>
+                        <th>Net Monthly ($)</th>
+                        <th>Buying Power</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>1</td><td>🇨🇭 Switzerland</td><td>$6,980</td><td>Very High</td></tr>
-                    <tr><td>2</td><td>🇱🇺 Luxembourg</td><td>$5,600</td><td>High</td></tr>
-                    <tr><td>3</td><td>🇺🇸 United States</td><td>$4,850</td><td>High</td></tr>
-                    <tr><td>4</td><td>🇸🇬 Singapore</td><td>$4,600</td><td>Very High</td></tr>
-                    <tr><td>5</td><td>🇦🇪 UAE</td><td>$3,900</td><td>High</td></tr>
-                    <tr><td>6</td><td>🇳🇱 Netherlands</td><td>$3,750</td><td>Medium-High</td></tr>
-                    <tr><td>7</td><td>🇦🇺 Australia</td><td>$3,600</td><td>High</td></tr>
-                    <tr><td>8</td><td>🇩🇪 Germany</td><td>$3,450</td><td>Medium</td></tr>
-                    <tr><td>9</td><td>🇬🇧 United Kingdom</td><td>$3,100</td><td>Medium</td></tr>
-                    <tr><td>10</td><td>🇨🇦 Canada</td><td>$3,050</td><td>High</td></tr>
-                    <tr><td>11</td><td>🇮🇪 Ireland</td><td>$3,000</td><td>High</td></tr>
-                    <tr><td>12</td><td>🇫🇷 France</td><td>$2,600</td><td>Medium</td></tr>
-                    <tr><td>13</td><td>🇯🇵 Japan</td><td>$2,450</td><td>Medium</td></tr>
-                    <tr><td>14</td><td>🇰🇷 South Korea</td><td>$2,350</td><td>High</td></tr>
-                    <tr><td>15</td><td>🇪🇸 Spain</td><td>$1,950</td><td>Low-Medium</td></tr>
+                    <tr><td>1</td><td>🇨🇭 Switzerland</td><td>$7,100</td><td>Very High</td></tr>
+                    <tr><td>2</td><td>🇱🇺 Luxembourg</td><td>$5,850</td><td>High</td></tr>
+                    <tr><td>3</td><td>🇺🇸 United States</td><td>$5,100</td><td>High</td></tr>
+                    <tr><td>4</td><td>🇸🇬 Singapore</td><td>$4,950</td><td>High</td></tr>
+                    <tr><td>5</td><td>🇶🇦 Qatar</td><td>$4,200</td><td>Very High</td></tr>
+                    <tr><td>6</td><td>🇳🇱 Netherlands</td><td>$3,850</td><td>Medium</td></tr>
+                    <tr><td>7</td><td>🇦🇺 Australia</td><td>$3,700</td><td>Medium</td></tr>
+                    <tr><td>8</td><td>🇩🇪 Germany</td><td>$3,550</td><td>Medium</td></tr>
                 </tbody>
             </table>
-        </div>
-
-        <article class="article-body">
-            <h2>Analysis: The Swiss Anomaly</h2>
-            <p>Switzerland consistently tops the charts, with salaries often double those of its neighbors like France or Italy. This is driven by a highly specialized economy (pharmaceuticals, banking, luxury watches) and a restrictive immigration policy that keeps labor supply tight.</p>
-            <p>However, costs in Zurich or Geneva are astronomical. A simple lunch can cost $35, and mandatory health insurance premiums are high. Despite this, the Swiss maintain the highest purchasing power in the world.</p>
-
-            <h2>The "Tax Wedge" Explained</h2>
-            <p>Why do German salaries look lower than American ones? It is largely due to the "Tax Wedge". In countries like Germany, Belgium, and France, social security contributions are deducted automatically to fund:</p>
-            <ul>
-                <li>Free University Education</li>
-                <li>Universal Healthcare</li>
-                <li>Unemployment Benefits (up to 2 years)</li>
-                <li>Generous Pensions</li>
-            </ul>
-            <p>In the US, the net salary is higher, but these services must often be purchased privately with post-tax money.</p>
         </article>
 
-        <div class="ad-container">Google AdSense - Middle</div>
-
-        <div style="margin-top: 4rem;">
-            <h2>Frequently Asked Questions</h2>
-            
-            <details style="margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
-                <summary style="font-weight: 700; cursor: pointer;">What is a "good" salary globally?</summary>
-                <p style="margin-top: 1rem; color: #64748b;">Globally, earning more than $30,000 USD net per year puts you in the top 5% of the world's population. However, in developed nations, a "good" salary is generally considered anything above the median household income (e.g., $70k in the US, €45k in Germany).</p>
-            </details>
-
-            <details style="margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; padding: 1rem;">
-                <summary style="font-weight: 700; cursor: pointer;">Does this data include bonuses?</summary>
-                <p style="margin-top: 1rem; color: #64748b;">The averages presented here generally include standard recurring bonuses but exclude stock options (RSUs), which can significantly skew averages in the US tech sector.</p>
-            </details>
+        <div style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--accent); padding: 2rem; margin: 3rem 0; border-radius: 12px;">
+            <h3 style="color: white; margin-bottom: 0.5rem;">Are you underpaid?</h3>
+            <p style="color: var(--text-gray); margin-bottom: 1.5rem;">Check where your current salary ranks globally. Are you in the top 10%?</p>
+            <a href="compare.html" class="btn-cta">Check My Salary Rank &rarr;</a>
         </div>
 
-        <div style="text-align: center; margin: 4rem 0; padding: 3rem; background: var(--primary); color: white; border-radius: 16px;">
-            <h2 style="color: white; margin-top: 0;">How rich are you really?</h2>
-            <p style="color: #cbd5e1; margin-bottom: 2rem;">Use our calculator to adjust your salary for your specific country's cost of living.</p>
-            <a href="compare.html" style="background: var(--accent); color: white; padding: 1rem 2rem; border-radius: 50px; font-weight: 700; display: inline-block;">Compare My Salary</a>
-        </div>
+        <div class="ad-banner">Google AdSense - Bottom</div>
 
     </main>
 
     <footer>
         <div class="wrapper">
-            <div class="footer-links">
-                <a href="about.html">About & Sources</a>
-                <a href="legal/privacy.html">Privacy</a>
-                <a href="legal/terms.html">Terms</a>
-            </div>
-            <p style="color: var(--text-light); font-size: 0.9rem;">&copy; 2025 HumanAverage.com. Data Sources: OECD Better Life Index, World Bank, Numbeo.</p>
+            <p>&copy; 2026 HumanAverage.com. Data updated: January 2026.</p>
         </div>
     </footer>
 
+    <script>
+        const ctx = document.getElementById('salaryChart').getContext('2d');
+        const salaryChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Switzerland', 'USA', 'Germany', 'Netherlands', 'UK'],
+                datasets: [
+                    {
+                        label: 'Gross Salary (Pre-Tax)',
+                        data: [9500, 7200, 5800, 5400, 4200],
+                        backgroundColor: '#374151'
+                    },
+                    {
+                        label: 'Net Salary (Take Home)',
+                        data: [7100, 5100, 3550, 3850, 3200],
+                        backgroundColor: '#6366f1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#9ca3af' } }
+                },
+                scales: {
+                    y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                    x: { ticks: { color: '#9ca3af' }, grid: { display: false } }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
