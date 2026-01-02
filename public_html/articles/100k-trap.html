@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The $100k Trap: Why High US Salaries Are An Illusion - HumanAverage</title>
+    <meta name="description" content="Earning six figures used to mean you were rich. Today, in major US cities, it barely covers the bills. We analyze the math behind the 'Working Poor' elite.">
+    
+    <link rel="stylesheet" href="../assets/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/script.js" defer></script>
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="wrapper nav-content">
+            <a href="../index.html" class="brand">Human<span>Average.</span></a>
+            <div class="nav-links">
+                <a href="../salary.html">Finance</a>
+                <a href="../body.html">Health</a>
+                <a href="../work.html">Work</a>
+                <a href="../compare.html" class="btn-cta">Compare Tool</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="wrapper" style="max-width: 800px;">
+        
+        <header class="hero" style="padding: 4rem 0 2rem;">
+            <span style="color: #ef4444; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem;">Viral Analysis</span>
+            <h1 style="font-size: 3rem; margin-top: 0.5rem;">The $100k Trap</h1>
+            <p>Why earning six figures in America feels like poverty, while $50k in Europe feels like freedom. The breakdown.</p>
+        </header>
+
+        <div class="chart-container" style="background: var(--bg-card); padding: 2rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Monthly Disposable Income: NYC vs. Berlin</h3>
+            <canvas id="trapChart" width="400" height="250"></canvas>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-gray); margin-top: 1rem;">Comparison of a $100k salary (NYC) vs $60k salary (Berlin).</p>
+        </div>
+
+        <div class="ad-banner" style="margin: 3rem 0;">Google AdSense - In Article</div>
+
+        <article style="font-size: 1.1rem; color: #d1d5db;">
+            <h2 class="section-title">The "Six Figure" Myth</h2>
+            <p style="margin-bottom: 1.5rem;">For decades, hitting the $100,000 salary mark was the ultimate symbol of success. It meant you had "made it." But in 2026, inflation and the cost of living in major tech hubs have destroyed this benchmark.</p>
+            <p style="margin-bottom: 1.5rem;">A recent study shows that to feel "financially secure" in cities like San Francisco or New York, a single individual needs to earn <strong>$96,000</strong>. If you have a family? You need over <strong>$300,000</strong>.</p>
+
+            <h2 class="section-title">Where does the money go?</h2>
+            <p style="margin-bottom: 1rem;">Let's break down the monthly expenses of a "High Earner" in the US versus a "Modest Earner" in Europe.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Expense</th>
+                        <th>🇺🇸 New York ($100k)</th>
+                        <th>🇩🇪 Berlin ($60k)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Gross Monthly</td><td>$8,333</td><td>$5,000</td></tr>
+                    <tr><td><strong>Net (After Tax)</strong></td><td><strong>$5,800</strong></td><td><strong>$3,100</strong></td></tr>
+                    <tr><td>Rent (1 Bed)</td><td>-$3,500</td><td>-$1,200</td></tr>
+                    <tr><td>Health Insurance</td><td>-$400</td><td>$0 (Included)</td></tr>
+                    <tr><td>Student Loans</td><td>-$600</td><td>$0</td></tr>
+                    <tr><td>Car/Transport</td><td>-$500</td><td>-$100 (Metro)</td></tr>
+                    <tr><td>Groceries</td><td>-$600</td><td>-$300</td></tr>
+                    <tr style="background: rgba(16, 185, 129, 0.1); font-weight: 700; color: #10b981;">
+                        <td>Remaining</td>
+                        <td>$200</td>
+                        <td>$1,500</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 class="section-title">The "Time Wealth" Factor</h2>
+            <p style="margin-bottom: 1.5rem;">It's not just about the wallet; it's about the calendar. The average American worker receives <strong>10 days</strong> of paid vacation per year. In the EU, the legal minimum is 20, but the standard is <strong>25 to 30 days</strong>.</p>
+            <p style="margin-bottom: 1.5rem;">When you divide your salary by the actual hours worked (including the lack of holidays and checking emails on weekends), the hourly rate of the European worker often exceeds the American "Hustler."</p>
+        </article>
+
+        <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 2rem; margin: 3rem 0; border-radius: 12px;">
+            <h3 style="color: white; margin-bottom: 0.5rem;">What is your "Real" Hourly Rate?</h3>
+            <p style="color: var(--text-gray); margin-bottom: 1.5rem;">Don't just count the money. Count the hours. Use our tool to see if you are actually underpaid.</p>
+            <a href="../work.html" class="btn-cta" style="background: #ef4444;">Check Work Productivity &rarr;</a>
+        </div>
+
+        <div class="ad-banner">Google AdSense - Bottom</div>
+
+    </main>
+
+    <footer>
+        <div class="wrapper">
+            <p>&copy; 2026 HumanAverage.com.</p>
+        </div>
+    </footer>
+
+    <script>
+        const ctx = document.getElementById('trapChart').getContext('2d');
+        const trapChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Monthly Gross', 'Monthly Rent', 'True Disposable Income'],
+                datasets: [
+                    {
+                        label: '🇺🇸 NYC ($100k Salary)',
+                        data: [8333, 3500, 200],
+                        backgroundColor: '#ef4444' // Red
+                    },
+                    {
+                        label: '🇩🇪 Berlin ($60k Salary)',
+                        data: [5000, 1200, 1500],
+                        backgroundColor: '#10b981' // Green
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#9ca3af' } }
+                },
+                scales: {
+                    y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                    x: { ticks: { color: '#9ca3af' }, grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
