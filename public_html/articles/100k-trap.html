@@ -8,9 +8,10 @@
     <meta name="description" content="Earning six figures used to mean you were rich. Today, in major US cities, it barely covers the bills. We analyze the math behind the 'Working Poor' elite.">
     
     <meta property="og:title" content="The $100k Trap: Why High US Salaries Are An Illusion">
-    <meta property="og:description" content="I visualized the disposable income of a $100k earner in NYC vs a $60k earner in Berlin. The results are depressing.">
+    <meta property="og:description" content="Detailed breakdown: A $100k salary in NYC leaves you with less disposable income than $60k in Berlin. Here is the math.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://www.humanaverage.com/articles/100k-trap.html">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1550565118-c974fb6362f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80">
     
     <link rel="stylesheet" href="../assets/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,24 +21,55 @@
      crossorigin="anonymous"></script>
 
     <style>
-        /* Specifieke styling voor de share buttons */
+        /* Article Specific Styling */
+        article { font-size: 1.15rem; line-height: 1.8; color: #d1d5db; }
+        article h2 { color: white; margin-top: 3rem; margin-bottom: 1.5rem; font-size: 2rem; border-bottom: 1px solid #333; padding-bottom: 1rem; }
+        article h3 { color: var(--accent); margin-top: 2rem; font-size: 1.5rem; }
+        article p { margin-bottom: 1.5rem; }
+        article ul { margin-bottom: 2rem; padding-left: 2rem; list-style-type: disc; }
+        article li { margin-bottom: 0.8rem; }
+        article strong { color: white; font-weight: 700; }
+        
+        /* Blockquote Styling */
+        blockquote {
+            border-left: 4px solid #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            margin: 2rem 0;
+            padding: 1.5rem;
+            font-style: italic;
+            color: #fff;
+            border-radius: 0 12px 12px 0;
+        }
+
+        /* Table Styling */
+        .table-wrapper { 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+            margin: 2rem 0; 
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #262626; color: white; padding: 1.2rem; text-align: left; border-bottom: 2px solid #333; }
+        td { padding: 1rem 1.2rem; border-bottom: 1px solid #333; color: #a3a3a3; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #1f1f1f; color: white; }
+
+        /* Share Buttons */
         .share-btn {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 0.8rem 1.2rem; border-radius: 8px;
+            padding: 0.8rem 1.5rem; border-radius: 50px;
             font-weight: 600; text-decoration: none; color: white;
-            transition: transform 0.2s; font-size: 0.9rem;
+            transition: all 0.2s ease; font-size: 0.95rem;
             border: 1px solid rgba(255,255,255,0.1);
             cursor: pointer;
         }
-        .share-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        
+        .share-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .btn-reddit { background: #ff4500; }
         .btn-twitter { background: #000000; border-color: #333; }
         .btn-whatsapp { background: #25D366; }
         .btn-linkedin { background: #0077b5; }
-
-        /* Zorgt dat tabellen scrollen op mobiel */
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 2rem; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -49,93 +81,158 @@
                 <a href="../salary.html">Finance</a>
                 <a href="../body.html">Health</a>
                 <a href="../work.html">Work</a>
-                <a href="../blog.html">Insights</a> <a href="../compare.html" class="btn-cta">Compare Tool</a>
+                <a href="../blog.html">Insights</a>
+                <a href="../compare.html" class="btn-cta">Compare Tool</a>
             </div>
         </div>
     </nav>
 
-    <main class="wrapper" style="max-width: 800px;">
+    <main class="wrapper" style="max-width: 900px;">
         
-        <header class="hero" style="padding: 4rem 0 2rem;">
-            <span style="color: #ef4444; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem;">Viral Analysis</span>
-            <h1 style="font-size: 3rem; margin-top: 0.5rem;">The $100k Trap</h1>
-            <p>Why earning six figures in America feels like poverty, while $50k in Europe feels like freedom. The breakdown.</p>
+        <header class="hero" style="padding: 6rem 0 3rem; text-align: left;">
+            <span style="color: #ef4444; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem;">Deep Dive Analysis</span>
+            <h1 style="font-size: 3.5rem; margin-top: 1rem; line-height: 1.1;">The $100k Trap: Why High US Salaries Are An Illusion</h1>
+            <p style="font-size: 1.3rem; margin-top: 1.5rem; color: #9ca3af; max-width: 700px;">For generations, the "six-figure salary" was the American Dream. In 2026, it barely secures a middle-class life in a coastal city. We break down the math, the taxes, and the hidden costs that turn high earners into the working poor.</p>
+            
+            <div style="margin-top: 2rem; font-size: 0.9rem; color: #666;">
+                <span>By HumanAverage Team</span> • <span>Updated Jan 2026</span> • <span>12 min read</span>
+            </div>
         </header>
 
-        <div class="chart-container" style="background: var(--bg-card); padding: 2rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 3rem;">
-            <h3 style="margin-bottom: 1.5rem; text-align: center;">Monthly Disposable Income: NYC vs. Berlin</h3>
-            <canvas id="trapChart" width="400" height="250"></canvas>
-            <p style="text-align: center; font-size: 0.85rem; color: var(--text-gray); margin-top: 1rem;">Comparison of a $100k salary (NYC) vs $60k salary (Berlin).</p>
+        <div class="chart-container" style="background: var(--bg-card); padding: 2.5rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 4rem;">
+            <h3 style="margin-bottom: 2rem; text-align: center; color: white;">Monthly Disposable Income: NYC vs. Berlin</h3>
+            <canvas id="trapChart" width="400" height="200"></canvas>
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-gray); margin-top: 1.5rem; font-style: italic;">
+                Data based on a single earner ($100k USD vs $60k EUR) living in a city center 1-bedroom apartment.
+            </p>
         </div>
 
-        <div class="ad-banner" style="margin: 3rem 0;">Google AdSense - In Article</div>
+        <div class="ad-banner" style="margin: 4rem 0;">Google AdSense - In Article</div>
 
-        <article style="font-size: 1.1rem; color: #d1d5db;">
-            <h2 class="section-title">The "Six Figure" Myth</h2>
-            <p style="margin-bottom: 1.5rem;">For decades, hitting the $100,000 salary mark was the ultimate symbol of success. It meant you had "made it." But in 2026, inflation and the cost of living in major tech hubs have destroyed this benchmark.</p>
-            <p style="margin-bottom: 1.5rem;">A recent study shows that to feel "financially secure" in cities like San Francisco or New York, a single individual needs to earn <strong>$96,000</strong>. If you have a family? You need over <strong>$300,000</strong>.</p>
+        <article>
+            <p class="lead" style="font-size: 1.3rem; color: white; margin-bottom: 2rem;">If you tell a European that you earn $100,000 a year, their jaw drops. That is €92,000—a salary reserved for senior management, specialized surgeons, or veteran software engineers in places like Berlin, Paris, or Amsterdam. It sounds like infinite wealth.</p>
 
-            <h2 class="section-title">Where does the money go?</h2>
-            <p style="margin-bottom: 1rem;">Let's break down the monthly expenses of a "High Earner" in the US versus a "Modest Earner" in Europe.</p>
+            <p>But if you tell a New Yorker or a San Franciscan you earn $100,000, they will offer you sympathy. They know the truth: <strong>$100k is the new $50k.</strong></p>
+
+            <h2>1. The Gross vs. Net Illusion</h2>
+            <p>The first trap is the number on the contract. In the United States, salaries are discussed in "Gross" terms. But the path from Gross to Net in a high-tax state like New York or California is brutal.</p>
+            <p>Let's take a single earner in New York City making exactly $100,000.</p>
+            <ul>
+                <li><strong>Federal Tax:</strong> ~$14,700</li>
+                <li><strong>FICA (Social Security & Medicare):</strong> ~$7,650</li>
+                <li><strong>State Tax (NY):</strong> ~$5,300</li>
+                <li><strong>Local City Tax (NYC):</strong> ~$3,000</li>
+            </ul>
+            <p>Before you even pay for a MetroCard, nearly <strong>$31,000</strong> is gone. Your monthly paycheck isn't $8,333. It's roughly <strong>$5,800</strong>.</p>
+            
+            <blockquote>
+                "In Europe, high taxes are expected. In America, they are a surprise. You pay European-level taxes in NYC but receive American-level public services."
+            </blockquote>
+
+            <h2>2. The Rent Crisis: The 30% Rule is Dead</h2>
+            <p>Financial advisors traditionally recommend spending no more than 30% of your gross income on rent. On $100k, that means $2,500/month.</p>
+            <p>In 2026 Manhattan, the average rent for a 1-bedroom apartment (not a luxury doorman building, just a walk-up) hovers around <strong>$3,800 to $4,200</strong>. Even in Brooklyn or Queens, finding a decent place under $3,000 is becoming a competitive sport.</p>
+            <p>If you pay $3,500 in rent, you are left with $2,300 for <em>everything else</em> in one of the most expensive cities on earth. That brings us to the European comparison.</p>
+
+            <h2>3. The Berlin Comparison: Less is More</h2>
+            <p>Let's look at Berlin, Germany. A tech worker might earn €60,000 ($65,000 USD). This sounds paltry compared to the US figure. But let's look at the purchasing power.</p>
             
             <div class="table-wrapper">
-                <table style="min-width: 600px;"> <thead>
+                <table>
+                    <thead>
                         <tr>
-                            <th>Expense</th>
+                            <th>Category</th>
                             <th>🇺🇸 New York ($100k)</th>
-                            <th>🇩🇪 Berlin ($60k)</th>
+                            <th>🇩🇪 Berlin ($65k / €60k)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Gross Monthly</td><td>$8,333</td><td>$5,000</td></tr>
-                        <tr><td><strong>Net (After Tax)</strong></td><td><strong>$5,800</strong></td><td><strong>$3,100</strong></td></tr>
-                        <tr><td>Rent (1 Bed)</td><td>-$3,500</td><td>-$1,200</td></tr>
-                        <tr><td>Health Insurance</td><td>-$400</td><td>$0 (Included)</td></tr>
-                        <tr><td>Student Loans</td><td>-$600</td><td>$0</td></tr>
-                        <tr><td>Car/Transport</td><td>-$500</td><td>-$100 (Metro)</td></tr>
-                        <tr><td>Groceries</td><td>-$600</td><td>-$300</td></tr>
+                        <tr><td><strong>Monthly Net Pay</strong></td><td><strong>$5,800</strong></td><td><strong>$3,300 (€3,050)</strong></td></tr>
+                        <tr><td>Rent (City Center 1-Bed)</td><td>-$3,500 (60% of income)</td><td>-$1,300 (40% of income)</td></tr>
+                        <tr><td>Health Insurance</td><td>-$400 (Premium + Deductible)</td><td>$0 (Deducted from Gross)</td></tr>
+                        <tr><td>Student Loans</td><td>-$600 (Avg repayment)</td><td>$0 (University is free)</td></tr>
+                        <tr><td>Transport</td><td>-$132 (MetroCard)</td><td>-$50 (Deutschlandticket)</td></tr>
+                        <tr><td>Groceries/Food</td><td>-$800 (High inflation)</td><td>-$400 (Discounters)</td></tr>
+                        <tr><td>Phone/Internet</td><td>-$100</td><td>-$40</td></tr>
                         <tr style="background: rgba(16, 185, 129, 0.1); font-weight: 700; color: #10b981;">
-                            <td>Remaining</td>
-                            <td>$200</td>
-                            <td>$1,500</td>
+                            <td><strong>True Disposable Income</strong></td>
+                            <td><strong>$268</strong></td>
+                            <td><strong>$1,510</strong></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <h2 class="section-title">The "Time Wealth" Factor</h2>
-            <p style="margin-bottom: 1.5rem;">It's not just about the wallet; it's about the calendar. The average American worker receives <strong>10 days</strong> of paid vacation per year. In the EU, the legal minimum is 20, but the standard is <strong>25 to 30 days</strong>.</p>
-            <p style="margin-bottom: 1.5rem;">When you divide your salary by the actual hours worked (including the lack of holidays and checking emails on weekends), the hourly rate of the European worker often exceeds the American "Hustler."</p>
+            <p>The result is shocking. The "poorer" European ends the month with <strong>5x more disposable cash</strong> than the American "high earner."</p>
+
+            <h2>4. The Hidden Costs of Being American</h2>
+            <p>The table above only scratches the surface. The real killer of American wealth is <em>uncertainty</em> and <em>privatized infrastructure</em>.</p>
+
+            <h3>The Healthcare Gamble</h3>
+            <p>In Germany, if you lose your job, your health insurance continues. In the US, it is tied to your employment. Even with good insurance, the "Deductible" (eigenrisico) can be $2,000 or more before coverage kicks in. An unexpected ambulance ride in NYC can cost $1,500 out of pocket. This forces high earners to hoard cash in "Emergency Funds" just to feel safe.</p>
+
+            <h3>The Childcare Mortgage</h3>
+            <p>This analysis assumed a single person. If you add a child, the American model collapses. Average daycare costs in NYC or San Francisco are <strong>$2,500 to $3,500 per month per child</strong>.</p>
+            <p>In Berlin, daycare (Kita) is heavily subsidized or even free (paying only for food, ~€23/month). A US family earning $200k combined often feels poorer than a German family earning €80k combined.</p>
+
+            <div class="ad-banner">Google AdSense - Middle Article</div>
+
+            <h2>5. The "Time Wealth" Gap</h2>
+            <p>Money is a renewable resource. Time is not. This is where the cultural divide becomes a chasm.</p>
+            
+            <h3>The American Hustle</h3>
+            <p>In the US corporate world, "At-Will Employment" means you can be fired at any moment without notice. This creates a culture of presenteeism. Taking a two-week vacation is often frowned upon. Responding to emails at 8 PM is expected.</p>
+            <ul>
+                <li><strong>Avg. PTO (Paid Time Off):</strong> 10-14 days.</li>
+                <li><strong>Sick Days:</strong> Often limited or pooled with vacation.</li>
+                <li><strong>Maternity Leave:</strong> 0 weeks federally mandated (12 weeks unpaid FMLA).</li>
+            </ul>
+
+            <h3>The European "Feierabend"</h3>
+            <p>In Germany, <em>Feierabend</em> marks the moment work ends and life begins. It is culturally protected.</p>
+            <ul>
+                <li><strong>Avg. PTO:</strong> 25-30 days standard.</li>
+                <li><strong>Sick Days:</strong> Unlimited (with doctor's note) up to 6 weeks at full pay.</li>
+                <li><strong>Parental Leave:</strong> Up to 14 months shared paid leave.</li>
+            </ul>
+            <p>When you calculate your <strong>Hourly Wage based on actual hours worked</strong>, the European salary often surpasses the American one.</p>
+
+            <h2>6. The Counter-Argument: Ceiling Potential</h2>
+            <p>Is the US system purely bad? No. The United States offers something Europe cannot: <strong>Uncapped Upside.</strong></p>
+            <p>The "Trap" we discuss exists primarily in the $75k - $150k range. Once you break past <strong>$250k or $300k</strong> (Senior Engineers, Lawyers, Finance Directors), the US model becomes vastly superior to Europe.</p>
+            <p>Europe has a high floor (nobody falls too deep), but a low ceiling (hard to become super-rich). The US has a non-existent floor (you can lose everything), but an infinite ceiling.</p>
+            <p>The problem? 90% of people will never reach that ceiling, yet they sacrifice their quality of life chasing it.</p>
+
+            <h2>Conclusion: Redefining "Rich"</h2>
+            <p>If "rich" means driving a leased BMW while fearing a medical bill, having a high salary but no time to spend it, and living in a shoebox apartment—then the US $100k earner is rich.</p>
+            <p>But if "rich" means stability, time with family, access to culture, and the ability to save money at the end of the month, the definition of wealth needs to shift. The data suggests that for the average professional, the American Dream has moved across the Atlantic.</p>
+
         </article>
 
-        <div style="background: var(--bg-card); border: 1px solid var(--border); padding: 2rem; border-radius: 12px; margin: 3rem 0; text-align: center;">
-            <h3 style="color: white; margin-bottom: 1.5rem;">Spark a debate. Share this data.</h3>
+        <div style="background: var(--bg-card); border: 1px solid var(--border); padding: 2.5rem; border-radius: 12px; margin: 4rem 0; text-align: center;">
+            <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.5rem;">Spark a debate.</h3>
+            <p style="color: var(--text-gray); margin-bottom: 2rem;">Do you agree with the math? Share this with your network.</p>
             
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-                
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
                 <a href="#" onclick="window.open('https://www.reddit.com/submit?url='+encodeURIComponent(window.location.href)+'&title=The $100k Trap: Why US Salaries are an Illusion', '_blank')" class="share-btn btn-reddit">
                     🚀 Share on Reddit
                 </a>
-
                 <a href="#" onclick="window.open('https://twitter.com/intent/tweet?text=The $100k Trap: Why earning six figures in the US feels like poverty.&url='+encodeURIComponent(window.location.href), '_blank')" class="share-btn btn-twitter">
                     ✖ Post on X
                 </a>
-
                 <a href="#" onclick="window.open('https://api.whatsapp.com/send?text=Check this out: '+encodeURIComponent(window.location.href), '_blank')" class="share-btn btn-whatsapp">
                     💬 WhatsApp
                 </a>
-
                 <a href="#" onclick="window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(window.location.href), '_blank')" class="share-btn btn-linkedin">
                     💼 LinkedIn
                 </a>
-
             </div>
         </div>
 
-        <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 2rem; margin: 3rem 0; border-radius: 12px;">
-            <h3 style="color: white; margin-bottom: 0.5rem;">What is your "Real" Hourly Rate?</h3>
-            <p style="color: var(--text-gray); margin-bottom: 1.5rem;">Don't just count the money. Count the hours. Use our tool to see if you are actually underpaid.</p>
-            <a href="../work.html" class="btn-cta" style="background: #ef4444;">Check Work Productivity &rarr;</a>
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; padding: 2.5rem; margin: 3rem 0; border-radius: 16px; text-align: center;">
+            <h3 style="color: white; margin-bottom: 1rem; font-size: 1.5rem;">Are you working hard or smart?</h3>
+            <p style="color: var(--text-gray); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">Check your country's productivity stats. You might be working 400 hours more per year than your peers for less disposable income.</p>
+            <a href="../work.html" class="btn-cta" style="background: #ef4444; padding: 1rem 2rem; font-size: 1.1rem;">Check Global Work Hours &rarr;</a>
         </div>
 
         <div class="ad-banner">Google AdSense - Bottom</div>
@@ -144,18 +241,28 @@
 
     <footer>
         <div class="wrapper">
-            <div class="footer-grid">
+            <div class="footer-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; border-top: 1px solid #333; padding-top: 3rem;">
                 <div class="footer-col">
-                    <h4 style="color: #fff; margin-bottom: 1rem;">HumanAverage</h4>
-                    <p style="color: var(--text-gray); font-size: 0.9rem;">Transparency through data. We aggregate and visualize global statistics.</p>
+                    <h4 style="color: white; margin-bottom: 1rem;">HumanAverage</h4>
+                    <p style="color: #888; font-size: 0.9rem;">Transparency through data. We aggregate and visualize global statistics to provide context in a chaotic world.</p>
                 </div>
-                <div class="footer-col" style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
-                    <a href="../about.html" style="color: var(--text-gray); text-decoration: none;">About</a>
-                    <a href="../legal/privacy.html" style="color: var(--text-gray); text-decoration: none;">Privacy</a>
-                    <a href="../legal/terms.html" style="color: var(--text-gray); text-decoration: none;">Terms</a>
+                <div class="footer-col">
+                    <h4 style="color: white; margin-bottom: 1rem;">Navigation</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="../salary.html" style="color: #888; text-decoration: none;">Finance Data</a>
+                        <a href="../body.html" style="color: #888; text-decoration: none;">Health Data</a>
+                        <a href="../blog.html" style="color: #888; text-decoration: none;">Insights Blog</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4 style="color: white; margin-bottom: 1rem;">Legal</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="../legal/privacy.html" style="color: #888; text-decoration: none;">Privacy Policy</a>
+                        <a href="../legal/terms.html" style="color: #888; text-decoration: none;">Terms of Service</a>
+                    </div>
                 </div>
             </div>
-            <p style="margin-top: 2rem; font-size: 0.8rem; color: #666;">&copy; 2026 HumanAverage.com.</p>
+            <p style="margin-top: 3rem; text-align: center; color: #555; font-size: 0.8rem;">&copy; 2026 HumanAverage.com. All rights reserved.</p>
         </div>
     </footer>
 
@@ -164,17 +271,19 @@
         const trapChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Monthly Gross', 'Monthly Rent', 'True Disposable Income'],
+                labels: ['Monthly Gross', 'Rent Cost', 'Health/Loans', 'Food/Transport', 'Disposable Income'],
                 datasets: [
                     {
-                        label: '🇺🇸 NYC ($100k Salary)',
-                        data: [8333, 3500, 200],
-                        backgroundColor: '#ef4444' // Red
+                        label: '🇺🇸 NYC ($100k)',
+                        data: [8333, 3500, 1000, 1100, 200],
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4
                     },
                     {
-                        label: '🇩🇪 Berlin ($60k Salary)',
-                        data: [5000, 1200, 1500],
-                        backgroundColor: '#10b981' // Green
+                        label: '🇩🇪 Berlin ($65k)',
+                        data: [5000, 1300, 0, 450, 1510],
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
                     }
                 ]
             },
@@ -182,10 +291,28 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#9ca3af' } }
+                    legend: { position: 'bottom', labels: { color: '#9ca3af', font: { family: "'Outfit', sans-serif" } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
                 },
                 scales: {
-                    y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { color: '#9ca3af', callback: function(value) { return '$' + value; } }, 
+                        grid: { color: '#374151' } 
+                    },
                     x: { ticks: { color: '#9ca3af' }, grid: { display: false } }
                 }
             }
