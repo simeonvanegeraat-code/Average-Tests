@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HumanAverage | Vergelijk jezelf met de wereld</title>
+    <title>HumanAverage | Ben jij gemiddeld? Vergelijk jezelf met de wereld</title>
+    <meta name="description" content="Ontdek hoe jij scoort ten opzichte van 8 miljard mensen. Gebruik onze 10 data-gedreven tools voor inkomen, lengte, reactiesnelheid en meer.">
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571" crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <style>
         /* Aanvullende stijlen voor het dashboard */
         .hero {
@@ -14,7 +19,7 @@
             background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
             border-bottom: 1px solid #e2e8f0;
         }
-        .hero h1 { font-size: 3.5rem; letter-spacing: -2px; margin-bottom: 15px; }
+        .hero h1 { font-size: 3.5rem; letter-spacing: -2px; margin-bottom: 15px; line-height: 1.1; }
         .hero p { font-size: 1.25rem; color: var(--text-muted); max-width: 700px; margin: 0 auto; }
 
         .tools-grid {
@@ -36,6 +41,7 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
         .tool-card:hover {
@@ -57,7 +63,7 @@
             margin-bottom: 20px;
         }
 
-        .tool-card h3 { font-size: 1.3rem; margin-bottom: 10px; }
+        .tool-card h3 { font-size: 1.3rem; margin-bottom: 10px; color: var(--text-main); }
         .tool-card p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 20px; flex-grow: 1; }
 
         .status-tag {
