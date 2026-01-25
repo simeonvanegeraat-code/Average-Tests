@@ -90,12 +90,12 @@
     <main class="container">
         <div style="text-align: center; margin-top: 40px;">
             <h1 style="font-size: 2.5rem; letter-spacing: -1px;">Reactiesnelheid Test</h1>
-            <p style="color: var(--text-muted);">Ontdek hoe snel jouw hersenen visuele signalen verwerken.</p>
+            <p style="color: var(--text-muted);">Ontdek hoe snel jouw hersenen visuele signalen verwerken. Gebruik je muis of de <strong>spatiebalk</strong>.</p>
         </div>
 
-        <div id="game-box" class="test-area waiting" onclick="handleBoxClick()">
+        <div id="game-box" class="test-area waiting" onclick="handleInput()">
             <i id="game-icon" class="fa-solid fa-bolt"></i>
-            <h2 id="game-text">Klik om te starten</h2>
+            <h2 id="game-text">Klik of Spatiebalk om te starten</h2>
             <p id="game-subtext">Wacht op het groene scherm</p>
         </div>
 
@@ -104,7 +104,7 @@
                 <h3 style="font-size: 1.5rem;">Jouw Resultaat: <span id="ms-result" style="color: var(--secondary); font-size: 2.5rem;">0</span> ms</h3>
                 <div id="rank-container"></div>
                 <p id="comparison-text" style="margin-top: 15px; font-weight: 500;"></p>
-                <button class="btn" style="margin-top: 20px; width: 100%;" onclick="resetGame()">Opnieuw proberen</button>
+                <button class="btn" style="margin-top: 20px; width: 100%;" onclick="resetGame()">Opnieuw proberen (of Spatiebalk)</button>
             </div>
         </div>
 
@@ -146,7 +146,15 @@
         const comparisonText = document.getElementById('comparison-text');
         const rankContainer = document.getElementById('rank-container');
 
-        function handleBoxClick() {
+        // Luister naar de spatiebalk
+        window.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Voorkom scrollen
+                handleInput();
+            }
+        });
+
+        function handleInput() {
             if (state === 'WAITING' || state === 'RESULT') {
                 startTest();
             } else if (state === 'READY') {
@@ -162,15 +170,15 @@
             gameBox.className = 'test-area get-ready';
             gameIcon.className = 'fa-solid fa-hourglass-start fa-spin';
             gameText.innerText = 'Wachten...';
-            gameSubtext.innerText = 'Nog niet klikken!';
+            gameSubtext.innerText = 'Nog niet klikken of drukken!';
 
             const randomTime = Math.floor(Math.random() * 3500) + 1500;
             timeoutId = setTimeout(() => {
                 state = 'CLICKABLE';
                 gameBox.className = 'test-area click-now';
                 gameIcon.className = 'fa-solid fa-hand-pointer pulse';
-                gameText.innerText = 'KLIK NU!';
-                gameSubtext.innerText = 'Snel! Snel!';
+                gameText.innerText = 'NU!';
+                gameSubtext.innerText = 'Snel!';
                 startTime = Date.now();
             }, randomTime);
         }
@@ -193,7 +201,7 @@
             gameIcon.className = 'fa-solid fa-stopwatch';
             gameIcon.style.color = 'var(--primary)';
             gameText.innerText = reactionTime + ' ms';
-            gameSubtext.innerText = 'Klik voor een nieuwe poging';
+            gameSubtext.innerText = 'Klik of Spatiebalk voor nieuwe poging';
 
             statsArea.style.display = 'block';
             msResult.innerText = reactionTime;
@@ -228,7 +236,7 @@
             gameBox.className = 'test-area waiting';
             gameIcon.className = 'fa-solid fa-bolt';
             gameIcon.style.color = 'white';
-            gameText.innerText = 'Klik om te starten';
+            gameText.innerText = 'Klik of Spatie om te starten';
             gameSubtext.innerText = 'Wacht op het groene scherm';
         }
     </script>
