@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Time Calculator | HumanAverage</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .calc-card {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .slider-container {
+            margin: 15px 0;
+        }
+
+        input[type=range] {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .hours-val {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 1.2rem;
+            float: right;
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f1f5f9;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .lifetime-stat {
+            background: #eff6ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .big-number {
+            font-size: 3rem;
+            font-weight: 800;
+            display: block;
+            color: var(--primary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="calc-card">
+            <i class="fa-solid fa-mobile-screen-button" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h1>Screen Time Analyzer</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Bereken hoeveel jaar van je leven je naar een scherm staart vergeleken met het gemiddelde.</p>
+
+            <div class="input-group">
+                <label>Schermtijd per dag (uren) <span id="hrs-label" class="hours-val">4u</span></label>
+                <input type="range" id="daily-hours" min="0" max="18" value="4" oninput="updateLabels()">
+            </div>
+
+            <div class="input-group">
+                <label>Huidige leeftijd <span id="age-label" class="hours-val">25j</span></label>
+                <input type="range" id="current-age" min="12" max="90" value="25" oninput="updateLabels()">
+            </div>
+
+            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="calculateScreenTime()">Analyseer mijn tijd</button>
+
+            <div id="result-section" class="result-section">
+                <p>Op basis van jouw huidige gebruik zul je in je leven totaal spenderen aan schermen:</p>
+                <div class="lifetime-stat">
+                    <span class="big-number" id="years-result">0</span>
+                    <span style="font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Jaar aan schermtijd</span>
+                </div>
+                <p id="comparison-text" style="color: var(--text-muted); font-size: 0.95rem;"></p>
+                
+                <div style="margin-top: 25px; font-size: 0.85rem; color: #94a3b8;">
+                    <i class="fa-solid fa-circle-info"></i> Het wereldwijde gemiddelde ligt op ongeveer 6 uur en 37 minuten per dag.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        function updateLabels() {
+            document.getElementById('hrs-label').innerText = document.getElementById('daily-hours').value + "u";
+            document.getElementById('age-label').innerText = document.getElementById('current-age').value + "j";
+        }
+
+        function calculateScreenTime() {
+            const dailyHours = parseInt(document.getElementById('daily-hours').value);
+            const age = parseInt(document.getElementById('current-age').value);
+            const lifeExpectancy = 80; // Gemiddelde voor berekening
+            
+            const remainingYears = lifeExpectancy - age;
+            if (remainingYears <= 0) {
+                alert("Je hebt al een prachtige leeftijd bereikt! Deze berekening werkt het best voor een toekomstige projectie.");
+                return;
+            }
+
+            // Berekening: (uren per dag * 365 dagen * resterende jaren) / 24 uur in een dag / 365 dagen in een jaar
+            // Versimpeld: (dailyHours * remainingYears) / 24
+            const yearsSpent = ((dailyHours * 365 * remainingYears) / 24) / 365;
+            
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('years-result').innerText = yearsSpent.toFixed(1);
+
+            let msg = "";
+            if (dailyHours > 7) {
+                msg = "Dat is fors boven het gemiddelde. Je besteedt meer dan 30% van je wakkere leven aan een scherm.";
+            } else if (dailyHours > 4) {
+                msg = "Je zit rond het gemiddelde van de meeste westerse landen.";
+            } else {
+                msg = "Wauw, jij bent zeer bewust bezig met je digitale balans!";
+            }
+            document.getElementById('comparison-text').innerText = msg;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reactiesnelheid Test | HumanAverage</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .test-area {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            margin: 40px auto;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+            user-select: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Status Kleuren */
+        .waiting { background-color: #2563eb; color: white; }
+        .get-ready { background-color: #ef4444; color: white; }
+        .click-now { background-color: #10b981; color: white; }
+        .result { background-color: white; color: var(--text-main); border: 2px solid #e2e8f0; }
+
+        .test-area i { font-size: 4rem; margin-bottom: 20px; }
+        .test-area h2 { font-size: 2rem; margin: 0; }
+        .test-area p { font-size: 1.1rem; opacity: 0.9; }
+
+        .stats-box {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div style="text-align: center; margin-top: 40px;">
+            <h1>Hoe snel zijn jouw reflexen?</h1>
+            <p>Klik op het vlak zodra het scherm <strong>groen</strong> wordt.</p>
+        </div>
+
+        <div id="game-box" class="test-area waiting" onclick="handleBoxClick()">
+            <i id="game-icon" class="fa-solid fa-bolt"></i>
+            <h2 id="game-text">Klik om te starten</h2>
+            <p id="game-subtext">Wacht op het groene scherm</p>
+        </div>
+
+        <div id="stats-area" class="stats-box">
+            <div class="card" style="text-align: center;">
+                <h3>Jouw resultaat: <span id="ms-result" style="color: var(--secondary);">0</span> ms</h3>
+                <p id="comparison-text" style="margin-top: 10px;"></p>
+                <button class="btn" style="margin-top: 20px;" onclick="resetGame()">Opnieuw proberen</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../js/main.js"></script>
+
+    <script>
+        let startTime;
+        let timeoutId;
+        let state = 'WAITING'; // WAITING, READY, CLICKABLE, RESULT
+
+        const gameBox = document.getElementById('game-box');
+        const gameText = document.getElementById('game-text');
+        const gameSubtext = document.getElementById('game-subtext');
+        const gameIcon = document.getElementById('game-icon');
+        const statsArea = document.getElementById('stats-area');
+        const msResult = document.getElementById('ms-result');
+        const comparisonText = document.getElementById('comparison-text');
+
+        function handleBoxClick() {
+            if (state === 'WAITING' || state === 'RESULT') {
+                startTest();
+            } else if (state === 'READY') {
+                tooSoon();
+            } else if (state === 'CLICKABLE') {
+                showResult();
+            }
+        }
+
+        function startTest() {
+            state = 'READY';
+            statsArea.style.display = 'none';
+            gameBox.className = 'test-area get-ready';
+            gameIcon.className = 'fa-solid fa-ellipsis';
+            gameText.innerText = 'Wacht op groen...';
+            gameSubtext.innerText = 'Nog niet klikken!';
+
+            // Willekeurige tijd tussen 2 en 5 seconden
+            const randomTime = Math.floor(Math.random() * 3000) + 2000;
+            timeoutId = setTimeout(() => {
+                state = 'CLICKABLE';
+                gameBox.className = 'test-area click-now';
+                gameIcon.className = 'fa-solid fa-hand-pointer';
+                gameText.innerText = 'KLIK NU!';
+                gameSubtext.innerText = 'Snel!';
+                startTime = Date.now();
+            }, randomTime);
+        }
+
+        function tooSoon() {
+            clearTimeout(timeoutId);
+            state = 'RESULT';
+            gameBox.className = 'test-area result';
+            gameIcon.className = 'fa-solid fa-circle-xmark';
+            gameIcon.style.color = '#ef4444';
+            gameText.innerText = 'Te vroeg!';
+            gameSubtext.innerText = 'Klik om het opnieuw te proberen.';
+        }
+
+        function showResult() {
+            const endTime = Date.now();
+            const reactionTime = endTime - startTime;
+            state = 'RESULT';
+
+            gameBox.className = 'test-area result';
+            gameIcon.className = 'fa-solid fa-stopwatch';
+            gameIcon.style.color = 'var(--primary)';
+            gameText.innerText = reactionTime + ' ms';
+            gameSubtext.innerText = 'Klik voor een nieuwe poging';
+
+            // Statistieken tonen
+            statsArea.style.display = 'block';
+            msResult.innerText = reactionTime;
+
+            // Vergelijking (Gemiddelde mens is ~273ms)
+            let comparison = "";
+            if (reactionTime < 200) {
+                comparison = "Wauw! Je bent sneller dan 95% van de wereldbevolking. Top-atleet reflexen!";
+            } else if (reactionTime < 273) {
+                comparison = "Lekker bezig! Je bent sneller dan het wereldwijde gemiddelde (273 ms).";
+            } else if (reactionTime < 400) {
+                comparison = "Je zit dicht bij het gemiddelde. Oefen nog een paar keer!";
+            } else {
+                comparison = "Iets langzamer dan gemiddeld. Misschien tijd voor een kopje koffie?";
+            }
+            comparisonText.innerText = comparison;
+        }
+
+        function resetGame() {
+            state = 'WAITING';
+            statsArea.style.display = 'none';
+            gameBox.className = 'test-area waiting';
+            gameIcon.className = 'fa-solid fa-bolt';
+            gameIcon.style.color = 'white';
+            gameText.innerText = 'Klik om te starten';
+            gameSubtext.innerText = 'Wacht op het groene scherm';
+        }
+    </script>
+
+</body>
+</html>

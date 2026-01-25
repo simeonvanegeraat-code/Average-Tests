@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Levensverwachting Calculator | HumanAverage</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .calculator-card {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .result-box {
+            display: none;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f1f5f9;
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .age-display {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .life-bar-container {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .life-bar-fill {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 1.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="calculator-card">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <i class="fa-solid fa-hourglass-half" style="font-size: 3rem; color: var(--primary);"></i>
+                <h1 style="margin-top: 15px;">Life Expectancy</h1>
+                <p style="color: var(--text-muted);">Ontdek je statistische levensverwachting op basis van wereldwijde data.</p>
+            </div>
+
+            <div class="input-group">
+                <label>Huidige leeftijd</label>
+                <input type="number" id="current-age" placeholder="Bijv. 25">
+            </div>
+
+            <div class="input-group">
+                <label>Geslacht</label>
+                <select id="gender">
+                    <option value="vrouw">Vrouw (Statistisch langer leven)</option>
+                    <option value="man">Man</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Levensstijl</label>
+                <select id="lifestyle">
+                    <option value="healthy">Zeer gezond (Sport, geen roken)</option>
+                    <option value="average">Gemiddeld</option>
+                    <option value="unhealthy">Ongezond (Roken, weinig beweging)</option>
+                </select>
+            </div>
+
+            <button class="btn" style="width: 100%;" onclick="calculateLife()">Bereken Verwachting</button>
+
+            <div id="result-box" class="result-box">
+                <p>Jij wordt naar verwachting maar liefst:</p>
+                <div class="age-display"><span id="final-age">0</span> jaar</div>
+                
+                <div class="life-bar-container">
+                    <div id="life-bar" class="life-bar-fill"></div>
+                </div>
+                
+                <p id="comparison-msg" style="font-style: italic; color: var(--text-muted);"></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        function calculateLife() {
+            const age = parseInt(document.getElementById('current-age').value);
+            const gender = document.getElementById('gender').value;
+            const lifestyle = document.getElementById('lifestyle').value;
+
+            if (!age || age < 0 || age > 120) {
+                alert("Voer a.u.b. een realistische huidige leeftijd in.");
+                return;
+            }
+
+            // Basisverwachting (Wereldwijd gemiddelde gecombineerd met westerse data)
+            let baseAge = (gender === 'vrouw') ? 83 : 79;
+
+            // Modifiers
+            if (lifestyle === 'healthy') baseAge += 7;
+            if (lifestyle === 'unhealthy') baseAge -= 8;
+
+            // Je kunt niet jonger sterven dan je nu bent in deze simpele calc
+            const finalAge = Math.max(age + 1, baseAge);
+
+            // UI Updates
+            document.getElementById('result-box').style.display = 'block';
+            
+            // Gebruik de animatie functie uit onze main.js (als we die daar hebben staan)
+            // Of doen het hier lokaal:
+            let displayAge = 0;
+            const interval = setInterval(() => {
+                if (displayAge >= finalAge) {
+                    clearInterval(interval);
+                } else {
+                    displayAge++;
+                    document.getElementById('final-age').innerText = displayAge;
+                }
+            }, 20);
+
+            // Update de bar
+            setTimeout(() => {
+                const percentage = (age / finalAge) * 100;
+                document.getElementById('life-bar').style.width = percentage + "%";
+            }, 100);
+
+            const msg = (finalAge > 80) 
+                ? "Je scoort boven het wereldwijde gemiddelde van 73 jaar!" 
+                : "Je zit rond het gemiddelde van ontwikkelde landen.";
+            document.getElementById('comparison-msg').innerText = msg;
+        }
+    </script>
+</body>
+</html>

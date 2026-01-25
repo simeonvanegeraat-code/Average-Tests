@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slaaptekort Calculator | HumanAverage</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sleep-card {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .hours-input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        input[type=range] {
+            flex-grow: 1;
+        }
+
+        .val-badge {
+            min-width: 60px;
+            padding: 5px 10px;
+            background: #eff6ff;
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .result-panel {
+            display: none;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f1f5f9;
+            animation: slideUp 0.6s ease;
+        }
+
+        .debt-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto;
+            border: 8px solid var(--secondary);
+            transition: border-color 0.3s;
+        }
+
+        .debt-circle.warning { border-color: var(--accent); }
+        .debt-circle.danger { border-color: #ef4444; }
+
+        .big-text { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="sleep-card">
+            <i class="fa-solid fa-bed" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h1>Sleep Debt Calculator</h1>
+            <p style="color: var(--text-muted);">Hoeveel slaap loop jij wekelijks mis vergeleken met het menselijk gemiddelde?</p>
+
+            <div class="input-group">
+                <label>Hoeveel uur slaap je gemiddeld per nacht?</label>
+                <div class="hours-input">
+                    <input type="range" id="actual-sleep" min="3" max="12" step="0.5" value="7" oninput="updateValues()">
+                    <span class="val-badge" id="actual-val">7u</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Hoeveel uur heb je écht nodig om je fit te voelen?</label>
+                <div class="hours-input">
+                    <input type="range" id="needed-sleep" min="3" max="12" step="0.5" value="8" oninput="updateValues()">
+                    <span class="val-badge" id="needed-val">8u</span>
+                </div>
+            </div>
+
+            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="calculateSleepDebt()">Bereken mijn schuld</button>
+
+            <div id="result-panel" class="result-panel">
+                <p>Jouw wekelijkse slaapschuld is:</p>
+                <div id="circle" class="debt-circle">
+                    <span class="big-text" id="debt-val">0</span>
+                    <span style="font-size: 0.8rem; font-weight: 700;">UUR</span>
+                </div>
+                <p id="advice-text" style="font-weight: 600; margin-bottom: 10px;"></p>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Gemiddeld slaapt de mens 6,8 uur per nacht, terwijl 7 tot 9 uur wordt aanbevolen voor optimale gezondheid.</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        function updateValues() {
+            document.getElementById('actual-val').innerText = document.getElementById('actual-sleep').value + "u";
+            document.getElementById('needed-val').innerText = document.getElementById('needed-sleep').value + "u";
+        }
+
+        function calculateSleepDebt() {
+            const actual = parseFloat(document.getElementById('actual-sleep').value);
+            const needed = parseFloat(document.getElementById('needed-sleep').value);
+            const panel = document.getElementById('result-panel');
+            const circle = document.getElementById('circle');
+            
+            const weeklyDebt = (needed - actual) * 7;
+            
+            panel.style.display = 'block';
+            document.getElementById('debt-val').innerText = weeklyDebt.toFixed(1);
+
+            // Kleur indicatie
+            circle.className = 'debt-circle';
+            let advice = "";
+
+            if (weeklyDebt <= 0) {
+                circle.style.borderColor = 'var(--secondary)';
+                advice = "Wauw! Je bent een slaap-expert. Je lichaam krijgt precies wat het nodig heeft.";
+            } else if (weeklyDebt < 7) {
+                circle.classList.add('warning');
+                advice = "Een milde schuld. Probeer in het weekend wat extra rust te pakken.";
+            } else {
+                circle.classList.add('danger');
+                advice = "Dit is een serieuze schuld. Je mist meer dan een volledige nachtrust per week!";
+            }
+            
+            document.getElementById('advice-text').innerText = advice;
+        }
+    </script>
+</body>
+</html>

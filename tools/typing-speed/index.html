@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test | HumanAverage</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .typing-container {
+            max-width: 800px;
+            margin: 40px auto;
+            text-align: center;
+        }
+
+        .word-display {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            font-size: 1.5rem;
+            line-height: 2;
+            margin-bottom: 20px;
+            min-height: 100px;
+            text-align: left;
+            user-select: none;
+            border: 2px solid #e2e8f0;
+        }
+
+        .word { margin-right: 10px; color: #94a3b8; display: inline-block; transition: color 0.1s; }
+        .current { color: var(--text-main); border-bottom: 3px solid var(--primary); }
+        .correct { color: var(--secondary); }
+        .wrong { color: #ef4444; text-decoration: line-through; }
+
+        #type-input {
+            width: 100%;
+            padding: 1.2rem;
+            font-size: 1.2rem;
+            border-radius: 0.8rem;
+            border: 2px solid #cbd5e1;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        #type-input:focus { border-color: var(--primary); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--primary); display: block; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+        </div>
+    </nav>
+
+    <main class="container typing-container">
+        <h1>Hoe snel typ jij?</h1>
+        <p style="margin-bottom: 30px; color: var(--text-muted);">Typ de onderstaande woorden zo snel en nauwkeurig mogelijk. De tijd start zodra je begint.</p>
+
+        <div class="word-display" id="word-display"></div>
+
+        <input type="text" id="type-input" placeholder="Start hier met typen..." autocomplete="off">
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-val" id="wpm-val">0</span>
+                <span style="font-size: 0.8rem; font-weight: 600;">WPM (Woorden/min)</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-val" id="acc-val">100%</span>
+                <span style="font-size: 0.8rem; font-weight: 600;">Nauwkeurigheid</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-val" id="time-val">60s</span>
+                <span style="font-size: 0.8rem; font-weight: 600;">Resterende tijd</span>
+            </div>
+        </div>
+
+        <div id="final-result" style="display:none; margin-top:30px;" class="card">
+            <h2>Test voltooid!</h2>
+            <p id="rank-text" style="margin: 15px 0; font-size: 1.1rem;"></p>
+            <button class="btn" onclick="location.reload()">Opnieuw proberen</button>
+        </div>
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        const words = "gemiddelde mens wereldbevolking statistiek inkomen lengte gewicht leven data vergelijking interactief platform resultaat snelheid reflexen onderzoek maatschappij niveau ranglijst toekomst".split(" ");
+        let currentWordIndex = 0;
+        let correctWords = 0;
+        let totalTyped = 0;
+        let timeLeft = 60;
+        let timerStarted = false;
+        let interval;
+
+        const display = document.getElementById('word-display');
+        const input = document.getElementById('type-input');
+        const timeVal = document.getElementById('time-val');
+
+        // Initialiseer woorden
+        function initWords() {
+            display.innerHTML = words.map((w, i) => `<span class="word ${i === 0 ? 'current' : ''}" id="word-${i}">${w}</span>`).join("");
+        }
+
+        input.addEventListener('input', (e) => {
+            if (!timerStarted) startTimer();
+            
+            const typed = input.value.trim();
+            const currentWord = words[currentWordIndex];
+
+            if (e.data === " ") { // Spatie ingedrukt
+                totalTyped++;
+                const wordEl = document.getElementById(`word-${currentWordIndex}`);
+                
+                if (typed === currentWord) {
+                    wordEl.className = "word correct";
+                    correctWords++;
+                } else {
+                    wordEl.className = "word wrong";
+                }
+
+                currentWordIndex++;
+                input.value = "";
+                
+                if (currentWordIndex < words.length) {
+                    document.getElementById(`word-${currentWordIndex}`).className = "word current";
+                } else {
+                    endGame();
+                }
+                updateStats();
+            }
+        });
+
+        function startTimer() {
+            timerStarted = true;
+            interval = setInterval(() => {
+                timeLeft--;
+                timeVal.innerText = timeLeft + "s";
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        function updateStats() {
+            const wpm = Math.round((correctWords / (60 - timeLeft)) * 60) || 0;
+            const acc = Math.round((correctWords / totalTyped) * 100) || 100;
+            document.getElementById('wpm-val').innerText = wpm;
+            document.getElementById('acc-val').innerText = acc + "%";
+        }
+
+        function endGame() {
+            clearInterval(interval);
+            input.disabled = true;
+            document.getElementById('final-result').style.display = "block";
+            
+            const wpm = parseInt(document.getElementById('wpm-val').innerText);
+            let rank = "";
+            if (wpm < 30) rank = "Je typt langzamer dan gemiddeld. Blijf oefenen!";
+            else if (wpm < 50) rank = "Netjes! Je zit precies op het menselijk gemiddelde van 40 WPM.";
+            else rank = "Wauw! Je bent een professionele typer. Sneller dan 90% van de wereld.";
+            
+            document.getElementById('rank-text').innerText = rank;
+        }
+
+        initWords();
+    </script>
+</body>
+</html>

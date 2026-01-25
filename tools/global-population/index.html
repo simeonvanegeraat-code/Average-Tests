@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welke nummer mens ben jij? | HumanAverage</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .population-card {
+            max-width: 650px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-family: inherit;
+        }
+
+        .result-panel {
+            display: none;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f1f5f9;
+            animation: fadeIn 1s ease;
+        }
+
+        .rank-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            word-wrap: break-word;
+            margin: 20px 0;
+            letter-spacing: -1px;
+        }
+
+        .fun-fact {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            border: 1px dashed #cbd5e1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="population-card">
+            <i class="fa-solid fa-users" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h1>Global Population Rank</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Ontdek welk nummer mens jij was op de dag dat je werd geboren.</p>
+
+            <div class="input-group">
+                <label for="birth-date">Jouw geboortedatum</label>
+                <input type="date" id="birth-date" min="1920-01-01" max="2026-12-31">
+            </div>
+
+            <button class="btn" style="width: 100%;" onclick="calculateRank()">Ontdek mijn nummer</button>
+
+            <div id="result-panel" class="result-panel">
+                <p>Toen jij geboren werd, was je ongeveer de:</p>
+                <div class="rank-number" id="rank-display">0</div>
+                <p style="font-weight: 700; margin-bottom: 20px;">mens op aarde!</p>
+                
+                <div class="fun-fact">
+                    <i class="fa-solid fa-lightbulb" style="color: var(--accent);"></i>
+                    <p id="fact-text" style="margin-top: 10px;"></p>
+                </div>
+                
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 20px;">
+                    * Gebaseerd op data van de United Nations Population Division.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        function calculateRank() {
+            const birthDate = new Date(document.getElementById('birth-date').value);
+            if (isNaN(birthDate)) return alert("Selecteer een geldige datum.");
+
+            const year = birthDate.getFullYear();
+            const panel = document.getElementById('result-panel');
+            const rankDisplay = document.getElementById('rank-display');
+            const factText = document.getElementById('fact-text');
+
+            // Globale populatie data (historische schattingen)
+            const populationData = {
+                1920: 1860000000, 1930: 2070000000, 1940: 2300000000,
+                1950: 2536000000, 1960: 3033000000, 1970: 3700000000,
+                1980: 4453000000, 1990: 5327000000, 2000: 6143000000,
+                2010: 6956000000, 2020: 7794000000, 2026: 8200000000
+            };
+
+            // Simpele lineaire interpolatie voor schatting
+            let nearestYear = Math.floor(year / 10) * 10;
+            if (nearestYear < 1920) nearestYear = 1920;
+            if (nearestYear > 2020) nearestYear = 2020;
+            
+            let basePop = populationData[nearestYear];
+            let growth = (year - nearestYear) * ( (populationData[nearestYear + 10] - basePop) / 10 );
+            let estimate = Math.round(basePop + growth);
+
+            panel.style.display = 'block';
+            
+            // Nummer formatteren met puntjes
+            rankDisplay.innerText = estimate.toLocaleString('nl-NL');
+
+            // Fun fact genereren
+            let fact = "";
+            if (year < 1960) fact = "Je behoort tot de generatie die de grootste bevolkingsexplosie ooit heeft meegemaakt.";
+            else if (year < 1990) fact = "In jouw geboortejaar groeide de wereldbevolking met bijna 90 miljoen mensen per jaar!";
+            else if (year < 2010) fact = "Sinds jouw geboorte zijn er meer dan 2 miljard mensen bijgekomen op aarde.";
+            else fact = "Je bent een van de nieuwste bewoners van een planeet die richting de 10 miljard mensen gaat.";
+            
+            factText.innerText = fact;
+        }
+    </script>
+</body>
+</html>

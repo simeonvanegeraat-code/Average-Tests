@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net Worth Rank | HumanAverage</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .calc-container {
+            max-width: 650px;
+            margin: 40px auto;
+        }
+
+        .input-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .input-row {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        .result-display {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            animation: slideUp 0.5s ease;
+        }
+
+        .rank-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin: 15px 0;
+        }
+
+        .wealth-pyramid {
+            margin: 30px 0;
+            height: 100px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .pyramid-bar {
+            width: 40px;
+            background: #e2e8f0;
+            border-radius: 4px 4px 0 0;
+            transition: background 0.3s, height 1s;
+        }
+
+        .pyramid-bar.active { background: var(--secondary); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+        </div>
+    </nav>
+
+    <main class="container calc-container">
+        <div class="input-card">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <i class="fa-solid fa-piggy-bank" style="font-size: 3rem; color: var(--primary);"></i>
+                <h1 style="margin-top: 10px;">Net Worth Rank</h1>
+                <p style="color: var(--text-muted);">Ontdek je positie in de wereldwijde vermogensverdeling.</p>
+            </div>
+
+            <div class="input-row">
+                <label>Totaal Vermogen (€)</label>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">(Spaarrekening + waarde huis + beleggingen - schulden)</p>
+                <input type="number" id="networth" placeholder="Bijv. 50000">
+            </div>
+
+            <div class="input-row">
+                <label>Leeftijdscategorie</label>
+                <select id="age-group" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <option value="1">18 - 25 jaar</option>
+                    <option value="2">26 - 35 jaar</option>
+                    <option value="3">36 - 50 jaar</option>
+                    <option value="4">50+ jaar</option>
+                </select>
+            </div>
+
+            <button class="btn" style="width: 100%;" onclick="rankWealth()">Vergelijk Vermogen</button>
+        </div>
+
+        <div id="result-display" class="result-display">
+            <h3>Jouw Globale Rang:</h3>
+            <div class="rank-number">Top <span id="perc-val">0</span>%</div>
+            <p id="wealth-msg"></p>
+            
+            <div class="wealth-pyramid" id="pyramid">
+                </div>
+            
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Gebaseerd op data van het Global Wealth Report.</p>
+        </div>
+    </main>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        function rankWealth() {
+            const nw = parseFloat(document.getElementById('networth').value);
+            if (isNaN(nw)) return alert("Voer een geldig bedrag in.");
+
+            let percentile = 99;
+            
+            // Simpele maar realistische verdeling
+            if (nw < 1000) percentile = 50;
+            else if (nw < 10000) percentile = 30;
+            else if (nw < 50000) percentile = 15;
+            else if (nw < 100000) percentile = 8;
+            else if (nw < 500000) percentile = 3;
+            else if (nw < 1000000) percentile = 1;
+            else percentile = 0.1;
+
+            document.getElementById('result-display').style.display = 'block';
+            document.getElementById('perc-val').innerText = percentile;
+
+            const msg = (percentile <= 1) 
+                ? "Je behoort tot de absolute rijkste 1% van de wereldbevolking!" 
+                : "Je bent vermogender dan de meerderheid van de wereldbevolking.";
+            document.getElementById('wealth-msg').innerText = msg;
+
+            // Piramide tekenen
+            const pyramid = document.getElementById('pyramid');
+            pyramid.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'pyramid-bar';
+                bar.style.height = (i * 10) + 'px';
+                // Als je in de top 10% zit, kleur de hoogste bar, etc.
+                if (percentile <= (11 - i) * 10) bar.classList.add('active');
+                pyramid.appendChild(bar);
+            }
+        }
+    </script>
+</body>
+</html>
