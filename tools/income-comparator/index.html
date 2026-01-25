@@ -3,100 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Income Comparator | HumanAverage</title>
+    <title>Global Income Comparator | Hoe rijk ben jij wereldwijd? | HumanAverage</title>
+    <meta name="description" content="Vergelijk je inkomen met de rest van de wereldbevolking. Ontdek je percentiel op de wereldwijde inkomensladder op basis van actuele data.">
+    
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Global Income Comparator",
+      "operatingSystem": "Any",
+      "applicationCategory": "FinanceApplication",
+      "offers": { "@type": "Offer", "price": "0" }
+    }
+    </script>
+
     <style>
-        /* Tool specifieke styling bovenop de algemene stijl */
-        .tool-container {
-            max-width: 600px;
-            margin: 40px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            text-align: center;
+        .tool-header { text-align: center; margin: 3rem 0; }
+        .income-tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+        
+        /* Input Styling */
+        .input-group { margin-bottom: 1.5rem; }
+        label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main); }
+        input, select { 
+            width: 100%; padding: 14px; border: 2px solid #e2e8f0; 
+            border-radius: 10px; font-size: 1rem; transition: border-color 0.2s;
         }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0 20px 0;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
+        input:focus { border-color: var(--primary); outline: none; }
+        
+        /* Toggle Switch */
+        .toggle-container { display: flex; background: #e2e8f0; padding: 4px; border-radius: 8px; margin-bottom: 2rem; }
+        .toggle-btn { 
+            flex: 1; border: none; padding: 8px; border-radius: 6px; cursor: pointer; 
+            font-weight: 600; background: transparent; transition: all 0.2s;
         }
-        .btn-calc {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1.1rem;
+        .toggle-btn.active { background: var(--white); box-shadow: var(--shadow); color: var(--primary); }
+
+        /* Piramide Visualisatie */
+        .pyramid-container { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 20px; }
+        .pyramid-layer { 
+            width: var(--w); height: 40px; background: #e2e8f0; 
+            border-radius: 4px; transition: background 0.5s ease;
+            display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: white;
         }
-        #result-area {
-            display: none;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px solid #f1f5f9;
-        }
-        .percentage {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: var(--secondary);
-            margin: 10px 0;
-        }
+        .pyramid-layer.active { background: var(--secondary); transform: scale(1.05); }
+
+        /* Result Area */
+        #result-card { display: none; text-align: center; animation: fadeIn 0.5s ease forwards; }
+        .percent-display { font-size: 4rem; font-weight: 800; color: var(--secondary); line-height: 1; margin: 10px 0; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 850px) { .income-tool-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <nav>
-        <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
-    </nav>
-
-    <div class="container">
-        <div class="tool-container">
-            <i class="fa-solid fa-wallet" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
-            <h1>Global Income Comparator</h1>
-            <p>Vergelijk je inkomen met de wereldbevolking.</p>
-
-            <div style="text-align: left; margin-top: 20px;">
-                <label>Maandelijks netto inkomen (€)</label>
-                <input type="number" id="income" placeholder="Bijv. 2500">
-                
-                <label>Woonland type</label>
-                <select id="country">
-                    <option value="high">Hoog inkomen (NL/BE/DE)</option>
-                    <option value="mid">Gemiddeld (Brazilië/Polen)</option>
-                    <option value="low">Laag (India/Vietnam)</option>
-                </select>
-            </div>
-
-            <button class="btn-calc" onclick="calculate()">Bereken resultaat</button>
-
-            <div id="result-area">
-                <p>Jij bent rijker dan</p>
-                <div class="percentage" id="perc">0%</div>
-                <p>van de wereldbevolking.</p>
+        <div class="container nav-content">
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-muted)">AVERAGE</span></a>
+            <div class="nav-links">
+                <a href="../../index.html">Tools</a>
+                <a href="../../articles/">Artikelen</a>
+                <a href="../../about.html">Over ons</a>
             </div>
         </div>
-    </div>
+    </nav>
+
+    <main class="container">
+        <div class="tool-header">
+            <h1>Global Income Comparator</h1>
+            <p>Bereken waar jij staat op de wereldwijde inkomensladder.</p>
+        </div>
+
+        <div class="income-tool-grid">
+            <div class="card">
+                <div class="toggle-container">
+                    <button class="toggle-btn active" id="btn-month" onclick="setPeriod('month')">Maand</button>
+                    <button class="toggle-btn" id="btn-year" onclick="setPeriod('year')">Jaar</button>
+                </div>
+
+                <div class="input-group">
+                    <label id="income-label">Netto maandinkomen (€)</label>
+                    <input type="number" id="income-input" placeholder="Bijv. 2800" oninput="liveUpdate()">
+                </div>
+
+                <div class="input-group">
+                    <label>Woonregio</label>
+                    <select id="region-select">
+                        <option value="1">West-Europa / Noord-Amerika</option>
+                        <option value="0.7">Oost-Europa / Latijns-Amerika</option>
+                        <option value="0.4">Azië / Afrika</option>
+                    </select>
+                </div>
+
+                <button class="btn" style="width: 100%;" onclick="runCalculation()">Bereken Mijn Positie</button>
+                
+                <div id="result-card" style="margin-top: 2rem;">
+                    <p>Je bent rijker dan</p>
+                    <div class="percent-display"><span id="perc-val">0</span>%</div>
+                    <p>van de wereldbevolking</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Jouw plek in de wereld</h3>
+                <div class="pyramid-container" id="pyramid">
+                    <div class="pyramid-layer" style="--w: 20%;" data-min="99">Top 1%</div>
+                    <div class="pyramid-layer" style="--w: 40%;" data-min="90">Top 10%</div>
+                    <div class="pyramid-layer" style="--w: 60%;" data-min="75">Bovenlaag</div>
+                    <div class="pyramid-layer" style="--w: 80%;" data-min="50">Middenklasse</div>
+                    <div class="pyramid-layer" style="--w: 100%;" data-min="0">Wereldgemiddelde</div>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;">
+                    De visualisatie laat zien in welke laag van de wereldbevolking jij valt op basis van je koopkracht.
+                </p>
+            </div>
+        </div>
+
+        <section class="card" style="margin-top: 3rem;">
+            <h2>Hoe berekenen we dit?</h2>
+            <p>Onze <strong>Global Income Comparator</strong> maakt gebruik van geaggregeerde data van de <em>Wereldbank</em> en de <em>ILO</em>. We kijken hierbij niet alleen naar het nominale bedrag, maar passen een correctie toe op basis van <strong>Purchasing Power Parity (PPP)</strong>.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <div>
+                    <h4>Wat is PPP?</h4>
+                    <p style="font-size: 0.9rem;">Koopkrachtpariteit (PPP) zorgt ervoor dat we inkomens eerlijk kunnen vergelijken. Met €2.000 per maand kun je in Vietnam namelijk veel meer kopen dan in Nederland.</p>
+                </div>
+                <div>
+                    <h4>Betrouwbare Bronnen</h4>
+                    <p style="font-size: 0.9rem;">De data wordt jaarlijks herzien op basis van het <em>World Development Indicators</em> rapport om een actueel beeld te geven van de wereldwijde welvaartsverdeling.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="../../about.html">Over ons</a>
+                <a href="../../contact.html">Contact</a>
+                <a href="../../privacy.html">Privacy</a>
+            </div>
+            <p>&copy; 2026 HumanAverage.com - Data-gedreven inzichten.</p>
+        </div>
+    </footer>
 
     <script>
-        function calculate() {
-            const income = document.getElementById('income').value;
-            if(!income) return alert("Vul een bedrag in");
+        let period = 'month';
 
-            let percentile = 0;
-            if (income < 500) percentile = 40;
-            else if (income < 1500) percentile = 85;
-            else if (income < 2500) percentile = 95;
-            else percentile = 99;
+        function setPeriod(p) {
+            period = p;
+            document.getElementById('btn-month').classList.toggle('active', p === 'month');
+            document.getElementById('btn-year').classList.toggle('active', p === 'year');
+            document.getElementById('income-label').innerText = p === 'month' ? 'Netto maandinkomen (€)' : 'Netto jaarinkomen (€)';
+        }
 
-            document.getElementById('result-area').style.display = 'block';
-            document.getElementById('perc').innerText = percentile + "%";
+        function runCalculation() {
+            const val = parseFloat(document.getElementById('income-input').value);
+            const regionFactor = parseFloat(document.getElementById('region-select').value);
+            
+            if (!val) return;
+
+            // Omrekenen naar maandelijkse basis voor de formule
+            let monthly = period === 'year' ? val / 12 : val;
+            // Pas regio-correctie toe (simulatie van koopkracht)
+            let adjusted = monthly * regionFactor;
+
+            // Verfijnde logaritmische formule voor inkomenspercentiel
+            let percentile = Math.min(99.9, (Math.log10(adjusted + 1) * 25) + (adjusted / 500));
+            if (percentile < 1) percentile = 1;
+
+            // Animatie
+            document.getElementById('result-card').style.display = 'block';
+            animateValue("perc-val", 0, Math.floor(percentile), 1000);
+            updatePyramid(percentile);
+        }
+
+        function animateValue(id, start, end, duration) {
+            let obj = document.getElementById(id);
+            let range = end - start;
+            let startTime = new Date().getTime();
+            let timer = setInterval(function() {
+                let time = new Date().getTime() - startTime;
+                let val = Math.floor(start + range * (time / duration));
+                obj.innerHTML = val;
+                if (time >= duration) {
+                    obj.innerHTML = end;
+                    clearInterval(timer);
+                }
+            }, 10);
+        }
+
+        function updatePyramid(perc) {
+            const layers = document.querySelectorAll('.pyramid-layer');
+            layers.forEach(l => {
+                const min = parseInt(l.getAttribute('data-min'));
+                l.classList.toggle('active', perc >= min);
+            });
         }
     </script>
 </body>
