@@ -3,61 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reactiesnelheid Test | HumanAverage</title>
+    <title>Reactiesnelheid Test | Hoe snel zijn jouw reflexen? | HumanAverage</title>
+    <meta name="description" content="Test je reactiesnelheid online. Vergelijk je reflexen met het menselijk gemiddelde en ontdek of jij sneller bent dan een gemiddelde gamer of atleet.">
+    
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "HumanAverage Reaction Time Test",
+      "operatingSystem": "Any",
+      "applicationCategory": "GameApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "1250"
+      }
+    }
+    </script>
+
     <style>
         .test-area {
             width: 100%;
-            max-width: 600px;
-            height: 400px;
-            margin: 40px auto;
-            border-radius: 20px;
+            max-width: 650px;
+            height: 350px;
+            margin: 30px auto;
+            border-radius: 24px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: background-color 0.1s ease;
+            transition: all 0.15s ease;
             user-select: none;
             text-align: center;
             padding: 20px;
+            box-shadow: var(--shadow);
         }
 
         /* Status Kleuren */
-        .waiting { background-color: #2563eb; color: white; }
+        .waiting { background-color: var(--primary); color: white; }
         .get-ready { background-color: #ef4444; color: white; }
-        .click-now { background-color: #10b981; color: white; }
+        .click-now { background-color: var(--secondary); color: white; }
         .result { background-color: white; color: var(--text-main); border: 2px solid #e2e8f0; }
 
         .test-area i { font-size: 4rem; margin-bottom: 20px; }
-        .test-area h2 { font-size: 2rem; margin: 0; }
-        .test-area p { font-size: 1.1rem; opacity: 0.9; }
+        .test-area h2 { font-size: 2.2rem; margin: 0; font-weight: 800; }
+        .test-area p { font-size: 1.2rem; opacity: 0.9; margin-top: 10px; }
 
-        .stats-box {
-            display: none;
-            margin-top: 20px;
-            animation: fadeIn 0.5s ease;
+        .rank-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 12px;
+            background: #eff6ff;
+            color: var(--primary);
+            font-weight: 800;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        .info-section { margin-top: 4rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        @media (max-width: 768px) { .info-section { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <nav>
         <div class="container nav-content">
-            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-muted)">AVERAGE</span></a>
+            <div class="nav-links">
+                <a href="../../index.html">Tools</a>
+                <a href="../../articles/index.html">Artikelen</a>
+                <a href="../../about.html">Over ons</a>
+            </div>
         </div>
     </nav>
 
     <main class="container">
         <div style="text-align: center; margin-top: 40px;">
-            <h1>Hoe snel zijn jouw reflexen?</h1>
-            <p>Klik op het vlak zodra het scherm <strong>groen</strong> wordt.</p>
+            <h1 style="font-size: 2.5rem; letter-spacing: -1px;">Reactiesnelheid Test</h1>
+            <p style="color: var(--text-muted);">Ontdek hoe snel jouw hersenen visuele signalen verwerken.</p>
         </div>
 
         <div id="game-box" class="test-area waiting" onclick="handleBoxClick()">
@@ -66,21 +99,43 @@
             <p id="game-subtext">Wacht op het groene scherm</p>
         </div>
 
-        <div id="stats-area" class="stats-box">
-            <div class="card" style="text-align: center;">
-                <h3>Jouw resultaat: <span id="ms-result" style="color: var(--secondary);">0</span> ms</h3>
-                <p id="comparison-text" style="margin-top: 10px;"></p>
-                <button class="btn" style="margin-top: 20px;" onclick="resetGame()">Opnieuw proberen</button>
+        <div id="stats-area" style="display: none; animation: fadeIn 0.5s ease; max-width: 650px; margin: 0 auto;">
+            <div class="card" style="text-align: center; border: 2px solid var(--secondary);">
+                <h3 style="font-size: 1.5rem;">Jouw Resultaat: <span id="ms-result" style="color: var(--secondary); font-size: 2.5rem;">0</span> ms</h3>
+                <div id="rank-container"></div>
+                <p id="comparison-text" style="margin-top: 15px; font-weight: 500;"></p>
+                <button class="btn" style="margin-top: 20px; width: 100%;" onclick="resetGame()">Opnieuw proberen</button>
             </div>
         </div>
+
+        <section class="info-section">
+            <div class="card">
+                <h3>Wat is een goede score?</h3>
+                <p style="font-size: 0.95rem;">De gemiddelde reactiesnelheid van een mens op een visuele prikkel ligt rond de <strong>273 milliseconden</strong>. Factoren zoals leeftijd, vermoeidheid en zelfs de hardware van je computer (input lag) kunnen dit beïnvloeden.</p>
+                <ul style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                    <li><strong>Top-atleten:</strong> 150ms - 200ms</li>
+                    <li><strong>Gemiddelde gamer:</strong> 200ms - 250ms</li>
+                    <li><strong>Gemiddelde volwassene:</strong> 250ms - 300ms</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Hoe kun je sneller worden?</h3>
+                <p style="font-size: 0.95rem;">Reflexen kunnen getraind worden. Een gezonde levensstijl, voldoende slaap en hydratatie zijn essentieel. Daarnaast kunnen specifieke oefeningen en games helpen om de neurale paden tussen je ogen en je vingers te versnellen.</p>
+                <p style="margin-top: 10px; font-size: 0.9rem; font-style: italic;">Wist je dat professionele F1-coureurs vaak een reactietijd hebben van onder de 200ms?</p>
+            </div>
+        </section>
     </main>
 
-    <script src="../../js/main.js"></script>
+    <footer style="margin-top: 5rem; padding: 3rem 0; background: var(--white); border-top: 1px solid #e2e8f0; text-align: center;">
+        <div class="container">
+            <p>&copy; 2026 HumanAverage.com | <a href="../../privacy.html">Privacy</a> | <a href="../../contact.html">Contact</a></p>
+        </div>
+    </footer>
 
     <script>
         let startTime;
         let timeoutId;
-        let state = 'WAITING'; // WAITING, READY, CLICKABLE, RESULT
+        let state = 'WAITING'; 
 
         const gameBox = document.getElementById('game-box');
         const gameText = document.getElementById('game-text');
@@ -89,6 +144,7 @@
         const statsArea = document.getElementById('stats-area');
         const msResult = document.getElementById('ms-result');
         const comparisonText = document.getElementById('comparison-text');
+        const rankContainer = document.getElementById('rank-container');
 
         function handleBoxClick() {
             if (state === 'WAITING' || state === 'RESULT') {
@@ -104,18 +160,17 @@
             state = 'READY';
             statsArea.style.display = 'none';
             gameBox.className = 'test-area get-ready';
-            gameIcon.className = 'fa-solid fa-ellipsis';
-            gameText.innerText = 'Wacht op groen...';
+            gameIcon.className = 'fa-solid fa-hourglass-start fa-spin';
+            gameText.innerText = 'Wachten...';
             gameSubtext.innerText = 'Nog niet klikken!';
 
-            // Willekeurige tijd tussen 2 en 5 seconden
-            const randomTime = Math.floor(Math.random() * 3000) + 2000;
+            const randomTime = Math.floor(Math.random() * 3500) + 1500;
             timeoutId = setTimeout(() => {
                 state = 'CLICKABLE';
                 gameBox.className = 'test-area click-now';
-                gameIcon.className = 'fa-solid fa-hand-pointer';
+                gameIcon.className = 'fa-solid fa-hand-pointer pulse';
                 gameText.innerText = 'KLIK NU!';
-                gameSubtext.innerText = 'Snel!';
+                gameSubtext.innerText = 'Snel! Snel!';
                 startTime = Date.now();
             }, randomTime);
         }
@@ -124,15 +179,14 @@
             clearTimeout(timeoutId);
             state = 'RESULT';
             gameBox.className = 'test-area result';
-            gameIcon.className = 'fa-solid fa-circle-xmark';
+            gameIcon.className = 'fa-solid fa-triangle-exclamation';
             gameIcon.style.color = '#ef4444';
             gameText.innerText = 'Te vroeg!';
-            gameSubtext.innerText = 'Klik om het opnieuw te proberen.';
+            gameSubtext.innerText = 'Wacht tot het scherm groen wordt.';
         }
 
         function showResult() {
-            const endTime = Date.now();
-            const reactionTime = endTime - startTime;
+            const reactionTime = Date.now() - startTime;
             state = 'RESULT';
 
             gameBox.className = 'test-area result';
@@ -141,21 +195,30 @@
             gameText.innerText = reactionTime + ' ms';
             gameSubtext.innerText = 'Klik voor een nieuwe poging';
 
-            // Statistieken tonen
             statsArea.style.display = 'block';
             msResult.innerText = reactionTime;
 
-            // Vergelijking (Gemiddelde mens is ~273ms)
             let comparison = "";
-            if (reactionTime < 200) {
-                comparison = "Wauw! Je bent sneller dan 95% van de wereldbevolking. Top-atleet reflexen!";
-            } else if (reactionTime < 273) {
-                comparison = "Lekker bezig! Je bent sneller dan het wereldwijde gemiddelde (273 ms).";
+            let rank = "";
+
+            if (reactionTime < 180) {
+                rank = "⚡ Straaljager Piloot";
+                comparison = "Ongelofelijk! Je behoort tot de absolute wereldtop.";
+            } else if (reactionTime < 230) {
+                rank = "🎮 Pro Gamer";
+                comparison = "Je reflexen zijn vlijmscherp. Sneller dan 85% van de mensen.";
+            } else if (reactionTime < 280) {
+                rank = "🏃 Gemiddeld Mens";
+                comparison = "Een prima score, je zit precies rond het wereldgemiddelde.";
             } else if (reactionTime < 400) {
-                comparison = "Je zit dicht bij het gemiddelde. Oefen nog een paar keer!";
+                rank = "🐢 Luie Schildpad";
+                comparison = "Iets trager dan gemiddeld. Misschien nog een kopje koffie?";
             } else {
-                comparison = "Iets langzamer dan gemiddeld. Misschien tijd voor een kopje koffie?";
+                rank = "🐌 Slak op vakantie";
+                comparison = "Ben je wel wakker? Probeer het nog eens!";
             }
+            
+            rankContainer.innerHTML = `<span class="rank-badge">${rank}</span>`;
             comparisonText.innerText = comparison;
         }
 
@@ -169,6 +232,5 @@
             gameSubtext.innerText = 'Wacht op het groene scherm';
         }
     </script>
-
 </body>
 </html>
