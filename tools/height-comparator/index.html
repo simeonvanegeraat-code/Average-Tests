@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Height Comparator | HumanAverage</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .tool-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .btn-calc {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+        }
+
+        .btn-calc:hover {
+            background: var(--primary-dark);
+        }
+
+        #result-area {
+            display: none;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f1f5f9;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .height-visual {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            height: 150px;
+        }
+
+        .person-bar {
+            width: 60px;
+            background: var(--primary);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: height 1s ease-out;
+        }
+
+        .avg-bar {
+            width: 60px;
+            background: #cbd5e1;
+            border-radius: 5px 5px 0 0;
+            height: 100px; /* Reference height */
+        }
+
+        .bar-label {
+            position: absolute;
+            top: -25px;
+            width: 100%;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+    </nav>
+
+    <div class="container">
+        <div class="tool-container">
+            <i class="fa-solid fa-ruler-vertical" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h1>Global Height Comparator</h1>
+            <p>Hoe lang ben je vergeleken met de rest van de wereld?</p>
+
+            <div class="input-group" style="margin-top: 25px;">
+                <label for="gender">Geslacht</label>
+                <select id="gender">
+                    <option value="male">Man</option>
+                    <option value="female">Vrouw</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="height">Jouw lengte (in cm)</label>
+                <input type="number" id="height" placeholder="Bijv. 180" min="50" max="250">
+            </div>
+
+            <button class="btn-calc" onclick="compareHeight()">Vergelijk Lengte</button>
+
+            <div id="result-area">
+                <div class="height-visual">
+                    <div class="avg-bar"><span class="bar-label">Gemiddeld</span></div>
+                    <div class="person-bar" id="v-bar"><span class="bar-label">Jij</span></div>
+                </div>
+                <p id="result-text"></p>
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--secondary); margin: 10px 0;" id="perc-output">0%</div>
+                <p id="context-info" style="font-size: 0.9rem; color: var(--text-muted);"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function compareHeight() {
+            const height = parseInt(document.getElementById('height').value);
+            const gender = document.getElementById('gender').value;
+            const resultArea = document.getElementById('result-area');
+            const vBar = document.getElementById('v-bar');
+            
+            if (!height || height < 50 || height > 250) {
+                alert("Voer een geldige lengte in tussen 50 en 250 cm.");
+                return;
+            }
+
+            // Wereldwijde gemiddeldes (versimpeld)
+            // Man: ~171cm, Vrouw: ~159cm
+            const avg = (gender === 'male') ? 171 : 159;
+            
+            // Berekening relatieve hoogte voor de visualisatie (gemiddelde bar is 100px)
+            const visualHeight = (height / avg) * 100;
+            
+            // Percentiel berekening (simulatie van een normale verdeling)
+            let diff = height - avg;
+            let percentile = 50 + (diff * 1.5); // Grove schatting
+            
+            if (percentile > 99) percentile = 99.9;
+            if (percentile < 1) percentile = 0.1;
+
+            resultArea.style.display = 'block';
+            vBar.style.height = visualHeight + "px";
+            
+            document.getElementById('perc-output').innerText = Math.round(percentile) + "%";
+            document.getElementById('result-text').innerText = `Je bent langer dan ongeveer:`;
+            document.getElementById('context-info').innerText = 
+                `Het wereldwijde gemiddelde voor een ${gender === 'male' ? 'man' : 'vrouw'} is ongeveer ${avg} cm.`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HumanAverage | Vergelijk jezelf met de wereld</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Specifieke styling voor de Homepage Hero en Grid */
+        .hero {
+            padding: 80px 5% 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        .section-title {
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            background: #eff6ff;
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .btn-tag {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--bg-light);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary);
+            align-self: flex-start;
+        }
+        
+        /* Footer styling voor extra links */
+        footer {
+            background: #fff;
+            text-align: center;
+            padding: 60px 5% 40px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 60px;
+        }
+        .footer-links {
+            margin-bottom: 20px;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .tools-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+        <div class="nav-links">
+            <a href="#tools">Tools</a>
+            <a href="about.html">Over ons</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Ben jij gemiddeld?</h1>
+        <p>Ontdek unieke data-gedreven tools die je laten zien hoe jouw leven, bezit en lichaam zich verhouden tot de 8 miljard andere mensen op deze planeet.</p>
+    </header>
+
+    <main class="container" id="tools">
+        <h2 class="section-title"><i class="fa-solid fa-microchip"></i> Interactieve Tools</h2>
+        
+        <div class="tools-grid">
+            <a href="tools/income-comparator/index.html" class="tool-card">
+                <div>
+                    <div class="icon-box"><i class="fa-solid fa-wallet"></i></div>
+                    <h3>Global Income Comparator</h3>
+                    <p>Verdien je meer dan de gemiddelde wereldburger? Bereken je exacte positie in de wereldwijde welvaartspiramide.</p>
+                </div>
+                <span class="btn-tag">Open Tool →</span>
+            </a>
+
+            <div class="tool-card" style="opacity: 0.6; cursor: default;">
+                <div>
+                    <div class="icon-box" style="background: #f1f5f9; color: #94a3b8;"><i class="fa-solid fa-ruler-vertical"></i></div>
+                    <h3>Global Height Comparator</h3>
+                    <p>Hoe verhoudt jouw lengte zich tot het wereldwijde gemiddelde en de mensen in jouw eigen land?</p>
+                </div>
+                <span class="btn-tag" style="color: #94a3b8;">Binnenkort</span>
+            </div>
+
+            <div class="tool-card" style="opacity: 0.6; cursor: default;">
+                <div>
+                    <div class="icon-box" style="background: #f1f5f9; color: #94a3b8;"><i class="fa-solid fa-clock"></i></div>
+                    <h3>Life Expectancy</h3>
+                    <p>Op basis van statistieken: wat is de gemiddelde levensverwachting in jouw regio vergeleken met de rest?</p>
+                </div>
+                <span class="btn-tag" style="color: #94a3b8;">Binnenkort</span>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="about.html">Over ons</a>
+            <a href="privacy.html">Privacybeleid</a>
+            <a href="terms.html">Algemene Voorwaarden</a>
+        </div>
+        <p>&copy; 2026 HumanAverage.com - Data-gedreven inzichten in de mensheid.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Income Comparator | HumanAverage</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Tool specifieke styling bovenop de algemene stijl */
+        .tool-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .btn-calc {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        #result-area {
+            display: none;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f1f5f9;
+        }
+        .percentage {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+    </nav>
+
+    <div class="container">
+        <div class="tool-container">
+            <i class="fa-solid fa-wallet" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h1>Global Income Comparator</h1>
+            <p>Vergelijk je inkomen met de wereldbevolking.</p>
+
+            <div style="text-align: left; margin-top: 20px;">
+                <label>Maandelijks netto inkomen (€)</label>
+                <input type="number" id="income" placeholder="Bijv. 2500">
+                
+                <label>Woonland type</label>
+                <select id="country">
+                    <option value="high">Hoog inkomen (NL/BE/DE)</option>
+                    <option value="mid">Gemiddeld (Brazilië/Polen)</option>
+                    <option value="low">Laag (India/Vietnam)</option>
+                </select>
+            </div>
+
+            <button class="btn-calc" onclick="calculate()">Bereken resultaat</button>
+
+            <div id="result-area">
+                <p>Jij bent rijker dan</p>
+                <div class="percentage" id="perc">0%</div>
+                <p>van de wereldbevolking.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            const income = document.getElementById('income').value;
+            if(!income) return alert("Vul een bedrag in");
+
+            let percentile = 0;
+            if (income < 500) percentile = 40;
+            else if (income < 1500) percentile = 85;
+            else if (income < 2500) percentile = 95;
+            else percentile = 99;
+
+            document.getElementById('result-area').style.display = 'block';
+            document.getElementById('perc').innerText = percentile + "%";
+        }
+    </script>
+</body>
+</html>
