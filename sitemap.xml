@@ -2,62 +2,74 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
    <url>
       <loc>https://www.humanaverage.com/</loc>
-      <lastmod>2025-01-01</lastmod>
+      <lastmod>2026-01-26</lastmod>
       <priority>1.0</priority>
    </url>
    <url>
       <loc>https://www.humanaverage.com/about.html</loc>
-      <priority>0.6</priority>
-   </url>
-   
-   <url>
-      <loc>https://www.humanaverage.com/articles/why-dutch-are-tall.html</loc>
-      <priority>0.9</priority>
+      <priority>0.7</priority>
    </url>
    <url>
-      <loc>https://www.humanaverage.com/articles/salary-usa-vs-europe.html</loc>
-      <priority>0.9</priority>
-   </url>
-   <url>
-      <loc>https://www.humanaverage.com/articles/4-day-work-week.html</loc>
-      <priority>0.9</priority>
-   </url>
-   <url>
-      <loc>https://www.humanaverage.com/articles/coffee-addiction.html</loc>
+      <loc>https://www.humanaverage.com/articles/index.html</loc>
       <priority>0.9</priority>
    </url>
 
    <url>
-      <loc>https://www.humanaverage.com/compare.html</loc>
+      <loc>https://www.humanaverage.com/tools/income-comparator/index.html</loc>
+      <priority>0.9</priority>
+   </url>
+   <url>
+      <loc>https://www.humanaverage.com/tools/height-comparator/index.html</loc>
+      <priority>0.9</priority>
+   </url>
+   <url>
+      <loc>https://www.humanaverage.com/tools/reaction-time/index.html</loc>
+      <priority>0.9</priority>
+   </url>
+   <url>
+      <loc>https://www.humanaverage.com/tools/typing-speed/index.html</loc>
       <priority>0.8</priority>
    </url>
    <url>
-      <loc>https://www.humanaverage.com/salary.html</loc>
+      <loc>https://www.humanaverage.com/tools/life-expectancy/index.html</loc>
       <priority>0.8</priority>
    </url>
    <url>
-      <loc>https://www.humanaverage.com/body.html</loc>
+      <loc>https://www.humanaverage.com/tools/net-worth/index.html</loc>
       <priority>0.8</priority>
    </url>
    <url>
-      <loc>https://www.humanaverage.com/lifestyle.html</loc>
-      <priority>0.7</priority>
+      <loc>https://www.humanaverage.com/tools/screen-time/index.html</loc>
+      <priority>0.8</priority>
    </url>
    <url>
-      <loc>https://www.humanaverage.com/work.html</loc>
-      <priority>0.7</priority>
+      <loc>https://www.humanaverage.com/tools/sleep-debt/index.html</loc>
+      <priority>0.8</priority>
    </url>
    <url>
-      <loc>https://www.humanaverage.com/demographics.html</loc>
+      <loc>https://www.humanaverage.com/tools/coffee-intake/index.html</loc>
+      <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://www.humanaverage.com/tools/population-count/index.html</loc>
+      <priority>0.8</priority>
+   </url>
+
+   <url>
+      <loc>https://www.humanaverage.com/articles/gemiddeld-salaris-wereldwijd-2026.html</loc>
+      <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://www.humanaverage.com/articles/tips-voor-snellere-reactietijd.html</loc>
+      <priority>0.8</priority>
+   </url>
+   <url>
+      <loc>https://www.humanaverage.com/articles/waarom-gemiddeld-zijn-ok-is.html</loc>
       <priority>0.7</priority>
    </url>
 
    <url>
-      <loc>https://www.humanaverage.com/legal/privacy.html</loc>
-      <priority>0.3</priority>
-   </url>
-   <url>
-      <loc>https://www.humanaverage.com/legal/terms.html</loc>
+      <loc>https://www.humanaverage.com/privacy.html</loc>
       <priority>0.3</priority>
    </url>
 </urlset>
