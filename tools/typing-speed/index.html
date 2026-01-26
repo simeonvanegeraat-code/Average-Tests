@@ -3,56 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Typing Speed Test | HumanAverage</title>
+    <title>Typing Speed Test | Bereken je WPM | HumanAverage</title>
+    <meta name="description" content="Hoe snel typ jij? Test je Words Per Minute (WPM) en nauwkeurigheid in 60 seconden. Vergelijk je snelheid met het wereldwijde gemiddelde.">
+    
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Dutch Typing Speed Test",
+      "applicationCategory": "UtilityApplication",
+      "author": { "@type": "Organization", "name": "HumanAverage" },
+      "description": "Interactive typing test to measure words per minute and accuracy."
+    }
+    </script>
+
     <style>
-        .typing-container {
-            max-width: 800px;
+        /* --- MASTER FRAMEWORK STYLING --- */
+        .ha-tool-container {
+            max-width: 900px;
             margin: 40px auto;
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: var(--shadow, 0 10px 30px rgba(0,0,0,0.08));
+            overflow: hidden;
+        }
+
+        /* ZONE 1: HERO */
+        .ha-hero {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); /* Indigo theme voor Focus */
+            color: white;
+            padding: 50px 30px;
             text-align: center;
         }
 
-        .word-display {
+        /* ZONE 2: TYPING ARENA */
+        .ha-input-zone {
+            padding: 40px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        /* De Tekst Display Box */
+        .typing-display {
             background: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: var(--shadow);
-            font-size: 1.5rem;
-            line-height: 2;
-            margin-bottom: 20px;
-            min-height: 100px;
-            text-align: left;
-            user-select: none;
             border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 15px 25px;
+            font-size: 1.4rem;
+            line-height: 2.2; /* Ruimte voor cursor */
+            height: 140px; /* 2 regels zichtbaar */
+            overflow: hidden; /* Verberg wat geweest is */
+            position: relative;
+            margin-bottom: 25px;
+            user-select: none;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
+            font-family: 'Courier New', Courier, monospace; /* Monospace voor typen voelt beter */
         }
 
-        .word { margin-right: 10px; color: #94a3b8; display: inline-block; transition: color 0.1s; }
-        .current { color: var(--text-main); border-bottom: 3px solid var(--primary); }
-        .correct { color: var(--secondary); }
-        .wrong { color: #ef4444; text-decoration: line-through; }
+        /* Woord status stijlen */
+        .word { margin-right: 12px; display: inline-block; color: #94a3b8; padding: 2px 5px; border-radius: 4px; }
+        .word.active { background: #e0e7ff; color: #3730a3; border-bottom: 2px solid #6366f1; }
+        .word.correct { color: #10b981; }
+        .word.wrong { color: #ef4444; text-decoration: line-through; }
 
-        #type-input {
+        /* Input Field */
+        .typing-input {
             width: 100%;
-            padding: 1.2rem;
+            padding: 18px;
             font-size: 1.2rem;
-            border-radius: 0.8rem;
             border: 2px solid #cbd5e1;
+            border-radius: 12px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .typing-input:focus { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+
+        /* Timer Badge */
+        .timer-badge {
+            background: #1e293b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 15px;
         }
 
-        #type-input:focus { border-color: var(--primary); }
+        /* ZONE 3: DASHBOARD */
+        .ha-dashboard {
+            display: none;
+            padding: 40px;
+            animation: slideUp 0.5s ease-out;
+        }
 
-        .stats-grid {
+        .ha-rank-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .ha-stat-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
-            margin-top: 30px;
         }
 
-        .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
-        .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--primary); display: block; }
+        .ha-stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .ha-value { font-size: 2rem; font-weight: 800; color: #1e293b; display: block; }
+        .ha-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+
+        /* ZONE 4: CONTEXT */
+        .ha-article {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+            line-height: 1.8;
+            color: #334155;
+        }
+        .ha-article h2 { color: #1e293b; margin-top: 40px; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 600px) { .ha-stat-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -63,115 +148,220 @@
         </div>
     </nav>
 
-    <main class="container typing-container">
-        <h1>Hoe snel typ jij?</h1>
-        <p style="margin-bottom: 30px; color: var(--text-muted);">Typ de onderstaande woorden zo snel en nauwkeurig mogelijk. De tijd start zodra je begint.</p>
-
-        <div class="word-display" id="word-display"></div>
-
-        <input type="text" id="type-input" placeholder="Start hier met typen..." autocomplete="off">
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <span class="stat-val" id="wpm-val">0</span>
-                <span style="font-size: 0.8rem; font-weight: 600;">WPM (Woorden/min)</span>
+    <main>
+        <div class="ha-tool-container">
+            <div class="ha-hero">
+                <i class="fa-solid fa-keyboard" style="font-size: 3.5rem; margin-bottom: 20px;"></i>
+                <h1>Typing Speed Test</h1>
+                <p>Hoeveel woorden per minuut (WPM) haal jij? Het wereldwijde gemiddelde ligt op 41 WPM.</p>
             </div>
-            <div class="stat-card">
-                <span class="stat-val" id="acc-val">100%</span>
-                <span style="font-size: 0.8rem; font-weight: 600;">Nauwkeurigheid</span>
+
+            <div class="ha-input-zone" id="test-zone">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="timer-badge" id="timer">60s</div>
+                    <button class="btn" onclick="restartTest()" style="padding: 5px 15px; font-size: 0.8rem; background: #94a3b8;">
+                        <i class="fa-solid fa-rotate-right"></i> Reset
+                    </button>
+                </div>
+
+                <div class="typing-display" id="word-display" onclick="document.getElementById('input-field').focus()">
+                    </div>
+
+                <input type="text" id="input-field" class="typing-input" placeholder="Typ hier om te starten..." autocomplete="off" spellcheck="false">
+                
+                <p style="text-align: center; margin-top: 15px; color: #94a3b8; font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-info"></i> Druk op <b>SPATIE</b> om naar het volgende woord te gaan.
+                </p>
             </div>
-            <div class="stat-card">
-                <span class="stat-val" id="time-val">60s</span>
-                <span style="font-size: 0.8rem; font-weight: 600;">Resterende tijd</span>
+
+            <div id="dashboard" class="ha-dashboard">
+                <div class="ha-rank-badge">
+                    <span style="font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; opacity: 0.9;">Jouw Snelheid</span>
+                    <span style="font-size: 4rem; font-weight: 900; line-height: 1; display:block; margin: 10px 0;"><span id="res-wpm">0</span> WPM</span>
+                    <p id="res-msg" style="font-size: 1.1rem; font-weight: 500;">Dat is sneller dan 80% van de mensen!</p>
+                </div>
+
+                <div class="ha-stat-grid">
+                    <div class="ha-stat-card">
+                        <i class="fa-solid fa-bullseye" style="color: #6366f1; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                        <span class="ha-value" id="res-acc">100%</span>
+                        <span class="ha-label">Nauwkeurigheid</span>
+                    </div>
+                    <div class="ha-stat-card">
+                        <i class="fa-solid fa-font" style="color: #10b981; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                        <span class="ha-value" id="res-chars">0</span>
+                        <span class="ha-label">Karakters</span>
+                    </div>
+                    <div class="ha-stat-card">
+                        <i class="fa-solid fa-trophy" style="color: #f59e0b; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                        <span class="ha-value" id="res-rank">Top 20%</span>
+                        <span class="ha-label">Ranglijst</span>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="restartTest()" style="width: 100%; margin-top: 30px; background: #6366f1;">Opnieuw Testen</button>
             </div>
         </div>
 
-        <div id="final-result" style="display:none; margin-top:30px;" class="card">
-            <h2>Test voltooid!</h2>
-            <p id="rank-text" style="margin: 15px 0; font-size: 1.1rem;"></p>
-            <button class="btn" onclick="location.reload()">Opnieuw proberen</button>
-        </div>
+        <article class="ha-article">
+            <h2>Wat is een goede typesnelheid?</h2>
+            <p>De gemiddelde typesnelheid ligt wereldwijd rond de <b>41 WPM</b> (Words Per Minute) met een nauwkeurigheid van 92%. Voor professionele functies waar veel typwerk bij komt kijken, wordt vaak 60 tot 75 WPM verwacht.</p>
+            
+            <h3>Hoe wordt WPM berekend?</h3>
+            <p>De standaardformule voor WPM is: <code>(Aantal Karakters / 5) / Tijd in minuten</code>. Hierbij wordt elk "woord" gestandaardiseerd naar 5 karakters, zodat het eerlijk is ongeacht of je lange of korte woorden typt.</p>
+            
+            <h3>Tips om sneller te typen</h3>
+            <ul>
+                <li><b>Blind typen:</b> Leer typen zonder naar je toetsenbord te kijken. Dit is de grootste winstpakker.</li>
+                <li><b>Houding:</b> Zorg dat je polsen steun hebben en je rug recht is.</li>
+                <li><b>Nauwkeurigheid voor snelheid:</b> Probeer eerst foutloos te typen. Snelheid komt vanzelf als je niet hoeft te corrigeren.</li>
+            </ul>
+        </article>
     </main>
 
     <script src="../../js/main.js"></script>
     <script>
-        const words = "gemiddelde mens wereldbevolking statistiek inkomen lengte gewicht leven data vergelijking interactief platform resultaat snelheid reflexen onderzoek maatschappij niveau ranglijst toekomst".split(" ");
-        let currentWordIndex = 0;
-        let correctWords = 0;
-        let totalTyped = 0;
-        let timeLeft = 60;
-        let timerStarted = false;
-        let interval;
+        // Woordenlijst (Top 200 meest gebruikte NL woorden voor realisme)
+        const wordList = "de van een en het in is dat te niet op zijn hij was maar voor met als er aan ze ik om ook hebben door wat we bij of nog kan veel moeten mensen goed jaar alle dan nu tot leven ons wel hoe anders meer waar na onder uit over haar mij tijd zou twee eerste moeten werk kunnen grote staat echt alleen nieuwe eigen tussen want heel zo'n altijd".split(" ");
+
+        let words = [];
+        let wordIndex = 0;
+        let startTime = 0;
+        let timer = 60;
+        let timerInterval = null;
+        let isRunning = false;
+        
+        // Stats
+        let correctKeystrokes = 0;
+        let totalKeystrokes = 0;
+        let correctWordsCount = 0;
 
         const display = document.getElementById('word-display');
-        const input = document.getElementById('type-input');
-        const timeVal = document.getElementById('time-val');
+        const input = document.getElementById('input-field');
+        const timerEl = document.getElementById('timer');
 
-        // Initialiseer woorden
-        function initWords() {
-            display.innerHTML = words.map((w, i) => `<span class="word ${i === 0 ? 'current' : ''}" id="word-${i}">${w}</span>`).join("");
+        function init() {
+            // Shuffle en vul woorden
+            words = [];
+            for(let i=0; i<100; i++) {
+                words.push(wordList[Math.floor(Math.random() * wordList.length)]);
+            }
+            renderWords();
+            input.value = '';
+            input.focus();
+        }
+
+        function renderWords() {
+            display.innerHTML = '';
+            words.forEach((word, index) => {
+                const span = document.createElement('span');
+                span.innerText = word;
+                span.className = 'word';
+                if(index === 0) span.classList.add('active');
+                display.appendChild(span);
+            });
         }
 
         input.addEventListener('input', (e) => {
-            if (!timerStarted) startTimer();
-            
-            const typed = input.value.trim();
-            const currentWord = words[currentWordIndex];
+            if(!isRunning) startTest();
 
-            if (e.data === " ") { // Spatie ingedrukt
-                totalTyped++;
-                const wordEl = document.getElementById(`word-${currentWordIndex}`);
-                
-                if (typed === currentWord) {
-                    wordEl.className = "word correct";
-                    correctWords++;
-                } else {
-                    wordEl.className = "word wrong";
-                }
+            const currentVal = input.value;
+            const currentWordEl = display.children[wordIndex];
 
-                currentWordIndex++;
-                input.value = "";
+            // Check op spatie (woord afronden)
+            if(e.data === " " || currentVal.endsWith(" ")) {
+                const typedWord = currentVal.trim();
                 
-                if (currentWordIndex < words.length) {
-                    document.getElementById(`word-${currentWordIndex}`).className = "word current";
+                // Check of woord goed is
+                if(typedWord === words[wordIndex]) {
+                    currentWordEl.classList.add('correct');
+                    correctWordsCount++;
+                    correctKeystrokes += typedWord.length + 1; // +1 voor spatie
                 } else {
-                    endGame();
+                    currentWordEl.classList.add('wrong');
                 }
-                updateStats();
+                
+                totalKeystrokes += typedWord.length + 1;
+                
+                // Reset en ga verder
+                currentWordEl.classList.remove('active');
+                input.value = '';
+                wordIndex++;
+                
+                if(wordIndex < words.length) {
+                    const nextWord = display.children[wordIndex];
+                    nextWord.classList.add('active');
+                    
+                    // Auto-Scroll Logic
+                    // Als de volgende woord op een nieuwe regel (offset) staat die buiten beeld valt
+                    if(nextWord.offsetTop > display.scrollTop + 60) {
+                        display.scrollTop = nextWord.offsetTop - 20;
+                    }
+                }
             }
         });
 
-        function startTimer() {
-            timerStarted = true;
-            interval = setInterval(() => {
-                timeLeft--;
-                timeVal.innerText = timeLeft + "s";
-                if (timeLeft <= 0) endGame();
+        function startTest() {
+            isRunning = true;
+            timerInterval = setInterval(() => {
+                timer--;
+                timerEl.innerText = timer + "s";
+                if(timer <= 0) finishTest();
             }, 1000);
         }
 
-        function updateStats() {
-            const wpm = Math.round((correctWords / (60 - timeLeft)) * 60) || 0;
-            const acc = Math.round((correctWords / totalTyped) * 100) || 100;
-            document.getElementById('wpm-val').innerText = wpm;
-            document.getElementById('acc-val').innerText = acc + "%";
-        }
-
-        function endGame() {
-            clearInterval(interval);
+        function finishTest() {
+            clearInterval(timerInterval);
+            isRunning = false;
             input.disabled = true;
-            document.getElementById('final-result').style.display = "block";
+
+            // Berekeningen
+            // WPM = (All typed entries / 5) / Time (min)
+            // Dit is de gestandaardiseerde formule
+            const wpm = Math.round((correctKeystrokes / 5));
+            const accuracy = Math.round((correctWordsCount / wordIndex) * 100) || 0;
+
+            // UI
+            document.getElementById('test-zone').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+
+            document.getElementById('res-wpm').innerText = wpm;
+            document.getElementById('res-acc').innerText = accuracy + "%";
+            document.getElementById('res-chars').innerText = correctKeystrokes;
+
+            // Ranking
+            let rank = "Top 50%";
+            let msg = "Je zit rond het gemiddelde.";
             
-            const wpm = parseInt(document.getElementById('wpm-val').innerText);
-            let rank = "";
-            if (wpm < 30) rank = "Je typt langzamer dan gemiddeld. Blijf oefenen!";
-            else if (wpm < 50) rank = "Netjes! Je zit precies op het menselijk gemiddelde van 40 WPM.";
-            else rank = "Wauw! Je bent een professionele typer. Sneller dan 90% van de wereld.";
-            
-            document.getElementById('rank-text').innerText = rank;
+            if(wpm > 80) { rank = "Top 1%"; msg = "Je bent een machine! Ongekend snel."; }
+            else if(wpm > 60) { rank = "Top 10%"; msg = "Professioneel niveau. Uitstekend!"; }
+            else if(wpm > 40) { rank = "Top 30%"; msg = "Boven gemiddeld. Lekker bezig."; }
+            else if(wpm < 30) { rank = "Top 80%"; msg = "Blijf oefenen, snelheid komt vanzelf."; }
+
+            document.getElementById('res-rank').innerText = rank;
+            document.getElementById('res-msg').innerText = msg;
         }
 
-        initWords();
+        function restartTest() {
+            timer = 60;
+            wordIndex = 0;
+            correctKeystrokes = 0;
+            totalKeystrokes = 0;
+            correctWordsCount = 0;
+            isRunning = false;
+            clearInterval(timerInterval);
+            
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('test-zone').style.display = 'block';
+            timerEl.innerText = "60s";
+            input.disabled = false;
+            display.scrollTop = 0; // Reset scroll
+            
+            init();
+        }
+
+        // Start bij laden
+        window.onload = init;
     </script>
 </body>
 </html>
