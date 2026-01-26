@@ -3,66 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Screen Time Calculator | HumanAverage</title>
+    <title>Schermtijd Calculator: Wat kost het je echt? | HumanAverage</title>
+    <meta name="description" content="Bereken hoeveel jaar van je leven je naar een scherm staart. Ontdek wat je in die tijd had kunnen bereiken. Gebaseerd op wereldwijde gemiddelden.">
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Screen Time Life-Cost Analyzer",
+      "description": "Analyseert de impact van schermtijd op een mensenleven.",
+      "category": "Health",
+      "author": {
+        "@type": "Organization",
+        "name": "HumanAverage"
+      }
+    }
+    </script>
+
     <style>
-        .calc-card {
-            max-width: 600px;
+        .analyzer-card {
+            max-width: 800px;
             margin: 40px auto;
-            background: white;
-            padding: 35px;
-            border-radius: 24px;
+            background: #fff;
+            border-radius: 30px;
             box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .header-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 40px;
             text-align: center;
         }
 
-        .input-group {
-            margin-bottom: 25px;
-            text-align: left;
+        .inputs-area {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
         }
 
-        .slider-container {
-            margin: 15px 0;
+        .input-block {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .label-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .val-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
         }
 
         input[type=range] {
             width: 100%;
-            margin-top: 10px;
+            cursor: pointer;
         }
 
-        .hours-val {
-            font-weight: 800;
-            color: var(--primary);
-            font-size: 1.2rem;
-            float: right;
-        }
-
-        .result-section {
+        .result-dashboard {
             display: none;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #f1f5f9;
-            animation: fadeIn 0.8s ease;
+            padding: 0 40px 40px;
+            animation: slideUp 0.5s ease-out;
         }
 
-        .lifetime-stat {
-            background: #eff6ff;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
+        .main-stat {
+            text-align: center;
+            background: #fff1f2;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #fecdd3;
         }
 
-        .big-number {
-            font-size: 3rem;
-            font-weight: 800;
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .alt-stat {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .alt-stat i {
             display: block;
-            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #0369a1;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        .percent-bar-bg {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .percent-bar-fill {
+            height: 100%;
+            background: #ef4444;
+            width: 0%;
+            transition: width 1s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 650px) {
+            .inputs-area { grid-template-columns: 1fr; }
+            .stat-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -75,72 +145,115 @@
     </nav>
 
     <main class="container">
-        <div class="calc-card">
-            <i class="fa-solid fa-mobile-screen-button" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"></i>
-            <h1>Screen Time Analyzer</h1>
-            <p style="color: var(--text-muted); margin-bottom: 30px;">Bereken hoeveel jaar van je leven je naar een scherm staart vergeleken met het gemiddelde.</p>
-
-            <div class="input-group">
-                <label>Schermtijd per dag (uren) <span id="hrs-label" class="hours-val">4u</span></label>
-                <input type="range" id="daily-hours" min="0" max="18" value="4" oninput="updateLabels()">
+        <div class="analyzer-card">
+            <div class="header-gradient">
+                <i class="fa-solid fa-hourglass-half" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                <h1>De Schermtijd Confrontatie</h1>
+                <p>Wat had je kunnen doen met de tijd die je aan je smartphone geeft?</p>
             </div>
 
-            <div class="input-group">
-                <label>Huidige leeftijd <span id="age-label" class="hours-val">25j</span></label>
-                <input type="range" id="current-age" min="12" max="90" value="25" oninput="updateLabels()">
-            </div>
-
-            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="calculateScreenTime()">Analyseer mijn tijd</button>
-
-            <div id="result-section" class="result-section">
-                <p>Op basis van jouw huidige gebruik zul je in je leven totaal spenderen aan schermen:</p>
-                <div class="lifetime-stat">
-                    <span class="big-number" id="years-result">0</span>
-                    <span style="font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Jaar aan schermtijd</span>
+            <div class="inputs-area">
+                <div class="input-block">
+                    <div class="label-flex">
+                        <span>Schermtijd per dag</span>
+                        <span class="val-badge" id="val-hrs">5u</span>
+                    </div>
+                    <input type="range" id="input-hrs" min="1" max="16" value="5" oninput="updateUI()">
                 </div>
-                <p id="comparison-text" style="color: var(--text-muted); font-size: 0.95rem;"></p>
+                <div class="input-block">
+                    <div class="label-flex">
+                        <span>Huidige Leeftijd</span>
+                        <span class="val-badge" id="val-age">25j</span>
+                    </div>
+                    <input type="range" id="input-age" min="12" max="85" value="25" oninput="updateUI()">
+                </div>
+                <button class="btn" style="grid-column: span 2; padding: 18px;" onclick="runAnalysis()">Bereken de impact</button>
+            </div>
+
+            <div id="results" class="result-dashboard">
+                <div class="main-stat">
+                    <p style="text-transform: uppercase; font-weight: 700; color: #be123c;">Jouw verloren tijd</p>
+                    <span style="font-size: 3.5rem; font-weight: 900; color: #9f1239;" id="res-years">0.0</span>
+                    <p style="font-weight: 700;">JAAR VOLLEDIG ACHTER EEN SCHERM</p>
+                    
+                    <div class="percent-bar-bg">
+                        <div class="percent-bar-fill" id="bar-fill"></div>
+                    </div>
+                    <p id="res-percent" style="font-size: 0.9rem; color: #444;"></p>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="alt-stat">
+                        <i class="fa-solid fa-book"></i>
+                        <b id="res-books">0</b>
+                        <span>Boeken gelezen</span>
+                    </div>
+                    <div class="alt-stat">
+                        <i class="fa-solid fa-language"></i>
+                        <b id="res-langs">0</b>
+                        <span>Talen geleerd</span>
+                    </div>
+                    <div class="alt-stat">
+                        <i class="fa-solid fa-person-walking"></i>
+                        <b id="res-walk">0</b>
+                        <span>Rondjes om de aarde</span>
+                    </div>
+                </div>
                 
-                <div style="margin-top: 25px; font-size: 0.85rem; color: #94a3b8;">
-                    <i class="fa-solid fa-circle-info"></i> Het wereldwijde gemiddelde ligt op ongeveer 6 uur en 37 minuten per dag.
-                </div>
+                <p style="text-align: center; margin-top: 25px; font-size: 0.8rem; color: #64748b;">
+                    * Gebaseerd op een levensverwachting van 82 jaar en gemiddelde leersnelheden.
+                </p>
             </div>
         </div>
+
+        <article class="info-section" style="max-width: 800px; margin: 0 auto 50px; line-height: 1.7;">
+            <h2>Gemiddelde Schermtijd in 2026</h2>
+            <p>Uit recente data van de <i>World Health Organization</i> en diverse telecom-providers blijkt dat de gemiddelde wereldburger inmiddels meer dan <b>6,5 uur per dag</b> naar een scherm kijkt. Dit is inclusief werk, maar de grootste stijging zit in recreatief gebruik via smartphones.</p>
+            
+            <h3>De impact op je brein</h3>
+            <p>Het gaat niet alleen om verloren tijd. Overmatige schermtijd wordt direct gelinkt aan een kortere aandachtsspanne en een lager gemiddeld geluksniveau. Door je bewust te worden van de 'opportunity cost' — de dingen die je <i>niet</i> doet omdat je scrollt — kun je de regie over je leven terugpakken.</p>
+        </article>
     </main>
 
     <script src="../../js/main.js"></script>
     <script>
-        function updateLabels() {
-            document.getElementById('hrs-label').innerText = document.getElementById('daily-hours').value + "u";
-            document.getElementById('age-label').innerText = document.getElementById('current-age').value + "j";
+        function updateUI() {
+            document.getElementById('val-hrs').innerText = document.getElementById('input-hrs').value + "u";
+            document.getElementById('val-age').innerText = document.getElementById('input-age').value + "j";
         }
 
-        function calculateScreenTime() {
-            const dailyHours = parseInt(document.getElementById('daily-hours').value);
-            const age = parseInt(document.getElementById('current-age').value);
-            const lifeExpectancy = 80; // Gemiddelde voor berekening
-            
-            const remainingYears = lifeExpectancy - age;
-            if (remainingYears <= 0) {
-                alert("Je hebt al een prachtige leeftijd bereikt! Deze berekening werkt het best voor een toekomstige projectie.");
+        function runAnalysis() {
+            const hrs = parseFloat(document.getElementById('input-hrs').value);
+            const age = parseInt(document.getElementById('input-age').value);
+            const lifeExp = 82;
+            const remainingYears = lifeExp - age;
+
+            if(remainingYears <= 0) {
+                alert("Je bent al een legende! Geniet van elke seconde.");
                 return;
             }
 
-            // Berekening: (uren per dag * 365 dagen * resterende jaren) / 24 uur in een dag / 365 dagen in een jaar
-            // Versimpeld: (dailyHours * remainingYears) / 24
-            const yearsSpent = ((dailyHours * 365 * remainingYears) / 24) / 365;
+            // Berekeningen
+            const totalYearsInLife = (hrs * 365 * remainingYears) / 24 / 365;
+            const awakeTimePercent = (hrs / 16) * 100; // Uitgaande van 16 uur wakker
             
-            document.getElementById('result-section').style.display = 'block';
-            document.getElementById('years-result').innerText = yearsSpent.toFixed(1);
+            // Alternatieven
+            const books = Math.floor((hrs * 365 * remainingYears) / 10); // 1 boek per 10 uur
+            const languages = Math.floor((hrs * 365 * remainingYears) / 600); // 600 uur voor een taal
+            const kmWalked = (hrs * 365 * remainingYears) * 5; // 5km per uur wandelen
+            const earthRounds = (kmWalked / 40075).toFixed(1);
 
-            let msg = "";
-            if (dailyHours > 7) {
-                msg = "Dat is fors boven het gemiddelde. Je besteedt meer dan 30% van je wakkere leven aan een scherm.";
-            } else if (dailyHours > 4) {
-                msg = "Je zit rond het gemiddelde van de meeste westerse landen.";
-            } else {
-                msg = "Wauw, jij bent zeer bewust bezig met je digitale balans!";
-            }
-            document.getElementById('comparison-text').innerText = msg;
+            // Display
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('res-years').innerText = totalYearsInLife.toFixed(1);
+            document.getElementById('bar-fill').style.width = Math.min(100, awakeTimePercent) + "%";
+            document.getElementById('res-percent').innerHTML = `Je besteedt <b>${awakeTimePercent.toFixed(0)}%</b> van je wakkere leven aan een scherm.`;
+            
+            document.getElementById('res-books').innerText = books.toLocaleString();
+            document.getElementById('res-langs').innerText = languages;
+            document.getElementById('res-walk').innerText = earthRounds;
+
+            window.scrollTo({ top: document.getElementById('results').offsetTop - 50, behavior: 'smooth' });
         }
     </script>
 </body>
