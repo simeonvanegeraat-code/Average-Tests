@@ -3,158 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slaaptekort Calculator | HumanAverage</title>
+    <title>Sleep Debt Calculator | Bereken je Slaaptekort | HumanAverage</title>
+    <meta name="description" content="Bereken je wekelijkse slaapschuld en ontdek de impact op je brein en gezondheid. Wetenschappelijk onderbouwde slaaptest op basis van WHO-richtlijnen.">
+    
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "HumanAverage Sleep Debt Calculator",
+      "operatingSystem": "Any",
+      "applicationCategory": "HealthApplication",
+      "offers": { "@type": "Offer", "price": "0" }
+    }
+    </script>
+
     <style>
-        .sleep-card {
-            max-width: 600px;
-            margin: 40px auto;
-            background: white;
-            padding: 35px;
-            border-radius: 24px;
-            box-shadow: var(--shadow);
-            text-align: center;
+        :root { --sleep-dark: #0f172a; --battery-empty: #ef4444; --battery-full: #10b981; }
+        
+        .sleep-container { background: var(--sleep-dark); color: white; padding: 40px; border-radius: 24px; text-align: center; }
+        
+        /* Battery Visual */
+        .battery-box {
+            width: 120px; height: 220px; border: 4px solid #334155;
+            border-radius: 12px; margin: 30px auto; position: relative; padding: 5px;
+        }
+        .battery-box::after {
+            content: ''; position: absolute; top: -15px; left: 50%; 
+            transform: translateX(-50%); width: 40px; height: 12px; 
+            background: #334155; border-radius: 4px 4px 0 0;
+        }
+        .battery-level {
+            width: 100%; height: 80%; background: var(--battery-full);
+            border-radius: 6px; position: absolute; bottom: 5px; left: 0;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .input-group {
-            margin-bottom: 25px;
-            text-align: left;
-        }
+        /* Sliders */
+        .input-group { margin-bottom: 25px; text-align: left; }
+        .hours-display { font-size: 1.5rem; font-weight: 800; color: var(--primary); float: right; }
+        input[type=range] { width: 100%; margin-top: 15px; cursor: pointer; }
 
-        .hours-input {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
+        /* Result Area */
+        #result-area { display: none; border-top: 1px solid #334155; margin-top: 30px; padding-top: 30px; animation: fadeIn 0.5s ease; }
+        .debt-number { font-size: 3.5rem; font-weight: 900; color: #fbbf24; }
+        .impact-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-top: 20px; font-size: 0.9rem; border-left: 4px solid var(--primary); }
 
-        input[type=range] {
-            flex-grow: 1;
-        }
-
-        .val-badge {
-            min-width: 60px;
-            padding: 5px 10px;
-            background: #eff6ff;
-            color: var(--primary);
-            border-radius: 8px;
-            font-weight: 800;
-            text-align: center;
-        }
-
-        .result-panel {
-            display: none;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #f1f5f9;
-            animation: slideUp 0.6s ease;
-        }
-
-        .debt-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: var(--bg-light);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            margin: 20px auto;
-            border: 8px solid var(--secondary);
-            transition: border-color 0.3s;
-        }
-
-        .debt-circle.warning { border-color: var(--accent); }
-        .debt-circle.danger { border-color: #ef4444; }
-
-        .big-text { font-size: 2.5rem; font-weight: 800; line-height: 1; }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <nav>
         <div class="container nav-content">
-            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-muted)">AVERAGE</span></a>
+            <div class="nav-links">
+                <a href="../../index.html">Tools</a>
+                <a href="../../articles/index.html">Artikelen</a>
+                <a href="../../about.html">Over ons</a>
+            </div>
         </div>
     </nav>
 
     <main class="container">
-        <div class="sleep-card">
-            <i class="fa-solid fa-bed" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 20px;"></i>
+        <div class="sleep-container" style="margin-top: 2rem;">
+            <i class="fa-solid fa-moon" style="font-size: 2.5rem; color: #fbbf24; margin-bottom: 1rem;"></i>
             <h1>Sleep Debt Calculator</h1>
-            <p style="color: var(--text-muted);">Hoeveel slaap loop jij wekelijks mis vergeleken met het menselijk gemiddelde?</p>
+            <p style="opacity: 0.8;">Ontdek hoe een tekort aan rust jouw mentale batterij leegtrekt.</p>
 
-            <div class="input-group">
-                <label>Hoeveel uur slaap je gemiddeld per nacht?</label>
-                <div class="hours-input">
-                    <input type="range" id="actual-sleep" min="3" max="12" step="0.5" value="7" oninput="updateValues()">
-                    <span class="val-badge" id="actual-val">7u</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 3rem; text-align: left;">
+                <div>
+                    <div class="input-group">
+                        <label>Slaap per nacht <span class="hours-display" id="val-actual">7u</span></label>
+                        <input type="range" id="actual" min="3" max="12" step="0.5" value="7" oninput="updateUI()">
+                    </div>
+                    <div class="input-group">
+                        <label>Behoefte voor focus <span class="hours-display" id="val-needed">8u</span></label>
+                        <input type="range" id="needed" min="3" max="12" step="0.5" value="8" oninput="updateUI()">
+                    </div>
+                    <button class="btn" style="width: 100%;" onclick="calculateDebt()">Bereken Mijn Schuld</button>
+                </div>
+
+                <div>
+                    <div class="battery-box">
+                        <div id="battery" class="battery-level"></div>
+                    </div>
+                    <p id="battery-status" style="text-align: center; font-weight: bold; font-size: 0.8rem;"></p>
                 </div>
             </div>
 
-            <div class="input-group">
-                <label>Hoeveel uur heb je écht nodig om je fit te voelen?</label>
-                <div class="hours-input">
-                    <input type="range" id="needed-sleep" min="3" max="12" step="0.5" value="8" oninput="updateValues()">
-                    <span class="val-badge" id="needed-val">8u</span>
-                </div>
-            </div>
-
-            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="calculateSleepDebt()">Bereken mijn schuld</button>
-
-            <div id="result-panel" class="result-panel">
-                <p>Jouw wekelijkse slaapschuld is:</p>
-                <div id="circle" class="debt-circle">
-                    <span class="big-text" id="debt-val">0</span>
-                    <span style="font-size: 0.8rem; font-weight: 700;">UUR</span>
-                </div>
-                <p id="advice-text" style="font-weight: 600; margin-bottom: 10px;"></p>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">Gemiddeld slaapt de mens 6,8 uur per nacht, terwijl 7 tot 9 uur wordt aanbevolen voor optimale gezondheid.</p>
+            <div id="result-area">
+                <p>Wekelijkse Slaapschuld</p>
+                <div class="debt-number"><span id="debt-val">0</span> uren</div>
+                <div class="impact-box" id="impact-text"></div>
             </div>
         </div>
+
+        <section class="card" style="margin-top: 3rem; text-align: left;">
+            <h2>De Wetenschap achter Slaapschuld</h2>
+            <p>Slaapschuld is het cumulatieve effect van te weinig slaap. Als je lichaam 8 uur nodig heeft maar je slaapt er slechts 6, bouw je elke nacht 2 uur schuld op. Na een werkweek is dit gelijk aan een volledige gemiste nachtrust.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <div>
+                    <h4>Cognitieve Impact</h4>
+                    <p style="font-size: 0.9rem;">Onderzoek van de <strong>National Sleep Foundation</strong> toont aan dat een slaapschuld van 10 uur je reactievermogen verlaagt tot het niveau van iemand met 0,5 promille alcohol in het bloed. Je focus, geheugen en besluitvorming lijden hier direct onder.</p>
+                </div>
+                <div>
+                    <h4>Lichamelijk Herstel</h4>
+                    <p style="font-size: 0.9rem;">Tijdens de diepe slaap herstelt je lichaam weefsels en worden giftige stoffen uit de hersenen gespoeld (het glymfatisch systeem). Een chronisch tekort verhoogt het risico op hart- en vaatziekten en verzwakt het immuunsysteem.</p>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <script src="../../js/main.js"></script>
     <script>
-        function updateValues() {
-            document.getElementById('actual-val').innerText = document.getElementById('actual-sleep').value + "u";
-            document.getElementById('needed-val').innerText = document.getElementById('needed-sleep').value + "u";
+        function updateUI() {
+            const actual = document.getElementById('actual').value;
+            const needed = document.getElementById('needed').value;
+            document.getElementById('val-actual').innerText = actual + "u";
+            document.getElementById('val-needed').innerText = needed + "u";
+
+            // Battery visual update
+            const battery = document.getElementById('battery');
+            const ratio = (actual / needed) * 100;
+            const level = Math.min(100, ratio);
+            
+            battery.style.height = level + "%";
+            battery.style.background = level < 70 ? (level < 40 ? '#ef4444' : '#f59e0b') : '#10b981';
+            
+            const status = document.getElementById('battery-status');
+            if (level >= 95) status.innerText = "VOLLEDIG OPGELADEN";
+            else if (level >= 75) status.innerText = "NORMALE MODUS";
+            else if (level >= 50) status.innerText = "ENERGIEBESPARING";
+            else status.innerText = "KRITIEK TEKORT";
         }
 
-        function calculateSleepDebt() {
-            const actual = parseFloat(document.getElementById('actual-sleep').value);
-            const needed = parseFloat(document.getElementById('needed-sleep').value);
-            const panel = document.getElementById('result-panel');
-            const circle = document.getElementById('circle');
-            
-            const weeklyDebt = (needed - actual) * 7;
-            
-            panel.style.display = 'block';
-            document.getElementById('debt-val').innerText = weeklyDebt.toFixed(1);
+        function calculateDebt() {
+            const actual = parseFloat(document.getElementById('actual').value);
+            const needed = parseFloat(document.getElementById('needed').value);
+            const debt = Math.max(0, (needed - actual) * 7);
 
-            // Kleur indicatie
-            circle.className = 'debt-circle';
-            let advice = "";
+            document.getElementById('result-area').style.display = 'block';
+            document.getElementById('debt-val').innerText = debt.toFixed(1);
 
-            if (weeklyDebt <= 0) {
-                circle.style.borderColor = 'var(--secondary)';
-                advice = "Wauw! Je bent een slaap-expert. Je lichaam krijgt precies wat het nodig heeft.";
-            } else if (weeklyDebt < 7) {
-                circle.classList.add('warning');
-                advice = "Een milde schuld. Probeer in het weekend wat extra rust te pakken.";
-            } else {
-                circle.classList.add('danger');
-                advice = "Dit is een serieuze schuld. Je mist meer dan een volledige nachtrust per week!";
-            }
-            
-            document.getElementById('advice-text').innerText = advice;
+            let impact = "";
+            if (debt === 0) impact = "Gefeliciteerd! Je lichaam is volledig in balans. Je ervaart optimale cognitieve functies.";
+            else if (debt < 7) impact = "Milde schuld. Je merkt waarschijnlijk lichte irritatie of focusverlies in de namiddag.";
+            else if (debt < 14) impact = "Waarschuwing: Je reactiesnelheid is merkbaar trager. Dit staat gelijk aan werken met een lichte kater.";
+            else impact = "Kritiek: Je brein draait op noodstroom. Je riskeert micro-slaapjes en ernstige fouten in je dagelijkse taken.";
+
+            document.getElementById('impact-text').innerText = impact;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
+
+        // Init
+        updateUI();
     </script>
 </body>
 </html>
