@@ -3,190 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HumanAverage | Ben jij gemiddeld? Vergelijk jezelf met de wereld</title>
-    <meta name="description" content="Ontdek hoe jij scoort ten opzichte van 8 miljard mensen. Gebruik onze 10 data-gedreven tools voor inkomen, lengte, reactiesnelheid en meer.">
+    <title>HumanAverage | De Data-Atlas van de Mensheid (2026)</title>
+    <meta name="description" content="Vergelijk jezelf met 8 miljard mensen. Datagedreven tools voor inkomen, gezondheid en vaardigheden. Gebaseerd op Wereldbank & WHO statistieken.">
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <style>
-        /* Aanvullende stijlen voor het dashboard */
-        .hero {
-            padding: 80px 0 60px;
-            text-align: center;
-            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .hero h1 { font-size: 3.5rem; letter-spacing: -2px; margin-bottom: 15px; line-height: 1.1; }
-        .hero p { font-size: 1.25rem; color: var(--text-muted); max-width: 700px; margin: 0 auto; }
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            padding: 50px 0;
-        }
-
-        .tool-card {
-            background: var(--white);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            text-decoration: none;
-            color: inherit;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-
-        .tool-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--primary);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .icon-box {
-            width: 60px;
-            height: 60px;
-            background: #eff6ff;
-            color: var(--primary);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-        }
-
-        .tool-card h3 { font-size: 1.3rem; margin-bottom: 10px; color: var(--text-main); }
-        .tool-card p { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 20px; flex-grow: 1; }
-
-        .status-tag {
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 5px 12px;
-            border-radius: 20px;
-            background: #dcfce7;
-            color: #166534;
-            align-self: flex-start;
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.5rem; }
-            .tools-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "HumanAverage",
+      "url": "https://humanaverage.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://humanaverage.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
 </head>
 <body>
 
     <nav>
         <div class="container nav-content">
-            <a href="index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-chart-pie"></i>
+                HUMAN<span>AVERAGE</span>
+            </a>
             <div class="nav-links">
                 <a href="#tools">Tools</a>
-                <a href="articles/index.html">Artikelen</a>
-                <a href="about.html">Over ons</a>
+                <a href="articles/index.html">Inzichten</a>
+                <a href="about.html">Over Data</a>
             </div>
         </div>
     </nav>
 
     <header class="hero">
         <div class="container">
-            <h1>Ben jij gemiddeld?</h1>
-            <p>Ontdek unieke data-gedreven tools die je laten zien hoe jouw leven en vaardigheden zich verhouden tot de rest van de mensheid.</p>
+            <h1>Ben jij een uitzondering<br>of de regel?</h1>
+            <p>
+                Een interactieve verkenning van menselijke statistieken.
+                Vergelijk jouw leven met data van <span class="stat-number">8.124.567.000</span> wereldburgers.
+            </p>
+            <a href="#tools" class="btn" style="background: var(--primary); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600;">Bekijk de data</a>
         </div>
     </header>
 
+    <div class="trust-bar">
+        <div class="container trust-content">
+            <span>Data bronnen:</span>
+            <span>THE WORLD BANK</span>
+            <span>WHO</span>
+            <span>OECD</span>
+            <span>NCD-RisC</span>
+        </div>
+    </div>
+
     <main class="container" id="tools">
-        <div class="tools-grid">
+        
+        <div class="ad-container">
+            <span class="ad-label">Advertentie</span>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-9252617114074571"
+                 data-ad-slot="AUTO_GENERATED_SLOT_ID"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <div class="bento-grid">
             
-            <a href="tools/income-comparator/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-wallet"></i></div>
-                <h3>Income Comparator</h3>
-                <p>Verdien je meer dan de gemiddelde wereldburger? Bereken je positie in de welvaartspiramide.</p>
-                <span class="status-tag">Nu Live</span>
+            <a href="tools/income-comparator/index.html" class="tool-card col-span-2">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-wallet"></i></div>
+                    <span class="status-badge">Updated 2026</span>
+                </div>
+                <div>
+                    <h3>Income Comparator</h3>
+                    <p>Waar sta jij in de wereldwijde welvaartspiramide? Een diepe duik in koopkracht en ongelijkheid.</p>
+                </div>
             </a>
 
             <a href="tools/height-comparator/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-ruler-vertical"></i></div>
-                <h3>Height Comparator</h3>
-                <p>Hoe verhoudt jouw lengte zich tot het wereldwijde gemiddelde en jouw eigen regio?</p>
-                <span class="status-tag">Nu Live</span>
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-ruler-vertical"></i></div>
+                </div>
+                <h3>Height Check</h3>
+                <p>Vergelijk jouw lengte per land en generatie.</p>
             </a>
 
             <a href="tools/reaction-time/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
-                <h3>Reaction Time</h3>
-                <p>Test je reflexen. Klik zodra het scherm op groen springt en vergelijk je snelheid.</p>
-                <span class="status-tag">Nu Live</span>
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
+                </div>
+                <h3>Reflex Test</h3>
+                <p>Ben jij sneller dan een F1-coureur? Test het nu.</p>
             </a>
 
-            <a href="tools/typing-speed/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-keyboard"></i></div>
-                <h3>Typing Speed</h3>
-                <p>Hoeveel woorden per minuut typ jij? Ontdek of je sneller bent dan de gemiddelde mens.</p>
-                <span class="status-tag">Nu Live</span>
+            <a href="tools/global-population/index.html" class="tool-card col-span-2">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-users-line"></i></div>
+                    <span class="status-badge">Live Data</span>
+                </div>
+                <div>
+                    <h3>Population Rank</h3>
+                    <p>Welk 'nummer' mens was jij bij je geboorte? Een historisch perspectief op bevolkingsgroei.</p>
+                </div>
             </a>
 
             <a href="tools/life-expectancy/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-hourglass-half"></i></div>
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-heart-pulse"></i></div>
+                </div>
                 <h3>Life Expectancy</h3>
-                <p>Bereken je verwachte levensduur op basis van wereldwijde statistieken en gewoontes.</p>
-                <span class="status-tag">Nu Live</span>
+                <p>Schat je levensduur o.b.v. wereldwijde gezondheidsdata.</p>
             </a>
 
             <a href="tools/net-worth-rank/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-piggy-bank"></i></div>
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-chart-line"></i></div>
+                </div>
                 <h3>Net Worth Rank</h3>
-                <p>Vergelijk je opgebouwde vermogen met mensen uit jouw leeftijdscategorie en land.</p>
-                <span class="status-tag">Nu Live</span>
+                <p>Vermogen vs. Leeftijd. Loop je voor of achter?</p>
             </a>
 
             <a href="tools/screen-time/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-mobile-screen"></i></div>
+                </div>
                 <h3>Screen Time</h3>
-                <p>Zit jij meer of minder op je telefoon dan de rest van de wereldbevolking?</p>
-                <span class="status-tag">Nu Live</span>
+                <p>Verlies je meer leven aan je scherm dan gemiddeld?</p>
             </a>
 
             <a href="tools/sleep-debt/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-bed"></i></div>
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-moon"></i></div>
+                </div>
                 <h3>Sleep Debt</h3>
-                <p>Slaap je genoeg? Ontdek of jouw slaappatroon past bij de ideale menselijke norm.</p>
-                <span class="status-tag">Nu Live</span>
+                <p>Bereken je opgebouwde slaaptekort en het herstel.</p>
             </a>
 
-            <a href="tools/coffee-intake/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-mug-hot"></i></div>
-                <h3>Coffee Intake</h3>
-                <p>Drink je te veel koffie? Vergelijk je cafeïne-verslaving met andere beroepsgroepen.</p>
-                <span class="status-tag">Nu Live</span>
+            <a href="tools/typing-speed/index.html" class="tool-card">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-keyboard"></i></div>
+                </div>
+                <h3>Typing Speed</h3>
+                <p>WPM Test. Typ jij sneller dan de gemiddelde kantoormedewerker?</p>
             </a>
 
-            <a href="tools/global-population/index.html" class="tool-card">
-                <div class="icon-box"><i class="fa-solid fa-users"></i></div>
-                <h3>Population Rank</h3>
-                <p>Welke 'nummer' mens was jij op aarde op de dag dat je werd geboren?</p>
-                <span class="status-tag">Nu Live</span>
+             <a href="tools/coffee-intake/index.html" class="tool-card">
+                <div class="card-header">
+                    <div class="icon-box"><i class="fa-solid fa-mug-hot"></i></div>
+                </div>
+                <h3>Caffeine Index</h3>
+                <p>Is jouw koffiegebruik nog gezond volgens de wetenschap?</p>
             </a>
 
         </div>
+
+        <div class="ad-container">
+            <span class="ad-label">Advertentie</span>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-9252617114074571"
+                 data-ad-slot="AUTO_GENERATED_SLOT_ID"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <section class="articles-section">
+            <h2>Nieuwste Inzichten</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Analyses en achtergronden bij de data.</p>
+            
+            <div class="article-list">
+                <article class="tool-card" style="border: none; box-shadow: none; padding: 0; background: transparent;">
+                    <h3 style="font-size: 1.1rem;">De economie van geluk: Inkomen vs. Tevredenheid</h3>
+                    <p style="font-size: 0.9rem;">Een analyse van de 'saturatie-grens' van salaris wereldwijd.</p>
+                    <a href="articles/income-happiness.html" style="color: var(--accent); font-weight: 500; font-size: 0.9rem; margin-top: 10px; display:inline-block;">Lees artikel &rarr;</a>
+                </article>
+                
+                <article class="tool-card" style="border: none; box-shadow: none; padding: 0; background: transparent;">
+                    <h3 style="font-size: 1.1rem;">Waarom we korter slapen dan in 1950</h3>
+                    <p style="font-size: 0.9rem;">De impact van blauw licht en 24-uurs economie op onze REM slaap.</p>
+                    <a href="articles/sleep-trends-2026.html" style="color: var(--accent); font-weight: 500; font-size: 0.9rem; margin-top: 10px; display:inline-block;">Lees artikel &rarr;</a>
+                </article>
+
+                <article class="tool-card" style="border: none; box-shadow: none; padding: 0; background: transparent;">
+                    <h3 style="font-size: 1.1rem;">De gemiddelde mens bestaat niet</h3>
+                    <p style="font-size: 0.9rem;">Waarom statistische gemiddelden misleidend kunnen zijn voor het individu.</p>
+                    <a href="articles/average-myth.html" style="color: var(--accent); font-weight: 500; font-size: 0.9rem; margin-top: 10px; display:inline-block;">Lees artikel &rarr;</a>
+                </article>
+            </div>
+        </section>
+
     </main>
 
     <footer>
         <div class="container">
-            <div class="footer-links">
-                <a href="about.html">Over ons</a>
-                <a href="contact.html">Contact</a>
-                <a href="privacy.html">Privacybeleid</a>
-                <a href="terms.html">Voorwaarden</a>
+            <div class="footer-grid">
+                <div>
+                    <a href="index.html" class="footer-logo">HUMANAVERAGE</a>
+                    <p style="color: #94a3b8; font-size: 0.9rem; max-width: 300px;">
+                        Wij maken complexe wereldwijde datasets toegankelijk voor iedereen. 
+                        Vergelijk, leer en begrijp je positie in de wereld.
+                    </p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Platform</h4>
+                    <a href="#tools">Alle Tools</a>
+                    <a href="articles/index.html">Artikelen</a>
+                    <a href="about.html">Over ons</a>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Juridisch</h4>
+                    <a href="privacy.html">Privacybeleid</a>
+                    <a href="terms.html">Algemene Voorwaarden</a>
+                    <a href="contact.html">Contact</a>
+                </div>
             </div>
-            <p>&copy; 2026 HumanAverage.com - Verken de statistieken van de mensheid.</p>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 HumanAverage.com. Alle rechten voorbehouden.</p>
+            </div>
         </div>
     </footer>
 
