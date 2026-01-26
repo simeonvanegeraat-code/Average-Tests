@@ -3,75 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koffie Consumptie Vergelijker | HumanAverage</title>
+    <title>Koffie Consumptie Calculator | Vergelijk je Intake | HumanAverage</title>
+    <meta name="description" content="Hoeveel koffie drink jij vergeleken met de rest van de wereld? Ontdek de impact op je slaap en je wereldwijde ranking.">
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Koffie Consumptie Vergelijker",
+      "url": "https://humanaverage.com/tools/coffee-calculator/",
+      "applicationCategory": "HealthApplication",
+      "about": {
+        "@type": "Thing",
+        "name": "Caffeine Intake Analysis"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "HumanAverage"
+      }
+    }
+    </script>
+
     <style>
-        .coffee-card {
-            max-width: 600px;
+        :root {
+            --coffee-dark: #4b3621;
+            --coffee-medium: #6f4e37;
+            --coffee-light: #c2b280;
+        }
+
+        .tool-container {
+            max-width: 800px;
             margin: 40px auto;
+            padding: 20px;
+        }
+
+        .coffee-card {
             background: white;
-            padding: 35px;
-            border-radius: 24px;
+            padding: 40px;
+            border-radius: 30px;
             box-shadow: var(--shadow);
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .input-group {
-            margin-bottom: 25px;
-            text-align: left;
+        /* Jitter animatie voor te veel cafeïne */
+        @keyframes jitter {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(2px, -2px); }
+            50% { transform: translate(-2px, 2px); }
+            75% { transform: translate(2px, 2px); }
+            100% { transform: translate(0,0); }
         }
 
-        .counter-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f1f5f9;
-            padding: 15px 25px;
-            border-radius: 12px;
-            margin-top: 10px;
+        .jitter-active {
+            animation: jitter 0.1s infinite;
         }
 
-        .counter-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
+        .main-icon {
+            font-size: 4rem;
+            color: var(--coffee-medium);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .counter-wrapper {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .counter-controls {
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.1s;
+            gap: 30px;
+            margin-top: 15px;
         }
 
-        .counter-btn:active { transform: scale(0.9); }
-
-        .count-display {
-            font-size: 2rem;
-            font-weight: 800;
+        .count-val {
+            font-size: 3.5rem;
+            font-weight: 900;
             color: var(--text-main);
+            min-width: 80px;
         }
 
-        .result-panel {
+        .btn-round {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
             display: none;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #f1f5f9;
-            animation: fadeIn 0.8s ease;
         }
 
-        .coffee-visual {
-            font-size: 3rem;
-            margin: 20px 0;
-            color: #6f4e37; /* Coffee color */
+        .stat-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #f1f5f9;
+            text-align: left;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--coffee-dark);
+        }
+
+        .comparison-bar {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+
+        .info-section {
+            margin-top: 50px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .results-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -83,67 +169,124 @@
         </div>
     </nav>
 
-    <main class="container">
-        <div class="coffee-card">
-            <i class="fa-solid fa-mug-hot" style="font-size: 3.5rem; color: #6f4e37; margin-bottom: 20px;"></i>
-            <h1>Koffie Intake Calculator</h1>
-            <p style="color: var(--text-muted);">Hoeveel kopjes drink jij per dag vergeleken met de rest van de wereld?</p>
+    <main class="tool-container">
+        <div class="coffee-card" id="main-card">
+            <i class="fa-solid fa-mug-hot main-icon" id="coffee-icon"></i>
+            <h1>Koffie Vergelijker</h1>
+            <p>Ontdek jouw plek in de wereldwijde hiërarchie van cafeïne-gebruikers.</p>
 
-            <div class="input-group">
-                <label>Aantal koppen koffie per dag</label>
-                <div class="counter-box">
-                    <button class="counter-btn" onclick="changeCount(-1)">-</button>
-                    <span class="count-display" id="coffee-count">2</span>
-                    <button class="counter-btn" onclick="changeCount(1)">+</button>
+            <div class="counter-wrapper">
+                <label>Hoeveel koppen drink je per dag?</label>
+                <div class="counter-controls">
+                    <button class="btn-round" onclick="updateCount(-1)">-</button>
+                    <span class="count-val" id="display-count">2</span>
+                    <button class="btn-round" onclick="updateCount(1)">+</button>
                 </div>
             </div>
 
-            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="analyzeCoffee()">Analyseer mijn gebruik</button>
+            <button class="btn" style="width: 100%;" onclick="calculateResults()">Analyseer mijn gewoontes</button>
 
-            <div id="result-panel" class="result-panel">
-                <div class="coffee-visual" id="coffee-icons"></div>
-                <h2 id="rank-title">Liefhebber</h2>
-                <p id="comparison-text" style="margin: 15px 0;"></p>
-                <p style="font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid #eee; pt-15; margin-top: 20px;">
-                    Wist je dat Nederlanders met gemiddeld 2,4 koppen per dag tot de grootste koffiedrinkers ter wereld behoren?
-                </p>
+            <div class="results-grid" id="results">
+                <div class="stat-box" style="grid-column: span 2; text-align: center; background: var(--primary); color: white;">
+                    <span class="stat-label" style="color: rgba(255,255,255,0.8)">Jouw Status</span>
+                    <div class="stat-value" id="status-text" style="font-size: 1.8rem; color: white;">Gemiddelde Genieter</div>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-label">T.O.V. Nederland</span>
+                    <div class="stat-value" id="nl-compare">Lager</div>
+                    <div class="comparison-bar"><div class="bar-fill" id="bar-nl"></div></div>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-label">Wereld Ranking</span>
+                    <div class="stat-value" id="world-rank">Top 15%</div>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-label">Cafeïne Halfwaardetijd</span>
+                    <div class="stat-value" id="sleep-impact">6 uur</div>
+                    <p style="font-size: 0.7rem; margin-top: 5px;">Tijd voordat 50% uit je bloed is.</p>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-label">Jaarlijkse Kosten</span>
+                    <div class="stat-value" id="money-spent">€0</div>
+                    <p style="font-size: 0.7rem; margin-top: 5px;">Gebaseerd op €0,40 per kop.</p>
+                </div>
             </div>
         </div>
+
+        <section class="info-section">
+            <h2>Koffieconsumptie: De Cijfers</h2>
+            <p>Volgens de <i>International Coffee Organization</i> (ICO) is koffie de meest gedronken drank ter wereld na water. Maar de verschillen zijn enorm. Terwijl een gemiddelde wereldburger ongeveer 1,3 kilo koffie per jaar verbruikt, ligt dat in Scandinavische landen boven de 10 kilo.</p>
+            
+            <h3>De 'Safe Zone'</h3>
+            <p>De EFSA (European Food Safety Authority) adviseert een maximale dagelijkse inname van <b>400mg cafeïne</b> voor gezonde volwassenen. Dit komt overeen met ongeveer 4 tot 5 standaard koppen koffie. Ga je hier structureel overheen? Dan kun je last krijgen van nervositeit, slapeloosheid en hartkloppingen.</p>
+        </section>
     </main>
 
     <script src="../../js/main.js"></script>
     <script>
         let count = 2;
+        const NL_AVERAGE = 2.4;
+        const COST_PER_CUP = 0.40;
 
-        function changeCount(val) {
-            count = Math.max(0, Math.min(20, count + val));
-            document.getElementById('coffee-count').innerText = count;
+        function updateCount(val) {
+            count = Math.max(0, Math.min(25, count + val));
+            document.getElementById('display-count').innerText = count;
+            
+            const icon = document.getElementById('coffee-icon');
+            const card = document.getElementById('main-card');
+            
+            // Visuele effecten bij hoge intake
+            if(count > 6) {
+                icon.style.color = "#e63946";
+                card.classList.add('jitter-active');
+            } else {
+                icon.style.color = "#6f4e37";
+                card.classList.remove('jitter-active');
+            }
+            
+            // Schaal het icoon
+            icon.style.transform = `scale(${1 + (count * 0.05)})`;
         }
 
-        function analyzeCoffee() {
-            const panel = document.getElementById('result-panel');
-            const icons = document.getElementById('coffee-icons');
-            const title = document.getElementById('rank-title');
-            const text = document.getElementById('comparison-text');
-
-            panel.style.display = 'block';
+        function calculateResults() {
+            document.getElementById('results').style.display = 'grid';
             
-            // Iconen tekenen
-            icons.innerHTML = '☕'.repeat(Math.min(count, 10)) + (count > 10 ? '...' : '');
+            // Status bepalen
+            let status = "";
+            if(count === 0) status = "De Water-Purist";
+            else if(count <= 2) status = "De Bewuste Genieter";
+            else if(count <= 4) status = "De Brandstof-User";
+            else if(count <= 7) status = "De Cafeïne-Machine";
+            else status = "De Levende Legende";
+            document.getElementById('status-text').innerText = status;
 
-            if (count === 0) {
-                title.innerText = "De Onthouder";
-                text.innerText = "Je drinkt minder koffie dan 90% van de westerse bevolking. Jouw energie komt puur uit jezelf!";
-            } else if (count <= 2) {
-                title.innerText = "De Gemiddelde Genieter";
-                text.innerText = "Je zit precies op het wereldwijde gemiddelde. Een gezonde balans!";
-            } else if (count <= 5) {
-                title.innerText = "De Cafeïne-fanaat";
-                text.innerText = "Je drinkt meer dan gemiddeld. Pas op dat je hartslag niet synchroon gaat lopen met een techno-beat!";
-            } else {
-                title.innerText = "De Levende Legende";
-                text.innerText = "Bestaat jouw bloed nog wel uit water? Je behoort tot de top 1% van zware gebruikers!";
-            }
+            // NL Vergelijking
+            const nlPerc = Math.min(100, (count / NL_AVERAGE) * 50);
+            document.getElementById('bar-nl').style.width = nlPerc + "%";
+            document.getElementById('nl-compare').innerText = count > NL_AVERAGE ? "Hoger dan Gem." : "Lager dan Gem.";
+
+            // Wereld Ranking (geschat op basis van ICO data)
+            let rank = "Top 50%";
+            if(count > 5) rank = "Top 5%";
+            else if(count > 3) rank = "Top 15%";
+            else if(count > 1) rank = "Top 35%";
+            document.getElementById('world-rank').innerText = rank;
+
+            // Kosten
+            const yearlyCost = Math.round(count * COST_PER_CUP * 365);
+            document.getElementById('money-spent').innerText = `€${yearlyCost.toLocaleString('nl-NL')},- p.j.`;
+
+            // Slaap impact (Halfwaardetijd blijft ~6 uur, we tonen de resterende mg na 12 uur)
+            const mgCaffeine = count * 80;
+            const leftAfter12h = Math.round(mgCaffeine * 0.25);
+            document.getElementById('sleep-impact').innerText = `${leftAfter12h}mg over`;
+            
+            // Scroll naar resultaten op mobiel
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     </script>
 </body>
