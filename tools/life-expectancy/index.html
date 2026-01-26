@@ -3,74 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Levensverwachting Calculator | HumanAverage</title>
+    <title>Levensverwachting & HALE Calculator | HumanAverage</title>
+    <meta name="description" content="Bereken niet alleen hoe oud je wordt, maar hoeveel gezonde jaren (HALE) je nog hebt. Gebaseerd op WHO-data en levensstijl.">
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Healthy Life Expectancy (HALE) Explorer",
+      "description": "Tool voor het berekenen van gezonde levensjaren op basis van WHO data.",
+      "applicationCategory": "HealthApplication",
+      "author": {
+        "@type": "Organization",
+        "name": "HumanAverage"
+      }
+    }
+    </script>
+    
     <style>
-        .calculator-card {
-            max-width: 600px;
+        .life-card {
+            max-width: 850px;
             margin: 40px auto;
             background: white;
-            padding: 30px;
-            border-radius: 20px;
+            border-radius: 30px;
             box-shadow: var(--shadow);
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .result-box {
-            display: none;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px solid #f1f5f9;
-            text-align: center;
-            animation: fadeIn 0.6s ease;
-        }
-
-        .age-display {
-            font-size: 4rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 10px 0;
-        }
-
-        .life-bar-container {
-            width: 100%;
-            height: 20px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            margin: 20px 0;
             overflow: hidden;
         }
 
-        .life-bar-fill {
-            height: 100%;
-            background: var(--secondary);
-            width: 0%;
-            transition: width 1.5s ease-in-out;
+        .hero-header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        .hero-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: white;
+            border-radius: 30px 30px 0 0;
+        }
+
+        .input-grid {
+            padding: 20px 40px 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .input-item label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .input-item select, .input-item input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .input-item select:focus, .input-item input:focus {
+            border-color: #10b981;
+            background: white;
+            outline: none;
+        }
+
+        .results-area {
+            display: none;
+            padding: 0 40px 40px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .main-stat-box {
+            background: #ecfdf5;
+            border: 1px solid #d1fae5;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .big-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #047857;
+            line-height: 1;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .sub-stat {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: left;
+        }
+
+        .progress-container {
+            margin-top: 15px;
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            width: 0%;
+            transition: width 1.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 650px) {
+            .input-grid, .stat-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -83,97 +153,163 @@
     </nav>
 
     <main class="container">
-        <div class="calculator-card">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <i class="fa-solid fa-hourglass-half" style="font-size: 3rem; color: var(--primary);"></i>
-                <h1 style="margin-top: 15px;">Life Expectancy</h1>
-                <p style="color: var(--text-muted);">Ontdek je statistische levensverwachting op basis van wereldwijde data.</p>
+        <div class="life-card">
+            <div class="hero-header">
+                <i class="fa-solid fa-heart-pulse" style="font-size: 3.5rem; margin-bottom: 15px;"></i>
+                <h1>Gezonde Jaren Explorer</h1>
+                <p>Focus op vitaliteit: Hoeveel kwalitatieve jaren heb je statistisch gezien nog voor de boeg?</p>
             </div>
 
-            <div class="input-group">
-                <label>Huidige leeftijd</label>
-                <input type="number" id="current-age" placeholder="Bijv. 25">
-            </div>
-
-            <div class="input-group">
-                <label>Geslacht</label>
-                <select id="gender">
-                    <option value="vrouw">Vrouw (Statistisch langer leven)</option>
-                    <option value="man">Man</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>Levensstijl</label>
-                <select id="lifestyle">
-                    <option value="healthy">Zeer gezond (Sport, geen roken)</option>
-                    <option value="average">Gemiddeld</option>
-                    <option value="unhealthy">Ongezond (Roken, weinig beweging)</option>
-                </select>
-            </div>
-
-            <button class="btn" style="width: 100%;" onclick="calculateLife()">Bereken Verwachting</button>
-
-            <div id="result-box" class="result-box">
-                <p>Jij wordt naar verwachting maar liefst:</p>
-                <div class="age-display"><span id="final-age">0</span> jaar</div>
-                
-                <div class="life-bar-container">
-                    <div id="life-bar" class="life-bar-fill"></div>
+            <div class="input-grid">
+                <div class="input-item">
+                    <label>Huidige Leeftijd</label>
+                    <input type="number" id="age" placeholder="Bijv. 30" min="0" max="100">
                 </div>
                 
-                <p id="comparison-msg" style="font-style: italic; color: var(--text-muted);"></p>
+                <div class="input-item">
+                    <label>Vergelijk met Regio</label>
+                    <select id="region">
+                        <option value="83">West-Europa (Hoge levensstandaard)</option>
+                        <option value="79">Noord-Amerika</option>
+                        <option value="77">Oost-Azië</option>
+                        <option value="73">Wereldgemiddelde</option>
+                        <option value="85">Blue Zones (Japan/Okinawa)</option>
+                    </select>
+                </div>
+
+                <div class="input-item">
+                    <label>Geslacht</label>
+                    <select id="gender">
+                        <option value="female">Vrouw (+ Statistisch voordeel)</option>
+                        <option value="male">Man</option>
+                    </select>
+                </div>
+
+                <div class="input-item">
+                    <label>Levensstijl Impact</label>
+                    <select id="lifestyle">
+                        <option value="1.08">Atletisch & Gezond (+8%)</option>
+                        <option value="1.0">Gemiddeld</option>
+                        <option value="0.92">Sedentair / Roker (-8%)</option>
+                    </select>
+                </div>
+
+                <button class="btn" style="grid-column: span 2; margin-top: 10px; background: #059669;" onclick="calculateHealth()">Bereken mijn toekomst</button>
+            </div>
+
+            <div id="results" class="results-area">
+                <div class="main-stat-box">
+                    <span style="font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 1px;">Jouw Vitaliteitsprognose</span>
+                    <span class="big-number" id="healthy-years">0</span>
+                    <span style="font-size: 1.1rem; color: #065f46;">Jaren in goede gezondheid te gaan</span>
+                    <p style="font-size: 0.85rem; margin-top: 10px; color: #047857;">Dit is je 'Health Adjusted' toekomst, niet slechts je einddatum.</p>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="sub-stat">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <b>Kans op 90+</b>
+                            <i class="fa-solid fa-chart-line" style="color: #10b981;"></i>
+                        </div>
+                        <h3 id="prob-text" style="margin: 10px 0; font-size: 1.5rem;">0%</h3>
+                        <div class="progress-container">
+                            <div class="progress-fill" id="prob-bar"></div>
+                        </div>
+                        <small style="color: #64748b; display: block; margin-top: 5px;">Statistische waarschijnlijkheid</small>
+                    </div>
+
+                    <div class="sub-stat">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <b>Totale Verwachting</b>
+                            <i class="fa-solid fa-hourglass-end" style="color: #64748b;"></i>
+                        </div>
+                        <h3 id="total-age" style="margin: 10px 0; font-size: 1.5rem;">0</h3>
+                        <p style="font-size: 0.9rem; color: #64748b;">Verwachte eindleeftijd op basis van je profiel.</p>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <article style="max-width: 800px; margin: 40px auto; line-height: 1.7;">
+            <h2>Wat is HALE (Healthy Life Expectancy)?</h2>
+            <p>Veel calculators kijken alleen naar 'Levensverwachting' (Life Expectancy). Bij <b>HumanAverage</b> kijken we liever naar <b>HALE</b>: <i>Health Adjusted Life Expectancy</i>. Dit is een maatstaf van de Wereldgezondheidsorganisatie (WHO) die aangeeft hoeveel jaren iemand naar verwachting in goede gezondheid zal leven, zonder ernstige ziektes of beperkingen.</p>
+            <p>Het doel is niet alleen om oud te worden, maar om oud te worden met de energie om te doen waar je van houdt.</p>
+        </article>
     </main>
 
     <script src="../../js/main.js"></script>
     <script>
-        function calculateLife() {
-            const age = parseInt(document.getElementById('current-age').value);
+        function calculateHealth() {
+            const age = parseInt(document.getElementById('age').value);
+            const baseRegion = parseInt(document.getElementById('region').value);
             const gender = document.getElementById('gender').value;
-            const lifestyle = document.getElementById('lifestyle').value;
+            const lifestyleMod = parseFloat(document.getElementById('lifestyle').value);
 
-            if (!age || age < 0 || age > 120) {
-                alert("Voer a.u.b. een realistische huidige leeftijd in.");
+            if(!age || age < 0 || age > 110) {
+                alert("Vul een geldige leeftijd in.");
                 return;
             }
 
-            // Basisverwachting (Wereldwijd gemiddelde gecombineerd met westerse data)
-            let baseAge = (gender === 'vrouw') ? 83 : 79;
-
-            // Modifiers
-            if (lifestyle === 'healthy') baseAge += 7;
-            if (lifestyle === 'unhealthy') baseAge -= 8;
-
-            // Je kunt niet jonger sterven dan je nu bent in deze simpele calc
-            const finalAge = Math.max(age + 1, baseAge);
-
-            // UI Updates
-            document.getElementById('result-box').style.display = 'block';
+            // 1. Basis berekening
+            let baseExpectancy = baseRegion;
             
-            // Gebruik de animatie functie uit onze main.js (als we die daar hebben staan)
-            // Of doen het hier lokaal:
-            let displayAge = 0;
-            const interval = setInterval(() => {
-                if (displayAge >= finalAge) {
-                    clearInterval(interval);
-                } else {
-                    displayAge++;
-                    document.getElementById('final-age').innerText = displayAge;
+            // Vrouwen leven statistisch langer (~5 jaar gemiddeld wereldwijd)
+            if(gender === 'female') baseExpectancy += 4.5;
+            
+            // Levensstijl impact
+            let personalExpectancy = baseExpectancy * lifestyleMod;
+            
+            // Correctie: Als iemand al oud is (bijv. 80), is de levensverwachting niet 82, maar statistisch gezien 80 + X jaar.
+            // Actuariële 'bonus' voor overleven tot nu toe.
+            if(age > 50) {
+                const bonus = (age - 50) * 0.4; 
+                personalExpectancy += bonus;
+            }
+
+            // HALE ratio (Gemiddeld leven mensen 85-90% van hun leven in goede gezondheid in het westen)
+            const haleRatio = 0.88; 
+            const totalYearsLeft = Math.max(0, personalExpectancy - age);
+            const healthyYearsLeft = totalYearsLeft * haleRatio;
+
+            // Kansberekening (Simulatie van overlevingskans curve)
+            // Hoe gezonder de lifestyle, hoe hoger de kans op 'extreme old age'
+            let probability90 = 0;
+            if (personalExpectancy > 85) probability90 = 65;
+            else if (personalExpectancy > 80) probability90 = 35;
+            else probability90 = 15;
+            
+            // Als je al oud bent, stijgt de kans statistisch (survival bias)
+            if (age > 70) probability90 += 15;
+            if (age > 80) probability90 += 20;
+            probability90 = Math.min(99, probability90); // Max 99%
+
+            // UI Renderen
+            document.getElementById('results').style.display = 'block';
+            
+            // Animaties
+            animateValue("healthy-years", 0, healthyYearsLeft.toFixed(1), 1000);
+            animateValue("total-age", 0, personalExpectancy.toFixed(0), 1000);
+            
+            document.getElementById('prob-text').innerText = probability90 + "%";
+            document.getElementById('prob-bar').style.width = probability90 + "%";
+
+            // Scroll naar resultaat
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Helper voor animatie van getallen
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = (progress * (end - start) + start).toFixed(1);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
                 }
-            }, 20);
-
-            // Update de bar
-            setTimeout(() => {
-                const percentage = (age / finalAge) * 100;
-                document.getElementById('life-bar').style.width = percentage + "%";
-            }, 100);
-
-            const msg = (finalAge > 80) 
-                ? "Je scoort boven het wereldwijde gemiddelde van 73 jaar!" 
-                : "Je zit rond het gemiddelde van ontwikkelde landen.";
-            document.getElementById('comparison-msg').innerText = msg;
+            };
+            window.requestAnimationFrame(step);
         }
     </script>
 </body>
