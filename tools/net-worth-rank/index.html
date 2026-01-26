@@ -3,84 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Net Worth Rank | HumanAverage</title>
+    <title>Net Worth Calculator: Ben jij bij de Top 1%? | HumanAverage</title>
+    <meta name="description" content="Bereken je wereldwijde vermogenspositie. Zit jij in de top 10% of zelfs de top 1%? Gebaseerd op het Global Wealth Report data.">
+    
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Global Net Worth Ranker",
+      "applicationCategory": "FinanceApplication",
+      "author": { "@type": "Organization", "name": "HumanAverage" },
+      "description": "Compares individual net worth against global wealth distribution data."
+    }
+    </script>
+
     <style>
-        .calc-container {
-            max-width: 650px;
+        /* --- MASTER FRAMEWORK STYLING --- */
+        .ha-tool-container {
+            max-width: 900px;
             margin: 40px auto;
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: var(--shadow, 0 10px 30px rgba(0,0,0,0.08));
+            overflow: hidden;
         }
 
-        .input-card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-
-        .input-row {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-main);
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        input:focus { border-color: var(--primary); }
-
-        .result-display {
-            display: none;
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
+        /* ZONE 1: HERO (Goud/Donkerblauw voor Wealth Vibe) */
+        .ha-hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            color: white;
+            padding: 60px 30px;
             text-align: center;
-            animation: slideUp 0.5s ease;
+            position: relative;
         }
 
-        .rank-number {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: var(--secondary);
-            margin: 15px 0;
+        /* Gold accent */
+        .ha-hero i { color: #fbbf24; }
+
+        /* ZONE 2: INPUTS */
+        .ha-input-zone {
+            padding: 40px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
         }
 
-        .wealth-pyramid {
-            margin: 30px 0;
-            height: 100px;
+        .ha-input-group label {
+            font-weight: 700;
+            color: #475569;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .ha-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            background: white;
+            transition: border-color 0.2s;
+        }
+        
+        .ha-input:focus { outline: none; border-color: #fbbf24; }
+
+        .currency-wrap {
+            position: relative;
+        }
+        .currency-symbol {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-weight: bold;
+        }
+        .currency-wrap input { padding-left: 35px; }
+
+        /* ZONE 3: DASHBOARD */
+        .ha-dashboard {
+            display: none;
+            padding: 40px;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .ha-rank-badge {
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(251, 191, 36, 0.3);
+        }
+
+        .ha-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .ha-stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .ha-value { font-size: 1.6rem; font-weight: 800; color: #1e293b; display: block; }
+        .ha-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+
+        /* DE WEALTH PYRAMID */
+        .pyramid-container {
+            margin-top: 40px;
             display: flex;
-            align-items: flex-end;
-            justify-content: center;
+            flex-direction: column;
             gap: 5px;
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 16px;
         }
 
-        .pyramid-bar {
-            width: 40px;
-            background: #e2e8f0;
-            border-radius: 4px 4px 0 0;
-            transition: background 0.3s, height 1s;
+        .pyramid-level {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            opacity: 0.3; /* Standaard gedimd */
+            transition: all 0.5s;
         }
 
-        .pyramid-bar.active { background: var(--secondary); }
+        .level-1 { background: #0f172a; width: 30%; margin: 0 auto; } /* Top 1% */
+        .level-2 { background: #1e3a8a; width: 50%; margin: 0 auto; } /* Top 10% */
+        .level-3 { background: #3b82f6; width: 75%; margin: 0 auto; } /* Middle Class */
+        .level-4 { background: #94a3b8; width: 100%; margin: 0 auto; } /* Base */
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .pyramid-level.active {
+            opacity: 1;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 2px solid #fbbf24;
         }
+
+        /* ZONE 4: CONTEXT */
+        .ha-article {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+            line-height: 1.8;
+            color: #334155;
+        }
+        .ha-article h2 { color: #1e293b; margin-top: 40px; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 700px) { .ha-input-zone, .ha-stat-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -91,81 +178,183 @@
         </div>
     </nav>
 
-    <main class="container calc-container">
-        <div class="input-card">
-            <div style="text-align: center; margin-bottom: 25px;">
-                <i class="fa-solid fa-piggy-bank" style="font-size: 3rem; color: var(--primary);"></i>
-                <h1 style="margin-top: 10px;">Net Worth Rank</h1>
-                <p style="color: var(--text-muted);">Ontdek je positie in de wereldwijde vermogensverdeling.</p>
+    <main>
+        <div class="ha-tool-container">
+            <div class="ha-hero">
+                <i class="fa-solid fa-scale-balanced" style="font-size: 3.5rem; margin-bottom: 20px;"></i>
+                <h1>Global Net Worth Rank</h1>
+                <p>Vul je vermogen in en ontdek je plek op de wereldwijde welvaartsladder. Het resultaat zal je waarschijnlijk verbazen.</p>
             </div>
 
-            <div class="input-row">
-                <label>Totaal Vermogen (€)</label>
-                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">(Spaarrekening + waarde huis + beleggingen - schulden)</p>
-                <input type="number" id="networth" placeholder="Bijv. 50000">
-            </div>
-
-            <div class="input-row">
-                <label>Leeftijdscategorie</label>
-                <select id="age-group" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                    <option value="1">18 - 25 jaar</option>
-                    <option value="2">26 - 35 jaar</option>
-                    <option value="3">36 - 50 jaar</option>
-                    <option value="4">50+ jaar</option>
-                </select>
-            </div>
-
-            <button class="btn" style="width: 100%;" onclick="rankWealth()">Vergelijk Vermogen</button>
-        </div>
-
-        <div id="result-display" class="result-display">
-            <h3>Jouw Globale Rang:</h3>
-            <div class="rank-number">Top <span id="perc-val">0</span>%</div>
-            <p id="wealth-msg"></p>
-            
-            <div class="wealth-pyramid" id="pyramid">
+            <div class="ha-input-zone">
+                <div class="ha-input-group">
+                    <label>Jouw Totale Vermogen</label>
+                    <div class="currency-wrap">
+                        <span class="currency-symbol">€</span>
+                        <input type="number" id="inp-worth" class="ha-input" placeholder="0">
+                    </div>
+                    <small style="color: #64748b; font-size: 0.8rem; margin-top: 5px; display:block;">
+                        (Huis + Spaargeld + Beleggingen) MIN (Hypotheek + Schulden)
+                    </small>
                 </div>
-            
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Gebaseerd op data van het Global Wealth Report.</p>
+                
+                <div class="ha-input-group">
+                    <label>Huidige Leeftijd</label>
+                    <input type="range" id="inp-age" min="18" max="90" value="30" oninput="document.getElementById('age-disp').innerText = this.value + ' jaar'" style="width:100%; margin-top:15px;">
+                    <div style="text-align: right; font-weight: bold; color: var(--primary);" id="age-disp">30 jaar</div>
+                </div>
+
+                <button class="btn" onclick="calculateRank()" style="grid-column: span 2; width: 100%; padding: 18px; font-size: 1.1rem; background: #1e3a8a;">Analyseer mijn Vermogen</button>
+            </div>
+
+            <div id="dashboard" class="ha-dashboard">
+                
+                <div class="ha-rank-badge">
+                    <span style="font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; opacity: 0.9;">Wereldwijde Ranking</span>
+                    <span style="font-size: 4rem; font-weight: 900; line-height: 1; display:block; margin: 10px 0;">Top <span id="res-percent">0</span>%</span>
+                    <p id="res-quote" style="font-size: 1rem; font-weight: 500;">Je bent rijker dan 90% van de wereldbevolking.</p>
+                </div>
+
+                <div class="ha-stat-grid">
+                    <div class="ha-stat-card">
+                        <i class="fa-solid fa-earth-americas" style="color: #3b82f6; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                        <span class="ha-value" id="res-total">0</span>
+                        <span class="ha-label">Mensen 'onder' jou</span>
+                    </div>
+                    <div class="ha-stat-card">
+                        <i class="fa-solid fa-chart-line" style="color: #10b981; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                        <span class="ha-value" id="res-factor">1.0x</span>
+                        <span class="ha-label">t.o.v. Wereld Mediaan</span>
+                    </div>
+                    <div class="ha-stat-card">
+                        <i class="fa-solid fa-user-clock" style="color: #f59e0b; font-size: 1.5rem; margin-bottom: 10px;"></i>
+                        <span class="ha-value" id="res-age-score">B-</span>
+                        <span class="ha-label">Leeftijd Score</span>
+                    </div>
+                </div>
+
+                <div class="pyramid-container">
+                    <div style="text-align: center; margin-bottom: 10px; font-weight: 700; color: #475569;">De Rijkdom Piramide (UBS Data)</div>
+                    
+                    <div id="lvl-1" class="pyramid-level level-1">
+                        <span>The 1%</span>
+                        <span>> €1.000.000</span>
+                    </div>
+                    <div id="lvl-2" class="pyramid-level level-2">
+                        <span>Top 10%</span>
+                        <span>> €125.000</span>
+                    </div>
+                    <div id="lvl-3" class="pyramid-level level-3">
+                        <span>Middenklasse</span>
+                        <span>> €10.000</span>
+                    </div>
+                    <div id="lvl-4" class="pyramid-level level-4">
+                        <span>Basis</span>
+                        <span>< €10.000</span>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <article class="ha-article">
+            <h2>Hoe rijk ben je echt?</h2>
+            <p>Het is makkelijk om jezelf 'arm' te voelen als je kijkt naar Instagram of Quote 500. Maar in een mondiale context ziet het plaatje er heel anders uit. Als je een positief vermogen hebt van meer dan €4.000, hoor je al bij de rijkste helft van de wereld.</p>
+            
+            <h3>Data van het Global Wealth Report</h3>
+            <p>Deze tool gebruikt data uit het <i>UBS / Credit Suisse Global Wealth Report</i>. Enkele schokkende feiten:</p>
+            <ul>
+                <li>Om bij de <b>rijkste 50%</b> te horen, heb je slechts ca. €8.000 nodig.</li>
+                <li>Met <b>€125.000</b> (inclusief overwaarde huis) zit je al in de wereldwijde <b>Top 10%</b>.</li>
+                <li>De grens voor de <b>Top 1%</b> ligt rond de €1.000.000.</li>
+            </ul>
+            
+            <h3>Vermogen vs. Inkomen</h3>
+            <p>Veel mensen verwarren een hoog inkomen met vermogen. Vermogen (Net Worth) is wat er overblijft: al je bezittingen min al je schulden. Dit is de echte maatstaf voor financiële vrijheid.</p>
+        </article>
     </main>
 
     <script src="../../js/main.js"></script>
     <script>
-        function rankWealth() {
-            const nw = parseFloat(document.getElementById('networth').value);
-            if (isNaN(nw)) return alert("Voer een geldig bedrag in.");
+        function calculateRank() {
+            const worth = parseFloat(document.getElementById('inp-worth').value);
+            const age = parseInt(document.getElementById('inp-age').value);
 
-            let percentile = 99;
-            
-            // Simpele maar realistische verdeling
-            if (nw < 1000) percentile = 50;
-            else if (nw < 10000) percentile = 30;
-            else if (nw < 50000) percentile = 15;
-            else if (nw < 100000) percentile = 8;
-            else if (nw < 500000) percentile = 3;
-            else if (nw < 1000000) percentile = 1;
-            else percentile = 0.1;
+            if (isNaN(worth)) return alert("Vul een bedrag in.");
 
-            document.getElementById('result-display').style.display = 'block';
-            document.getElementById('perc-val').innerText = percentile;
+            // 1. GLOBAL RANKING LOGIC (Approx. based on UBS 2024 data used for simplified calculation)
+            let percentile = 0;
+            let rankText = "";
+            let activeLevel = 4;
 
-            const msg = (percentile <= 1) 
-                ? "Je behoort tot de absolute rijkste 1% van de wereldbevolking!" 
-                : "Je bent vermogender dan de meerderheid van de wereldbevolking.";
-            document.getElementById('wealth-msg').innerText = msg;
-
-            // Piramide tekenen
-            const pyramid = document.getElementById('pyramid');
-            pyramid.innerHTML = '';
-            for (let i = 1; i <= 10; i++) {
-                const bar = document.createElement('div');
-                bar.className = 'pyramid-bar';
-                bar.style.height = (i * 10) + 'px';
-                // Als je in de top 10% zit, kleur de hoogste bar, etc.
-                if (percentile <= (11 - i) * 10) bar.classList.add('active');
-                pyramid.appendChild(bar);
+            if (worth >= 1000000) {
+                percentile = 1;
+                rankText = "Je hoort bij de financiële elite van de planeet.";
+                activeLevel = 1;
+            } else if (worth >= 125000) {
+                // Tussen 125k en 1m: Lineair interpoleren van 10% naar 1%
+                percentile = 10 - ((worth - 125000) / (1000000 - 125000) * 9);
+                rankText = "Je bent rijker dan 90% van de wereld.";
+                activeLevel = 2;
+            } else if (worth >= 10000) {
+                // Tussen 10k en 125k: Lineair van 50% naar 10%
+                percentile = 50 - ((worth - 10000) / (125000 - 10000) * 40);
+                rankText = "Je zit stevig in de wereldwijde middenklasse.";
+                activeLevel = 3;
+            } else {
+                percentile = 50 + ((10000 - worth) / 10000 * 40); // Rough estimate for bottom 50
+                rankText = "Je bouwt nog aan je vermogen.";
+                activeLevel = 4;
             }
+
+            // Fix percentile decimals
+            percentile = Math.max(0.1, Math.min(99, percentile));
+
+            // 2. WORLD MEDIAN COMPARISON (Median is approx €8,000)
+            const median = 8000;
+            const factor = (worth / median).toFixed(1);
+
+            // 3. AGE SCORE (Are you on track?)
+            // Simple formula: Expected Net Worth = (Age * Pre-tax Annual Income) / 10 - simplified here without income
+            // We use a baseline expectation per age group for "Average Westerner"
+            let expected = 0;
+            if (age < 25) expected = 2000;
+            else if (age < 35) expected = 25000;
+            else if (age < 45) expected = 80000;
+            else if (age < 55) expected = 150000;
+            else expected = 250000;
+
+            let score = "C";
+            const ratio = worth / expected;
+            if (ratio > 3) score = "A+";
+            else if (ratio > 2) score = "A";
+            else if (ratio > 1.2) score = "B";
+            else if (ratio > 0.8) score = "C";
+            else if (ratio > 0.4) score = "D";
+            else score = "E";
+
+            // 4. RENDER UI
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Text updates
+            document.getElementById('res-percent').innerText = percentile.toFixed(1);
+            document.getElementById('res-quote').innerText = rankText;
+            document.getElementById('res-factor').innerText = factor + "x";
+            
+            // People below you (World pop ~5B adults * (100 - percentile) / 100)
+            const adults = 5.4; // Billions
+            const belowYou = (adults * (100 - percentile) / 100).toFixed(1);
+            document.getElementById('res-total').innerText = belowYou + " Miljard";
+
+            document.getElementById('res-age-score').innerText = score;
+
+            // Pyramid Animation
+            // Reset all
+            document.querySelectorAll('.pyramid-level').forEach(el => el.classList.remove('active'));
+            // Activate current
+            document.getElementById('lvl-' + activeLevel).classList.add('active');
+
+            // Scroll
+            document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>

@@ -3,130 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultieme Schermtijd Calculator | Wat kost het je echt? | HumanAverage</title>
-    <meta name="description" content="Bereken de totale impact van schermtijd op je verleden én je toekomst. Ontdek hoeveel jaar van je leven je echt naar een scherm staart.">
+    <title>Schermtijd Calculator: Wat kost het je echt? | HumanAverage</title>
+    <meta name="description" content="Bereken hoeveel jaar van je leven je naar een scherm staart. Vergelijk je gebruik met wereldwijde statistieken en ontdek je 'opportunity cost'.">
+    
     <link rel="stylesheet" href="../../css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Lifetime Screen Time Analyzer",
+      "applicationCategory": "HealthApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "author": { "@type": "Organization", "name": "HumanAverage" }
+    }
+    </script>
+
     <style>
-        .analyzer-card {
-            max-width: 850px;
+        /* --- FRAMEWORK STYLING (Herbruikbaar) --- */
+        .ha-tool-container {
+            max-width: 900px;
             margin: 40px auto;
             background: #fff;
-            border-radius: 30px;
-            box-shadow: var(--shadow);
+            border-radius: 24px;
+            box-shadow: var(--shadow, 0 10px 30px rgba(0,0,0,0.08));
             overflow: hidden;
         }
 
-        .header-gradient {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        /* ZONE 1: HERO */
+        .ha-hero {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%); /* Donkerblauw/Grijs voor Tech vibe */
             color: white;
-            padding: 50px 40px;
+            padding: 60px 30px;
             text-align: center;
         }
 
-        .inputs-area {
+        /* ZONE 2: INPUTS */
+        .ha-input-zone {
             padding: 40px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            background: #fcfcfc;
+            gap: 40px;
         }
 
-        .input-block {
-            background: white;
-            padding: 20px;
-            border-radius: 18px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .label-flex {
+        .ha-input-group label {
+            font-weight: 700;
+            color: #475569;
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 15px;
         }
 
-        .label-flex label { font-weight: 800; color: #1e293b; }
-
-        .time-display {
-            font-family: monospace;
-            background: #f1f5f9;
+        .ha-badge {
+            background: #2563eb;
+            color: white;
             padding: 4px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 1.1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-family: monospace;
         }
 
-        /* Custom Slider Styling */
         input[type=range] {
             width: 100%;
             height: 8px;
-            border-radius: 5px;
-            accent-color: var(--primary);
+            border-radius: 4px;
+            accent-color: #2563eb;
+            cursor: pointer;
         }
 
-        .result-dashboard {
+        /* ZONE 3: DASHBOARD */
+        .ha-dashboard {
             display: none;
             padding: 40px;
-            border-top: 2px solid #f1f5f9;
-            background: white;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .main-stats-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .ha-alert-box {
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            color: #9f1239;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
             margin-bottom: 30px;
         }
 
-        .stat-card {
-            padding: 25px;
-            border-radius: 20px;
-            text-align: center;
-        }
-
-        .past { background: #f8fafc; border: 1px solid #e2e8f0; }
-        .future { background: #fff1f2; border: 1px solid #fecdd3; color: #9f1239; }
-
-        .big-num {
-            display: block;
-            font-size: 3rem;
-            font-weight: 900;
-            line-height: 1;
-            margin: 10px 0;
-        }
-
-        .stat-label {
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            opacity: 0.8;
-        }
-
-        .opportunity-grid {
+        .ha-stat-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
+            gap: 20px;
         }
 
-        .opp-box {
-            background: #f0f9ff;
-            padding: 15px;
-            border-radius: 15px;
+        .ha-stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            border-radius: 16px;
             text-align: center;
-            font-size: 0.85rem;
+            transition: transform 0.2s;
+        }
+        .ha-stat-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+        .ha-icon-circle {
+            width: 50px;
+            height: 50px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: #2563eb;
+            font-size: 1.2rem;
         }
 
-        .opp-box i { font-size: 1.2rem; color: #0369a1; margin-bottom: 5px; display: block; }
+        .ha-value { font-size: 1.8rem; font-weight: 800; color: #1e293b; display: block; }
+        .ha-label { font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
 
-        @media (max-width: 700px) {
-            .inputs-area, .main-stats-container, .opportunity-grid { grid-template-columns: 1fr; }
+        /* ZONE 4: CONTEXT */
+        .ha-article {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+            line-height: 1.8;
+            color: #334155;
         }
+        .ha-article h2 { color: #1e293b; margin-top: 40px; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 700px) { .ha-input-zone, .ha-stat-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -137,121 +149,139 @@
         </div>
     </nav>
 
-    <main class="container">
-        <div class="analyzer-card">
-            <div class="header-gradient">
-                <i class="fa-solid fa-display" style="font-size: 3.5rem; margin-bottom: 20px; opacity: 0.9;"></i>
-                <h1>De Lifetime Screen Time Analyzer</h1>
-                <p>Krijg grip op je digitale voetafdruk: Verleden, Heden en Toekomst.</p>
+    <main>
+        <div class="ha-tool-container">
+            <div class="ha-hero">
+                <i class="fa-solid fa-mobile-screen-button" style="font-size: 3.5rem; margin-bottom: 20px; opacity: 0.9;"></i>
+                <h1>Screen Time Analyzer</h1>
+                <p>Ontdek de echte impact van je digitale gewoontes op je levensduur.</p>
             </div>
 
-            <div class="inputs-area">
-                <div class="input-block">
-                    <div class="label-flex">
-                        <label>Dagelijkse schermtijd</label>
-                        <span class="time-display" id="display-hrs">5:00</span>
-                    </div>
-                    <input type="range" id="input-hrs" min="0.25" max="18" step="0.25" value="5" oninput="updateUI()">
+            <div class="ha-input-zone">
+                <div class="ha-input-group">
+                    <label>Dagelijks gebruik <span class="ha-badge" id="lbl-hrs">4u 00m</span></label>
+                    <input type="range" id="inp-hrs" min="0" max="16" step="0.25" value="4" oninput="updateUI()">
                 </div>
-
-                <div class="input-block">
-                    <div class="label-flex">
-                        <label>Jouw Leeftijd</label>
-                        <span class="time-display" id="display-age">25 jaar</span>
-                    </div>
-                    <input type="range" id="input-age" min="13" max="90" step="1" value="25" oninput="updateUI()">
+                <div class="ha-input-group">
+                    <label>Huidige leeftijd <span class="ha-badge" id="lbl-age">25 jaar</span></label>
+                    <input type="range" id="inp-age" min="10" max="80" value="25" oninput="updateUI()">
                 </div>
-
-                <button class="btn" style="grid-column: span 2; padding: 20px; font-size: 1.1rem;" onclick="calculateTotalImpact()">Bereken Totale Impact</button>
+                <button class="btn" onclick="calculate()" style="grid-column: span 2; width: 100%; padding: 18px; font-size: 1.1rem;">Bereken mijn impact</button>
             </div>
 
-            <div id="results" class="result-dashboard">
-                <div class="main-stats-container">
-                    <div class="stat-card past">
-                        <span class="stat-label">Al verloren (sinds je 12e)</span>
-                        <span class="big-num" id="res-past">0.0</span>
-                        <span class="stat-label">Jaar</span>
+            <div id="dashboard" class="ha-dashboard">
+                
+                <div class="ha-alert-box">
+                    <h3 style="margin-bottom: 5px;">Totale Levensimpact</h3>
+                    <span style="font-size: 3.5rem; font-weight: 900; line-height: 1;" id="res-years">0.0</span>
+                    <span style="display: block; font-weight: 700; margin-top: 5px;">JAREN ACHTER EEN SCHERM</span>
+                    <p style="font-size: 0.9rem; margin-top: 10px; opacity: 0.8;">Dat is <span id="res-percent">0</span>% van je volledige wakkere leven.</p>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 20px; color: #64748b; font-weight: 600;">
+                    Wat had je in die tijd kunnen doen?
+                </div>
+
+                <div class="ha-stat-grid">
+                    <div class="ha-stat-card">
+                        <div class="ha-icon-circle"><i class="fa-solid fa-book"></i></div>
+                        <span class="ha-value" id="res-books">0</span>
+                        <span class="ha-label">Boeken lezen</span>
                     </div>
-                    <div class="stat-card future">
-                        <span class="stat-label">Nog te verliezen (tot je 82e)</span>
-                        <span class="big-num" id="res-future">0.0</span>
-                        <span class="stat-label">Jaar</span>
+                    <div class="ha-stat-card">
+                        <div class="ha-icon-circle"><i class="fa-solid fa-language"></i></div>
+                        <span class="ha-value" id="res-langs">0</span>
+                        <span class="ha-label">Talen leren</span>
+                    </div>
+                    <div class="ha-stat-card">
+                        <div class="ha-icon-circle"><i class="fa-solid fa-person-walking"></i></div>
+                        <span class="ha-value" id="res-walk">0</span>
+                        <span class="ha-label">X Rond de aarde</span>
                     </div>
                 </div>
 
-                <div style="text-align: center; margin: 40px 0; padding: 20px; background: #1e293b; color: white; border-radius: 15px;">
-                    <h3 style="margin-bottom: 5px;">Totale Levensimpact: <span id="res-total" style="color: #fbbf24;">0</span> Jaar</h3>
-                    <p style="font-size: 0.9rem; opacity: 0.8;">Dat is <span id="res-awake-perc">0</span>% van je volledige wakkere leven.</p>
-                </div>
-
-                <h4 style="text-align: center; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px;">Wat had je kunnen doen?</h4>
-                <div class="opportunity-grid">
-                    <div class="opp-box">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                        <b id="res-masters">0</b> Master-titels behalen
+                <div style="margin-top: 40px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #64748b; margin-bottom: 8px;">
+                        <span>Jouw Schermtijd</span>
+                        <span>Wereldwijd Gemiddelde (6u 37m)</span>
                     </div>
-                    <div class="opp-box">
-                        <i class="fa-solid fa-ギター"></i>
-                        <b id="res-guitar">0</b> Nieuwe instrumenten leren
-                    </div>
-                    <div class="opp-box">
-                        <i class="fa-solid fa-plane"></i>
-                        <b id="res-travel">0</b> Keer de wereld rondreizen
+                    <div style="background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden; position: relative;">
+                        <div style="position: absolute; left: 40%; top:0; bottom:0; width: 2px; background: #94a3b8; z-index: 2;"></div>
+                        <div id="bar-fill" style="width: 0%; height: 100%; background: #2563eb; transition: width 1s ease;"></div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <article class="ha-article">
+            <h2>De impact van schermtijd op ons leven</h2>
+            <p>In het digitale tijdperk is schermtijd onvermijdelijk, maar de hoeveelheid tijd die we besteden aan onze apparaten groeit explosief. Volgens recente data van datareportal besteedt de gemiddelde wereldburger inmiddels meer dan 6,5 uur per dag online. Dit heeft niet alleen invloed op onze productiviteit, maar ook op onze mentale gezondheid en slaapkwaliteit.</p>
+            
+            <h3>Opportunity Cost: Wat missen we?</h3>
+            <p>Economen spreken vaak over 'opportunity cost': de waarde van het beste alternatief dat je misloopt. Elk uur op TikTok is een uur dat je niet besteedt aan sporten, lezen, of sociale interactie in de echte wereld. Deze calculator maakt die kosten inzichtelijk.</p>
+            
+            <h3>Hoe wordt dit berekend?</h3>
+            <p>Wij baseren onze berekeningen op een gemiddelde levensverwachting van 82 jaar. We gaan ervan uit dat een mens gemiddeld 16 uur per dag wakker is. De vergelijking met boeken is gebaseerd op een leessnelheid van gemiddeld 10 uur per boek.</p>
+        </article>
     </main>
 
     <script src="../../js/main.js"></script>
     <script>
-        function formatTime(val) {
-            const hours = Math.floor(val);
-            const minutes = (val - hours) * 60;
-            return `${hours}:${minutes === 0 ? '00' : minutes}`;
+        // Formatteren van uren naar uur:minuten
+        function formatHrs(val) {
+            const h = Math.floor(val);
+            const m = Math.round((val - h) * 60);
+            return `${h}u ${m < 10 ? '0'+m : m}m`;
         }
 
         function updateUI() {
-            const hrs = document.getElementById('input-hrs').value;
-            const age = document.getElementById('input-age').value;
-            
-            document.getElementById('display-hrs').innerText = formatTime(hrs);
-            document.getElementById('display-age').innerText = age + " jaar";
+            const hrs = document.getElementById('inp-hrs').value;
+            const age = document.getElementById('inp-age').value;
+            document.getElementById('lbl-hrs').innerText = formatHrs(hrs);
+            document.getElementById('lbl-age').innerText = age + " jaar";
         }
 
-        function calculateTotalImpact() {
-            const hrs = parseFloat(document.getElementById('input-hrs').value);
-            const age = parseInt(document.getElementById('input-age').value);
-            
-            const startAge = 12; // Gemiddelde start leeftijd smartphone gebruik
+        function calculate() {
+            const dailyHrs = parseFloat(document.getElementById('inp-hrs').value);
+            const currentAge = parseInt(document.getElementById('inp-age').value);
             const lifeExpectancy = 82;
+            const startAge = 10; // Leeftijd waarop schermgebruik begon
 
-            // 1. Verleden: Jaren sinds 12e verjaardag * schermtijd
-            const yearsPast = Math.max(0, (age - startAge) * (hrs * 365) / 24 / 365);
+            // Totaal aantal levensjaren met schermgebruik (Verleden + Toekomst)
+            const totalActiveYears = lifeExpectancy - startAge;
+            const totalLifeHours = totalActiveYears * 365 * 24;
             
-            // 2. Toekomst: Resterende jaren tot 82 * schermtijd
-            const yearsFuture = Math.max(0, (lifeExpectancy - age) * (hrs * 365) / 24 / 365);
+            // Berekening totale schermjaren
+            const totalScreenHours = dailyHrs * 365 * totalActiveYears;
+            const totalScreenYears = totalScreenHours / 24 / 365;
+
+            // Percentage van WAKKERE tijd (16u per dag)
+            const awakeHoursPerDay = 16;
+            const totalAwakeHours = totalActiveYears * 365 * awakeHoursPerDay;
+            const percentAwake = (totalScreenHours / totalAwakeHours) * 100;
+
+            // Opportunity Costs
+            const books = Math.floor(totalScreenHours / 10); // 10u per boek
+            const languages = Math.floor(totalScreenHours / 600); // 600u voor vloeiendheid
+            const worldWalks = (totalScreenHours * 5) / 40075; // 5km/u wandelen, 40.075km omtrek
+
+            // Render Results
+            document.getElementById('dashboard').style.display = 'block';
             
-            const totalYears = yearsPast + yearsFuture;
+            // Counters animeren (simpel)
+            document.getElementById('res-years').innerText = totalScreenYears.toFixed(1);
+            document.getElementById('res-percent').innerText = percentAwake.toFixed(0);
+            
+            document.getElementById('res-books').innerText = books.toLocaleString();
+            document.getElementById('res-langs').innerText = languages;
+            document.getElementById('res-walk').innerText = worldWalks.toFixed(1);
 
-            // Wakkere tijd berekening (uitgaande van 16 uur wakker per dag)
-            const totalAwakeYearsInLife = (lifeExpectancy - startAge) * (16 / 24);
-            const awakePerc = (totalYears / totalAwakeYearsInLife) * 100;
+            // Bar visualisatie (Max 10u = 100% voor de bar visual)
+            const barWidth = Math.min(100, (dailyHrs / 10) * 100); 
+            document.getElementById('bar-fill').style.width = barWidth + "%";
 
-            // UI Updaten
-            document.getElementById('results').style.display = 'block';
-            document.getElementById('res-past').innerText = yearsPast.toFixed(1);
-            document.getElementById('res-future').innerText = yearsFuture.toFixed(1);
-            document.getElementById('res-total').innerText = totalYears.toFixed(1);
-            document.getElementById('res-awake-perc').innerText = awakePerc.toFixed(0);
-
-            // Vergelijkingen
-            const totalHours = totalYears * 365 * 24;
-            document.getElementById('res-masters').innerText = Math.floor(totalHours / 4800); // Gem. 4800 uur voor een Master
-            document.getElementById('res-guitar').innerText = Math.floor(totalHours / 1000); // 1000 uur voor basisbeheersing
-            document.getElementById('res-travel').innerText = Math.floor(totalHours / 2160); // 3 maanden reizen
-
-            window.scrollTo({ top: document.getElementById('results').offsetTop - 50, behavior: 'smooth' });
+            // Scrollen
+            document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
