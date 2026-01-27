@@ -1,25 +1,38 @@
 [
   {
+    "title": "Wat is de gemiddelde reactiesnelheid?",
+    "description": "Ben jij sneller dan de rest? Bekijk de data per leeftijd en zie direct hoe jouw reflexen scoren ten opzichte van het gemiddelde.",
+    "url": "reactiesnelheid-gemiddelde.html",
+    "category": "Gezondheid",
+    "date": "2026-01-28",
+    "readTime": "3 min",
+    "image": ""
+  },
+  {
+    "title": "Tips voor een snellere reactietijd",
+    "description": "Ontdek hoe je jouw reflexen kunt trainen en wat de wetenschap zegt over sneller reageren.",
+    "url": "tips-voor-snellere-reactietijd.html",
+    "date": "2026-01-26",
+    "category": "Prestaties",
+    "readTime": "5 min",
+    "image": "/assets/img/reflex-training.jpg"
+  },
+  {
+    "title": "Gemiddeld Salaris Wereldwijd 2026: Waar sta jij?",
+    "description": "Ontdek de feiten over wereldwijde inkomens, koopkracht en hoe jij scoort op de globale ladder.",
+    "url": "gemiddeld-salaris-wereldwijd-2026.html",
+    "date": "2026-01-25",
+    "category": "Economie",
+    "readTime": "6 min",
+    "image": "/assets/img/salary-2026.jpg"
+  },
+  {
     "title": "Waarom gemiddeld zijn ok is",
     "description": "De psychologie achter onze drang om altijd 'bovengemiddeld' te willen scoren en waarom rust vinden in het midden gezond is.",
     "url": "waarom-gemiddeld-zijn-ok-is.html",
     "category": "Psychologie",
-    "date": "2026-01-25"
-  },
-{
-  "title": "Gemiddeld Salaris Wereldwijd 2026: Waar sta jij?",
-  "description": "Ontdek de feiten over wereldwijde inkomens, koopkracht en hoe jij scoort op de globale ladder.",
-  "url": "gemiddeld-salaris-wereldwijd-2026.html",
-  "date": "2026-01-25",
-  "category": "Economie",
-  "image": "/assets/img/salary-2026.jpg"
-},
-  {
-  "title": "Tips voor een snellere reactietijd",
-  "description": "Ontdek hoe je jouw reflexen kunt trainen en wat de wetenschap zegt over sneller reageren.",
-  "url": "tips-voor-snellere-reactietijd.html",
-  "date": "2026-01-26",
-  "category": "Prestaties",
-  "image": "/assets/img/reflex-training.jpg"
-}
+    "date": "2026-01-25",
+    "readTime": "4 min",
+    "image": ""
+  }
 ]
