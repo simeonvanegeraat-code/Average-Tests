@@ -42,23 +42,29 @@
     </nav>
 
     <header class="hero">
-        <div class="container">
+        <div class="container hero-content">
+            <span class="pill-label">Nieuw: Data set 2026</span>
             <h1>Ben jij een uitzondering<br>of de regel?</h1>
             <p>
                 Een interactieve verkenning van menselijke statistieken.
                 Vergelijk jouw leven met data van <span class="stat-number">8.124.567.000</span> wereldburgers.
             </p>
-            <a href="#tools" class="btn" style="background: var(--primary); color: white; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 600;">Bekijk de data</a>
+            <div class="hero-buttons">
+                <a href="#tools" class="btn btn-primary">Bekijk de data</a>
+                <a href="about.html" class="btn btn-secondary">Hoe werkt het?</a>
+            </div>
         </div>
     </header>
 
     <div class="trust-bar">
         <div class="container trust-content">
-            <span>Data bronnen:</span>
-            <span>THE WORLD BANK</span>
-            <span>WHO</span>
-            <span>OECD</span>
-            <span>NCD-RisC</span>
+            <span class="source-label">Geverifieerde bronnen:</span>
+            <div class="source-logos">
+                <span><i class="fa-solid fa-building-columns"></i> THE WORLD BANK</span>
+                <span><i class="fa-solid fa-user-doctor"></i> WHO</span>
+                <span><i class="fa-solid fa-globe"></i> OECD</span>
+                <span><i class="fa-solid fa-database"></i> NCD-RisC</span>
+            </div>
         </div>
     </div>
 
@@ -66,12 +72,13 @@
         
         <div class="bento-grid">
             
-            <a href="tools/reaction-time/index.html" class="tool-card col-span-2">
+            <a href="tools/reaction-time/index.html" class="tool-card col-span-2 featured-card">
+                <div class="card-bg-icon"><i class="fa-solid fa-bolt"></i></div>
                 <div class="card-header">
                     <div class="icon-box"><i class="fa-solid fa-bolt"></i></div>
-                    <span class="status-badge">Populair</span>
+                    <span class="badge badge-hot">Populair</span>
                 </div>
-                <div>
+                <div class="card-content">
                     <h3>Reflex Test</h3>
                     <p>Ben jij sneller dan een F1-coureur? Test je reactiesnelheid tot op de milliseconde nauwkeurig.</p>
                 </div>
@@ -80,7 +87,7 @@
             <a href="tools/memory-test/index.html" class="tool-card">
                 <div class="card-header">
                     <div class="icon-box"><i class="fa-solid fa-brain"></i></div>
-                    <span class="status-badge" style="background: #22C55E;">Nieuw</span>
+                    <span class="badge badge-new">Nieuw</span>
                 </div>
                 <h3>Memory Check</h3>
                 <p>Hoeveel items kan jouw werkgeheugen onthouden? Test Miller's Law.</p>
@@ -97,9 +104,9 @@
             <a href="tools/typing-speed/index.html" class="tool-card col-span-2">
                 <div class="card-header">
                     <div class="icon-box"><i class="fa-solid fa-keyboard"></i></div>
-                     <span class="status-badge">Populair</span>
+                     <span class="badge badge-hot">Populair</span>
                 </div>
-                <div>
+                <div class="card-content">
                     <h3>Typing Speed</h3>
                     <p>Hoeveel woorden per minuut typ jij? Ontdek of je sneller bent dan de gemiddelde professional.</p>
                 </div>
@@ -169,26 +176,34 @@
         </div>
 
         <section class="articles-section">
-            <h2>Nieuwste Inzichten</h2>
-            <p style="color: var(--text-muted); margin-bottom: 2rem;">Analyses en achtergronden bij de data.</p>
+            <div class="section-header">
+                <h2>Nieuwste Inzichten</h2>
+                <p>Analyses en achtergronden bij de data.</p>
+            </div>
             
             <div class="article-list">
                 <article class="article-card">
-                    <h3>De economie van geluk: Inkomen vs. Tevredenheid</h3>
-                    <p>Een analyse van de 'saturatie-grens' van salaris wereldwijd en wanneer meer geld niet meer gelukkig maakt.</p>
-                    <a href="articles/income-happiness.html" class="article-link">Lees artikel &rarr;</a>
+                    <div class="article-content">
+                        <h3>De economie van geluk: Inkomen vs. Tevredenheid</h3>
+                        <p>Een analyse van de 'saturatie-grens' van salaris wereldwijd en wanneer meer geld niet meer gelukkig maakt.</p>
+                        <a href="articles/income-happiness.html" class="article-link">Lees artikel &rarr;</a>
+                    </div>
                 </article>
                 
                 <article class="article-card">
-                    <h3>Waarom we korter slapen dan in 1950</h3>
-                    <p>De impact van blauw licht en de 24-uurs economie op onze REM slaap cycli.</p>
-                    <a href="articles/sleep-trends-2026.html" class="article-link">Lees artikel &rarr;</a>
+                    <div class="article-content">
+                        <h3>Waarom we korter slapen dan in 1950</h3>
+                        <p>De impact van blauw licht en de 24-uurs economie op onze REM slaap cycli.</p>
+                        <a href="articles/sleep-trends-2026.html" class="article-link">Lees artikel &rarr;</a>
+                    </div>
                 </article>
 
                 <article class="article-card">
-                    <h3>De gemiddelde mens bestaat niet</h3>
-                    <p>Waarom statistische gemiddelden misleidend kunnen zijn als je ze toepast op het individu.</p>
-                    <a href="articles/average-myth.html" class="article-link">Lees artikel &rarr;</a>
+                    <div class="article-content">
+                        <h3>De gemiddelde mens bestaat niet</h3>
+                        <p>Waarom statistische gemiddelden misleidend kunnen zijn als je ze toepast op het individu.</p>
+                        <a href="articles/average-myth.html" class="article-link">Lees artikel &rarr;</a>
+                    </div>
                 </article>
             </div>
         </section>
@@ -198,9 +213,9 @@
     <footer>
         <div class="container">
             <div class="footer-grid">
-                <div>
+                <div class="footer-brand">
                     <a href="index.html" class="footer-logo">HUMANAVERAGE</a>
-                    <p style="color: #94a3b8; font-size: 0.9rem; max-width: 300px;">
+                    <p>
                         Wij maken complexe wereldwijde datasets toegankelijk voor iedereen. 
                         Vergelijk, leer en begrijp je positie in de wereld.
                     </p>

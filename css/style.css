@@ -1,20 +1,23 @@
-/* HUMAN AVERAGE - MASTER STYLESHEET V4.0
-   Updates: Global Dark Header, Game Interfaces, Trust Badge
-*/
+/* HUMAN AVERAGE - MASTER STYLESHEET V5.0 (Restored & Polished) */
 
 /* 1. IMPORTS & VARIABELEN */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Lora:ital,wght@0,500;0,700;1,400&family=Geist+Mono:wght@400;600;700&display=swap');
 
 :root {
     /* Kleuren: Deep Archive Theme */
-    --bg-body: #F8FAFC;         
-    --bg-card: #FFFFFF;         
-    --primary: #0F172A;         
-    --accent: #2563EB;          
-    --accent-glow: rgba(37, 99, 235, 0.15);
+    --bg-body: #F8FAFC;
+    --bg-card: #FFFFFF;
+    
+    --primary: #0F172A;     /* Slate 900 */
+    --primary-light: #1E293B; /* Slate 800 */
+    --accent: #2563EB;      /* Royal Blue */
+    --accent-dark: #1D4ED8;
+    
+    --success: #10B981;
+    --warning: #F59E0B;
     
     /* Tekst */
-    --text-main: #334155; /* Iets zachter dan puur zwart */
+    --text-main: #334155; 
     --text-muted: #64748B;
     --text-light: #94A3B8;
 
@@ -66,25 +69,17 @@ h1, h2, h3, h4 {
     font-family: 'Geist Mono', monospace;
     font-weight: 700;
     letter-spacing: -0.03em;
+    color: white; /* Specifiek voor in de Hero */
 }
 
-/* 3. LAYOUT & CONTAINERS */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-}
-
-/* Navigatie - Aangepast voor Dark Header */
+/* 3. NAVIGATIE */
 nav {
-    position: absolute; /* Ligt nu OP de header */
+    position: absolute;
     top: 0;
     width: 100%;
     z-index: 1000;
     padding: 1.5rem 0;
     background: transparent;
-    border: none;
-    backdrop-filter: none;
 }
 
 .nav-content { display: flex; justify-content: space-between; align-items: center; }
@@ -93,16 +88,16 @@ nav {
     font-family: 'Geist Mono', monospace;
     font-weight: 800;
     font-size: 1.25rem;
-    color: white; /* Wit voor op donkere header */
+    color: white;
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 8px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    gap: 10px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
 .nav-links a {
-    color: rgba(255,255,255,0.8);
+    color: rgba(255,255,255,0.85);
     text-decoration: none;
     margin-left: 32px;
     font-size: 0.95rem;
@@ -112,200 +107,150 @@ nav {
 
 .nav-links a:hover { color: white; }
 
-/* 4. HERO SECTIE (De Nieuwe Dark Style) */
+/* 4. HERO SECTIE */
 .hero {
-    /* Gradient Background */
     background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
     color: white;
-    padding: 8rem 0 5rem; /* Meer ruimte boven ivm absolute nav */
+    padding: 9rem 0 6rem; /* Extra padding top voor nav */
     text-align: center;
-    margin-bottom: 3rem;
-    border-bottom-left-radius: 30px;
-    border-bottom-right-radius: 30px;
-    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.3);
+    margin-bottom: 0; /* Aansluitend op trust bar */
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.4);
+    position: relative;
+    z-index: 20;
+}
+
+.pill-label {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .hero h1 {
-    font-family: 'Inter', sans-serif; /* Modern, clean font voor hero */
+    font-family: 'Inter', sans-serif;
     font-weight: 800;
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    line-height: 1.2; 
-    margin-bottom: 1rem;
-    color: white; /* Forceer wit */
-    background: none;
-    -webkit-text-fill-color: initial;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 1.1; 
+    margin-bottom: 1.5rem;
+    color: white;
 }
 
 .hero p {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     color: rgba(255,255,255,0.8);
-    max-width: 600px;
-    margin: 0 auto 2rem;
+    max-width: 650px;
+    margin: 0 auto 2.5rem;
     font-weight: 400;
 }
 
-/* Knoppen */
+/* Knoppen - Nu als classes gedefinieerd */
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
 .btn {
-    background: var(--accent);
-    color: white;
     padding: 14px 32px;
     border-radius: 50px;
     text-decoration: none;
     font-weight: 600;
-    border: none;
-    cursor: pointer;
     font-size: 1rem;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: inline-block;
-}
-
-.btn:hover { 
-    transform: translateY(-2px); 
-    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
-}
-
-/* 5. CONTENT SECTIES & TOOLS */
-.tool-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 3rem;
-    margin-top: -4rem; /* Overlap effect met header */
-    position: relative;
-    z-index: 10;
-}
-
-/* Witte 'Paper' Card Style voor Content */
-.content-section {
-    background: var(--bg-card);
-    padding: 2.5rem;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-card);
-    margin-top: 2rem;
-    border: 1px solid var(--border);
-}
-
-.content-section h2 { margin-top: 0; font-size: 1.8rem; margin-bottom: 1rem; }
-.content-section h3 { font-size: 1.25rem; margin-top: 2rem; margin-bottom: 0.5rem; }
-.content-section p { margin-bottom: 1.5rem; color: #475569; font-size: 1.05rem; }
-
-/* 6. GAME INTERFACE ELEMENTS (Nieuw!) */
-.tool-card.glass {
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    padding: 2.5rem;
-    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
-    border: 1px solid var(--border);
-    text-align: center;
-}
-
-#game-container {
-    min-height: 350px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    transition: all 0.2s var(--ease);
+    display: inline-flex;
     align-items: center;
-}
-
-#sequence-display {
-    font-size: 3.5rem;
-    font-weight: 800;
-    letter-spacing: 12px;
-    color: var(--primary);
-    margin: 2rem 0;
-    min-height: 5rem;
-    user-select: none;
-}
-
-/* Numpad Styling */
-.number-pad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    max-width: 340px;
-    margin: 0 auto;
-}
-
-.numpad-btn {
-    padding: 16px;
-    font-size: 1.5rem;
-    background: white;
-    border: 2px solid var(--border);
-    border-radius: 12px;
+    justify-content: center;
     cursor: pointer;
-    transition: all 0.1s ease;
-    color: var(--primary);
-    font-weight: 700;
-    box-shadow: 0 4px 0 var(--border); /* 3D effect */
 }
 
-.numpad-btn:active {
-    transform: translateY(4px); /* Indrukken effect */
-    box-shadow: none;
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    border: 2px solid var(--accent);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
 }
 
-/* Resultaten Balken */
-.memory-bar-container {
-    height: 24px;
-    background: var(--border);
-    border-radius: 12px;
-    margin: 30px 0;
+.btn-primary:hover { 
+    background: var(--accent-dark);
+    border-color: var(--accent-dark);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* 5. TRUST BAR (Nieuw design) */
+.trust-bar {
+    margin-top: -30px; /* Overlap met hero */
+    margin-bottom: 4rem;
     position: relative;
-    overflow: hidden;
-}
-
-.memory-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #3B82F6, #2563EB);
-    width: 0%;
-}
-
-.average-marker {
-    position: absolute;
-    left: 50%;
-    top: 0; bottom: 0;
-    width: 2px;
-    background: var(--primary);
-    opacity: 0.3;
-    z-index: 2;
-}
-
-.average-label {
-    position: absolute;
-    left: 50%;
-    top: -22px;
-    transform: translateX(-50%);
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--text-muted);
-}
-
-/* 7. TRUST BADGE (Vervangt E-E-A-T Box) */
-.trust-badge {
-    margin-top: 1.5rem;
-    background: #EFF6FF; /* Lichtblauw */
-    border: 1px solid #BFDBFE;
-    color: #1E40AF;
-    padding: 1.2rem;
-    border-radius: 12px;
+    z-index: 25;
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
+    justify-content: center;
 }
 
-.trust-badge i { font-size: 1.2rem; margin-top: 2px; color: var(--accent); }
-.trust-badge h5 { margin: 0; font-family: 'Inter', sans-serif; font-size: 0.95rem; color: #1E40AF; }
-.trust-badge p { margin: 4px 0 0 0; font-size: 0.8rem; opacity: 0.9; color: #1E40AF; }
+.trust-content {
+    background: white;
+    padding: 1.5rem 3rem;
+    border-radius: 100px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 4px 10px -5px rgba(0,0,0,0.02);
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    border: 1px solid var(--border);
+    max-width: 90%;
+}
 
-/* 8. BENTO GRID (Homepage) */
+.source-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.source-logos {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.source-logos span {
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.source-logos span i { color: var(--accent); }
+
+/* 6. BENTO GRID SYSTEM */
 .bento-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 24px;
-    grid-auto-rows: 240px; 
-    grid-auto-flow: dense; 
-    margin-top: -4rem; /* Overlap met hero */
-    position: relative;
-    z-index: 10;
+    margin-bottom: 3rem;
 }
 
 .tool-card {
@@ -322,45 +267,139 @@ nav {
     justify-content: space-between;
     position: relative;
     overflow: hidden;
+    min-height: 240px;
 }
 
+/* Hover effecten */
 .tool-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
     border-color: var(--accent);
 }
 
-.card-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+.tool-card:hover .icon-box {
+    background: var(--accent);
+    color: white;
+}
+
+/* Card layout details */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
 .icon-box {
-    width: 50px; height: 50px;
-    background: var(--bg-body);
+    width: 48px; height: 48px;
+    background: #F1F5F9;
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.25rem; color: var(--primary);
+    transition: all 0.3s ease;
 }
 
+.tool-card h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.tool-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Speciale maten en badges */
 .col-span-2 { grid-column: span 2; }
-.status-badge {
-    position: absolute; bottom: 2rem; right: 2rem;
-    font-family: 'Geist Mono', monospace; font-size: 0.75rem;
-    color: var(--text-light); opacity: 0;
-    transition: all 0.3s;
-}
-.tool-card:hover .status-badge { opacity: 1; }
 
-/* 9. FOOTER & OVERIG */
+.badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-hot { background: #FEF3C7; color: #D97706; }
+.badge-new { background: #DCFCE7; color: #16A34A; }
+
+.card-bg-icon {
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    font-size: 8rem;
+    color: var(--primary);
+    opacity: 0.03;
+    pointer-events: none;
+    transition: transform 0.4s ease;
+}
+
+.tool-card:hover .card-bg-icon {
+    transform: scale(1.1) rotate(-10deg);
+}
+
+/* 7. ADVERTENTIES & ARTIKELEN */
 .ad-container {
     background: #F1F5F9;
     border-radius: var(--radius-sm);
-    overflow: hidden;
-    margin: 2rem 0;
-    display: flex; align-items: center; justify-content: center;
-    min-height: 150px; 
-    border: 1px dashed var(--border);
+    padding: 20px;
+    margin: 3rem 0;
+    text-align: center;
+    border: 1px dashed #CBD5E1;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.ad-label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: #CBD5E1; text-transform: uppercase; }
+.ad-label {
+    font-size: 0.7rem;
+    color: #94A3B8;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+}
 
+.articles-section {
+    padding: 2rem 0;
+}
+
+.section-header { margin-bottom: 2rem; }
+.section-header p { color: var(--text-muted); }
+
+.article-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.article-card {
+    background: white;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.article-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+
+.article-card h3 { font-size: 1.15rem; margin-bottom: 0.8rem; line-height: 1.4; }
+.article-card p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+.article-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.article-link:hover { text-decoration: underline; }
+
+/* 8. FOOTER */
 footer {
     background: white;
     border-top: 1px solid var(--border);
@@ -368,24 +407,67 @@ footer {
     margin-top: 6rem;
 }
 
-.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 2rem; }
-.footer-logo { font-family: 'Geist Mono', monospace; font-weight: 700; color: var(--primary); text-decoration: none; }
-.footer-links { display: flex; flex-direction: column; gap: 0.8rem; }
-.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
-.copyright { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-light); font-size: 0.85rem; }
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+}
 
-/* RESPONSIVE */
+.footer-logo {
+    font-family: 'Geist Mono', monospace;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--primary);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.footer-brand p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    max-width: 350px;
+}
+
+.footer-links { display: flex; flex-direction: column; gap: 0.8rem; }
+.footer-links h4 { font-size: 0.9rem; text-transform: uppercase; color: var(--text-main); margin-bottom: 0.5rem; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.2s; }
+.footer-links a:hover { color: var(--accent); }
+
+.copyright {
+    border-top: 1px solid var(--border);
+    padding-top: 2rem;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+/* 9. RESPONSIVE MEDIA QUERIES */
 @media (max-width: 1024px) {
-    .bento-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; }
-    .col-span-2 { grid-column: span 1; }  
-    .tool-grid { grid-template-columns: 1fr; margin-top: 0; }
-    .hero { padding: 6rem 1rem 3rem; border-radius: 0 0 20px 20px; }
+    .bento-grid { grid-template-columns: repeat(2, 1fr); }
+    .article-list { grid-template-columns: repeat(2, 1fr); }
+    .trust-content { flex-direction: column; gap: 1rem; padding: 1.5rem; border-radius: 20px; width: 100%; }
 }
 
 @media (max-width: 768px) {
-    .hero h1 { font-size: 2.5rem; }
-    .bento-grid { grid-template-columns: 1fr; }
     .nav-content { flex-direction: column; gap: 1rem; }
-    .nav-links { width: 100%; justify-content: center; }
-    .footer-grid { grid-template-columns: 1fr; }
+    .nav-links { margin-left: 0; display: flex; gap: 20px; justify-content: center; }
+    .nav-links a { margin: 0; }
+    
+    .hero { padding-top: 8rem; border-radius: 0 0 25px 25px; }
+    .hero h1 { font-size: 2.5rem; }
+    .hero-buttons { flex-direction: column; width: 100%; max-width: 300px; margin: 0 auto; }
+    
+    .bento-grid { grid-template-columns: 1fr; }
+    .col-span-2 { grid-column: span 1; }
+    
+    .article-list { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
 }
