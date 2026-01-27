@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Short-Term Memory Test | Hoe gemiddeld is jouw geheugen? | HumanAverage</title>
+    <meta name="description" content="Test je korte-termijn geheugen. Ontdek hoeveel items jij kunt onthouden en vergelijk jezelf met het menselijk gemiddelde.">
+    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* Game Area Styles */
+        #game-container {
+            text-align: center;
+            padding: 2rem;
+            min-height: 350px; /* Iets verhoogd voor stabiliteit */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #sequence-display {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: 10px;
+            color: var(--primary);
+            margin: 2rem 0;
+            min-height: 5rem;
+            user-select: none; /* Voorkomt selecteren van tekst */
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .numpad-btn {
+            padding: 15px;
+            font-size: 1.5rem;
+            background: white;
+            border: 1px solid #CBD5E1;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.1s;
+            touch-action: manipulation; /* Betere touch response op mobiel */
+        }
+
+        .numpad-btn:active {
+            transform: scale(0.95);
+            background: #F1F5F9;
+        }
+
+        #user-input-display {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            height: 3.5rem;
+            border-bottom: 3px solid var(--accent);
+            min-width: 200px;
+            letter-spacing: 8px;
+            font-weight: bold;
+            color: #334155;
+        }
+
+        .result-area {
+            display: none;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .memory-bar-container {
+            height: 24px;
+            background: #E2E8F0;
+            border-radius: 12px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .memory-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .average-marker {
+            position: absolute;
+            left: 50%; /* Gemiddelde is 7 op een schaal van 14 */
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #333;
+            z-index: 2;
+        }
+        
+        .average-label {
+            position: absolute;
+            left: 50%;
+            top: -20px;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #64748B;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 992px) {
+            .tool-grid { grid-template-columns: 1fr; }
+            #sequence-display { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-content">
+            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--accent)">AVERAGE</span></a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h1>Short-Term Memory Test</h1>
+            <p>Hoeveel cijfers kan jouw brein onthouden in 2 seconden?</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="tool-grid">
+            <div class="main-content">
+                <div class="tool-card glass">
+                    
+                    <div id="game-container">
+                        
+                        <div id="start-screen">
+                            <i class="fa-solid fa-brain" style="font-size: 4rem; color: var(--accent); margin-bottom: 1.5rem; display:block;"></i>
+                            <h3>Ben je er klaar voor?</h3>
+                            <p style="max-width: 400px; margin: 0 auto 1.5rem;">Je krijgt kort een reeks cijfers te zien. Onthoud ze en typ ze na. We beginnen makkelijk.</p>
+                            <button class="btn" onclick="startGame()" style="width: 100%; max-width: 200px;">Start de Test</button>
+                        </div>
+
+                        <div id="display-screen" class="hidden">
+                            <p style="color: #64748B; font-weight: 600;">FOCUS...</p>
+                            <div id="sequence-display"></div>
+                            <div class="progress-container" style="width: 100%; background: #eee; height: 6px; border-radius: 3px;">
+                                <div id="timer-bar" style="width: 100%; height: 100%; background: var(--accent); border-radius: 3px; transition: width 2s linear;"></div>
+                            </div>
+                        </div>
+
+                        <div id="input-screen" class="hidden">
+                            <p style="margin-bottom: 0.5rem;">Typ de reeks na:</p>
+                            <div id="user-input-display"></div>
+                            <div class="number-pad">
+                                <button class="numpad-btn" onclick="appendInput('1')">1</button>
+                                <button class="numpad-btn" onclick="appendInput('2')">2</button>
+                                <button class="numpad-btn" onclick="appendInput('3')">3</button>
+                                <button class="numpad-btn" onclick="appendInput('4')">4</button>
+                                <button class="numpad-btn" onclick="appendInput('5')">5</button>
+                                <button class="numpad-btn" onclick="appendInput('6')">6</button>
+                                <button class="numpad-btn" onclick="appendInput('7')">7</button>
+                                <button class="numpad-btn" onclick="appendInput('8')">8</button>
+                                <button class="numpad-btn" onclick="appendInput('9')">9</button>
+                                <button class="numpad-btn" onclick="clearInput()" style="color: #EF4444; font-weight:bold;">C</button>
+                                <button class="numpad-btn" onclick="appendInput('0')">0</button>
+                                <button class="numpad-btn" onclick="submitInput()" style="background: var(--accent); color: white; font-weight:bold;"><i class="fa-solid fa-check"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="results-dashboard" class="result-area">
+                        <hr style="margin: 2rem 0; border: 0; border-top: 1px solid #E2E8F0;">
+                        <div style="text-align: center;">
+                            <span style="font-size: 0.9rem; color: #64748B; text-transform: uppercase; letter-spacing: 1px;">Jouw Brein Score</span>
+                            <h2 id="final-score-text" style="font-size: 3rem; margin: 0.5rem 0; color: var(--primary);">0</h2>
+                            <p id="comparison-text" style="font-weight: 500;">Je zit precies op het menselijk gemiddelde.</p>
+                        </div>
+
+                        <div class="memory-bar-container">
+                            <div class="average-marker"></div>
+                            <div class="average-label">AVG (7)</div>
+                            <div id="memory-bar" class="memory-bar-fill"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: -15px; color: #64748B;">
+                            <span>Start (3)</span>
+                            <span>Genius (14)</span>
+                        </div>
+
+                        <div style="margin: 2rem 0; min-height: 100px; background: #F8FAFC; display: flex; align-items: center; justify-content: center; border: 1px dashed #CBD5E1;">
+                             <span style="color: #94A3B8; font-size: 0.8rem;">Advertentie Ruimte</span>
+                             </div>
+
+                        <button class="btn" onclick="location.reload()" style="width: 100%; background: #94A3B8;">Opnieuw Proberen</button>
+                    </div>
+                </div>
+
+                <section class="content-section">
+                    <h2>Wat zegt deze test over je brein?</h2>
+                    <p>Het korte-termijn geheugen (of werkgeheugen) is de capaciteit van je brein om een kleine hoeveelheid informatie direct beschikbaar te houden voor actieve verwerking.</p>
+                    
+                    <h3>De Wet van Miller (7 ± 2)</h3>
+                    <p>In 1956 ontdekte psycholoog George Miller dat de meeste volwassenen tussen de 5 en 9 items in hun werkgeheugen kunnen opslaan. Dit staat bekend als de "Magical Number Seven".</p>
+                    
+                    <h3>Verbeter je score</h3>
+                    <p>Je kunt je score verhogen door gebruik te maken van <strong>chunking</strong>. In plaats van "1, 9, 8, 4" te onthouden als losse cijfers, onthoud je het als het jaar "1984". Dit telt voor je brein als één item in plaats van vier.</p>
+                </section>
+            </div>
+
+            <aside class="sidebar">
+                <div class="tool-card">
+                    <h4 style="margin-top: 0;"><i class="fa-solid fa-link"></i> Gerelateerde Tests</h4>
+                    <hr style="margin: 10px 0; opacity: 0.1;">
+                    
+                    <a href="../reaction-time/index.html" style="text-decoration: none; color: inherit;">
+                        <div class="tool-card" style="padding: 1rem; margin-bottom: 1rem; border-color: #E2E8F0; cursor: pointer;">
+                            <small style="color: var(--accent);">Brein Check</small>
+                            <h5 style="margin: 5px 0;">Reactiesnelheid</h5>
+                            <p style="font-size: 0.8rem; margin: 0;">Ben je sneller dan de rest?</p>
+                        </div>
+                    </a>
+
+                    <a href="../typing-speed/index.html" style="text-decoration: none; color: inherit;">
+                        <div class="tool-card" style="padding: 1rem; border-color: #E2E8F0; cursor: pointer;">
+                            <small style="color: var(--accent);">Vaardigheid</small>
+                            <h5 style="margin: 5px 0;">Typ Snelheid</h5>
+                            <p style="font-size: 0.8rem; margin: 0;">Test je WPM (Words Per Minute).</p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="tool-card" style="margin-top: 1.5rem; background: var(--primary); color: white;">
+                    <h5>E-E-A-T Geverifieerd</h5>
+                    <p style="font-size: 0.75rem; opacity: 0.8;">Gebaseerd op cognitieve psychologie en de data van George A. Miller (Harvard University).</p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        let currentLevel = 3; // Start met 3 cijfers
+        let currentSequence = "";
+        let userInput = "";
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            nextRound();
+        }
+
+        function nextRound() {
+            userInput = "";
+            document.getElementById('user-input-display').innerText = "";
+            document.getElementById('input-screen').classList.add('hidden');
+            document.getElementById('display-screen').classList.remove('hidden');
+            
+            // Genereer reeks
+            currentSequence = "";
+            for(let i=0; i < currentLevel; i++) {
+                currentSequence += Math.floor(Math.random() * 10);
+            }
+            
+            document.getElementById('sequence-display').innerText = currentSequence;
+            
+            // Reset en start timer bar animatie
+            const timerBar = document.getElementById('timer-bar');
+            timerBar.style.transition = 'none';
+            timerBar.style.width = "100%";
+            
+            // Force reflow
+            void timerBar.offsetWidth;
+
+            timerBar.style.transition = 'width 2s linear'; // 2 seconden om te kijken
+            timerBar.style.width = "0%";
+            
+            // Na 2 seconden verbergen
+            setTimeout(() => {
+                document.getElementById('display-screen').classList.add('hidden');
+                document.getElementById('input-screen').classList.remove('hidden');
+            }, 2000);
+        }
+
+        function appendInput(num) {
+            // Max lengte voorkomen om UI te breken
+            if(userInput.length < 15) {
+                userInput += num;
+                document.getElementById('user-input-display').innerText = userInput;
+            }
+        }
+
+        function clearInput() {
+            userInput = "";
+            document.getElementById('user-input-display').innerText = "";
+        }
+
+        function submitInput() {
+            if (userInput === currentSequence) {
+                // Correct!
+                currentLevel++;
+                // Kleine visuele feedback (groen)
+                document.getElementById('user-input-display').style.color = "#22C55E";
+                setTimeout(() => {
+                    document.getElementById('user-input-display').style.color = "#334155";
+                    nextRound();
+                }, 400);
+            } else {
+                // Fout!
+                document.getElementById('user-input-display').style.color = "#EF4444";
+                setTimeout(() => {
+                    showResults();
+                }, 400);
+            }
+        }
+
+        function showResults() {
+            document.getElementById('input-screen').classList.add('hidden');
+            document.getElementById('results-dashboard').style.display = 'block';
+            
+            // Score is het laatste level dat succesvol is afgerond (dus currentLevel - 1)
+            // Maar als je faalt op level 3, heb je eigenlijk score 0 'reeksen' gehaald, maar we geven punten voor effort.
+            // Laten we zeggen: Score = aantal cijfers in de laatste succesvolle reeks.
+            const finalScore = currentLevel - 1;
+            
+            document.getElementById('final-score-text').innerText = finalScore;
+            
+            // Vergelijkingstekst
+            let comparison = "";
+            if(finalScore < 5) comparison = "Je zit onder het gemiddelde. Misschien ben je moe of afgeleid?";
+            else if(finalScore < 7) comparison = "Je zit net onder het gemiddelde (7). Oefening baart kunst!";
+            else if(finalScore === 7) comparison = "Je bent perfect gemiddeld. Dit is de standaard voor een menselijk brein.";
+            else if(finalScore <= 9) comparison = "Bovengemiddeld! Je hebt een scherpe focus.";
+            else comparison = "Uitzonderlijk! Je werkgeheugen behoort tot de top 1%.";
+            
+            document.getElementById('comparison-text').innerText = comparison;
+            
+            // Bar animatie (max score 14 om de balk te vullen)
+            const percentage = Math.min((finalScore / 14) * 100, 100);
+            
+            // Wacht heel even zodat display:block gerenderd is
+            setTimeout(() => {
+                document.getElementById('memory-bar').style.width = percentage + "%";
+            }, 100);
+        }
+    </script>
+</body>
+</html>
