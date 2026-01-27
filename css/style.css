@@ -1,9 +1,9 @@
-/* HUMAN AVERAGE - MASTER STYLESHEET V3.1
-   Updates: Fixed H1 line-height, Added dedicated Article-card styles
+/* HUMAN AVERAGE - MASTER STYLESHEET V4.0
+   Updates: Global Dark Header, Game Interfaces, Trust Badge
 */
 
 /* 1. IMPORTS & VARIABELEN */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,500;0,700;1,400&family=Geist+Mono:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=Lora:ital,wght@0,500;0,700;1,400&family=Geist+Mono:wght@400;600;700&display=swap');
 
 :root {
     /* Kleuren: Deep Archive Theme */
@@ -14,7 +14,7 @@
     --accent-glow: rgba(37, 99, 235, 0.15);
     
     /* Tekst */
-    --text-main: #1E293B;
+    --text-main: #334155; /* Iets zachter dan puur zwart */
     --text-muted: #64748B;
     --text-light: #94A3B8;
 
@@ -35,7 +35,6 @@
         0 20px 25px -5px rgba(0, 0, 0, 0.05), 
         0 8px 10px -6px rgba(0, 0, 0, 0.01);
 
-    /* Transities */
     --ease: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -49,6 +48,7 @@ body {
     background-color: var(--bg-body);
     color: var(--text-main);
     line-height: 1.6;
+    /* Subtiele achtergrond pattern */
     background-image: 
         radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
         radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
@@ -58,11 +58,10 @@ body {
 h1, h2, h3, h4 {
     font-family: 'Lora', serif;
     color: var(--primary);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.02em;
 }
 
-/* Voor grote data cijfers */
 .stat-number {
     font-family: 'Geist Mono', monospace;
     font-weight: 700;
@@ -76,33 +75,34 @@ h1, h2, h3, h4 {
     padding: 0 24px;
 }
 
-/* Navigatie (Glassmorphism) */
+/* Navigatie - Aangepast voor Dark Header */
 nav {
-    position: sticky;
+    position: absolute; /* Ligt nu OP de header */
     top: 0;
+    width: 100%;
     z-index: 1000;
-    background: rgba(248, 250, 252, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-    padding: 1rem 0;
+    padding: 1.5rem 0;
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
 }
 
 .nav-content { display: flex; justify-content: space-between; align-items: center; }
 
 .logo {
     font-family: 'Geist Mono', monospace;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 1.25rem;
-    color: var(--primary);
+    color: white; /* Wit voor op donkere header */
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 8px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .nav-links a {
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.8);
     text-decoration: none;
     margin-left: 32px;
     font-size: 0.95rem;
@@ -110,64 +110,204 @@ nav {
     transition: color 0.2s;
 }
 
-.nav-links a:hover { color: var(--accent); }
+.nav-links a:hover { color: white; }
 
-/* 4. HERO SECTIE */
+/* 4. HERO SECTIE (De Nieuwe Dark Style) */
 .hero {
-    padding: 6rem 0 4rem;
+    /* Gradient Background */
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    color: white;
+    padding: 8rem 0 5rem; /* Meer ruimte boven ivm absolute nav */
     text-align: center;
+    margin-bottom: 3rem;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.3);
 }
 
 .hero h1 {
-    font-size: clamp(2.5rem, 5vw, 4.5rem);
-    /* FIX: Line-height verhoogd zodat letters als 'g' niet afgesneden worden */
-    line-height: 1.3; 
-    margin-bottom: 1.5rem;
-    background: linear-gradient(180deg, var(--primary) 0%, #334155 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    padding-bottom: 0.2em; /* Extra veiligheid voor descenders */
+    font-family: 'Inter', sans-serif; /* Modern, clean font voor hero */
+    font-weight: 800;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1.2; 
+    margin-bottom: 1rem;
+    color: white; /* Forceer wit */
+    background: none;
+    -webkit-text-fill-color: initial;
 }
 
 .hero p {
-    font-size: 1.25rem;
-    color: var(--text-muted);
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.8);
     max-width: 600px;
     margin: 0 auto 2rem;
+    font-weight: 400;
 }
 
-/* Trust Bar (E-E-A-T) */
-.trust-bar {
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    padding: 1.5rem 0;
-    margin-bottom: 4rem;
-    background: rgba(255,255,255,0.5);
+/* Knoppen */
+.btn {
+    background: var(--accent);
+    color: white;
+    padding: 14px 32px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-block;
 }
 
-.trust-content {
+.btn:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+}
+
+/* 5. CONTENT SECTIES & TOOLS */
+.tool-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 3rem;
+    margin-top: -4rem; /* Overlap effect met header */
+    position: relative;
+    z-index: 10;
+}
+
+/* Witte 'Paper' Card Style voor Content */
+.content-section {
+    background: var(--bg-card);
+    padding: 2.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    margin-top: 2rem;
+    border: 1px solid var(--border);
+}
+
+.content-section h2 { margin-top: 0; font-size: 1.8rem; margin-bottom: 1rem; }
+.content-section h3 { font-size: 1.25rem; margin-top: 2rem; margin-bottom: 0.5rem; }
+.content-section p { margin-bottom: 1.5rem; color: #475569; font-size: 1.05rem; }
+
+/* 6. GAME INTERFACE ELEMENTS (Nieuw!) */
+.tool-card.glass {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+#game-container {
+    min-height: 350px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    font-size: 0.85rem;
-    color: var(--text-light);
-    font-family: 'Geist Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
-/* 5. BENTO GRID SYSTEM */
+#sequence-display {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: 12px;
+    color: var(--primary);
+    margin: 2rem 0;
+    min-height: 5rem;
+    user-select: none;
+}
+
+/* Numpad Styling */
+.number-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    max-width: 340px;
+    margin: 0 auto;
+}
+
+.numpad-btn {
+    padding: 16px;
+    font-size: 1.5rem;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    color: var(--primary);
+    font-weight: 700;
+    box-shadow: 0 4px 0 var(--border); /* 3D effect */
+}
+
+.numpad-btn:active {
+    transform: translateY(4px); /* Indrukken effect */
+    box-shadow: none;
+}
+
+/* Resultaten Balken */
+.memory-bar-container {
+    height: 24px;
+    background: var(--border);
+    border-radius: 12px;
+    margin: 30px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.memory-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3B82F6, #2563EB);
+    width: 0%;
+}
+
+.average-marker {
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--primary);
+    opacity: 0.3;
+    z-index: 2;
+}
+
+.average-label {
+    position: absolute;
+    left: 50%;
+    top: -22px;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+/* 7. TRUST BADGE (Vervangt E-E-A-T Box) */
+.trust-badge {
+    margin-top: 1.5rem;
+    background: #EFF6FF; /* Lichtblauw */
+    border: 1px solid #BFDBFE;
+    color: #1E40AF;
+    padding: 1.2rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.trust-badge i { font-size: 1.2rem; margin-top: 2px; color: var(--accent); }
+.trust-badge h5 { margin: 0; font-family: 'Inter', sans-serif; font-size: 0.95rem; color: #1E40AF; }
+.trust-badge p { margin: 4px 0 0 0; font-size: 0.8rem; opacity: 0.9; color: #1E40AF; }
+
+/* 8. BENTO GRID (Homepage) */
 .bento-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 24px;
     grid-auto-rows: 240px; 
     grid-auto-flow: dense; 
+    margin-top: -4rem; /* Overlap met hero */
+    position: relative;
+    z-index: 10;
 }
 
-/* Bento Card Base */
 .tool-card {
     background: var(--bg-card);
     border-radius: var(--radius-lg);
@@ -184,181 +324,68 @@ nav {
     overflow: hidden;
 }
 
-/* Interactie */
 .tool-card:hover {
-    transform: translateY(-4px) scale(1.005);
+    transform: translateY(-4px);
     box-shadow: var(--shadow-hover);
     border-color: var(--accent);
 }
 
-.tool-card:hover .icon-box {
-    background-color: var(--accent);
-    color: white;
-    transform: rotate(-5deg);
-}
-
-/* Bento Variaties */
-.col-span-2 { grid-column: span 2; }
-.row-span-2 { grid-row: span 2; }
-
-/* Card Content */
-.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
-
+.card-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
 .icon-box {
-    width: 50px;
-    height: 50px;
+    width: 50px; height: 50px;
     background: var(--bg-body);
     border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    color: var(--primary);
-    transition: all 0.3s var(--ease);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; color: var(--primary);
 }
 
-.tool-card h3 {
-    font-family: 'Inter', sans-serif;
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
-}
-
-.tool-card p {
-    font-size: 0.95rem;
-    color: var(--text-muted);
-}
-
+.col-span-2 { grid-column: span 2; }
 .status-badge {
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    font-family: 'Geist Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--text-light);
-    opacity: 0;
-    transform: translateX(10px);
-    transition: all 0.3s var(--ease);
+    position: absolute; bottom: 2rem; right: 2rem;
+    font-family: 'Geist Mono', monospace; font-size: 0.75rem;
+    color: var(--text-light); opacity: 0;
+    transition: all 0.3s;
 }
+.tool-card:hover .status-badge { opacity: 1; }
 
-.tool-card:hover .status-badge {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-/* 6. ADSENSE & ARTIKELEN */
+/* 9. FOOTER & OVERIG */
 .ad-container {
     background: #F1F5F9;
     border-radius: var(--radius-sm);
     overflow: hidden;
     margin: 2rem 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 250px; 
+    display: flex; align-items: center; justify-content: center;
+    min-height: 150px; 
+    border: 1px dashed var(--border);
 }
 
-.ad-label {
-    font-family: 'Geist Mono', monospace;
-    font-size: 0.7rem;
-    color: #CBD5E1;
-    text-transform: uppercase;
-}
+.ad-label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: #CBD5E1; text-transform: uppercase; }
 
-.articles-section {
-    padding: 4rem 0;
-    border-top: 1px solid var(--border);
-    margin-top: 4rem;
-}
-
-.article-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2.5rem;
-    margin-top: 2rem;
-}
-
-/* FIX: Nieuwe class specifiek voor artikelen om clipping te voorkomen */
-.article-card {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    /* Belangrijk: geen overflow:hidden hier, en normale border-radius */
-    border-radius: 0; 
-}
-
-.article-card h3 {
-    font-size: 1.15rem;
-    margin-bottom: 0.75rem;
-}
-
-.article-card p {
-    font-size: 0.95rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-}
-
-.article-link {
-    color: var(--accent);
-    font-weight: 500;
-    font-size: 0.9rem;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: gap 0.2s;
-}
-
-.article-link:hover {
-    gap: 8px;
-}
-
-/* 7. FOOTER */
 footer {
-    background: var(--white);
+    background: white;
     border-top: 1px solid var(--border);
     padding: 4rem 0 2rem;
-    margin-top: 4rem;
+    margin-top: 6rem;
 }
 
-.footer-content {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 2rem;
-}
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 2rem; }
+.footer-logo { font-family: 'Geist Mono', monospace; font-weight: 700; color: var(--primary); text-decoration: none; }
+.footer-links { display: flex; flex-direction: column; gap: 0.8rem; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+.copyright { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-light); font-size: 0.85rem; }
 
-.footer-links a {
-    color: var(--text-muted);
-    margin-right: 1.5rem;
-    text-decoration: none;
-    font-size: 0.9rem;
-}
-
-.copyright {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border);
-    text-align: center;
-    color: var(--text-light);
-    font-size: 0.85rem;
-}
-
-/* 8. RESPONSIVE */
+/* RESPONSIVE */
 @media (max-width: 1024px) {
-    .bento-grid {
-        grid-template-columns: repeat(2, 1fr);
-        grid-auto-rows: auto; 
-    }
-    .col-span-2 { grid-column: span 1; } 
-    .row-span-2 { grid-row: span 1; }    
+    .bento-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; }
+    .col-span-2 { grid-column: span 1; }  
+    .tool-grid { grid-template-columns: 1fr; margin-top: 0; }
+    .hero { padding: 6rem 1rem 3rem; border-radius: 0 0 20px 20px; }
 }
 
 @media (max-width: 768px) {
     .hero h1 { font-size: 2.5rem; }
-    .bento-grid { grid-template-columns: 1fr; gap: 16px; }
+    .bento-grid { grid-template-columns: 1fr; }
     .nav-content { flex-direction: column; gap: 1rem; }
-    .nav-links { width: 100%; display: flex; justify-content: space-between; }
-    .nav-links a { margin: 0; font-size: 0.85rem; }
-    .article-list { gap: 2rem; }
+    .nav-links { width: 100%; justify-content: center; }
+    .footer-grid { grid-template-columns: 1fr; }
 }
