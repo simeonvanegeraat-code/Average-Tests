@@ -280,22 +280,27 @@
             
             document.getElementById('sequence-display').innerText = currentSequence;
             
+            // --- DYNAMISCHE TIMER LOGICA ---
+            // 1 seconde basis + 0.8 seconden per cijfer om te lezen/chunken
+            const calculationTime = 1000 + (currentLevel * 800);
+
             // Reset en start timer bar animatie
             const timerBar = document.getElementById('timer-bar');
             timerBar.style.transition = 'none';
             timerBar.style.width = "100%";
             
-            // Force reflow
+            // Force reflow (Browser reset)
             void timerBar.offsetWidth;
 
-            timerBar.style.transition = 'width 2s linear'; // 2 seconden om te kijken
+            // Stel de berekende tijd in
+            timerBar.style.transition = `width ${calculationTime}ms linear`; 
             timerBar.style.width = "0%";
             
-            // Na 2 seconden verbergen
+            // Wacht de berekende tijd voordat we wisselen
             setTimeout(() => {
                 document.getElementById('display-screen').classList.add('hidden');
                 document.getElementById('input-screen').classList.remove('hidden');
-            }, 2000);
+            }, calculationTime);
         }
 
         function appendInput(num) {
@@ -334,9 +339,7 @@
             document.getElementById('input-screen').classList.add('hidden');
             document.getElementById('results-dashboard').style.display = 'block';
             
-            // Score is het laatste level dat succesvol is afgerond (dus currentLevel - 1)
-            // Maar als je faalt op level 3, heb je eigenlijk score 0 'reeksen' gehaald, maar we geven punten voor effort.
-            // Laten we zeggen: Score = aantal cijfers in de laatste succesvolle reeks.
+            // Score correctie: je score is het laatste level dat je *gehaald* hebt.
             const finalScore = currentLevel - 1;
             
             document.getElementById('final-score-text').innerText = finalScore;
