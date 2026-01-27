@@ -3,24 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kennisbank & Artikelen | HumanAverage</title>
+    <title>Kennisbank & Inzichten | HumanAverage</title>
     <meta name="description" content="Duik dieper in de data. Artikelen over gezondheid, vermogen, psychologie en menselijke prestaties.">
     
-    <link rel="stylesheet" href="../css/style.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571"
+     crossorigin="anonymous"></script>
+
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* HERO HEADER */
+        /* BASE STYLES */
+        :root { --primary: #2563eb; --secondary: #1e293b; --bg-light: #f8fafc; --white: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        a { text-decoration: none; }
+
+        /* NAVIGATIE */
+        nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 0; position: sticky; top: 0; z-index: 100; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 800; font-size: 1.5rem; color: var(--secondary); }
+        .logo span { color: var(--primary); }
+        .nav-links a { color: var(--text-gray); margin-left: 20px; font-weight: 600; font-size: 0.95rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* HERO HEADER - AANGEPAST VOOR CONTRAST */
         .blog-hero {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); /* Iets donkerder voor beter contrast */
             color: white;
             padding: 80px 20px;
             text-align: center;
             margin-bottom: 40px;
+            position: relative;
         }
 
-        .blog-hero h1 { font-size: 3rem; margin-bottom: 15px; }
-        .blog-hero p { font-size: 1.2rem; color: #94a3b8; max-width: 600px; margin: 0 auto; }
+        .blog-hero h1 { 
+            font-size: 3rem; 
+            margin-bottom: 15px; 
+            color: #ffffff !important; /* FORCEER WIT */
+            text-shadow: 0 4px 6px rgba(0,0,0,0.3); /* Tekst schaduw voor leesbaarheid */
+        }
+        
+        .blog-hero p { 
+            font-size: 1.2rem; 
+            color: #cbd5e1 !important; /* Lichtgrijs voor ondertitel */
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
 
         /* FILTER BAR */
         .filter-container {
@@ -58,7 +88,7 @@
             padding-bottom: 60px;
         }
 
-        /* PRO CARD DESIGN */
+        /* CARD DESIGN */
         .article-card {
             background: white;
             border-radius: 20px;
@@ -67,7 +97,6 @@
             transition: transform 0.3s, box-shadow 0.3s;
             display: flex;
             flex-direction: column;
-            text-decoration: none;
             color: inherit;
         }
 
@@ -79,10 +108,9 @@
 
         .card-img-top {
             height: 200px;
-            background-color: #cbd5e1; /* Placeholder kleur */
+            background-color: #cbd5e1;
             background-size: cover;
             background-position: center;
-            position: relative;
         }
 
         .card-body {
@@ -127,7 +155,7 @@
             align-items: center;
         }
 
-        /* LOADING STATE SKELETON */
+        /* SKELETON LOADING */
         .skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
             background-size: 200% 100%;
@@ -135,15 +163,21 @@
         }
         @keyframes loading { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
+        /* FOOTER */
+        footer { text-align: center; padding: 2rem; color: var(--text-gray); font-size: 0.8rem; margin-top: 3rem; border-top: 1px solid var(--border); background: var(--white); }
+        footer a { color: var(--primary); text-decoration: none; margin: 0 5px; }
     </style>
 </head>
 <body>
 
     <nav>
         <div class="container nav-content">
-            <a href="../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+            <a href="../index.html" class="logo">HUMAN<span>AVERAGE</span></a>
             <div class="nav-links">
-                </div>
+                <a href="../index.html">Home</a>
+                <a href="../tools/index.html">Tools</a>
+                <a href="../about.html">Over ons</a>
+            </div>
         </div>
     </nav>
 
@@ -159,7 +193,7 @@
             <button class="filter-btn active" onclick="filterArticles('all')">Alles</button>
             <button class="filter-btn" onclick="filterArticles('Geld')">Geld & Vermogen</button>
             <button class="filter-btn" onclick="filterArticles('Gezondheid')">Gezondheid</button>
-            <button class="filter-btn" onclick="filterArticles('Productiviteit')">Productiviteit</button>
+            <button class="filter-btn" onclick="filterArticles('Psychologie')">Psychologie</button>
         </div>
 
         <div class="articles-grid" id="article-list">
@@ -182,35 +216,67 @@
         </div>
     </main>
 
-    <script src="../js/main.js"></script>
+    <footer>
+        <p>&copy; 2026 HumanAverage.com. <a href="../privacy.html">Privacy</a> | <a href="../terms.html">Voorwaarden</a></p>
+    </footer>
+
     <script>
-        let allArticles = [];
+        // DATA: Direct in de code
+        const articlesData = [
+            {
+                "id": 1,
+                "title": "Gemiddeld Salaris Wereldwijd 2026: Waar sta jij?",
+                "description": "Ontdek de feiten over wereldwijde inkomens, koopkracht en hoe jij scoort op de globale ladder. Gebaseerd op data van de Wereldbank.",
+                "category": "Geld",
+                "date": "2026-01-15",
+                "readTime": "6 min",
+                "image": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=800&q=80",
+                "url": "gemiddeld-salaris.html"
+            },
+            {
+                "id": 2,
+                "title": "Tips voor een snellere reactietijd: Train je reflexen",
+                "description": "Ontdek hoe je jouw reflexen kunt trainen en wat de wetenschap zegt over sneller reageren. Inclusief tips over slaap en voeding.",
+                "category": "Gezondheid",
+                "date": "2026-01-20",
+                "readTime": "5 min",
+                "image": "https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=80",
+                "url": "reactiesnelheid.html"
+            },
+            {
+                "id": 3,
+                "title": "Waarom 'gemiddeld' zijn eigenlijk heel oké is",
+                "description": "De psychologie achter onze drang om altijd 'bovengemiddeld' te willen scoren en waarom rust vinden in het midden gezond is.",
+                "category": "Psychologie",
+                "date": "2026-01-10",
+                "readTime": "4 min",
+                "image": "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80",
+                "url": "waarom-gemiddeld.html"
+            }
+        ];
 
-        // 1. Data ophalen
-        fetch('articles.json')
-            .then(response => response.json())
-            .then(data => {
-                allArticles = data;
-                renderArticles(allArticles); // Toon alles bij start
-            })
-            .catch(err => {
-                console.error("Error loading articles:", err);
-                document.getElementById('article-list').innerHTML = "<p style='text-align:center;'>Kon artikelen niet laden.</p>";
-            });
+        let allArticles = articlesData;
 
-        // 2. Render Functie (Maakt de HTML)
+        // Render Functie (Start direct)
+        document.addEventListener("DOMContentLoaded", () => {
+             // Simuleer een korte laadtijd voor het skeleton effect
+             setTimeout(() => {
+                 renderArticles(allArticles);
+             }, 400); 
+        });
+
         function renderArticles(articles) {
             const list = document.getElementById('article-list');
             list.innerHTML = ''; // Maak leeg (verwijdert skeletons)
-
-            // Fade-in effect voor soepele transitie
             list.style.opacity = '0';
 
-            articles.forEach(article => {
-                // Check of er een image is, anders fallback
-                const bgImage = article.image ? `url('${article.image}')` : 'linear-gradient(135deg, #e2e8f0, #cbd5e1)';
-                const date = article.date || 'Recent';
+            if(articles.length === 0) {
+                list.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">Geen artikelen gevonden in deze categorie.</p>';
+            }
 
+            articles.forEach(article => {
+                const bgImage = article.image ? `url('${article.image}')` : 'linear-gradient(135deg, #e2e8f0, #cbd5e1)';
+                
                 const card = `
                     <a href="${article.url}" class="article-card">
                         <div class="card-img-top" style="background-image: ${bgImage};"></div>
@@ -219,7 +285,7 @@
                             <h3 class="card-title">${article.title}</h3>
                             <p class="card-desc">${article.description}</p>
                             <div class="card-footer">
-                                <span><i class="fa-regular fa-clock"></i> ${article.readTime || '5 min'}</span>
+                                <span><i class="fa-regular fa-clock"></i> ${article.readTime}</span>
                                 <span style="font-weight:700; color:var(--primary);">Lezen <i class="fa-solid fa-arrow-right"></i></span>
                             </div>
                         </div>
@@ -228,16 +294,16 @@
                 list.innerHTML += card;
             });
 
-            // Fade-in animatie starten
+            // Fade-in effect
             setTimeout(() => {
                 list.style.transition = 'opacity 0.5s ease';
                 list.style.opacity = '1';
             }, 50);
         }
 
-        // 3. Filter Functie
+        // Filter Functie
         function filterArticles(category) {
-            // Update active button state
+            // Update buttons
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
