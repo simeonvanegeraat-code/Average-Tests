@@ -6,7 +6,7 @@
     "category": "Gezondheid",
     "date": "2026-01-28",
     "readTime": "3 min",
-    "image": ""
+    "image": "/assets/img/"
   },
   {
     "title": "Tips voor een snellere reactietijd",
@@ -33,6 +33,6 @@
     "category": "Psychologie",
     "date": "2026-01-25",
     "readTime": "4 min",
-    "image": ""
+    "image": "/assets/img/gemiddeld.jpg"
   }
 ]
