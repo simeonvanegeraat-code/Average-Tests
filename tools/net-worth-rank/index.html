@@ -7,7 +7,7 @@
     <meta name="description" content="Bereken je wereldwijde vermogenspositie. Zit jij in de top 10% of zelfs de top 1%? Gebaseerd op het Global Wealth Report data.">
     
     <link rel="stylesheet" href="../../css/style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <script type="application/ld+json">
     {
@@ -24,24 +24,18 @@
         /* --- MASTER FRAMEWORK STYLING --- */
         .ha-tool-container {
             max-width: 900px;
-            margin: 40px auto;
+            margin: -3rem auto 3rem; /* Negatieve margin voor overlap met Hero */
             background: #fff;
             border-radius: 24px;
-            box-shadow: var(--shadow, 0 10px 30px rgba(0,0,0,0.08));
+            /* Gebruik de globale variabele voor schaduw */
+            box-shadow: var(--shadow-card);
             overflow: hidden;
-        }
-
-        /* ZONE 1: HERO (Goud/Donkerblauw voor Wealth Vibe) */
-        .ha-hero {
-            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
-            color: white;
-            padding: 60px 30px;
-            text-align: center;
             position: relative;
+            z-index: 10;
+            border: 1px solid var(--border);
         }
 
-        /* Gold accent */
-        .ha-hero i { color: #fbbf24; }
+        /* Oude .ha-hero verwijderd -> vervangen door globale header */
 
         /* ZONE 2: INPUTS */
         .ha-input-zone {
@@ -69,6 +63,7 @@
             font-size: 1.1rem;
             background: white;
             transition: border-color 0.2s;
+            font-family: inherit;
         }
         
         .ha-input:focus { outline: none; border-color: #fbbf24; }
@@ -172,20 +167,32 @@
 </head>
 <body>
 
-    <nav>
+    <nav style="position: relative; background: var(--primary);">
         <div class="container nav-content">
-            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-main)">AVERAGE</span></a>
+            <a href="../../index.html" class="logo">
+                <i class="fa-solid fa-chart-pie"></i>
+                HUMAN<span>AVERAGE</span>
+            </a>
+            <div class="nav-links">
+                <a href="../../index.html#tools">Terug naar Tools</a>
+                <a href="../../articles/index.html">Inzichten</a>
+                <a href="../../about.html">Over Data</a>
+            </div>
         </div>
     </nav>
 
-    <main>
-        <div class="ha-tool-container">
-            <div class="ha-hero">
-                <i class="fa-solid fa-scale-balanced" style="font-size: 3.5rem; margin-bottom: 20px;"></i>
-                <h1>Global Net Worth Rank</h1>
-                <p>Vul je vermogen in en ontdek je plek op de wereldwijde welvaartsladder. Het resultaat zal je waarschijnlijk verbazen.</p>
-            </div>
+    <header class="hero" style="padding: 6rem 0 5rem; margin-bottom: 0; border-radius: 0;">
+        <div class="container">
+            <i class="fa-solid fa-scale-balanced" style="font-size: 3rem; margin-bottom: 20px; color: #fbbf24;"></i>
+            <h1>Global Net Worth Rank</h1>
+            <p>Vul je vermogen in en ontdek je plek op de wereldwijde welvaartsladder.</p>
+        </div>
+    </header>
 
+    <main class="container">
+        
+        <div class="ha-tool-container">
+            
             <div class="ha-input-zone">
                 <div class="ha-input-group">
                     <label>Jouw Totale Vermogen</label>
@@ -271,9 +278,40 @@
             <h3>Vermogen vs. Inkomen</h3>
             <p>Veel mensen verwarren een hoog inkomen met vermogen. Vermogen (Net Worth) is wat er overblijft: al je bezittingen min al je schulden. Dit is de echte maatstaf voor financiële vrijheid.</p>
         </article>
+
     </main>
 
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="../../index.html" class="footer-logo">HUMANAVERAGE</a>
+                    <p style="color: #94a3b8; font-size: 0.9rem; max-width: 300px;">
+                        Vergelijk, leer en begrijp je positie in de wereld.
+                    </p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Platform</h4>
+                    <a href="../../index.html#tools">Alle Tools</a>
+                    <a href="../../articles/index.html">Artikelen</a>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Juridisch</h4>
+                    <a href="../../privacy.html">Privacybeleid</a>
+                    <a href="../../contact.html">Contact</a>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2026 HumanAverage.com. Alle rechten voorbehouden.</p>
+            </div>
+        </div>
+    </footer>
+
     <script src="../../js/main.js"></script>
+
     <script>
         function calculateRank() {
             const worth = parseFloat(document.getElementById('inp-worth').value);

@@ -7,7 +7,7 @@
     <meta name="description" content="Test je reactiesnelheid online. Vergelijk je reflexen met het menselijk gemiddelde en ontdek of jij sneller bent dan een gemiddelde gamer of atleet.">
     
     <link rel="stylesheet" href="../../css/style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <script type="application/ld+json">
     {
@@ -34,7 +34,7 @@
             width: 100%;
             max-width: 650px;
             height: 350px;
-            margin: 30px auto;
+            margin: 0 auto; /* Margin aangepast: wordt nu in container geplaatst */
             border-radius: 24px;
             display: flex;
             flex-direction: column;
@@ -45,13 +45,17 @@
             user-select: none;
             text-align: center;
             padding: 20px;
-            box-shadow: var(--shadow);
+            /* Shadow variabele uit main CSS of fallback */
+            box-shadow: var(--shadow-card);
         }
 
         /* Status Kleuren */
         .waiting { background-color: var(--primary); color: white; }
         .get-ready { background-color: #ef4444; color: white; }
-        .click-now { background-color: var(--secondary); color: white; }
+        .click-now { background-color: var(--secondary); color: white; } /* Aanname: secondary is defined, anders fallback */
+        /* Fallback voor click-now als var(--secondary) niet bestaat in main css: */
+        .click-now { background-color: #22C55E; color: white; } 
+        
         .result { background-color: white; color: var(--text-main); border: 2px solid #e2e8f0; }
 
         .test-area i { font-size: 4rem; margin-bottom: 20px; }
@@ -76,49 +80,56 @@
 </head>
 <body>
 
-    <nav>
+    <nav style="position: relative; background: var(--primary);">
         <div class="container nav-content">
-            <a href="../../index.html" class="logo">HUMAN<span style="color:var(--text-muted)">AVERAGE</span></a>
+            <a href="../../index.html" class="logo">
+                <i class="fa-solid fa-chart-pie"></i>
+                HUMAN<span>AVERAGE</span>
+            </a>
             <div class="nav-links">
-                <a href="../../index.html">Tools</a>
-                <a href="../../articles/index.html">Artikelen</a>
-                <a href="../../about.html">Over ons</a>
+                <a href="../../index.html#tools">Terug naar Tools</a>
+                <a href="../../articles/index.html">Inzichten</a>
+                <a href="../../about.html">Over Data</a>
             </div>
         </div>
     </nav>
 
-    <main class="container">
-        <div style="text-align: center; margin-top: 40px;">
-            <h1 style="font-size: 2.5rem; letter-spacing: -1px;">Reactiesnelheid Test</h1>
-            <p style="color: var(--text-muted);">Ontdek hoe snel jouw hersenen visuele signalen verwerken. Gebruik je muis of de <strong>spatiebalk</strong>.</p>
+    <header class="hero" style="padding: 4rem 0 3rem; margin-bottom: 2rem; border-radius: 0;">
+        <div class="container">
+            <h1>Reactiesnelheid Test</h1>
+            <p>Ontdek hoe snel jouw hersenen visuele signalen verwerken. Gebruik je muis of de <strong>spatiebalk</strong>.</p>
         </div>
+    </header>
 
+    <main class="container">
+        
         <div id="game-box" class="test-area waiting" onclick="handleInput()">
             <i id="game-icon" class="fa-solid fa-bolt"></i>
             <h2 id="game-text">Klik of Spatiebalk om te starten</h2>
             <p id="game-subtext">Wacht op het groene scherm</p>
         </div>
 
-        <div id="stats-area" style="display: none; animation: fadeIn 0.5s ease; max-width: 650px; margin: 0 auto;">
-            <div class="card" style="text-align: center; border: 2px solid var(--secondary);">
-                <h3 style="font-size: 1.5rem;">Jouw Resultaat: <span id="ms-result" style="color: var(--secondary); font-size: 2.5rem;">0</span> ms</h3>
+        <div id="stats-area" style="display: none; animation: fadeIn 0.5s ease; max-width: 650px; margin: 30px auto 0;">
+            <div class="card" style="text-align: center; border: 2px solid #22C55E; padding: 2rem; border-radius: 12px; background: white; box-shadow: var(--shadow-card);">
+                <h3 style="font-size: 1.5rem;">Jouw Resultaat: <span id="ms-result" style="color: #22C55E; font-size: 2.5rem; font-weight:800;">0</span> ms</h3>
                 <div id="rank-container"></div>
-                <p id="comparison-text" style="margin-top: 15px; font-weight: 500;"></p>
+                <p id="comparison-text" style="margin-top: 15px; font-weight: 500; color: var(--text-main);"></p>
                 <button class="btn" style="margin-top: 20px; width: 100%;" onclick="resetGame()">Opnieuw proberen (of Spatiebalk)</button>
             </div>
         </div>
 
         <section class="info-section">
-            <div class="card">
+            <div class="content-section" style="margin-top:0;">
                 <h3>Wat is een goede score?</h3>
                 <p style="font-size: 0.95rem;">De gemiddelde reactiesnelheid van een mens op een visuele prikkel ligt rond de <strong>273 milliseconden</strong>. Factoren zoals leeftijd, vermoeidheid en zelfs de hardware van je computer (input lag) kunnen dit beïnvloeden.</p>
-                <ul style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                
+                <ul style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); padding-left: 20px;">
                     <li><strong>Top-atleten:</strong> 150ms - 200ms</li>
                     <li><strong>Gemiddelde gamer:</strong> 200ms - 250ms</li>
                     <li><strong>Gemiddelde volwassene:</strong> 250ms - 300ms</li>
                 </ul>
             </div>
-            <div class="card">
+            <div class="content-section" style="margin-top:0;">
                 <h3>Hoe kun je sneller worden?</h3>
                 <p style="font-size: 0.95rem;">Reflexen kunnen getraind worden. Een gezonde levensstijl, voldoende slaap en hydratatie zijn essentieel. Daarnaast kunnen specifieke oefeningen en games helpen om de neurale paden tussen je ogen en je vingers te versnellen.</p>
                 <p style="margin-top: 10px; font-size: 0.9rem; font-style: italic;">Wist je dat professionele F1-coureurs vaak een reactietijd hebben van onder de 200ms?</p>
@@ -126,11 +137,36 @@
         </section>
     </main>
 
-    <footer style="margin-top: 5rem; padding: 3rem 0; background: var(--white); border-top: 1px solid #e2e8f0; text-align: center;">
+    <footer>
         <div class="container">
-            <p>&copy; 2026 HumanAverage.com | <a href="../../privacy.html">Privacy</a> | <a href="../../contact.html">Contact</a></p>
+            <div class="footer-grid">
+                <div>
+                    <a href="../../index.html" class="footer-logo">HUMANAVERAGE</a>
+                    <p style="color: #94a3b8; font-size: 0.9rem; max-width: 300px;">
+                        Vergelijk, leer en begrijp je positie in de wereld.
+                    </p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Platform</h4>
+                    <a href="../../index.html#tools">Alle Tools</a>
+                    <a href="../../articles/index.html">Artikelen</a>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Juridisch</h4>
+                    <a href="../../privacy.html">Privacybeleid</a>
+                    <a href="../../contact.html">Contact</a>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2026 HumanAverage.com. Alle rechten voorbehouden.</p>
+            </div>
         </div>
     </footer>
+
+    <script src="../../js/main.js"></script>
 
     <script>
         let startTime;
