@@ -9,6 +9,15 @@
     "image": "/assets/img/reactie.jpg"
   },
 {
+    "title": "Hoeveel mensen zijn er op aarde?",
+    "description": "We zijn de grens van 8 miljard gepasseerd. Zie de realtime groei per seconde en de verdeling per continent.",
+    "url": "wereldbevolking-live.html",
+    "category": "Maatschappij",
+    "date": "2026-01-28",
+    "readTime": "3 min",
+    "image": ""
+  },
+{
     "title": "Hoe goed is jouw geheugen? (De 7+/-2 Regel)",
     "description": "Ontdek de limieten van het menselijk brein. Waarom onthouden we gemiddeld maar 7 dingen en hoe scoor jij?",
     "url": "geheugen-gemiddelde.html",
