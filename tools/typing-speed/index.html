@@ -178,7 +178,12 @@
                 <div class="typing-display" id="word-display" onclick="document.getElementById('input-field').focus()">
                 </div>
 
-                <input type="text" id="input-field" class="typing-input" placeholder="Typ hier om te starten..." autocomplete="off" spellcheck="false">
+                <input type="text" id="input-field" class="typing-input" 
+                       placeholder="Typ hier om te starten..." 
+                       autocomplete="off" 
+                       spellcheck="false" 
+                       autocapitalize="off" 
+                       autocorrect="off">
                 
                 <p style="text-align: center; margin-top: 15px; color: #94a3b8; font-size: 0.9rem;">
                     <i class="fa-solid fa-circle-info"></i> Druk op <b>SPATIE</b> om naar het volgende woord te gaan.
@@ -317,8 +322,8 @@
             if(e.data === " " || currentVal.endsWith(" ")) {
                 const typedWord = currentVal.trim();
                 
-                // Check of woord goed is
-                if(typedWord === words[wordIndex]) {
+                // FIX: Vergelijk alles in kleine letters (.toLowerCase)
+                if(typedWord.toLowerCase() === words[wordIndex].toLowerCase()) {
                     currentWordEl.classList.add('correct');
                     correctWordsCount++;
                     correctKeystrokes += typedWord.length + 1; // +1 voor spatie
@@ -338,7 +343,6 @@
                     nextWord.classList.add('active');
                     
                     // Auto-Scroll Logic
-                    // Als de volgende woord op een nieuwe regel (offset) staat die buiten beeld valt
                     if(nextWord.offsetTop > display.scrollTop + 60) {
                         display.scrollTop = nextWord.offsetTop - 20;
                     }
@@ -361,8 +365,6 @@
             input.disabled = true;
 
             // Berekeningen
-            // WPM = (All typed entries / 5) / Time (min)
-            // Dit is de gestandaardiseerde formule
             const wpm = Math.round((correctKeystrokes / 5));
             const accuracy = Math.round((correctWordsCount / wordIndex) * 100) || 0;
 
