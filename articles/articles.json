@@ -9,6 +9,15 @@
     "image": "/assets/img/reactie.jpg"
   },
 {
+    "title": "Hoeveel schermtijd is normaal?",
+    "description": "We spenderen gemiddeld 40% van onze wakkere tijd online. Bereken hoeveel jaar van je leven dit kost.",
+    "url": "schermtijd-gemiddelde.html",
+    "category": "Gezondheid",
+    "date": "2026-01-28",
+    "readTime": "4 min",
+    "image": "/assets/img/schermtijd.jpg"
+  },
+{
     "title": "Hoeveel mensen zijn er op aarde?",
     "description": "We zijn de grens van 8 miljard gepasseerd. Zie de realtime groei per seconde en de verdeling per continent.",
     "url": "wereldbevolking-live.html",
