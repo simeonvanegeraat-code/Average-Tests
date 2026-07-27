@@ -1,92 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us & Data Sources - HumanAverage</title>
-    <meta name="description" content="Learn about the mission of HumanAverage, our data sources (WHO, OECD), and how to contact us.">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9252617114074571"
-     crossorigin="anonymous"></script>
-
-    <style>
-        :root { --primary: #2563eb; --secondary: #1e293b; --accent: #10b981; --bg-light: #f8fafc; --white: #ffffff; --text-dark: #0f172a; --text-gray: #64748b; --border: #e2e8f0; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
-        
-        nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 800; font-size: 1.5rem; color: var(--secondary); text-decoration: none; }
-        .logo span { color: var(--primary); }
-        .nav-back { color: var(--text-gray); text-decoration: none; font-size: 0.9rem; }
-        
-        .container { max-width: 800px; margin: 0 auto; padding: 3rem 1rem; }
-        
-        header { text-align: center; margin-bottom: 3rem; }
-        h1 { font-size: 2.5rem; color: var(--secondary); margin-bottom: 1rem; }
-        
-        .content-box { background: var(--white); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 2rem; }
-        h2 { margin-bottom: 1rem; color: var(--secondary); border-bottom: 2px solid var(--bg-light); padding-bottom: 0.5rem; }
-        p { margin-bottom: 1rem; color: #334155; }
-        
-        ul { margin-bottom: 1rem; padding-left: 1.5rem; }
-        li { margin-bottom: 0.5rem; color: #334155; }
-
-        .contact-email { font-weight: 700; color: var(--primary); font-size: 1.2rem; }
-
-        .ad-slot { background: #e2e8f0; height: 100px; width: 100%; display: flex; align-items: center; justify-content: center; margin: 2rem 0; border: 1px dashed #cbd5e1; color: #64748b; border-radius: 8px; }
-
-        footer { text-align: center; padding: 2rem; color: var(--text-gray); font-size: 0.8rem; margin-top: 3rem; border-top: 1px solid var(--border); }
-        footer a { color: var(--primary); text-decoration: none; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Over HumanAverage</title>
+  <meta name="description" content="Waarom HumanAverage bestaat, wie de website maakt en welke redactionele principes we gebruiken.">
+  <link rel="canonical" href="https://www.humanaverage.com/about.html">
+  <meta name="theme-color" content="#15231f">
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/main.js"></script>
 </head>
 <body>
-
-    <nav>
-        <a href="index.html" class="logo">Human<span>Average</span></a>
-        <a href="index.html" class="nav-back">← Back to Home</a>
-    </nav>
-
-    <div class="container">
-        <header>
-            <h1>About HumanAverage</h1>
-            <p>Transparency, Data, and Facts.</p>
-        </header>
-
-        <div class="ad-slot">Google AdSense (Banner)</div>
-
-        <div class="content-box">
-            <h2>Our Mission</h2>
-            <p>At HumanAverage, we believe that understanding where you stand in the world shouldn't be complicated. We aggregate complex datasets from reputable global organizations and turn them into easy-to-understand tools and articles.</p>
-            <p>Whether you are curious about your height, your salary, or your coffee habits, our goal is to provide a neutral, data-driven perspective on human life in the 21st century.</p>
-        </div>
-
-        <div class="content-box">
-            <h2>Data Sources & Methodology</h2>
-            <p>We do not make up data. All statistics presented on this website are aggregated from publicly available reports by international organizations. Our primary sources include:</p>
-            <ul>
-                <li><strong>OECD (Organisation for Economic Co-operation and Development):</strong> For salary, work hours, and productivity data.</li>
-                <li><strong>WHO (World Health Organization):</strong> For health, life expectancy, and BMI statistics.</li>
-                <li><strong>NCD-RisC:</strong> For historical height and weight trends.</li>
-                <li><strong>World Bank:</strong> For population and demographic shifts.</li>
-            </ul>
-        </div>
-
-        <div class="content-box">
-            <h2>Contact Us</h2>
-            <p>Do you have a suggestion, did you spot an error in our data, or do you want to advertise with us?</p>
-            <p>You can reach our editorial team at:</p>
-            <p class="contact-email">firenature23@gmail.com</p>
-            <p style="font-size: 0.9rem; color: #64748b; margin-top: 1rem;">(We aim to reply within 48 hours).</p>
-        </div>
-
-        <div class="ad-slot">Google AdSense (Footer)</div>
+  <a class="skip-link" href="#inhoud">Ga naar de inhoud</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span>HumanAverage</a>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="hoofdnavigatie"><span aria-hidden="true">☰</span><span class="visually-hidden">Menu openen</span></button>
+      <nav class="site-nav" id="hoofdnavigatie" data-navigation aria-label="Hoofdnavigatie">
+        <a href="/">Home</a><a href="/tools/">Tests</a><a href="/articles/">Inzichten</a><a href="/methodology.html">Methode</a><a href="/about.html" aria-current="page">Over</a>
+      </nav>
     </div>
+  </header>
 
-    <footer>
-        <p>&copy; 2025 HumanAverage.com. <a href="legal/privacy.html">Privacy</a> | <a href="legal/terms.html">Terms</a></p>
-    </footer>
+  <main id="inhoud">
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">Achter de website</p>
+        <h1>Een klein project met een duidelijke belofte</h1>
+        <p>Geen anonieme “onderzoeksgroep”, maar een onafhankelijk hobbyproject van Simeon.</p>
+      </div>
+    </section>
 
+    <article class="content">
+      <p class="lead">
+        HumanAverage is gestart op 20 oktober 2025. De website maakt alledaagse menselijke prestaties
+        meetbaar en legt tegelijk uit waarom één online score nooit het hele verhaal vertelt.
+      </p>
+
+      <h2>Waarom HumanAverage bestaat</h2>
+      <p>
+        Online tests geven vaak een indrukwekkend precies getal of percentiel, zonder te vertellen waar
+        de vergelijking vandaan komt. HumanAverage kiest voor een andere aanpak: een werkende test,
+        een zichtbare berekening, oorspronkelijke bronnen en een eerlijke beschrijving van onzekerheid.
+      </p>
+
+      <h2>Wie maakt de website?</h2>
+      <p>
+        De website wordt uitgegeven en onderhouden door Simeon als onafhankelijk hobbyproject. Er is geen
+        medisch team, onderzoeksinstituut of grote redactie achter HumanAverage. Wanneer inhoud met software
+        of AI wordt voorbereid, blijft de uitgever verantwoordelijk voor de uiteindelijke controle,
+        bronkeuze en publicatie.
+      </p>
+
+      <h2>Redactionele uitgangspunten</h2>
+      <ul>
+        <li>We beschrijven alleen wat een test werkelijk meet.</li>
+        <li>We verzinnen geen deelnemersaantallen, beoordelingen, experts of wereldranglijsten.</li>
+        <li>We linken belangrijke onderzoeksclaims naar de oorspronkelijke publicatie waar dat mogelijk is.</li>
+        <li>We scheiden onze eigen berekening van resultaten uit extern onderzoek.</li>
+        <li>We corrigeren aantoonbare fouten en vermelden wanneer de methode voor het laatst is gecontroleerd.</li>
+      </ul>
+
+      <h2>Verdienmodel</h2>
+      <p>
+        HumanAverage is bedoeld als gratis toegankelijke website. In de toekomst kunnen advertenties de
+        kosten en verdere ontwikkeling helpen betalen. Advertenties veranderen niet de score van een test
+        of de conclusie van een artikel. Op dit moment bevat deze nieuwe versie geen advertentiecode.
+      </p>
+
+      <div class="callout">
+        <strong>Vraag, fout of suggestie?</strong>
+        <p>Bekijk de <a href="/contact.html">contactpagina</a>. Voor vragen over een score helpt het als je ook je apparaat, browser en invoermethode noemt.</p>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><a class="brand" href="/" style="color: var(--ink)"><span class="brand-mark" aria-hidden="true" style="border-color: var(--ink)"></span>HumanAverage</a><p>Een onafhankelijk hobbyproject van Simeon.</p></div>
+        <div><h3>Platform</h3><div class="footer-links"><a href="/tools/">Tests</a><a href="/articles/">Inzichten</a><a href="/methodology.html">Methode</a></div></div>
+        <div><h3>Over</h3><div class="footer-links"><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Voorwaarden</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© <span data-current-year>2026</span> HumanAverage</span><span>Laatst bijgewerkt: 27 juli 2026.</span></div>
+    </div>
+  </footer>
 </body>
 </html>

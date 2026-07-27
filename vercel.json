@@ -1,0 +1,88 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/tools/coffee-intake/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/global-population/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/height-comparator/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/life-expectancy/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/net-worth-rank/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/screen-time/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/sleep-debt/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/articles/tips-voor-snellere-reactietijd.html",
+      "destination": "/articles/reactiesnelheid-gemiddelde.html",
+      "permanent": true
+    },
+    {
+      "source": "/articles/schermtijd-gemiddelde.html",
+      "destination": "/articles/",
+      "permanent": true
+    },
+    {
+      "source": "/articles/wereldbevolking-live.html",
+      "destination": "/articles/",
+      "permanent": true
+    },
+    {
+      "source": "/articles/gemiddeld-salaris-wereldwijd-2026.html",
+      "destination": "/articles/",
+      "permanent": true
+    },
+    {
+      "source": "/articles/waarom-gemiddeld-zijn-ok-is.html",
+      "destination": "/articles/",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        }
+      ]
+    }
+  ]
+}

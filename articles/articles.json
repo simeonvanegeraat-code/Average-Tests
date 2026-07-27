@@ -1,74 +1,26 @@
 [
   {
-    "title": "Wat is de gemiddelde reactiesnelheid?",
-    "description": "Ben jij sneller dan de rest? Bekijk de data per leeftijd en zie direct hoe jouw reflexen scoren ten opzichte van het gemiddelde.",
+    "title": "Wat is een gemiddelde reactietijd?",
+    "description": "Een bronkritische uitleg over simpele visuele reactietijd, leeftijd en apparaatvertraging.",
     "url": "reactiesnelheid-gemiddelde.html",
-    "category": "Gezondheid",
-    "date": "2026-01-28",
-    "readTime": "3 min",
-    "image": "/assets/img/reactie.jpg"
+    "category": "Methode",
+    "date": "2026-07-27",
+    "readTime": "7 min"
   },
-{
-    "title": "Hoeveel schermtijd is normaal?",
-    "description": "We spenderen gemiddeld 40% van onze wakkere tijd online. Bereken hoeveel jaar van je leven dit kost.",
-    "url": "schermtijd-gemiddelde.html",
-    "category": "Gezondheid",
-    "date": "2026-01-28",
-    "readTime": "4 min",
-    "image": "/assets/img/schermtijd.jpg"
-  },
-{
-    "title": "Hoeveel mensen zijn er op aarde?",
-    "description": "We zijn de grens van 8 miljard gepasseerd. Zie de realtime groei per seconde en de verdeling per continent.",
-    "url": "wereldbevolking-live.html",
-    "category": "Maatschappij",
-    "date": "2026-01-28",
-    "readTime": "3 min",
-    "image": "/assets/img/mensen-op-aarde.jpg"
-  },
-{
-    "title": "Hoe goed is jouw geheugen? (De 7+/-2 Regel)",
-    "description": "Ontdek de limieten van het menselijk brein. Waarom onthouden we gemiddeld maar 7 dingen en hoe scoor jij?",
-    "url": "geheugen-gemiddelde.html",
-    "category": "Psychologie",
-    "date": "2026-01-28",
-    "readTime": "3 min",
-    "image": "/assets/img/geheugen.jpg"
-  },
-{
-    "title": "Wat is de gemiddelde typesnelheid (WPM)?",
-    "description": "Typ jij sneller dan het wereldgemiddelde van 40 WPM? Bekijk de standaarden voor professionals en doe de test.",
+  {
+    "title": "Hoe wordt typesnelheid berekend?",
+    "description": "Over de vijftekensconventie, nauwkeurigheid en een groot toetsenbordonderzoek.",
     "url": "typesnelheid-gemiddelde.html",
-    "category": "Productiviteit",
-    "date": "2026-01-28",
-    "readTime": "4 min",
-    "image": "/assets/img/snel-type.jpg"
+    "category": "Methode",
+    "date": "2026-07-27",
+    "readTime": "6 min"
   },
   {
-    "title": "Tips voor een snellere reactietijd",
-    "description": "Ontdek hoe je jouw reflexen kunt trainen en wat de wetenschap zegt over sneller reageren.",
-    "url": "tips-voor-snellere-reactietijd.html",
-    "date": "2026-01-26",
-    "category": "Prestaties",
-    "readTime": "5 min",
-    "image": "/assets/img/reflex-training.jpg"
-  },
-  {
-    "title": "Gemiddeld Salaris Wereldwijd 2026: Waar sta jij?",
-    "description": "Ontdek de feiten over wereldwijde inkomens, koopkracht en hoe jij scoort op de globale ladder.",
-    "url": "gemiddeld-salaris-wereldwijd-2026.html",
-    "date": "2026-01-25",
-    "category": "Economie",
-    "readTime": "6 min",
-    "image": "/assets/img/salary-2026.jpg"
-  },
-  {
-    "title": "Waarom gemiddeld zijn ok is",
-    "description": "De psychologie achter onze drang om altijd 'bovengemiddeld' te willen scoren en waarom rust vinden in het midden gezond is.",
-    "url": "waarom-gemiddeld-zijn-ok-is.html",
-    "category": "Psychologie",
-    "date": "2026-01-25",
-    "readTime": "4 min",
-    "image": "/assets/img/gemiddeld.jpg"
+    "title": "Zeven plus of min twee?",
+    "description": "Waarom Millers beroemde getal vaak te simpel wordt uitgelegd en wat Cowan later beschreef.",
+    "url": "geheugen-gemiddelde.html",
+    "category": "Onderzoek",
+    "date": "2026-07-27",
+    "readTime": "6 min"
   }
 ]
