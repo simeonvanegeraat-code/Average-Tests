@@ -1,414 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Typing Speed Test | Bereken je WPM | HumanAverage</title>
-    <meta name="description" content="Hoe snel typ jij? Test je Words Per Minute (WPM) en nauwkeurigheid in 60 seconden. Vergelijk je snelheid met het wereldwijde gemiddelde.">
-    
-    <link rel="stylesheet" href="../../css/style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Dutch Typing Speed Test",
-      "applicationCategory": "UtilityApplication",
-      "author": { "@type": "Organization", "name": "HumanAverage" },
-      "description": "Interactive typing test to measure words per minute and accuracy."
-    }
-    </script>
-
-    <style>
-        /* --- MASTER FRAMEWORK STYLING --- */
-        .ha-tool-container {
-            max-width: 900px;
-            /* Aangepast: negatieve margin voor overlap met Hero */
-            margin: -3rem auto 3rem;
-            background: #fff;
-            border-radius: 24px;
-            box-shadow: var(--shadow-card);
-            overflow: hidden;
-            position: relative;
-            z-index: 10;
-            border: 1px solid var(--border);
-        }
-
-        /* Oude .ha-hero verwijderd -> vervangen door globale header */
-
-        /* ZONE 2: TYPING ARENA */
-        .ha-input-zone {
-            padding: 40px;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        /* De Tekst Display Box */
-        .typing-display {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 15px 25px;
-            font-size: 1.4rem;
-            line-height: 2.2; /* Ruimte voor cursor */
-            height: 140px; /* 2 regels zichtbaar */
-            overflow: hidden; /* Verberg wat geweest is */
-            position: relative;
-            margin-bottom: 25px;
-            user-select: none;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
-            font-family: 'Courier New', Courier, monospace; /* Monospace voor typen voelt beter */
-        }
-
-        /* Woord status stijlen */
-        .word { margin-right: 12px; display: inline-block; color: #94a3b8; padding: 2px 5px; border-radius: 4px; }
-        .word.active { background: #e0e7ff; color: #3730a3; border-bottom: 2px solid #6366f1; }
-        .word.correct { color: #10b981; }
-        .word.wrong { color: #ef4444; text-decoration: line-through; }
-
-        /* Input Field */
-        .typing-input {
-            width: 100%;
-            padding: 18px;
-            font-size: 1.2rem;
-            border: 2px solid #cbd5e1;
-            border-radius: 12px;
-            outline: none;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-            font-family: inherit;
-        }
-        .typing-input:focus { border-color: #6366f1; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
-
-        /* Timer Badge */
-        .timer-badge {
-            background: #1e293b;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 700;
-            display: inline-block;
-            margin-bottom: 15px;
-        }
-
-        /* ZONE 3: DASHBOARD */
-        .ha-dashboard {
-            display: none;
-            padding: 40px;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        .ha-rank-badge {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .ha-stat-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .ha-stat-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            padding: 25px;
-            border-radius: 16px;
-            text-align: center;
-        }
-
-        .ha-value { font-size: 2rem; font-weight: 800; color: #1e293b; display: block; }
-        .ha-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
-
-        /* ZONE 4: CONTEXT */
-        .ha-article {
-            max-width: 800px;
-            margin: 60px auto;
-            padding: 0 20px;
-            line-height: 1.8;
-            color: #334155;
-        }
-        .ha-article h2 { color: #1e293b; margin-top: 40px; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 600px) { .ha-stat-grid { grid-template-columns: 1fr; } }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Typesnelheid test — WPM en nauwkeurigheid | HumanAverage</title>
+  <meta name="description" content="Meet in 60 seconden je typesnelheid in woorden per minuut en je nauwkeurigheid met een vaste Nederlandse tekst.">
+  <link rel="canonical" href="https://www.humanaverage.com/tools/typing-speed/">
+  <meta name="theme-color" content="#15231f">
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/main.js"></script>
+  <script defer src="/tools/typing-speed/typing.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HumanAverage typesnelheidtest",
+    "url": "https://www.humanaverage.com/tools/typing-speed/",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Webbrowser",
+    "inLanguage": "nl-NL",
+    "description": "Een lokale browsertest voor woorden per minuut en nauwkeurigheid.",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}
+  }
+  </script>
 </head>
 <body>
+  <a class="skip-link" href="#inhoud">Ga naar de test</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span>HumanAverage</a>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="hoofdnavigatie"><span aria-hidden="true">☰</span><span class="visually-hidden">Menu openen</span></button>
+      <nav class="site-nav" id="hoofdnavigatie" data-navigation aria-label="Hoofdnavigatie">
+        <a href="/">Home</a><a href="/tools/" aria-current="page">Tests</a><a href="/articles/">Inzichten</a><a href="/methodology.html">Methode</a><a href="/about.html">Over</a>
+      </nav>
+    </div>
+  </header>
 
-    <nav style="position: relative; background: var(--primary);">
-        <div class="container nav-content">
-            <a href="../../index.html" class="logo">
-                <i class="fa-solid fa-chart-pie"></i>
-                HUMAN<span>AVERAGE</span>
-            </a>
-            <div class="nav-links">
-                <a href="../../index.html#tools">Terug naar Tools</a>
-                <a href="../../articles/index.html">Inzichten</a>
-                <a href="../../about.html">Over Data</a>
+  <main id="inhoud">
+    <section class="page-hero">
+      <div class="container">
+        <div class="breadcrumbs"><a href="/tools/">Tests</a> / Typesnelheid</div>
+        <p class="eyebrow">60 seconden typen</p>
+        <h1>Hoe snel én precies typ je?</h1>
+        <p>Typ de voorbeeldtekst zo nauwkeurig mogelijk. De klok begint bij je eerste teken.</p>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="container tool-layout">
+        <div class="tool-panel">
+          <div class="tool-panel-header">
+            <strong>Typesnelheidtest</strong>
+            <span class="trial-count" id="typing-status">Klaar om te starten</span>
+          </div>
+          <div class="measure-panel">
+            <div class="typing-prompt" id="typing-prompt" aria-label="Tekst om over te typen"></div>
+            <label class="field-label" for="typing-input">Typ de tekst hierboven</label>
+            <textarea class="typing-input" id="typing-input" rows="7" disabled autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="typing-help"></textarea>
+            <p id="typing-help">Plakken is uitgeschakeld. Corrigeren met backspace mag.</p>
+            <div class="inline-stats" aria-live="polite">
+              <span class="stat-chip"><strong id="time-left">60</strong> seconden</span>
+              <span class="stat-chip"><strong id="live-wpm">0</strong> bruto WPM</span>
+              <span class="stat-chip"><strong id="live-accuracy">100</strong>% nauwkeurig</span>
             </div>
-        </div>
-    </nav>
-
-    <header class="hero" style="padding: 6rem 0 5rem; margin-bottom: 0; border-radius: 0;">
-        <div class="container">
-            <i class="fa-solid fa-keyboard" style="font-size: 3rem; margin-bottom: 20px; color: #a5b4fc;"></i>
-            <h1>Typing Speed Test</h1>
-            <p>Hoeveel woorden per minuut (WPM) haal jij? Het wereldwijde gemiddelde ligt op 41 WPM.</p>
-        </div>
-    </header>
-
-    <main class="container">
-        
-        <div class="ha-tool-container">
-            
-            <div class="ha-input-zone" id="test-zone">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="timer-badge" id="timer">60s</div>
-                    <button class="btn" onclick="restartTest()" style="padding: 5px 15px; font-size: 0.8rem; background: #94a3b8;">
-                        <i class="fa-solid fa-rotate-right"></i> Reset
-                    </button>
-                </div>
-
-                <div class="typing-display" id="word-display" onclick="document.getElementById('input-field').focus()">
-                </div>
-
-                <input type="text" id="input-field" class="typing-input" 
-                       placeholder="Typ hier om te starten..." 
-                       autocomplete="off" 
-                       spellcheck="false" 
-                       autocapitalize="off" 
-                       autocorrect="off">
-                
-                <p style="text-align: center; margin-top: 15px; color: #94a3b8; font-size: 0.9rem;">
-                    <i class="fa-solid fa-circle-info"></i> Druk op <b>SPATIE</b> om naar het volgende woord te gaan.
-                </p>
+            <div class="button-row">
+              <button class="button" type="button" id="start-typing">Start test</button>
+              <button class="button ghost" type="button" id="reset-typing">Opnieuw</button>
             </div>
-
-            <div id="dashboard" class="ha-dashboard">
-                <div class="ha-rank-badge">
-                    <span style="font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; opacity: 0.9;">Jouw Snelheid</span>
-                    <span style="font-size: 4rem; font-weight: 900; line-height: 1; display:block; margin: 10px 0;"><span id="res-wpm">0</span> WPM</span>
-                    <p id="res-msg" style="font-size: 1.1rem; font-weight: 500;">Dat is sneller dan 80% van de mensen!</p>
-                </div>
-
-                <div class="ha-stat-grid">
-                    <div class="ha-stat-card">
-                        <i class="fa-solid fa-bullseye" style="color: #6366f1; font-size: 1.5rem; margin-bottom: 10px;"></i>
-                        <span class="ha-value" id="res-acc">100%</span>
-                        <span class="ha-label">Nauwkeurigheid</span>
-                    </div>
-                    <div class="ha-stat-card">
-                        <i class="fa-solid fa-font" style="color: #10b981; font-size: 1.5rem; margin-bottom: 10px;"></i>
-                        <span class="ha-value" id="res-chars">0</span>
-                        <span class="ha-label">Karakters</span>
-                    </div>
-                    <div class="ha-stat-card">
-                        <i class="fa-solid fa-trophy" style="color: #f59e0b; font-size: 1.5rem; margin-bottom: 10px;"></i>
-                        <span class="ha-value" id="res-rank">Top 20%</span>
-                        <span class="ha-label">Ranglijst</span>
-                    </div>
-                </div>
-
-                <button class="btn" onclick="restartTest()" style="width: 100%; margin-top: 30px; background: #6366f1;">Opnieuw Testen</button>
-            </div>
+            <div class="source-note" id="typing-result" hidden aria-live="polite"></div>
+          </div>
         </div>
 
-        <article class="ha-article">
-            <h2>Wat is een goede typesnelheid?</h2>
-            <p>De gemiddelde typesnelheid ligt wereldwijd rond de <b>41 WPM</b> (Words Per Minute) met een nauwkeurigheid van 92%. Voor professionele functies waar veel typwerk bij komt kijken, wordt vaak 60 tot 75 WPM verwacht.</p>
-            
-            <h3>Hoe wordt WPM berekend?</h3>
-            <p>De standaardformule voor WPM is: <code>(Aantal Karakters / 5) / Tijd in minuten</code>. Hierbij wordt elk "woord" gestandaardiseerd naar 5 karakters, zodat het eerlijk is ongeacht of je lange of korte woorden typt.</p>
-            
-            <h3>Tips om sneller te typen</h3>
-            <ul>
-                <li><b>Blind typen:</b> Leer typen zonder naar je toetsenbord te kijken. Dit is de grootste winstpakker.</li>
-                <li><b>Houding:</b> Zorg dat je polsen steun hebben en je rug recht is.</li>
-                
+        <aside class="side-panel">
+          <h2>Zo tellen we</h2>
+          <p>Vijf getypte tekens gelden als één “woord”. Dat is een meetconventie, geen telling van echte Nederlandse woorden.</p>
+          <ul>
+            <li>Bruto WPM gebruikt alle getypte tekens.</li>
+            <li>Nauwkeurigheid vergelijkt ieder teken met de voorbeeldtekst.</li>
+            <li>Netto WPM combineert snelheid en nauwkeurigheid.</li>
+          </ul>
+          <div class="privacy-note"><strong>Lokaal</strong><br>De tekst die je typt verlaat deze pagina niet.</div>
+          <p style="margin-bottom: 0;"><a href="/methodology.html#typen">Bekijk de formule →</a></p>
+        </aside>
+      </div>
+    </section>
 
-[Image of correct typing posture]
+    <section class="section tint">
+      <div class="narrow tool-copy">
+        <p class="eyebrow">Je resultaat plaatsen</p>
+        <h2>WPM zonder nauwkeurigheid vertelt maar de helft</h2>
+        <p>
+          In een groot online onderzoek met 168.000 vrijwillige deelnemers lag de gemiddelde snelheid rond
+          52 WPM en typte de meerderheid 30–60 WPM. De steekproef was zelfgeselecteerd en de taak verschilde
+          van deze Nederlandse test. Zie het daarom als onderzoekscontext, niet als persoonlijke norm.
+        </p>
+        <div class="button-row"><a class="button ghost" href="/articles/typesnelheid-gemiddelde.html">Lees het bronnenartikel</a></div>
+      </div>
+    </section>
+  </main>
 
-                <li><b>Nauwkeurigheid voor snelheid:</b> Probeer eerst foutloos te typen. Snelheid komt vanzelf als je niet hoeft te corrigeren.</li>
-            </ul>
-        </article>
-    </main>
-
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div>
-                    <a href="../../index.html" class="footer-logo">HUMANAVERAGE</a>
-                    <p style="color: #94a3b8; font-size: 0.9rem; max-width: 300px;">
-                        Vergelijk, leer en begrijp je positie in de wereld.
-                    </p>
-                </div>
-                
-                <div class="footer-links">
-                    <h4>Platform</h4>
-                    <a href="../../index.html#tools">Alle Tools</a>
-                    <a href="../../articles/index.html">Artikelen</a>
-                </div>
-
-                <div class="footer-links">
-                    <h4>Juridisch</h4>
-                    <a href="../../privacy.html">Privacybeleid</a>
-                    <a href="../../contact.html">Contact</a>
-                </div>
-            </div>
-            
-            <div class="copyright">
-                <p>&copy; 2026 HumanAverage.com. Alle rechten voorbehouden.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="../../js/main.js"></script>
-
-    <script>
-        // Woordenlijst (Top 200 meest gebruikte NL woorden voor realisme)
-        const wordList = "de van een en het in is dat te niet op zijn hij was maar voor met als er aan ze ik om ook hebben door wat we bij of nog kan veel moeten mensen goed jaar alle dan nu tot leven ons wel hoe anders meer waar na onder uit over haar mij tijd zou twee eerste moeten werk kunnen grote staat echt alleen nieuwe eigen tussen want heel zo'n altijd".split(" ");
-
-        let words = [];
-        let wordIndex = 0;
-        let startTime = 0;
-        let timer = 60;
-        let timerInterval = null;
-        let isRunning = false;
-        
-        // Stats
-        let correctKeystrokes = 0;
-        let totalKeystrokes = 0;
-        let correctWordsCount = 0;
-
-        const display = document.getElementById('word-display');
-        const input = document.getElementById('input-field');
-        const timerEl = document.getElementById('timer');
-
-        function init() {
-            // Shuffle en vul woorden
-            words = [];
-            for(let i=0; i<100; i++) {
-                words.push(wordList[Math.floor(Math.random() * wordList.length)]);
-            }
-            renderWords();
-            input.value = '';
-            input.focus();
-        }
-
-        function renderWords() {
-            display.innerHTML = '';
-            words.forEach((word, index) => {
-                const span = document.createElement('span');
-                span.innerText = word;
-                span.className = 'word';
-                if(index === 0) span.classList.add('active');
-                display.appendChild(span);
-            });
-        }
-
-        input.addEventListener('input', (e) => {
-            if(!isRunning) startTest();
-
-            const currentVal = input.value;
-            const currentWordEl = display.children[wordIndex];
-
-            // Check op spatie (woord afronden)
-            if(e.data === " " || currentVal.endsWith(" ")) {
-                const typedWord = currentVal.trim();
-                
-                // FIX: Vergelijk alles in kleine letters (.toLowerCase)
-                if(typedWord.toLowerCase() === words[wordIndex].toLowerCase()) {
-                    currentWordEl.classList.add('correct');
-                    correctWordsCount++;
-                    correctKeystrokes += typedWord.length + 1; // +1 voor spatie
-                } else {
-                    currentWordEl.classList.add('wrong');
-                }
-                
-                totalKeystrokes += typedWord.length + 1;
-                
-                // Reset en ga verder
-                currentWordEl.classList.remove('active');
-                input.value = '';
-                wordIndex++;
-                
-                if(wordIndex < words.length) {
-                    const nextWord = display.children[wordIndex];
-                    nextWord.classList.add('active');
-                    
-                    // Auto-Scroll Logic
-                    if(nextWord.offsetTop > display.scrollTop + 60) {
-                        display.scrollTop = nextWord.offsetTop - 20;
-                    }
-                }
-            }
-        });
-
-        function startTest() {
-            isRunning = true;
-            timerInterval = setInterval(() => {
-                timer--;
-                timerEl.innerText = timer + "s";
-                if(timer <= 0) finishTest();
-            }, 1000);
-        }
-
-        function finishTest() {
-            clearInterval(timerInterval);
-            isRunning = false;
-            input.disabled = true;
-
-            // Berekeningen
-            const wpm = Math.round((correctKeystrokes / 5));
-            const accuracy = Math.round((correctWordsCount / wordIndex) * 100) || 0;
-
-            // UI
-            document.getElementById('test-zone').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-
-            document.getElementById('res-wpm').innerText = wpm;
-            document.getElementById('res-acc').innerText = accuracy + "%";
-            document.getElementById('res-chars').innerText = correctKeystrokes;
-
-            // Ranking
-            let rank = "Top 50%";
-            let msg = "Je zit rond het gemiddelde.";
-            
-            if(wpm > 80) { rank = "Top 1%"; msg = "Je bent een machine! Ongekend snel."; }
-            else if(wpm > 60) { rank = "Top 10%"; msg = "Professioneel niveau. Uitstekend!"; }
-            else if(wpm > 40) { rank = "Top 30%"; msg = "Boven gemiddeld. Lekker bezig."; }
-            else if(wpm < 30) { rank = "Top 80%"; msg = "Blijf oefenen, snelheid komt vanzelf."; }
-
-            document.getElementById('res-rank').innerText = rank;
-            document.getElementById('res-msg').innerText = msg;
-        }
-
-        function restartTest() {
-            timer = 60;
-            wordIndex = 0;
-            correctKeystrokes = 0;
-            totalKeystrokes = 0;
-            correctWordsCount = 0;
-            isRunning = false;
-            clearInterval(timerInterval);
-            
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('test-zone').style.display = 'block';
-            timerEl.innerText = "60s";
-            input.disabled = false;
-            display.scrollTop = 0; // Reset scroll
-            
-            init();
-        }
-
-        // Start bij laden
-        window.onload = init;
-    </script>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><a class="brand" href="/" style="color: var(--ink)"><span class="brand-mark" aria-hidden="true" style="border-color: var(--ink)"></span>HumanAverage</a><p>Een onafhankelijke, lokale browsertest.</p></div>
+        <div><h3>Verdieping</h3><div class="footer-links"><a href="/articles/typesnelheid-gemiddelde.html">Typesnelheid uitgelegd</a><a href="/methodology.html#typen">Testmethode</a></div></div>
+        <div><h3>Over</h3><div class="footer-links"><a href="/about.html">Over</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© <span data-current-year>2026</span> HumanAverage</span><span>Geen professionele vaardigheidstoets.</span></div>
+    </div>
+  </footer>
 </body>
 </html>
