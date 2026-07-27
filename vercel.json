@@ -2,7 +2,27 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/tools/coffee-intake",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/coffee-intake/",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
       "source": "/tools/coffee-intake/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/global-population",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/global-population/",
       "destination": "/tools/",
       "permanent": true
     },
@@ -12,7 +32,27 @@
       "permanent": true
     },
     {
+      "source": "/tools/height-comparator",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/height-comparator/",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
       "source": "/tools/height-comparator/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/life-expectancy",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/life-expectancy/",
       "destination": "/tools/",
       "permanent": true
     },
@@ -22,12 +62,42 @@
       "permanent": true
     },
     {
+      "source": "/tools/net-worth-rank",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/net-worth-rank/",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
       "source": "/tools/net-worth-rank/:path*",
       "destination": "/tools/",
       "permanent": true
     },
     {
+      "source": "/tools/screen-time",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/screen-time/",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
       "source": "/tools/screen-time/:path*",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/sleep-debt",
+      "destination": "/tools/",
+      "permanent": true
+    },
+    {
+      "source": "/tools/sleep-debt/",
       "destination": "/tools/",
       "permanent": true
     },
