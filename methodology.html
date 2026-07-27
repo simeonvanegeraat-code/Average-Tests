@@ -63,6 +63,33 @@
         <li>De score mag niet worden gebruikt om een aandoening of rijvaardigheid vast te stellen.</li>
       </ul>
 
+      <h2 id="keuzereactie">Keuzereactietijd</h2>
+      <h3>Taak</h3>
+      <p>
+        De keuzereactietest gebruikt vier vaste koppelingen: rode cirkel–D, blauw vierkant–F, groene
+        driehoek–J en oranje ruit–K. Op een aanraakscherm zijn dezelfde vier reacties als knop beschikbaar.
+        Iedere vorm verschijnt precies drie keer in een willekeurig geschudde reeks van twaalf signalen.
+      </p>
+      <p>
+        Voor ieder signaal gebruikt de test een willekeurige wachttijd van 1.000 tot 2.500 ms. Na het
+        zichtbaar maken van de vorm wacht de code twee opeenvolgende animatieframes en legt dan de starttijd
+        vast met <code>performance.now()</code>. Een invoer tijdens de wachttijd is een valse start; dezelfde
+        ronde wordt daarna opnieuw aangeboden.
+      </p>
+      <h3>Score</h3>
+      <p>
+        De hoofdscore is de mediaan van alleen de correcte reacties. Nauwkeurigheid is het aantal correcte
+        keuzes gedeeld door de twaalf aangeboden signalen. Een verkeerde keuze verlaagt de nauwkeurigheid
+        en wordt niet aan de snelheidsmediaan toegevoegd. Valse starts worden apart geteld.
+      </p>
+      <h3>Beperkingen</h3>
+      <ul>
+        <li>Toetsenbord en aanraakscherm vragen verschillende bewegingen en hebben verschillende technische vertragingen.</li>
+        <li>Oefening met de vier koppelingen kan een volgende sessie sneller maken.</li>
+        <li>De taak is geïnspireerd door keuze-reactieonderzoek, maar is geen kopie van één normonderzoek.</li>
+        <li>De uitkomst is geen meting van algemene intelligentie, rijvaardigheid of psychische gezondheid.</li>
+      </ul>
+
       <h2 id="typen">Typesnelheid</h2>
       <h3>Taak en tijd</h3>
       <p>
@@ -100,7 +127,7 @@
 
       <h2>Privacy van testresultaten</h2>
       <p>
-        De drie tests werken volledig in je browser. Resultaten worden niet naar HumanAverage verstuurd,
+        De tests werken volledig in je browser. Resultaten worden niet naar HumanAverage verstuurd,
         niet in een account opgeslagen en verdwijnen wanneer je de pagina herlaadt of sluit. Zie ook het
         <a href="/privacy.html">privacybeleid</a>.
       </p>
@@ -123,6 +150,17 @@
           <a href="https://doi.org/10.3758/s13428-015-0567-2">doi:10.3758/s13428-015-0567-2</a>
         </li>
         <li>
+          <strong>Hick (1952) en Hyman (1953)</strong><br>
+          Klassieke experimenten naar keuze-informatie en reactietijd.
+          <a href="https://doi.org/10.1080/17470215208416600">Hick</a> ·
+          <a href="https://doi.org/10.1037/h0056940">Hyman</a>
+        </li>
+        <li>
+          <strong>Nicosia et al. (2022)</strong><br>
+          Hardwaremeting van beeld- en aanraakvertraging bij 26 smartphones.
+          <a href="https://doi.org/10.3758/s13428-022-01925-1">doi:10.3758/s13428-022-01925-1</a>
+        </li>
+        <li>
           <strong>Dhakal et al. (2018)</strong><br>
           Analyse van 136 miljoen toetsaanslagen van 168.000 deelnemers.
           <a href="https://doi.org/10.1145/3173574.3174220">doi:10.1145/3173574.3174220</a>
@@ -134,7 +172,7 @@
           <a href="https://doi.org/10.1017/S0140525X01003922">Cowan</a>
         </li>
       </ul>
-      <p class="source-note"><strong>Laatste inhoudelijke controle:</strong> 27 juli 2026. Zie je een fout of een betere primaire bron? Meld het via <a href="/contact.html">contact</a>.</p>
+      <p class="source-note"><strong>Laatste inhoudelijke controle:</strong> 28 juli 2026. Zie je een fout of een betere primaire bron? Meld het via <a href="/contact.html">contact</a>.</p>
     </article>
   </main>
 
@@ -145,7 +183,7 @@
         <div><h3>Platform</h3><div class="footer-links"><a href="/tools/">Alle tests</a><a href="/articles/">Inzichten</a></div></div>
         <div><h3>Over</h3><div class="footer-links"><a href="/about.html">Over</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Voorwaarden</a></div></div>
       </div>
-      <div class="footer-bottom"><span>© <span data-current-year>2026</span> HumanAverage</span><span>Methode bijgewerkt op 27 juli 2026.</span></div>
+      <div class="footer-bottom"><span>© <span data-current-year>2026</span> HumanAverage</span><span>Methode bijgewerkt op 28 juli 2026.</span></div>
     </div>
   </footer>
 </body>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reactietest op telefoon of computer: hoeveel vertraging?</title>
+  <meta name="description" content="Je reactietijdscore bevat ook vertraging van scherm, touchscreen, muis, toetsenbord en browser. Lees wat hardwaremetingen vonden en hoe je eerlijk vergelijkt.">
+  <link rel="canonical" href="https://www.humanaverage.com/articles/reactietijd-apparaat-vertraging.html">
+  <meta name="theme-color" content="#15231f">
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/main.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Reactietest op telefoon of computer: hoeveel vertraging voegt je apparaat toe?",
+    "description": "Uitleg over scherm-, invoer- en browservertraging bij online reactietests.",
+    "datePublished": "2026-07-28",
+    "dateModified": "2026-07-28",
+    "inLanguage": "nl-NL",
+    "author": {"@type": "Person", "name": "Simeon"},
+    "publisher": {"@type": "Person", "name": "Simeon"},
+    "mainEntityOfPage": "https://www.humanaverage.com/articles/reactietijd-apparaat-vertraging.html"
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#inhoud">Ga naar het artikel</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span>HumanAverage</a>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="hoofdnavigatie"><span aria-hidden="true">☰</span><span class="visually-hidden">Menu openen</span></button>
+      <nav class="site-nav" id="hoofdnavigatie" data-navigation aria-label="Hoofdnavigatie">
+        <a href="/">Home</a><a href="/tools/">Tests</a><a href="/articles/" aria-current="page">Inzichten</a><a href="/methodology.html">Methode</a><a href="/about.html">Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud">
+    <article class="content">
+      <div class="breadcrumbs"><a href="/articles/">Inzichten</a> / Apparaatvertraging</div>
+      <p class="eyebrow">De meetketen zichtbaar</p>
+      <h1>Hoeveel beïnvloedt je apparaat een reactietest?</h1>
+      <div class="article-meta"><span>Door Simeon</span><span>Gecontroleerd op 28 juli 2026</span><span>Leestijd: ongeveer 8 minuten</span></div>
+      <p class="lead">
+        Een online reactietest meet nooit alleen de mens. De getoonde tijd bevat ook vertraging tussen de
+        software en het zichtbare beeld, plus vertraging tussen jouw beweging en het geregistreerde
+        invoersignaal.
+      </p>
+
+      <div class="callout">
+        <strong>Kort antwoord</strong>
+        <p>
+          Er bestaat geen betrouwbare standaardcorrectie voor iedere telefoon of computer. Onderzoek met
+          26 smartphones vond voor beeld en aanraking samen waarden van 35 tot 140 ms tussen de geteste
+          apparaten. Trek die uitersten niet zomaar van je eigen score af: jouw model en meetmethode zijn
+          mogelijk anders.
+        </p>
+      </div>
+
+      <h2>Wat zit er in de getoonde milliseconden?</h2>
+      <p>De gemeten tijd kan vereenvoudigd als deze keten worden gelezen:</p>
+      <ol>
+        <li>de test geeft opdracht om het signaal te tonen;</li>
+        <li>browser, besturingssysteem en scherm maken het signaal fysiek zichtbaar;</li>
+        <li>je neemt het signaal waar en bereidt een beweging voor;</li>
+        <li>je vinger voert de beweging uit;</li>
+        <li>muis, toetsenbord of touchscreen registreert de invoer;</li>
+        <li>de browser ontvangt het event en stopt de klok.</li>
+      </ol>
+      <p>
+        Alleen stap drie en vier horen bij jouw menselijke waarneming en beweging. De overige stappen zijn
+        technisch. Een browser kent het exacte moment waarop een pixel op jouw specifieke scherm zichtbaar
+        werd of een fysieke knop begon te bewegen niet.
+      </p>
+
+      <h2>Wat vonden metingen aan smartphones?</h2>
+      <p>
+        Nicosia en collega’s testten 26 populaire Android- en iOS-smartphones met een speciaal gebouwde
+        robot. Die robot kon schermverandering en capacitieve aanraking meten zonder menselijke
+        reactietijd. De totale combinatie van beeld- en aanraakvertraging liep in hun apparaten uiteen van
+        35 tot 140 ms. Het middelste deel van de verdeling lag grofweg tussen 60 en 90 ms.
+      </p>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Meting in Nicosia et al.</th><th>Uitkomst</th><th>Wat het betekent</th></tr></thead>
+          <tbody>
+            <tr><td>Geteste telefoons</td><td>26 modellen</td><td>Een brede maar niet volledige selectie</td></tr>
+            <tr><td>Gemiddelde beeldvertraging</td><td>Ongeveer 59,6 ms</td><td>Van softwareactie tot gemeten schermverandering</td></tr>
+            <tr><td>Gemiddelde aanraakvertraging</td><td>Ongeveer 14,6 ms</td><td>Van robotsimulatie tot geregistreerde actie</td></tr>
+            <tr><td>Totale bandbreedte</td><td>35–140 ms</td><td>Minimum en maximum van beeld plus aanraking per toestel</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        De onderzoekers waarschuwen dat deze waarden geen vaste correctie zijn. Het onderzoek gebruikte
+        eigen apparatuur, specifieke software en de toen geteste besturingssysteemversies. De belangrijkste
+        les is de omvang van het verschil tussen apparaten, niet een universeel aftrekgetal.
+      </p>
+
+      <h2>Zijn browsers zelf onnauwkeurig?</h2>
+      <p>
+        Moderne webtechniek kan tijdsverschillen nauwkeurig registreren, maar de gemeten tijd kan nog steeds
+        een systematische verschuiving bevatten. Reimers en Stewart gebruikten gespecialiseerde hardware
+        bij negentien computersystemen. Binnen één systeem was de variatie doorgaans klein, terwijl de
+        absolute reactietijden afhankelijk van het systeem ongeveer 30 tot 100 ms te lang werden gemeten.
+      </p>
+      <p>
+        De Leeuw en Motz vergeleken een JavaScript-experiment met laboratoriumsoftware. In hun specifieke
+        opstelling waren JavaScriptmetingen gemiddeld ongeveer 25 ms langer, terwijl ze vergelijkbare
+        experimentele effecten konden terugvinden. Die 25 ms geldt opnieuw niet automatisch voor een andere
+        website, browser of computer.
+      </p>
+
+      <h2>Wat doet de verversingssnelheid van een scherm?</h2>
+      <p>
+        Een scherm van 60 Hz maakt ongeveer iedere 16,7 ms een nieuw beeld; bij 120 Hz is dat ongeveer
+        iedere 8,3 ms. Een softwarewijziging die net na een verversingsmoment komt, moet op een volgend
+        moment wachten. Daardoor kunnen reactietijden op stapjes of groepjes rond een frameperiode lijken
+        te vallen.
+      </p>
+      <p>
+        Een hogere verversingssnelheid kan de mogelijke beeldwachttijd verkleinen, maar maakt de gehele
+        keten niet automatisch vertragingvrij. Paneelverwerking, besturingssysteem, invoerapparaat en de
+        manier waarop een test is gebouwd blijven relevant.
+      </p>
+
+      <h2>Hoe beperkt HumanAverage de softwarefout?</h2>
+      <p>
+        De HumanAverage-reactietests gebruiken <code>performance.now()</code>, een browserklok met een
+        fijnere schaal dan een gewone datumklok. Nadat het signaal in de pagina is gewijzigd, wacht de code
+        twee opeenvolgende animatieframes voordat het starttijdstip wordt vastgelegd. Dat verkleint het
+        risico dat de klok al loopt voordat de browser de wijziging heeft kunnen schilderen.
+      </p>
+      <p>
+        Dit kalibreert je scherm of invoerapparaat niet. HumanAverage trekt daarom geen geschatte
+        apparaatvertraging van je uitslag af. Een niet-gemeten correctie zou preciezer lijken zonder
+        werkelijk preciezer te zijn.
+      </p>
+
+      <h2>Telefoon, muis of spatiebalk: wat is eerlijk?</h2>
+      <p>
+        Er is geen invoermethode die voor ieder doel “de ware” reactietijd geeft. Een scherm aantikken
+        vereist een andere beweging dan een muisknop of spatiebalk indrukken. Ook de technische registratie
+        verschilt. Kies daarom vooraf wat je wilt vergelijken.
+      </p>
+      <ul>
+        <li>Gebruik voor herhaalde sessies hetzelfde apparaat en dezelfde invoermethode.</li>
+        <li>Vergelijk een telefoonscore niet rechtstreeks met een laptopscores als persoonsverschil.</li>
+        <li>Sluit zware achtergrondtaken en laat het tabblad zichtbaar.</li>
+        <li>Bekijk de mediaan en spreiding, niet alleen je allerbeste poging.</li>
+        <li>Gebruik een browsertest niet voor medische, arbeids- of rijvaardigheidsbeslissingen.</li>
+      </ul>
+
+      <div class="button-row">
+        <a class="button" href="/tools/reaction-time/">Doe de simpele reactietest</a>
+        <a class="button ghost" href="/tools/choice-reaction/">Doe de keuzereactietest</a>
+      </div>
+
+      <h2>Verder lezen binnen dit onderwerp</h2>
+      <ul>
+        <li><a href="/articles/reactiesnelheid-gemiddelde.html">Hoe onderzoeken gemiddelde reactietijd meten</a></li>
+        <li><a href="/articles/simpele-versus-keuzereactietijd.html">Het verschil tussen simpele en keuzereactietijd</a></li>
+        <li><a href="/articles/reactietijd-leeftijd.html">Reactietijd per leeftijd: wat kun je wel vergelijken?</a></li>
+      </ul>
+
+      <h2>Bronnen</h2>
+      <ul class="source-list">
+        <li>
+          Nicosia, J. et al. (2022). <em>To BYOD or Not: Are Device Latencies Important for Bring Your Own
+          Device Smartphone Cognitive Testing?</em> Behavior Research Methods, 55, 2800–2812.
+          <a href="https://doi.org/10.3758/s13428-022-01925-1">Open de publicatie</a>.
+        </li>
+        <li>
+          Reimers, S. &amp; Stewart, N. (2015). <em>Presentation and response timing accuracy in Adobe Flash
+          and HTML5/JavaScript Web experiments.</em> Behavior Research Methods, 47, 309–327.
+          <a href="https://doi.org/10.3758/s13428-014-0471-1">Open de publicatie</a>.
+        </li>
+        <li>
+          de Leeuw, J. R. &amp; Motz, B. A. (2016). <em>Psychophysics in a Web browser?</em>
+          Behavior Research Methods, 48, 1–12.
+          <a href="https://doi.org/10.3758/s13428-015-0567-2">Open de publicatie</a>.
+        </li>
+      </ul>
+      <p class="source-note">
+        Alle vertragingen hierboven horen bij de genoemde onderzoeksopstellingen. HumanAverage heeft jouw
+        apparaat niet extern gekalibreerd en toont daarom de ruwe browsermeting.
+      </p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><a class="brand" href="/" style="color: var(--ink)"><span class="brand-mark" aria-hidden="true" style="border-color: var(--ink)"></span>HumanAverage</a><p>We maken technische onzekerheid zichtbaar in plaats van haar weg te rekenen.</p></div>
+        <div><h3>Reactietijd</h3><div class="footer-links"><a href="/tools/reaction-time/">Simpele test</a><a href="/tools/choice-reaction/">Keuzetest</a><a href="/methodology.html#reactietijd">Methode</a></div></div>
+        <div><h3>Over</h3><div class="footer-links"><a href="/articles/">Alle inzichten</a><a href="/about.html">Over</a><a href="/privacy.html">Privacy</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© <span data-current-year>2026</span> HumanAverage</span><span>Geen laboratoriumkalibratie of diagnose.</span></div>
+    </div>
+  </footer>
+</body>
+</html>
