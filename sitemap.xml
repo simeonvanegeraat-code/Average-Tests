@@ -2,15 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.humanaverage.com/</loc>
-    <lastmod>2026-07-27</lastmod>
+    <lastmod>2026-07-28</lastmod>
   </url>
   <url>
     <loc>https://www.humanaverage.com/tools/</loc>
-    <lastmod>2026-07-27</lastmod>
+    <lastmod>2026-07-28</lastmod>
   </url>
   <url>
     <loc>https://www.humanaverage.com/tools/reaction-time/</loc>
-    <lastmod>2026-07-27</lastmod>
+    <lastmod>2026-07-28</lastmod>
+  </url>
+  <url>
+    <loc>https://www.humanaverage.com/tools/choice-reaction/</loc>
+    <lastmod>2026-07-28</lastmod>
   </url>
   <url>
     <loc>https://www.humanaverage.com/tools/typing-speed/</loc>
@@ -21,12 +25,24 @@
     <lastmod>2026-07-27</lastmod>
   </url>
   <url>
+    <loc>https://www.humanaverage.com/articles/simpele-versus-keuzereactietijd.html</loc>
+    <lastmod>2026-07-28</lastmod>
+  </url>
+  <url>
+    <loc>https://www.humanaverage.com/articles/reactietijd-apparaat-vertraging.html</loc>
+    <lastmod>2026-07-28</lastmod>
+  </url>
+  <url>
+    <loc>https://www.humanaverage.com/articles/reactietijd-leeftijd.html</loc>
+    <lastmod>2026-07-28</lastmod>
+  </url>
+  <url>
     <loc>https://www.humanaverage.com/articles/</loc>
-    <lastmod>2026-07-27</lastmod>
+    <lastmod>2026-07-28</lastmod>
   </url>
   <url>
     <loc>https://www.humanaverage.com/articles/reactiesnelheid-gemiddelde.html</loc>
-    <lastmod>2026-07-27</lastmod>
+    <lastmod>2026-07-28</lastmod>
   </url>
   <url>
     <loc>https://www.humanaverage.com/articles/typesnelheid-gemiddelde.html</loc>
@@ -38,7 +54,7 @@
   </url>
   <url>
     <loc>https://www.humanaverage.com/methodology.html</loc>
-    <lastmod>2026-07-27</lastmod>
+    <lastmod>2026-07-28</lastmod>
   </url>
   <url>
     <loc>https://www.humanaverage.com/about.html</loc>
@@ -50,7 +66,7 @@
   </url>
   <url>
     <loc>https://www.humanaverage.com/privacy.html</loc>
-    <lastmod>2026-07-27</lastmod>
+    <lastmod>2026-07-28</lastmod>
   </url>
   <url>
     <loc>https://www.humanaverage.com/terms.html</loc>

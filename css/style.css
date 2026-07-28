@@ -415,6 +415,10 @@ button {
   gap: 20px;
 }
 
+.card-grid.card-grid-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .card {
   min-height: 260px;
   display: flex;
@@ -986,6 +990,142 @@ a.card:hover {
   font-variant-numeric: tabular-nums;
 }
 
+.choice-test {
+  padding: 30px;
+}
+
+.choice-status {
+  min-height: 245px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #faf7ef;
+  text-align: center;
+  transition: background 130ms ease, color 130ms ease;
+}
+
+.choice-test[data-state="waiting"] .choice-status {
+  background: #283936;
+  color: #fff;
+}
+
+.choice-test[data-state="ready"] .choice-status {
+  border-color: #b8dcd3;
+  background: var(--data-soft);
+}
+
+.choice-test[data-state="feedback"] .choice-status {
+  background: var(--warning-soft);
+}
+
+.choice-test[data-state="complete"] .choice-status {
+  background: var(--data-soft);
+}
+
+.choice-status h2 {
+  margin: 10px 0 0;
+  color: inherit;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
+  font-weight: 500;
+  line-height: 1.08;
+}
+
+.choice-status p {
+  max-width: 520px;
+  margin: 10px auto 0;
+  color: inherit;
+  opacity: 0.78;
+}
+
+.choice-stimulus {
+  min-height: 84px;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+  font-size: 5.2rem;
+  line-height: 1;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.choice-button {
+  min-height: 132px;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  place-items: center;
+  gap: 4px;
+  padding: 14px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.choice-button:hover {
+  border-color: var(--ink-soft);
+  background: #faf7ef;
+}
+
+.choice-button:active {
+  transform: translateY(1px);
+}
+
+.choice-button .choice-symbol {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.choice-button > span:nth-child(2) {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.choice-button kbd {
+  min-width: 28px;
+  padding: 2px 7px;
+  border: 1px solid #aaa69a;
+  border-bottom-width: 3px;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.78rem;
+}
+
+.tone-red.choice-stimulus,
+.choice-button.tone-red .choice-symbol {
+  color: #c23b31;
+}
+
+.tone-blue.choice-stimulus,
+.choice-button.tone-blue .choice-symbol {
+  color: #2767b2;
+}
+
+.tone-green.choice-stimulus,
+.choice-button.tone-green .choice-symbol {
+  color: #197454;
+}
+
+.tone-orange.choice-stimulus,
+.choice-button.tone-orange .choice-symbol {
+  color: #c66a12;
+}
+
+.choice-actions {
+  justify-content: center;
+}
+
 .site-footer {
   padding: 58px 0 30px;
   border-top: 1px solid var(--line);
@@ -1089,6 +1229,10 @@ a.card:hover {
     grid-template-columns: 1fr 1fr;
   }
 
+  .card-grid.card-grid-four {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .footer-grid {
     grid-template-columns: 1.4fr 1fr 1fr;
   }
@@ -1147,6 +1291,7 @@ a.card:hover {
 
   .trust-list,
   .card-grid,
+  .card-grid.card-grid-four,
   .result-grid,
   .footer-grid {
     grid-template-columns: 1fr;
@@ -1177,8 +1322,22 @@ a.card:hover {
 
   .measure-panel,
   .tool-results,
-  .side-panel {
+  .side-panel,
+  .choice-test {
     padding: 20px;
+  }
+
+  .choice-status {
+    min-height: 225px;
+    padding: 22px 16px;
+  }
+
+  .choice-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .choice-button {
+    min-height: 118px;
   }
 
   .article-card {

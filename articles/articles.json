@@ -8,6 +8,30 @@
     "readTime": "7 min"
   },
   {
+    "title": "Simpele versus keuzereactietijd",
+    "description": "Waarom een taak met meerdere reacties niet rechtstreeks vergelijkbaar is met één vooraf bekende klik.",
+    "url": "simpele-versus-keuzereactietijd.html",
+    "category": "Reactietijd",
+    "date": "2026-07-28",
+    "readTime": "7 min"
+  },
+  {
+    "title": "Hoeveel beïnvloedt je apparaat een reactietest?",
+    "description": "Onderzoek naar scherm-, touch-, invoer- en browservertraging bij online reactietests.",
+    "url": "reactietijd-apparaat-vertraging.html",
+    "category": "Methode",
+    "date": "2026-07-28",
+    "readTime": "8 min"
+  },
+  {
+    "title": "Reactietijd per leeftijd",
+    "description": "Gepubliceerde leeftijdsgroepen uit onderzoek, zonder er een persoonlijke online norm van te maken.",
+    "url": "reactietijd-leeftijd.html",
+    "category": "Onderzoek",
+    "date": "2026-07-28",
+    "readTime": "8 min"
+  },
+  {
     "title": "Hoe wordt typesnelheid berekend?",
     "description": "Over de vijftekensconventie, nauwkeurigheid en een groot toetsenbordonderzoek.",
     "url": "typesnelheid-gemiddelde.html",

@@ -1,8 +1,9 @@
 # HumanAverage
 
-HumanAverage is a Dutch-language collection of three transparent browser tests:
+HumanAverage is a Dutch-language collection of four transparent browser tests:
 
 - simple visual reaction time;
+- four-choice visual reaction time;
 - typing speed and accuracy;
 - a digit-span-like short-term memory task.
 
@@ -15,7 +16,7 @@ Serve the repository root with any static file server. The production site is ho
 
 ## Publishing checklist
 
-1. Test all three tools with keyboard and pointer input.
+1. Test all tools with keyboard and pointer input.
 2. Check desktop and mobile layouts.
 3. Validate internal links, structured data, `sitemap.xml` and `robots.txt`.
 4. Confirm the privacy page still matches the scripts actually loaded by the site.

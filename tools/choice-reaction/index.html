@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Keuzereactietijd test — kleur en toets | HumanAverage</title>
+  <meta name="description" content="Meet je keuzereactietijd in twaalf rondes. Koppel vier gekleurde vormen aan de juiste toets en bekijk mediaan, nauwkeurigheid en valse starts.">
+  <link rel="canonical" href="https://www.humanaverage.com/tools/choice-reaction/">
+  <meta name="theme-color" content="#15231f">
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/main.js"></script>
+  <script defer src="/tools/choice-reaction/choice-reaction.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HumanAverage keuzereactietest",
+    "url": "https://www.humanaverage.com/tools/choice-reaction/",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Webbrowser",
+    "inLanguage": "nl-NL",
+    "description": "Een lokale browsertest met twaalf vierkeuze-reacties, mediaan en nauwkeurigheid.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#inhoud">Ga naar de test</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span>HumanAverage</a>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="hoofdnavigatie"><span aria-hidden="true">☰</span><span class="visually-hidden">Menu openen</span></button>
+      <nav class="site-nav" id="hoofdnavigatie" data-navigation aria-label="Hoofdnavigatie">
+        <a href="/">Home</a><a href="/tools/" aria-current="page">Tests</a><a href="/articles/">Inzichten</a><a href="/methodology.html">Methode</a><a href="/about.html">Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud">
+    <section class="page-hero">
+      <div class="container">
+        <div class="breadcrumbs"><a href="/tools/">Tests</a> / Keuzereactie</div>
+        <p class="eyebrow">Vier keuzes, twaalf signalen</p>
+        <h1>Hoe snel kies jij de juiste reactie?</h1>
+        <p>Wacht op een gekleurde vorm en kies de bijbehorende toets of knop. We meten snelheid én nauwkeurigheid.</p>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="container tool-layout">
+        <div class="tool-panel">
+          <div class="tool-panel-header">
+            <strong>Keuzereactietest</strong>
+            <span class="trial-count" id="choice-count">0 van 12 signalen</span>
+          </div>
+
+          <div class="choice-test" id="choice-test" data-state="idle">
+            <div class="choice-status">
+              <span class="choice-stimulus" id="choice-stimulus" aria-hidden="true">?</span>
+              <h2 id="choice-title">Leer eerst de vier keuzes</h2>
+              <p id="choice-instruction">Gebruik D, F, J en K op een toetsenbord, of tik op de juiste knop.</p>
+            </div>
+
+            <div class="choice-grid" aria-label="Reactieknoppen">
+              <button class="choice-button tone-red" type="button" data-choice="red" aria-label="Rode cirkel, toets D">
+                <span class="choice-symbol" aria-hidden="true">●</span><span>Rode cirkel</span><kbd>D</kbd>
+              </button>
+              <button class="choice-button tone-blue" type="button" data-choice="blue" aria-label="Blauw vierkant, toets F">
+                <span class="choice-symbol" aria-hidden="true">■</span><span>Blauw vierkant</span><kbd>F</kbd>
+              </button>
+              <button class="choice-button tone-green" type="button" data-choice="green" aria-label="Groene driehoek, toets J">
+                <span class="choice-symbol" aria-hidden="true">▲</span><span>Groene driehoek</span><kbd>J</kbd>
+              </button>
+              <button class="choice-button tone-orange" type="button" data-choice="orange" aria-label="Oranje ruit, toets K">
+                <span class="choice-symbol" aria-hidden="true">◆</span><span>Oranje ruit</span><kbd>K</kbd>
+              </button>
+            </div>
+
+            <div class="button-row choice-actions">
+              <button class="button" type="button" id="start-choice-test">Start de 12 rondes</button>
+              <button class="button ghost" type="button" id="reset-choice-test">Opnieuw instellen</button>
+            </div>
+            <div class="visually-hidden" id="choice-announcement" aria-live="assertive" aria-atomic="true"></div>
+          </div>
+
+          <div class="tool-results" id="choice-results" aria-live="polite">
+            <div class="result-grid">
+              <div class="result-box"><span>Mediaan correct</span><strong id="choice-median">—</strong></div>
+              <div class="result-box"><span>Nauwkeurigheid</span><strong id="choice-accuracy">—</strong></div>
+              <div class="result-box"><span>Valse starts</span><strong id="choice-false-starts">0</strong></div>
+            </div>
+            <div class="trial-dots" id="choice-chart" aria-label="Grafiek van je correcte keuzereacties"></div>
+            <div class="source-note" id="choice-summary" style="margin-top: 20px;">
+              Alleen correcte reacties tellen mee voor de mediaan. Een fout antwoord telt wel mee voor je nauwkeurigheid.
+            </div>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <h2>Waarom deze test anders is</h2>
+          <p>Bij een simpele reactietest weet je al wat je moet doen. Hier moet je eerst het signaal herkennen en de juiste reactie selecteren.</p>
+          <ul>
+            <li>Vier vormen en vier vaste reacties.</li>
+            <li>Iedere vorm verschijnt precies drie keer.</li>
+            <li>Verkeerde keuzes worden niet als snelle meting meegerekend.</li>
+            <li>Gebruik bij een herhaling hetzelfde apparaat.</li>
+          </ul>
+          <div class="privacy-note">
+            <strong>Privé op je apparaat</strong><br>
+            Reactietijden en fouten blijven alleen in deze geopende pagina.
+          </div>
+          <p style="margin-bottom: 0;"><a href="/methodology.html#keuzereactie">Bekijk de exacte methode →</a></p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section tint">
+      <div class="narrow tool-copy">
+        <p class="eyebrow">Je uitslag begrijpen</p>
+        <h2>Meer keuzes vragen meer verwerking</h2>
+        <p>
+          Je score omvat waarnemen, de juiste koppeling kiezen en de reactie uitvoeren. Daarom is deze
+          uitkomst niet rechtstreeks vergelijkbaar met de simpele reactietest. De klassieke onderzoeken
+          van Hick en Hyman lieten zien dat reactietijd samenhangt met de hoeveelheid keuze-informatie,
+          maar de precieze uitkomst blijft afhankelijk van taak, oefening en apparatuur.
+        </p>
+        <div class="button-row">
+          <a class="button ghost" href="/articles/simpele-versus-keuzereactietijd.html">Lees simpele versus keuzereactie</a>
+          <a class="button ghost" href="/tools/reaction-time/">Doe de simpele reactietest</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><a class="brand" href="/" style="color: var(--ink)"><span class="brand-mark" aria-hidden="true" style="border-color: var(--ink)"></span>HumanAverage</a><p>Een informatieve keuzetaak, geen psychologische diagnose.</p></div>
+        <div><h3>Reactietijd</h3><div class="footer-links"><a href="/tools/reaction-time/">Simpele reactietest</a><a href="/articles/simpele-versus-keuzereactietijd.html">Taken vergelijken</a><a href="/articles/reactietijd-apparaat-vertraging.html">Apparaatvertraging</a></div></div>
+        <div><h3>Over</h3><div class="footer-links"><a href="/methodology.html#keuzereactie">Methode</a><a href="/about.html">Over</a><a href="/privacy.html">Privacy</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© <span data-current-year>2026</span> HumanAverage</span><span>Geen medische of psychologische diagnose.</span></div>
+    </div>
+  </footer>
+</body>
+</html>
