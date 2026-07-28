@@ -6,7 +6,13 @@
   <title>Methode en bronnen — HumanAverage</title>
   <meta name="description" content="Lees precies wat de tests van HumanAverage meten, hoe scores worden berekend en welke beperkingen een browsertest heeft.">
   <link rel="canonical" href="https://www.humanaverage.com/methodology.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Methode en bronnen — HumanAverage">
+  <meta property="og:description" content="Lees precies wat de tests van HumanAverage meten, hoe scores worden berekend en welke beperkingen een browsertest heeft.">
+  <meta property="og:url" content="https://www.humanaverage.com/methodology.html">
+  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#15231f">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/css/style.css">
   <script defer src="/js/main.js"></script>
 </head>
@@ -111,6 +117,27 @@
         typefouten automatisch te interpreteren. Daardoor blijft de berekening reproduceerbaar.
       </p>
 
+      <h2 id="typeconsistentie">Typeconsistentie</h2>
+      <h3>Taak</h3>
+      <p>
+        De test bestaat uit drie vaste Nederlandse teksten van ieder twintig seconden. Iedere ronde start
+        bij het eerste ingevoerde teken. Na een ronde kiest de bezoeker zelf wanneer de volgende tekst begint.
+        Plakken is uitgeschakeld; corrigeren met backspace blijft toegestaan.
+      </p>
+      <h3>Berekening</h3>
+      <p>
+        Per ronde gebruiken we dezelfde bruto WPM-, nauwkeurigheids- en nettoformule als bij de
+        60-secondentest. Na drie rondes tonen we het gemiddelde van de drie netto WPM-waarden, de gemiddelde
+        nauwkeurigheid en de range:
+      </p>
+      <div class="source-note">
+        range = hoogste netto WPM − laagste netto WPM
+      </div>
+      <p>
+        We zetten de range niet om in een percentiel of verborgen consistentiecijfer. De teksten verschillen
+        en twintig seconden is kort; de range beschrijft alleen de spreiding van deze drie rondes.
+      </p>
+
       <h2 id="geheugen">Cijferreeks</h2>
       <h3>Taak</h3>
       <p>
@@ -123,6 +150,21 @@
         Je score is de langste cijferreeks die je in deze sessie correct hebt ingevoerd. Dit is een eenvoudige
         digit-span-achtige taak, geen volledige geheugentest. Cijfers groeperen in betekenisvolle eenheden
         (“chunks”) kan de prestatie veranderen; daarom vergelijken we de score niet met een klinische norm.
+      </p>
+
+      <h2 id="visueel-geheugen">Visueel geheugen</h2>
+      <h3>Taak</h3>
+      <p>
+        Een raster van vier bij vier vakjes toont kort een willekeurig patroon. De test begint met drie
+        gemarkeerde vakjes. Na het verbergen selecteert de bezoeker dezelfde posities. Een exact antwoord
+        voegt bij het volgende patroon één vakje toe. Na twee fouten op dezelfde grootte stopt de test.
+      </p>
+      <h3>Score en grenzen</h3>
+      <p>
+        De score is het grootste exact gereproduceerde patroon, met een ingebouwd maximum van tien vakjes.
+        De test gebruikt geen wetenschappelijke K-capaciteitsformule: daarvoor zijn een andere
+        change-detectionopzet, veel meer proeven en afzonderlijke aantallen hits en valse alarmen nodig.
+        Schermgrootte, aandacht en patroonherkenning kunnen de prestatie beïnvloeden.
       </p>
 
       <h2>Privacy van testresultaten</h2>
@@ -166,10 +208,25 @@
           <a href="https://doi.org/10.1145/3173574.3174220">doi:10.1145/3173574.3174220</a>
         </li>
         <li>
+          <strong>Keith &amp; Ericsson (2007)</strong><br>
+          Onderzoek naar ervaring, gericht oefenen en typeprestatie bij zestig studenten.
+          <a href="https://doi.org/10.1037/1076-898X.13.3.135">doi:10.1037/1076-898X.13.3.135</a>
+        </li>
+        <li>
           <strong>Miller (1956) en Cowan (2001)</strong><br>
           Twee invloedrijke, maar verschillende perspectieven op beperkte informatiecapaciteit.
           <a href="https://doi.org/10.1037/h0043158">Miller</a> ·
           <a href="https://doi.org/10.1017/S0140525X01003922">Cowan</a>
+        </li>
+        <li>
+          <strong>Woods et al. (2011)</strong><br>
+          Onderzoek naar presentatie en nauwkeurigere scoring van digit span.
+          <a href="https://doi.org/10.1080/13803395.2010.493149">doi:10.1080/13803395.2010.493149</a>
+        </li>
+        <li>
+          <strong>Luck &amp; Vogel (1997)</strong><br>
+          Invloedrijk change-detectiononderzoek naar visueel werkgeheugen.
+          <a href="https://doi.org/10.1038/36846">doi:10.1038/36846</a>
         </li>
       </ul>
       <p class="source-note"><strong>Laatste inhoudelijke controle:</strong> 28 juli 2026. Zie je een fout of een betere primaire bron? Meld het via <a href="/contact.html">contact</a>.</p>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Typeconsistentietest — drie rondes vergelijken | HumanAverage</title>
+  <meta name="description" content="Vergelijk drie korte typerondes en bekijk gemiddelde netto WPM, nauwkeurigheid en het verschil tussen je snelste en langzaamste ronde.">
+  <link rel="canonical" href="https://www.humanaverage.com/tools/typing-consistency/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Typeconsistentietest — drie rondes vergelijken | HumanAverage">
+  <meta property="og:description" content="Vergelijk drie korte typerondes en bekijk gemiddelde netto WPM, nauwkeurigheid en het verschil tussen je snelste en langzaamste ronde.">
+  <meta property="og:url" content="https://www.humanaverage.com/tools/typing-consistency/">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#15231f">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/main.js"></script>
+  <script defer src="/tools/typing-consistency/typing-consistency.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HumanAverage typeconsistentietest",
+    "url": "https://www.humanaverage.com/tools/typing-consistency/",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Webbrowser",
+    "inLanguage": "nl-NL",
+    "description": "Een lokale browsertest die drie korte typerondes en hun spreiding vergelijkt.",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#inhoud">Ga naar de test</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span>HumanAverage</a>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="hoofdnavigatie"><span aria-hidden="true">☰</span><span class="visually-hidden">Menu openen</span></button>
+      <nav class="site-nav" id="hoofdnavigatie" data-navigation aria-label="Hoofdnavigatie">
+        <a href="/">Home</a><a href="/tools/" aria-current="page">Tests</a><a href="/articles/">Inzichten</a><a href="/methodology.html">Methode</a><a href="/about.html">Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud">
+    <section class="page-hero">
+      <div class="container">
+        <div class="breadcrumbs"><a href="/tools/">Tests</a> / Typeconsistentie</div>
+        <p class="eyebrow">Drie rondes van 20 seconden</p>
+        <h1>Blijft je typetempo gelijk?</h1>
+        <p>Typ drie verschillende teksten en vergelijk snelheid, nauwkeurigheid en de spreiding tussen je rondes.</p>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="container tool-layout">
+        <div class="tool-panel">
+          <div class="tool-panel-header">
+            <strong>Typeconsistentietest</strong>
+            <span class="trial-count" id="consistency-status">Klaar voor ronde 1 van 3</span>
+          </div>
+          <div class="measure-panel">
+            <div class="typing-prompt" id="consistency-prompt" aria-label="Tekst om over te typen"></div>
+            <label class="field-label" for="consistency-input">Typ de tekst hierboven</label>
+            <textarea class="typing-input" id="consistency-input" rows="6" disabled autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="consistency-help"></textarea>
+            <p id="consistency-help">De klok start bij je eerste teken. Corrigeren met backspace mag; plakken is uitgeschakeld.</p>
+            <div class="inline-stats" aria-live="polite">
+              <span class="stat-chip"><strong id="consistency-time">20</strong> seconden</span>
+              <span class="stat-chip"><strong id="consistency-wpm">0</strong> bruto WPM</span>
+              <span class="stat-chip"><strong id="consistency-accuracy">100</strong>% nauwkeurig</span>
+            </div>
+            <div class="button-row">
+              <button class="button" type="button" id="start-consistency">Start ronde 1</button>
+              <button class="button ghost" type="button" id="reset-consistency">Opnieuw</button>
+            </div>
+            <div class="round-results" id="round-results" hidden aria-label="Resultaten per ronde"></div>
+            <div class="source-note" id="consistency-result" hidden aria-live="polite"></div>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <h2>Wat we tonen</h2>
+          <ul>
+            <li>Netto WPM en nauwkeurigheid per ronde.</li>
+            <li>Het gemiddelde van de drie netto snelheden.</li>
+            <li>Het verschil tussen de snelste en langzaamste ronde.</li>
+            <li>Geen verzonnen label zoals “stabieler dan 90%”.</li>
+          </ul>
+          <div class="privacy-note"><strong>Lokaal</strong><br>De teksten en resultaten verlaten deze pagina niet.</div>
+          <p style="margin-bottom: 0;"><a href="/methodology.html#typeconsistentie">Bekijk de berekening →</a></p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section tint">
+      <div class="narrow tool-copy">
+        <p class="eyebrow">Spreiding is geen persoonlijkheid</p>
+        <h2>Drie rondes geven context, geen definitief oordeel</h2>
+        <p>
+          De teksten verschillen en twintig seconden blijft een korte meting. Een grotere spreiding kan
+          ontstaan door een lastige zin, een correctie of een korte onderbreking. Gebruik het resultaat om
+          je eigen rondes te vergelijken, niet als professionele vaardigheidsbeoordeling.
+        </p>
+        <div class="button-row">
+          <a class="button ghost" href="/articles/typesnelheid-verbetering-meten.html">Lees hoe je verbetering meet</a>
+          <a class="button ghost" href="/tools/typing-speed/">Doe de 60-secondentest</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><a class="brand" href="/" style="color: var(--ink)"><span class="brand-mark" aria-hidden="true" style="border-color: var(--ink)"></span>HumanAverage</a><p>Drie rondes, transparant naast elkaar gezet.</p></div>
+        <div><h3>Verdieping</h3><div class="footer-links"><a href="/articles/typesnelheid-verbetering-meten.html">Verbetering meten</a><a href="/articles/typesnelheid-nauwkeurigheid.html">Snelheid en fouten</a><a href="/methodology.html#typeconsistentie">Methode</a></div></div>
+        <div><h3>Over</h3><div class="footer-links"><a href="/about.html">Over</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© <span data-current-year>2026</span> HumanAverage</span><span>Geen professionele vaardigheidstoets.</span></div>
+    </div>
+  </footer>
+</body>
+</html>

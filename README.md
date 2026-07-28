@@ -1,11 +1,13 @@
 # HumanAverage
 
-HumanAverage is a Dutch-language collection of four transparent browser tests:
+HumanAverage is a Dutch-language collection of six transparent browser tests:
 
 - simple visual reaction time;
 - four-choice visual reaction time;
 - typing speed and accuracy;
-- a digit-span-like short-term memory task.
+- typing consistency across three short rounds;
+- a digit-span-like short-term memory task;
+- a visual pattern memory task.
 
 The project deliberately avoids fabricated rankings and medical claims. Each result is calculated locally
 in the browser, with methodology and primary research sources published alongside the test.

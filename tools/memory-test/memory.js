@@ -37,6 +37,7 @@
     phase = "showing";
     sequence = makeSequence(level);
     input.value = "";
+    input.disabled = false;
     form.hidden = true;
     startButton.hidden = true;
     result.hidden = true;
@@ -76,6 +77,10 @@
       return;
     }
 
+    phase = "feedback";
+    form.hidden = true;
+    input.disabled = true;
+
     if (answer === sequence) {
       best = Math.max(best, level);
       level += 1;
@@ -108,6 +113,7 @@
     sequence = "";
     phase = "idle";
     form.hidden = true;
+    input.disabled = false;
     result.hidden = true;
     startButton.hidden = false;
     startButton.textContent = "Start test";

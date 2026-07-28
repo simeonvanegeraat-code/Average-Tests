@@ -875,6 +875,29 @@ a.card:hover {
   gap: 16px;
 }
 
+.article-topic + .article-topic {
+  margin-top: 76px;
+}
+
+.topic-heading {
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+.topic-heading h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+
+.topic-heading p:last-child {
+  margin: 12px 0 0;
+  color: var(--ink-soft);
+}
+
 .article-card {
   display: grid;
   grid-template-columns: 130px 1fr;
@@ -988,6 +1011,85 @@ a.card:hover {
   background: var(--paper);
   font-size: 0.87rem;
   font-variant-numeric: tabular-nums;
+}
+
+.memory-board-instruction {
+  min-height: 28px;
+  margin: 0 0 18px;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.visual-memory-board {
+  width: min(100%, 520px);
+  display: grid;
+  grid-template-columns: repeat(var(--grid-size), minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 auto 24px;
+}
+
+.memory-cell {
+  aspect-ratio: 1;
+  border: 2px solid #a9a497;
+  border-radius: 14px;
+  background: #faf7ef;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.memory-cell:not(:disabled):hover {
+  border-color: var(--data);
+  transform: translateY(-2px);
+}
+
+.memory-cell[data-active="true"] {
+  border-color: var(--data);
+  background:
+    radial-gradient(circle at center, var(--accent) 0 16%, transparent 17%),
+    var(--data-soft);
+}
+
+.memory-cell:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.round-results {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 24px 0 0;
+}
+
+.round-result {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #faf7ef;
+}
+
+.round-result span,
+.round-result small,
+.round-result strong {
+  display: block;
+}
+
+.round-result span {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  font-weight: 780;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.round-result strong {
+  margin-top: 4px;
+  font-size: 1rem;
+}
+
+.round-result small {
+  margin-top: 2px;
+  color: var(--ink-soft);
 }
 
 .choice-test {
@@ -1343,6 +1445,10 @@ a.card:hover {
   .article-card {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+
+  .round-results {
+    grid-template-columns: 1fr;
   }
 
   .article-number {

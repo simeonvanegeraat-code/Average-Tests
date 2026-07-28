@@ -4,8 +4,8 @@
     "description": "Een bronkritische uitleg over simpele visuele reactietijd, leeftijd en apparaatvertraging.",
     "url": "reactiesnelheid-gemiddelde.html",
     "category": "Methode",
-    "date": "2026-07-27",
-    "readTime": "7 min"
+    "date": "2026-07-28",
+    "readTime": "8 min"
   },
   {
     "title": "Simpele versus keuzereactietijd",
@@ -46,5 +46,69 @@
     "category": "Onderzoek",
     "date": "2026-07-27",
     "readTime": "6 min"
+  },
+  {
+    "title": "Wat is een goede typesnelheid?",
+    "description": "Waarom onderzoekswaarden context geven maar geen universele norm voor iedere taak zijn.",
+    "url": "typesnelheid-goed.html",
+    "category": "Typen",
+    "date": "2026-07-28",
+    "readTime": "7 min"
+  },
+  {
+    "title": "Typesnelheid versus nauwkeurigheid",
+    "description": "Wat bruto WPM, nauwkeurigheid en een netto-indicatie ieder over een typeronde vertellen.",
+    "url": "typesnelheid-nauwkeurigheid.html",
+    "category": "Typen",
+    "date": "2026-07-28",
+    "readTime": "7 min"
+  },
+  {
+    "title": "Waarom toetsenbord en tekst je score veranderen",
+    "description": "Onderzoek naar fysieke feedback, toetsafstand, mobiele invoer en de gekozen voorbeeldtekst.",
+    "url": "typesnelheid-toetsenbord-tekst.html",
+    "category": "Typen",
+    "date": "2026-07-28",
+    "readTime": "8 min"
+  },
+  {
+    "title": "Typesnelheid verbeteren en eerlijk meten",
+    "description": "Een praktisch protocol met meerdere sessies, vergelijkbare omstandigheden en wisselende teksten.",
+    "url": "typesnelheid-verbetering-meten.html",
+    "category": "Typen",
+    "date": "2026-07-28",
+    "readTime": "8 min"
+  },
+  {
+    "title": "Wat meet een cijferreekstest?",
+    "description": "Tijdelijke opslag, volgorde, presentatie en scoreregels binnen een digit-span-achtige taak.",
+    "url": "cijferreeks-werkgeheugen.html",
+    "category": "Geheugen",
+    "date": "2026-07-28",
+    "readTime": "8 min"
+  },
+  {
+    "title": "Visueel geheugen versus cijfergeheugen",
+    "description": "Waarom locaties in een raster iets anders vragen dan symbolen in een vaste volgorde.",
+    "url": "visueel-versus-numeriek-geheugen.html",
+    "category": "Geheugen",
+    "date": "2026-07-28",
+    "readTime": "8 min"
+  },
+  {
+    "title": "Waarom oefenen je geheugenscore verandert",
+    "description": "Taakvertrouwdheid, strategie en waarom retestwinst niet automatisch brede overdracht betekent.",
+    "url": "oefeneffect-geheugentest.html",
+    "category": "Geheugen",
+    "date": "2026-07-28",
+    "readTime": "8 min"
+  },
+  {
+    "title": "Waarom een geheugenscore geen IQ is",
+    "description": "Wat normgroepen, standaardisatie en meerdere deeltests vereisen voor bredere conclusies.",
+    "url": "geheugenscore-geen-iq.html",
+    "category": "Geheugen",
+    "date": "2026-07-28",
+    "readTime": "7 min"
   }
 ]
