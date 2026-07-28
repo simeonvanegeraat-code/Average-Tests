@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visuele geheugentest met patronen — HumanAverage</title>
+  <meta name="description" content="Onthoud welke vakjes oplichten en bouw stap voor stap een langer visueel patroon op. De test werkt lokaal in je browser.">
+  <link rel="canonical" href="https://www.humanaverage.com/tools/visual-memory/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Visuele geheugentest met patronen — HumanAverage">
+  <meta property="og:description" content="Onthoud welke vakjes oplichten en bouw stap voor stap een langer visueel patroon op. De test werkt lokaal in je browser.">
+  <meta property="og:url" content="https://www.humanaverage.com/tools/visual-memory/">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#15231f">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/main.js"></script>
+  <script defer src="/tools/visual-memory/visual-memory.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HumanAverage visuele geheugentest",
+    "url": "https://www.humanaverage.com/tools/visual-memory/",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Webbrowser",
+    "inLanguage": "nl-NL",
+    "description": "Een lokale browsertest waarin een kort getoond patroon van vakjes wordt gereproduceerd.",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#inhoud">Ga naar de test</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span>HumanAverage</a>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="hoofdnavigatie"><span aria-hidden="true">☰</span><span class="visually-hidden">Menu openen</span></button>
+      <nav class="site-nav" id="hoofdnavigatie" data-navigation aria-label="Hoofdnavigatie">
+        <a href="/">Home</a><a href="/tools/" aria-current="page">Tests</a><a href="/articles/">Inzichten</a><a href="/methodology.html">Methode</a><a href="/about.html">Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud">
+    <section class="page-hero">
+      <div class="container">
+        <div class="breadcrumbs"><a href="/tools/">Tests</a> / Visueel geheugen</div>
+        <p class="eyebrow">Patronen kort vasthouden</p>
+        <h1>Welke vakjes lichtten op?</h1>
+        <p>Bekijk een patroon, onthoud de posities en selecteer daarna exact dezelfde vakjes.</p>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="container tool-layout">
+        <div class="tool-panel">
+          <div class="tool-panel-header">
+            <strong>Visuele patroontest</strong>
+            <span class="trial-count" id="visual-memory-status">Startniveau: 3 vakjes</span>
+          </div>
+          <div class="measure-panel">
+            <p class="memory-board-instruction" id="visual-memory-instruction">Je krijgt twee kansen per patroongrootte.</p>
+            <div class="visual-memory-board" id="visual-memory-board" style="--grid-size: 4" aria-label="Geheugenraster"></div>
+            <div class="button-row">
+              <button class="button" type="button" id="start-visual-memory">Start test</button>
+              <button class="button" type="button" id="submit-visual-memory" hidden>Controleer patroon</button>
+              <button class="button ghost" type="button" id="reset-visual-memory">Opnieuw</button>
+            </div>
+            <div class="source-note" id="visual-memory-result" hidden aria-live="polite"></div>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <h2>Spelregels</h2>
+          <ul>
+            <li>Het raster start met drie gemarkeerde vakjes.</li>
+            <li>Na het verbergen selecteer je dezelfde posities.</li>
+            <li>Een exact antwoord maakt het volgende patroon groter.</li>
+            <li>Na twee fouten op één niveau stopt de test.</li>
+          </ul>
+          <div class="privacy-note"><strong>Geen opslag</strong><br>Patronen en antwoorden blijven alleen in deze geopende pagina.</div>
+          <p style="margin-bottom: 0;"><a href="/methodology.html#visueel-geheugen">Bekijk de methode →</a></p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section tint">
+      <div class="narrow tool-copy">
+        <p class="eyebrow">Een eigen taak, geen normtest</p>
+        <h2>Visueel onthouden is niet hetzelfde als cijfers herhalen</h2>
+        <p>
+          Deze test vraagt om locaties in een raster. De cijferreekstest vraagt juist om symbolen in een
+          vaste volgorde. Aandacht, schermgrootte en een zelfbedachte groepeerstrategie kunnen de uitkomst
+          beïnvloeden. De score is daarom alleen een beschrijving van deze taak en deze sessie.
+        </p>
+        <div class="button-row">
+          <a class="button ghost" href="/articles/visueel-versus-numeriek-geheugen.html">Lees over beide geheugentaken</a>
+          <a class="button ghost" href="/tools/memory-test/">Doe de cijferreekstest</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><a class="brand" href="/" style="color: var(--ink)"><span class="brand-mark" aria-hidden="true" style="border-color: var(--ink)"></span>HumanAverage</a><p>Een lokale patroontest zonder diagnostische conclusie.</p></div>
+        <div><h3>Verdieping</h3><div class="footer-links"><a href="/articles/visueel-versus-numeriek-geheugen.html">Visueel versus numeriek</a><a href="/articles/oefeneffect-geheugentest.html">Oefeneffecten</a><a href="/methodology.html#visueel-geheugen">Methode</a></div></div>
+        <div><h3>Over</h3><div class="footer-links"><a href="/about.html">Over</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© <span data-current-year>2026</span> HumanAverage</span><span>Geen IQ-test of diagnose.</span></div>
+    </div>
+  </footer>
+</body>
+</html>
