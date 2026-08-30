@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://www.humanaverage.com/nl/</loc>
+    <lastmod>2026-08-30</lastmod>
+  </url>
+  <url>
     <loc>https://www.humanaverage.com/about/</loc>
     <lastmod>2026-08-30</lastmod>
   </url>
@@ -26,7 +30,7 @@
   </url>
   <url>
     <loc>https://www.humanaverage.com/</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-08-30</lastmod>
   </url>
   <url>
     <loc>https://www.humanaverage.com/tools/</loc>
