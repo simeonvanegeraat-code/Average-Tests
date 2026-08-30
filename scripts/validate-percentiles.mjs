@@ -6,12 +6,15 @@
  * Faalt met exitcode 1 als een controle niet slaagt. Dit is de poort tussen "de
  * pipeline heeft iets uitgerekend" en "we durven dit op de site te zetten".
  */
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { readXpt } from './lib/xpt.mjs';
 import { weightedQuantile } from './lib/stats.mjs';
 import { CYCLES, RAW_DIR, SEX, TOP_CODED_AGE } from './lib/nhanes.mjs';
 
 const failures = [];
+// De methodepagina toont deze uitkomsten. Ze worden hier weggeschreven zodat er
+// geen met de hand ingetypt getal op de site staat dat stil kan gaan afwijken.
+const reference = [];
 const check = (ok, label, detail) => {
   console.log(`  ${ok ? 'OK  ' : 'FOUT'}  ${label}${detail ? `  ${detail}` : ''}`);
   if (!ok) failures.push(label);
@@ -125,6 +128,15 @@ console.log('\n3. Gewogen gemiddelden 20+ tegen de NCHS-publicatie (aug 2021 - a
       const expected = published[sex][column];
       check(Number(value.toFixed(1)) === expected, `${sex} ${column}`,
         `berekend ${value.toFixed(2)} -> ${value.toFixed(1)} ${unit[column]}, gepubliceerd ${expected.toFixed(1)}`);
+
+      reference.push({
+        measure: column === 'BMXHT' ? 'Mean height' : 'Mean weight',
+        group: sex === 'male' ? 'Men aged 20 and over' : 'Women aged 20 and over',
+        computed: Number(value.toFixed(2)),
+        rounded: Number(value.toFixed(1)),
+        published: expected,
+        unit: unit[column],
+      });
     }
   }
 }
@@ -141,7 +153,22 @@ check(thinnest >= 200, 'dunste cel heeft >= 200 effectieve respondenten',
   `minimum ${thinnest} bij ${thinnestAt}`);
 
 // --- resultaat --------------------------------------------------------------
-console.log(failures.length === 0
-  ? '\nAlle controles geslaagd.'
-  : `\n${failures.length} controle(s) gefaald: ${failures.join(', ')}`);
+if (failures.length === 0) {
+  await writeFile(
+    new URL('../data/validation.json', import.meta.url),
+    JSON.stringify({
+      checkedOn: new Date().toISOString().slice(0, 10),
+      cycle: 'August 2021 - August 2023',
+      citation:
+        'CDC/NCHS FastStats "Body Measurements", citing Anthropometric Reference Data for ' +
+        'Children and Adults: United States, August 2021-August 2023, tables 4, 8 and 12.',
+      smoothingMaxDeviationCm: Number(worstGap.toFixed(2)),
+      thinnestCellRespondents: thinnest,
+      reference,
+    }, null, 2) + '\n',
+  );
+  console.log('\nAlle controles geslaagd. data/validation.json bijgewerkt.');
+} else {
+  console.log(`\n${failures.length} controle(s) gefaald: ${failures.join(', ')}`);
+}
 process.exit(failures.length === 0 ? 0 : 1);

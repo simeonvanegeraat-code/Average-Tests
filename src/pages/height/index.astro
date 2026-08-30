@@ -132,7 +132,7 @@ const description =
           </div>
 
           <div class="button-row">
-            <a class="button" href="/weight/" id="cta-weight">Now check your weight →</a>
+            <a class="button" href="/weight/" id="cta-next" data-next="weight">Now check your weight →</a>
             <button class="button secondary" type="button" id="share-button">Copy link to this result</button>
           </div>
         </div>
@@ -286,171 +286,39 @@ const description =
 </Base>
 
 <script>
-  import {
-    lookupPercentile, densityFromQuantiles, formatHeight, formatHeightDifference,
-    fromInches, toInches, ordinal,
-  } from '../../lib/percentile.js';
-  import { track, EVENTS } from '../../lib/analytics.js';
-
-  const table = JSON.parse(document.getElementById('height-data').textContent);
-  const form = document.getElementById('height-form');
-  const result = document.getElementById('result');
-  const errorNote = document.getElementById('form-error');
+  import { createPercentileTool } from '../../lib/percentile-tool.js';
+  import { formatHeight, formatHeightDifference, fromInches, toInches } from '../../lib/percentile.js';
 
   const el = (id) => document.getElementById(id);
-  const unitOf = () => form.querySelector('input[name="unit"]:checked').value;
 
-  /** Wisselt de invoervelden en zet de waarde om, zodat je niets kwijtraakt. */
-  function syncUnits() {
-    const imperial = unitOf() === 'imperial';
-    el('input-imperial').hidden = !imperial;
-    el('input-metric').hidden = imperial;
-
-    if (imperial && el('cm').value) {
-      const total = Math.round(toInches(Number(el('cm').value)));
+  createPercentileTool({
+    table: JSON.parse(el('height-data').textContent),
+    metric: 'height',
+    comparative: { more: 'taller', less: 'shorter' },
+    shareParam: 'cm',
+    valueRange: {
+      min: 100, max: 250,
+      message: 'Enter a height between 100 cm and 250 cm (3′ 3″ and 8′ 2″).',
+    },
+    readValue(unit) {
+      if (unit === 'metric') {
+        const cm = Number(el('cm').value);
+        return cm > 0 ? cm : null;
+      }
+      const feet = Number(el('feet').value);
+      if (!(feet > 0)) return null;
+      return fromInches(feet * 12 + Number(el('inches').value || 0));
+    },
+    writeValue(unit, cm) {
+      if (unit === 'metric') {
+        el('cm').value = cm.toFixed(1);
+        return;
+      }
+      const total = Math.round(toInches(cm));
       el('feet').value = Math.floor(total / 12);
       el('inches').value = total % 12;
-    } else if (!imperial && el('feet').value) {
-      const total = Number(el('feet').value) * 12 + Number(el('inches').value || 0);
-      el('cm').value = fromInches(total).toFixed(1);
-    }
-  }
-  form.querySelectorAll('input[name="unit"]').forEach((r) => r.addEventListener('change', syncUnits));
-
-  function readHeightCm() {
-    if (unitOf() === 'metric') {
-      const cm = Number(el('cm').value);
-      return cm > 0 ? cm : null;
-    }
-    const feet = Number(el('feet').value);
-    const inch = Number(el('inches').value || 0);
-    if (!(feet > 0)) return null;
-    return fromInches(feet * 12 + inch);
-  }
-
-  function fail(message) {
-    errorNote.textContent = message;
-    errorNote.hidden = false;
-    result.classList.remove('visible');
-  }
-
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    errorNote.hidden = true;
-
-    const sex = form.querySelector('input[name="sex"]:checked').value;
-    const age = Number(el('age').value);
-    const cm = readHeightCm();
-
-    if (!Number.isInteger(age) || age < 20 || age > 79) {
-      return fail('Enter an age between 20 and 79. Our data does not cover ages outside that range.');
-    }
-    if (cm === null || cm < 100 || cm > 250) {
-      return fail('Enter a height between 100 cm and 250 cm (3′10″ and 8′2″).');
-    }
-
-    render(sex, age, cm);
-    track(EVENTS.valueSubmitted, { metric: 'height', unit: unitOf() });
+    },
+    format: formatHeight,
+    formatDifference: formatHeightDifference,
   });
-
-  function render(sex, age, cm) {
-    const found = lookupPercentile(table, sex, age, cm);
-    if (!found) return fail('We do not have data for that combination.');
-
-    const unit = unitOf();
-    const group = sex === 'male' ? 'men' : 'women';
-    const rounded = Math.round(found.percentile);
-
-    el('result-percentile').textContent =
-      found.bound ? (found.bound === 'below' ? 'Below the 1st' : 'Above the 99th') : ordinal(rounded);
-
-    el('result-sentence').textContent = found.bound === 'above'
-      ? `You are taller than more than 99% of American ${group} aged ${age}.`
-      : found.bound === 'below'
-        ? `You are shorter than more than 99% of American ${group} aged ${age}.`
-        : `You are taller than ${rounded}% of American ${group} aged ${age}.`;
-
-    el('stat-you').textContent = formatHeight(cm, unit);
-    el('stat-median').textContent = formatHeight(found.median, unit);
-    el('stat-diff').textContent = formatHeightDifference(cm - found.median, unit);
-
-    el('chart-caption').textContent =
-      `Distribution of height among American ${group} aged ${age}, based on ${found.n} effective survey respondents.`;
-
-    drawChart(table.sex[sex].byAge[String(age)].p, cm, unit);
-    result.classList.add('visible');
-    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  function drawChart(quantiles, marker, unit) {
-    const svg = el('result-chart');
-    const W = 640, H = 220, pad = { l: 8, r: 8, t: 12, b: 34 };
-    const points = densityFromQuantiles(quantiles);
-    if (points.length === 0) return;
-
-    const lo = quantiles[0], hi = quantiles[quantiles.length - 1];
-    const maxDensity = Math.max(...points.map((p) => p.density));
-    const x = (v) => pad.l + ((v - lo) / (hi - lo)) * (W - pad.l - pad.r);
-    const y = (d) => H - pad.b - (d / maxDensity) * (H - pad.t - pad.b);
-
-    const area = [
-      `M ${x(lo).toFixed(1)} ${(H - pad.b).toFixed(1)}`,
-      ...points.map((p) => `L ${x(p.value).toFixed(1)} ${y(p.density).toFixed(1)}`),
-      `L ${x(hi).toFixed(1)} ${(H - pad.b).toFixed(1)}`,
-      'Z',
-    ].join(' ');
-
-    const clamped = Math.min(Math.max(marker, lo), hi);
-    const ticks = [quantiles[9], quantiles[49], quantiles[89]];
-
-    svg.innerHTML = `
-      <title>Height distribution for your age and sex, with your height marked</title>
-      <path d="${area}" fill="var(--data-soft)" stroke="var(--data)" stroke-width="2" />
-      ${ticks.map((t) => `
-        <line x1="${x(t).toFixed(1)}" y1="${pad.t}" x2="${x(t).toFixed(1)}" y2="${H - pad.b}"
-              stroke="var(--line)" stroke-width="1" stroke-dasharray="3 3" />
-        <text x="${x(t).toFixed(1)}" y="${H - 14}" text-anchor="middle"
-              font-size="12" fill="var(--ink-soft)">${formatHeight(t, unit)}</text>`).join('')}
-      <line x1="${x(clamped).toFixed(1)}" y1="${pad.t}" x2="${x(clamped).toFixed(1)}" y2="${H - pad.b}"
-            stroke="var(--accent)" stroke-width="3" />
-      <circle cx="${x(clamped).toFixed(1)}" cy="${pad.t}" r="5" fill="var(--accent)" />
-      <text x="${x(clamped).toFixed(1)}" y="${pad.t - 2}" text-anchor="middle"
-            font-size="12" font-weight="700" fill="var(--accent)">you</text>`;
-  }
-
-  /* --- delen: dezelfde URL met parameters, canonical wijst naar /height/ ---- */
-  el('share-button').addEventListener('click', async () => {
-    const sex = form.querySelector('input[name="sex"]:checked').value;
-    const url = new URL(window.location.href);
-    url.search = new URLSearchParams({
-      sex, age: el('age').value, cm: readHeightCm().toFixed(1), unit: unitOf(),
-    }).toString();
-
-    try {
-      await navigator.clipboard.writeText(url.href);
-      el('share-button').textContent = 'Link copied';
-      track(EVENTS.resultShared, { metric: 'height', method: 'clipboard' });
-    } catch {
-      window.prompt('Copy this link:', url.href);
-    }
-  });
-
-  el('cta-weight').addEventListener('click', () => {
-    track(EVENTS.secondMetricOpened, { from: 'height', to: 'weight' });
-  });
-
-  /* --- een gedeelde link vult het formulier en toont het resultaat direct --- */
-  const params = new URLSearchParams(window.location.search);
-  if (params.has('cm') && params.has('age')) {
-    const sex = params.get('sex') === 'female' ? 'female' : 'male';
-    const unit = params.get('unit') === 'metric' ? 'metric' : 'imperial';
-    form.querySelector(`input[name="sex"][value="${sex}"]`).checked = true;
-    form.querySelector(`input[name="unit"][value="${unit}"]`).checked = true;
-    el('age').value = params.get('age');
-    el('cm').value = params.get('cm');
-    syncUnits();
-    const age = Number(params.get('age'));
-    const cm = Number(params.get('cm'));
-    if (age >= 20 && age <= 79 && cm >= 100 && cm <= 250) render(sex, age, cm);
-  }
 </script>
