@@ -187,7 +187,78 @@ const description =
     .stat-chip span { color: var(--ink-soft); }
 
     .privacy-note { margin-top: 18px; text-align: center; }
+
+    /* Drempelverkenner */
+    .explorer { padding: 26px; }
+    .threshold-readout {
+      margin: 4px 0 8px; color: var(--data);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.4rem, 8vw, 3.4rem); font-weight: 500; line-height: 1;
+    }
+    .threshold-slider { width: 100%; accent-color: var(--data); }
+    .threshold-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px; margin: 22px 0 8px;
+    }
+    .threshold-card {
+      padding: 16px; border: 1px solid var(--line);
+      border-radius: var(--radius-sm); background: #faf7ef;
+    }
+    .threshold-card strong {
+      display: block; margin: 2px 0 4px;
+      font-size: 1.5rem; font-variant-numeric: tabular-nums;
+    }
+    .threshold-card span[data-detail] { color: var(--ink-soft); font-size: 0.92rem; }
+    .threshold-card[data-thin="true"] strong { font-size: 1.1rem; color: var(--warning); }
+    #threshold-bar { width: 100%; height: auto; margin-top: 10px; }
+
+    @media (max-width: 640px) {
+      .threshold-grid { grid-template-columns: 1fr; }
+    }
   </style>
+
+  <section class="section">
+    <div class="container narrow">
+      <div class="section-heading">
+        <p class="eyebrow">Rarity explorer</p>
+        <h2>How many Americans are taller than that?</h2>
+        <p>
+          A published average cannot answer this. Counting people can, because every survey
+          participant carries a weight saying how many Americans they stand for. Drag the
+          handle and watch the count.
+        </p>
+      </div>
+
+      <div class="tool-panel explorer">
+        <label class="field-label" for="threshold-slider">Height threshold</label>
+        <p class="threshold-readout" id="threshold-value">6'0"</p>
+        <input type="range" id="threshold-slider" class="threshold-slider"
+               aria-label="Height threshold" />
+
+        <div class="threshold-grid">
+          <div class="threshold-card" id="threshold-male">
+            <span class="percentile-eyebrow">American men this tall or taller</span>
+            <strong data-headline></strong>
+            <span data-detail></span>
+          </div>
+          <div class="threshold-card" id="threshold-female">
+            <span class="percentile-eyebrow">American women this tall or taller</span>
+            <strong data-headline></strong>
+            <span data-detail></span>
+          </div>
+        </div>
+
+        <svg id="threshold-bar" viewBox="0 0 640 170" role="img"
+             aria-label="Share of American men and women at or above the selected height"></svg>
+
+        <p class="field-hint">
+          Estimated from {count(measuredAdults)} measured adults aged 20 to 79, using the
+          survey's own population weights. These are estimates from a sample, not a census
+          count.
+        </p>
+      </div>
+    </div>
+  </section>
 
   <section class="section tint">
     <div class="container narrow content">
@@ -287,6 +358,7 @@ const description =
 
 <script>
   import { createPercentileTool } from '../../lib/percentile-tool.js';
+  import { createThresholdExplorer } from '../../lib/threshold-explorer.js';
   import { formatHeight, formatHeightDifference, fromInches, toInches } from '../../lib/percentile.js';
 
   const el = (id) => document.getElementById(id);
@@ -320,5 +392,18 @@ const description =
     },
     format: formatHeight,
     formatDifference: formatHeightDifference,
+  });
+
+  const table = JSON.parse(el('height-data').textContent);
+  createThresholdExplorer({
+    thresholds: table.aggregates.thresholds,
+    labels: { male: 'Men', female: 'Women' },
+    startAt: 72 * 2.54,   // 6 voet: de meest gezochte drempel
+    format: (cm) => formatHeight(cm, 'imperial'),
+    formatPopulation(people) {
+      if (people >= 1e6) return `${(people / 1e6).toFixed(1)} million`;
+      if (people >= 1e3) return `${Math.round(people / 1e3)},000`;
+      return String(people);
+    },
   });
 </script>

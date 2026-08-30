@@ -19,9 +19,23 @@ const OUT_DIR = new URL('../data/percentiles/', import.meta.url);
 const BANDWIDTH = 6;                                     // jaren, tricube-kernel
 const LEVELS = Array.from({ length: 99 }, (_, i) => i + 1);
 
+// Drempels waarvoor we het aantal mensen erboven uitrekenen. Voor lengte elke hele
+// inch van 4'10" tot 6'10", want dat is hoe het Amerikaanse publiek erover praat en
+// ernaar zoekt; voor gewicht elke 10 pond van 100 tot 350.
+const inchesToCm = (inch) => inch * 2.54;
+const poundsToKg = (lb) => lb / 2.2046226218;
+const range = (from, to, step) =>
+  Array.from({ length: Math.round((to - from) / step) + 1 }, (_, i) => from + i * step);
+
 const METRICS = [
-  { key: 'height', column: 'BMXHT', unit: 'cm', decimals: 1, label: 'Standing height' },
-  { key: 'weight', column: 'BMXWT', unit: 'kg', decimals: 1, label: 'Body weight' },
+  {
+    key: 'height', column: 'BMXHT', unit: 'cm', decimals: 1, label: 'Standing height',
+    thresholds: range(58, 82, 1).map(inchesToCm),
+  },
+  {
+    key: 'weight', column: 'BMXWT', unit: 'kg', decimals: 1, label: 'Body weight',
+    thresholds: range(100, 350, 10).map(poundsToKg),
+  },
 ];
 
 /** Leest één cyclus en levert per respondent leeftijd, geslacht, gewichtsfactor en metingen. */
@@ -104,6 +118,32 @@ function bandQuantiles(observations, from, to, levels) {
 
 const SUMMARY_LEVELS = [10, 25, 50, 75, 90];
 
+/**
+ * Hoeveel Amerikanen zitten op of boven een drempel?
+ *
+ * Dit kan alleen uit microdata. De steekproefgewichten sommeren naar de werkelijke
+ * bevolking, dus de som van de gewichten boven een grens is een schatting van het
+ * aantal mensen erboven — niet alleen een percentage. Een gepubliceerd gemiddelde
+ * draagt die informatie niet.
+ *
+ * De uitkomst is een schatting uit een steekproef; rond hem op de site af en
+ * presenteer hem nooit als een exacte telling.
+ */
+function populationAbove(observations, thresholds) {
+  const total = observations.reduce((sum, o) => sum + o.weight, 0);
+  return thresholds.map((value) => {
+    const at = observations.reduce((sum, o) => (o.value >= value ? sum + o.weight : sum), 0);
+    return {
+      value: Number(value.toFixed(1)),
+      population: Math.round(at),
+      share: Number(((at / total) * 100).toFixed(2)),
+      // Aantal echte respondenten erboven: onder een handvol is de schatting te dun
+      // om te tonen, en dat moet de pagina zelf kunnen zien.
+      respondents: observations.filter((o) => o.value >= value).length,
+    };
+  });
+}
+
 for (const metric of METRICS) {
   const bySex = {};
   const aggregates = { overall: {}, bands: [] };
@@ -128,7 +168,18 @@ for (const metric of METRICS) {
       ),
     };
 
+    // Let op: `observations` bevat ook 18- en 19-jarigen, puur als ondersteuning voor
+    // de kernel aan de onderrand. Alles wat een uitspraak over de bevolking doet moet
+    // daarom eerst op het gepubliceerde leeftijdsbereik filteren, anders telt het
+    // mensen mee die nergens op de site voorkomen.
+    const publishable = observations.filter(
+      (o) => o.age >= PUBLISH_AGE_MIN && o.age <= PUBLISH_AGE_MAX,
+    );
+
     aggregates.overall[sex] = bandQuantiles(observations, PUBLISH_AGE_MIN, PUBLISH_AGE_MAX, SUMMARY_LEVELS);
+    aggregates.overall[sex].population = Math.round(publishable.reduce((s, o) => s + o.weight, 0));
+    aggregates.thresholds ??= {};
+    aggregates.thresholds[sex] = populationAbove(publishable, metric.thresholds);
     BANDS.forEach((band, i) => {
       aggregates.bands[i] ??= { label: band.label, from: band.from, to: band.to };
       aggregates.bands[i][sex] = bandQuantiles(observations, band.from, band.to, SUMMARY_LEVELS);
