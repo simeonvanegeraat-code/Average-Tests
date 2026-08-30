@@ -1,0 +1,456 @@
+---
+import Base from '../../layouts/Base.astro';
+import heightData from '../../../data/percentiles/height.json';
+
+/**
+ * De lengtepagina: statische inhoud die Google indexeert, met de rekenmodule
+ * eroverheen. De tabel hieronder wordt bij het bouwen uit de percentieldata
+ * gegenereerd, dus er staat geen enkel met de hand ingetypt getal op deze pagina.
+ */
+
+const feetInches = (cm) => {
+  const total = Math.round(cm / 2.54);
+  return `${Math.floor(total / 12)}'${total % 12}"`;
+};
+const count = (n) => n.toLocaleString('en-US');
+
+// Deze cijfers komen rechtstreeks uit de gewogen microdata (zie `aggregates` in
+// build-percentiles.mjs). Leid ze hier niet af uit de curves per leeftijdsjaar:
+// dat weegt elk leeftijdsjaar even zwaar en levert geen echte mediaan op.
+const rows = heightData.aggregates.bands;
+const overall = heightData.aggregates.overall;
+const measuredAdults = heightData.sex.male.respondents + heightData.sex.female.respondents;
+const twentiesVsSeventies = rows[0].male.p50 - rows[5].male.p50;
+
+const title = 'Average Height by Age — Find Your Percentile | HumanAverage';
+const description =
+  'Enter your height and see exactly where you rank among U.S. adults of your age and sex. ' +
+  'Percentiles calculated from NHANES survey microdata, not copied from published averages.';
+---
+
+<Base title={title} description={description} canonical="/height/">
+  <Fragment slot="head">
+    <script type="application/json" id="height-data" set:html={JSON.stringify(heightData)} is:inline />
+  </Fragment>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Height percentile</p>
+      <h1>How tall are you, really?</h1>
+      <p class="lead">
+        The average tells you almost nothing about yourself. Enter your height and see the
+        share of American adults your age and sex that you are taller than — calculated from
+        {count(measuredAdults)} measured survey participants.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow">
+      <div class="tool-panel">
+        <div class="tool-panel-header">
+          <h2>Your height percentile</h2>
+        </div>
+
+        <form id="height-form" class="tool-form" novalidate>
+          <fieldset class="field">
+            <legend class="field-label">Sex at birth</legend>
+            <div class="option-row" role="radiogroup" aria-label="Sex at birth">
+              <label class="option">
+                <input type="radio" name="sex" value="male" checked /><span>Male</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="sex" value="female" /><span>Female</span>
+              </label>
+            </div>
+            <p class="field-hint">
+              The survey records sex at birth only, so those are the only comparison groups
+              we can honestly offer.
+            </p>
+          </fieldset>
+
+          <div class="field">
+            <label class="field-label" for="age">Age</label>
+            <input class="text-input" type="number" id="age" name="age" min="20" max="79"
+                   inputmode="numeric" placeholder="34" required />
+            <p class="field-hint">Between 20 and 79.</p>
+          </div>
+
+          <fieldset class="field">
+            <legend class="field-label">Units</legend>
+            <div class="option-row" role="radiogroup" aria-label="Units">
+              <label class="option">
+                <input type="radio" name="unit" value="imperial" checked /><span>Feet &amp; inches</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="unit" value="metric" /><span>Centimetres</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="field" id="input-imperial">
+            <span class="field-label" id="height-label">Height</span>
+            <div class="unit-inputs" role="group" aria-labelledby="height-label">
+              <input class="text-input" type="number" id="feet" min="3" max="8"
+                     inputmode="numeric" placeholder="5" aria-label="Feet" />
+              <span class="unit-suffix">ft</span>
+              <input class="text-input" type="number" id="inches" min="0" max="11"
+                     inputmode="numeric" placeholder="10" aria-label="Inches" />
+              <span class="unit-suffix">in</span>
+            </div>
+          </div>
+
+          <div class="field" id="input-metric" hidden>
+            <label class="field-label" for="cm">Height in centimetres</label>
+            <input class="text-input" type="number" id="cm" min="100" max="250" step="0.1"
+                   inputmode="decimal" placeholder="178" aria-label="Height in centimetres" />
+          </div>
+
+          <p class="button-row">
+            <button class="button" type="submit">Show my percentile</button>
+          </p>
+          <p class="warning-note" id="form-error" role="alert" hidden></p>
+        </form>
+
+        <div class="tool-results" id="result" aria-live="polite">
+          <p class="percentile-eyebrow">Your result</p>
+          <p class="percentile-headline" id="result-percentile"></p>
+          <p class="percentile-sentence" id="result-sentence"></p>
+
+          <figure class="chart-figure">
+            <svg id="result-chart" viewBox="0 0 640 220"
+                 role="img" aria-labelledby="chart-title">
+              <title id="chart-title">Height distribution for your age and sex, with your height marked</title>
+            </svg>
+            <figcaption class="field-hint" id="chart-caption"></figcaption>
+          </figure>
+
+          <div class="result-grid">
+            <div class="stat-chip"><strong id="stat-you"></strong> <span>your height</span></div>
+            <div class="stat-chip"><strong id="stat-median"></strong> <span>group median</span></div>
+            <div class="stat-chip"><strong id="stat-diff"></strong> <span>difference</span></div>
+          </div>
+
+          <div class="button-row">
+            <a class="button" href="/weight/" id="cta-weight">Now check your weight →</a>
+            <button class="button secondary" type="button" id="share-button">Copy link to this result</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="privacy-note">
+        Your height is never sent anywhere. The calculation runs entirely in your browser.
+      </p>
+    </div>
+  </section>
+
+  <style>
+    /* Paginagebonden aanvullingen op /css/style.css. Gebruikt uitsluitend de
+       bestaande designtokens, zodat dit geen tweede designsysteem wordt. */
+    .tool-form { padding: 26px; display: grid; gap: 22px; }
+    .field { margin: 0; padding: 0; border: 0; }
+    .field-hint { margin: 6px 0 0; color: var(--ink-soft); font-size: 0.9rem; }
+
+    .option-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .option {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px;
+      background: var(--paper); cursor: pointer; font-weight: 640;
+    }
+    .option:hover { border-color: var(--data); }
+    .option:has(input:checked) {
+      border-color: var(--data); background: var(--data-soft); color: var(--data);
+    }
+    .option input { accent-color: var(--data); }
+
+    .unit-inputs { display: flex; align-items: center; gap: 10px; }
+    .unit-inputs .text-input { width: 6.5rem; }
+    .unit-suffix { color: var(--ink-soft); font-weight: 640; }
+
+    .percentile-eyebrow {
+      margin: 0 0 4px; color: var(--ink-soft); font-size: 0.74rem;
+      font-weight: 780; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .percentile-headline {
+      margin: 0; color: var(--data);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(3rem, 11vw, 5rem); font-weight: 500;
+      letter-spacing: -0.04em; line-height: 1;
+    }
+    .percentile-sentence { margin: 10px 0 0; font-size: 1.15rem; }
+
+    .chart-figure { margin: 26px 0 0; }
+    /* Geen preserveAspectRatio="none": dat rekt de tekstlabels in de grafiek uit. */
+    .chart-figure svg { width: 100%; height: auto; display: block; }
+
+    .result-grid { margin-top: 20px; }
+    .stat-chip span { color: var(--ink-soft); }
+
+    .privacy-note { margin-top: 18px; text-align: center; }
+  </style>
+
+  <section class="section tint">
+    <div class="container narrow content">
+      <h2>Average height of American adults</h2>
+      <p>
+        Across all adults aged 20 to 79, the median American man is
+        {feetInches(overall.male.p50)} ({overall.male.p50} cm) and the median American
+        woman is {feetInches(overall.female.p50)} ({overall.female.p50} cm). But height
+        falls with age, so a single number hides more than it shows.
+      </p>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <caption>Median height, and the range covering the middle 80%, by age group</caption>
+          <thead>
+            <tr>
+              <th scope="col">Age</th>
+              <th scope="col">Men — median</th>
+              <th scope="col">Men — 10th to 90th</th>
+              <th scope="col">Women — median</th>
+              <th scope="col">Women — 10th to 90th</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr>
+                <th scope="row">{row.label}</th>
+                <td>{feetInches(row.male.p50)} ({row.male.p50} cm)</td>
+                <td>{feetInches(row.male.p10)} – {feetInches(row.male.p90)}</td>
+                <td>{feetInches(row.female.p50)} ({row.female.p50} cm)</td>
+                <td>{feetInches(row.female.p10)} – {feetInches(row.female.p90)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Men in their twenties are about
+        {twentiesVsSeventies.toFixed(1)} cm taller than men in their
+        seventies. That gap is not shrinkage alone: people born decades apart grew up under
+        different nutrition and health conditions, and a survey measures both effects at
+        once. It is the reason this tool asks your age instead of comparing you to every
+        adult at once.
+      </p>
+
+      <h2 id="method">How this is calculated</h2>
+      <p>
+        Most pages about average height quote a published summary figure. This one starts a
+        step earlier, from the individual measurements behind that figure.
+      </p>
+      <ul>
+        <li>
+          <strong>Source.</strong> The National Health and Nutrition Examination Survey
+          (NHANES), run by the U.S. Centers for Disease Control and Prevention. Heights are
+          measured by trained staff in a mobile examination centre, not self-reported.
+        </li>
+        <li>
+          <strong>Period.</strong> Two survey cycles: 2017 to March 2020, and August 2021 to
+          August 2023. Together {count(measuredAdults)} measured adults.
+        </li>
+        <li>
+          <strong>Survey weights.</strong> NHANES deliberately over-samples some groups, so
+          every participant carries a weight representing how many Americans they stand for.
+          Ignoring those weights is not a rounding error: it shifts the average height of men
+          by nearly two centimetres.
+        </li>
+        <li>
+          <strong>Smoothing across age.</strong> About a hundred people per single year of
+          age is enough for a median but not for a stable 90th percentile, so each age draws
+          on neighbouring ages, weighted by how close they are. Every age shown here rests on
+          at least 254 effective respondents.
+        </li>
+        <li>
+          <strong>Ages 20 to 79 only.</strong> NHANES records everyone aged 80 and over as
+          simply “80”, so that group is not an age and is excluded rather than presented as one.
+        </li>
+      </ul>
+
+      <div class="callout">
+        <p>
+          <strong>This compares you to adults in the United States.</strong> NHANES samples
+          the U.S. civilian population. If you live elsewhere, your percentile here tells you
+          where you would stand among Americans — not among your own countrymen.
+        </p>
+      </div>
+
+      <p class="source-note">
+        Source: Centers for Disease Control and Prevention (CDC), National Center for Health
+        Statistics (NCHS). National Health and Nutrition Examination Survey, 2017–March 2020
+        and August 2021–August 2023. Data retrieved 30 August 2026. Our figures reproduce the
+        published NCHS averages for height and weight exactly.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import {
+    lookupPercentile, densityFromQuantiles, formatHeight, formatHeightDifference,
+    fromInches, toInches, ordinal,
+  } from '../../lib/percentile.js';
+  import { track, EVENTS } from '../../lib/analytics.js';
+
+  const table = JSON.parse(document.getElementById('height-data').textContent);
+  const form = document.getElementById('height-form');
+  const result = document.getElementById('result');
+  const errorNote = document.getElementById('form-error');
+
+  const el = (id) => document.getElementById(id);
+  const unitOf = () => form.querySelector('input[name="unit"]:checked').value;
+
+  /** Wisselt de invoervelden en zet de waarde om, zodat je niets kwijtraakt. */
+  function syncUnits() {
+    const imperial = unitOf() === 'imperial';
+    el('input-imperial').hidden = !imperial;
+    el('input-metric').hidden = imperial;
+
+    if (imperial && el('cm').value) {
+      const total = Math.round(toInches(Number(el('cm').value)));
+      el('feet').value = Math.floor(total / 12);
+      el('inches').value = total % 12;
+    } else if (!imperial && el('feet').value) {
+      const total = Number(el('feet').value) * 12 + Number(el('inches').value || 0);
+      el('cm').value = fromInches(total).toFixed(1);
+    }
+  }
+  form.querySelectorAll('input[name="unit"]').forEach((r) => r.addEventListener('change', syncUnits));
+
+  function readHeightCm() {
+    if (unitOf() === 'metric') {
+      const cm = Number(el('cm').value);
+      return cm > 0 ? cm : null;
+    }
+    const feet = Number(el('feet').value);
+    const inch = Number(el('inches').value || 0);
+    if (!(feet > 0)) return null;
+    return fromInches(feet * 12 + inch);
+  }
+
+  function fail(message) {
+    errorNote.textContent = message;
+    errorNote.hidden = false;
+    result.classList.remove('visible');
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    errorNote.hidden = true;
+
+    const sex = form.querySelector('input[name="sex"]:checked').value;
+    const age = Number(el('age').value);
+    const cm = readHeightCm();
+
+    if (!Number.isInteger(age) || age < 20 || age > 79) {
+      return fail('Enter an age between 20 and 79. Our data does not cover ages outside that range.');
+    }
+    if (cm === null || cm < 100 || cm > 250) {
+      return fail('Enter a height between 100 cm and 250 cm (3′10″ and 8′2″).');
+    }
+
+    render(sex, age, cm);
+    track(EVENTS.valueSubmitted, { metric: 'height', unit: unitOf() });
+  });
+
+  function render(sex, age, cm) {
+    const found = lookupPercentile(table, sex, age, cm);
+    if (!found) return fail('We do not have data for that combination.');
+
+    const unit = unitOf();
+    const group = sex === 'male' ? 'men' : 'women';
+    const rounded = Math.round(found.percentile);
+
+    el('result-percentile').textContent =
+      found.bound ? (found.bound === 'below' ? 'Below the 1st' : 'Above the 99th') : ordinal(rounded);
+
+    el('result-sentence').textContent = found.bound === 'above'
+      ? `You are taller than more than 99% of American ${group} aged ${age}.`
+      : found.bound === 'below'
+        ? `You are shorter than more than 99% of American ${group} aged ${age}.`
+        : `You are taller than ${rounded}% of American ${group} aged ${age}.`;
+
+    el('stat-you').textContent = formatHeight(cm, unit);
+    el('stat-median').textContent = formatHeight(found.median, unit);
+    el('stat-diff').textContent = formatHeightDifference(cm - found.median, unit);
+
+    el('chart-caption').textContent =
+      `Distribution of height among American ${group} aged ${age}, based on ${found.n} effective survey respondents.`;
+
+    drawChart(table.sex[sex].byAge[String(age)].p, cm, unit);
+    result.classList.add('visible');
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function drawChart(quantiles, marker, unit) {
+    const svg = el('result-chart');
+    const W = 640, H = 220, pad = { l: 8, r: 8, t: 12, b: 34 };
+    const points = densityFromQuantiles(quantiles);
+    if (points.length === 0) return;
+
+    const lo = quantiles[0], hi = quantiles[quantiles.length - 1];
+    const maxDensity = Math.max(...points.map((p) => p.density));
+    const x = (v) => pad.l + ((v - lo) / (hi - lo)) * (W - pad.l - pad.r);
+    const y = (d) => H - pad.b - (d / maxDensity) * (H - pad.t - pad.b);
+
+    const area = [
+      `M ${x(lo).toFixed(1)} ${(H - pad.b).toFixed(1)}`,
+      ...points.map((p) => `L ${x(p.value).toFixed(1)} ${y(p.density).toFixed(1)}`),
+      `L ${x(hi).toFixed(1)} ${(H - pad.b).toFixed(1)}`,
+      'Z',
+    ].join(' ');
+
+    const clamped = Math.min(Math.max(marker, lo), hi);
+    const ticks = [quantiles[9], quantiles[49], quantiles[89]];
+
+    svg.innerHTML = `
+      <title>Height distribution for your age and sex, with your height marked</title>
+      <path d="${area}" fill="var(--data-soft)" stroke="var(--data)" stroke-width="2" />
+      ${ticks.map((t) => `
+        <line x1="${x(t).toFixed(1)}" y1="${pad.t}" x2="${x(t).toFixed(1)}" y2="${H - pad.b}"
+              stroke="var(--line)" stroke-width="1" stroke-dasharray="3 3" />
+        <text x="${x(t).toFixed(1)}" y="${H - 14}" text-anchor="middle"
+              font-size="12" fill="var(--ink-soft)">${formatHeight(t, unit)}</text>`).join('')}
+      <line x1="${x(clamped).toFixed(1)}" y1="${pad.t}" x2="${x(clamped).toFixed(1)}" y2="${H - pad.b}"
+            stroke="var(--accent)" stroke-width="3" />
+      <circle cx="${x(clamped).toFixed(1)}" cy="${pad.t}" r="5" fill="var(--accent)" />
+      <text x="${x(clamped).toFixed(1)}" y="${pad.t - 2}" text-anchor="middle"
+            font-size="12" font-weight="700" fill="var(--accent)">you</text>`;
+  }
+
+  /* --- delen: dezelfde URL met parameters, canonical wijst naar /height/ ---- */
+  el('share-button').addEventListener('click', async () => {
+    const sex = form.querySelector('input[name="sex"]:checked').value;
+    const url = new URL(window.location.href);
+    url.search = new URLSearchParams({
+      sex, age: el('age').value, cm: readHeightCm().toFixed(1), unit: unitOf(),
+    }).toString();
+
+    try {
+      await navigator.clipboard.writeText(url.href);
+      el('share-button').textContent = 'Link copied';
+      track(EVENTS.resultShared, { metric: 'height', method: 'clipboard' });
+    } catch {
+      window.prompt('Copy this link:', url.href);
+    }
+  });
+
+  el('cta-weight').addEventListener('click', () => {
+    track(EVENTS.secondMetricOpened, { from: 'height', to: 'weight' });
+  });
+
+  /* --- een gedeelde link vult het formulier en toont het resultaat direct --- */
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('cm') && params.has('age')) {
+    const sex = params.get('sex') === 'female' ? 'female' : 'male';
+    const unit = params.get('unit') === 'metric' ? 'metric' : 'imperial';
+    form.querySelector(`input[name="sex"][value="${sex}"]`).checked = true;
+    form.querySelector(`input[name="unit"][value="${unit}"]`).checked = true;
+    el('age').value = params.get('age');
+    el('cm').value = params.get('cm');
+    syncUnits();
+    const age = Number(params.get('age'));
+    const cm = Number(params.get('cm'));
+    if (age >= 20 && age <= 79 && cm >= 100 && cm <= 250) render(sex, age, cm);
+  }
+</script>

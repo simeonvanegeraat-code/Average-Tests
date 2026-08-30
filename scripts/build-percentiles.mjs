@@ -9,7 +9,7 @@
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { readXpt } from './lib/xpt.mjs';
-import { smoothedQuantilesByAge } from './lib/stats.mjs';
+import { smoothedQuantilesByAge, weightedQuantile } from './lib/stats.mjs';
 import {
   CYCLES, RAW_DIR, SEX, TOP_CODED_AGE,
   PUBLISH_AGE_MIN, PUBLISH_AGE_MAX, SUPPORT_AGE_MIN,
@@ -72,8 +72,41 @@ const ages = Array.from(
 
 await mkdir(OUT_DIR, { recursive: true });
 
+// Leeftijdsbanden voor de samenvattende tabel op de metriekpagina's.
+const BANDS = [
+  { label: '20-29', from: 20, to: 29 },
+  { label: '30-39', from: 30, to: 39 },
+  { label: '40-49', from: 40, to: 49 },
+  { label: '50-59', from: 50, to: 59 },
+  { label: '60-69', from: 60, to: 69 },
+  { label: '70-79', from: 70, to: 79 },
+];
+
+/**
+ * Percentielen voor een leeftijdsbereik, rechtstreeks gewogen uit de microdata.
+ *
+ * Dit mag NIET worden benaderd door de gladgestreken curves per leeftijdsjaar te
+ * middelen: die weegt elk leeftijdsjaar even zwaar, terwijl leeftijdsjaren
+ * verschillend bevolkt zijn. Het verschil is klein maar de uitkomst zou dan geen
+ * mediaan meer zijn, en dat is precies wat we op zo'n pagina beweren.
+ */
+function bandQuantiles(observations, from, to, levels) {
+  const rows = observations
+    .filter((o) => o.age >= from && o.age <= to)
+    .map((o) => ({ value: o.value, weight: o.weight }))
+    .sort((a, b) => a.value - b.value);
+
+  const out = {};
+  for (const level of levels) out[`p${level}`] = Number(weightedQuantile(rows, level / 100).toFixed(1));
+  out.n = rows.length;
+  return out;
+}
+
+const SUMMARY_LEVELS = [10, 25, 50, 75, 90];
+
 for (const metric of METRICS) {
   const bySex = {};
+  const aggregates = { overall: {}, bands: [] };
   let measured = 0;
 
   for (const [code, sex] of Object.entries(SEX)) {
@@ -94,6 +127,12 @@ for (const metric of METRICS) {
         }]),
       ),
     };
+
+    aggregates.overall[sex] = bandQuantiles(observations, PUBLISH_AGE_MIN, PUBLISH_AGE_MAX, SUMMARY_LEVELS);
+    BANDS.forEach((band, i) => {
+      aggregates.bands[i] ??= { label: band.label, from: band.from, to: band.to };
+      aggregates.bands[i][sex] = bandQuantiles(observations, band.from, band.to, SUMMARY_LEVELS);
+    });
   }
 
   const doc = {
@@ -107,6 +146,9 @@ for (const metric of METRICS) {
     ageRange: [PUBLISH_AGE_MIN, PUBLISH_AGE_MAX],
     percentileLevels: LEVELS,
     generated: new Date().toISOString().slice(0, 10),
+    // Gewogen percentielen per leeftijdsbereik, rechtstreeks uit de microdata.
+    // Gebruik deze voor samenvattende uitspraken; leid ze nooit af uit `byAge`.
+    aggregates,
     sex: bySex,
   };
 
