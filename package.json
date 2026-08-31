@@ -10,7 +10,8 @@
     "data:fetch": "node scripts/fetch-nhanes.mjs",
     "data:build": "node scripts/build-percentiles.mjs",
     "data:validate": "node scripts/validate-percentiles.mjs",
-    "data": "npm run data:fetch && npm run data:build && npm run data:validate"
+    "data": "npm run data:fetch && npm run data:build && npm run data:validate && npm run data:questions",
+    "data:questions": "node scripts/build-questions.mjs"
   },
   "devDependencies": {
     "astro": "^5.14.1"

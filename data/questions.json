@@ -1,0 +1,642 @@
+{
+ "generated": "2026-08-31",
+ "sources": {
+  "nhanes-2017-2023": {
+   "id": "nhanes-2017-2023",
+   "label": "CDC/NCHS National Health and Nutrition Examination Survey, 2017–March 2020 and August 2021–August 2023",
+   "url": "https://wwwn.cdc.gov/nchs/nhanes/"
+  }
+ },
+ "questions": [
+  {
+   "id": 1,
+   "prompt": "What percentage of American men are 5'4\" or taller?",
+   "answer": 95.5,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "106.3 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 2,
+   "prompt": "What percentage of American men are 5'6\" or taller?",
+   "answer": 85.4,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "95.0 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 3,
+   "prompt": "What percentage of American men are 5'8\" or taller?",
+   "answer": 62.8,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "69.9 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 4,
+   "prompt": "What percentage of American men are 5'10\" or taller?",
+   "answer": 36.1,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "40.1 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 5,
+   "prompt": "What percentage of American men are 6'0\" or taller?",
+   "answer": 15.2,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "16.9 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 6,
+   "prompt": "What percentage of American men are 6'2\" or taller?",
+   "answer": 4.3,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "4.8 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 7,
+   "prompt": "What percentage of American women are 5'0\" or taller?",
+   "answer": 91.2,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "107.3 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 8,
+   "prompt": "What percentage of American women are 5'2\" or taller?",
+   "answer": 71.7,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "84.3 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 9,
+   "prompt": "What percentage of American women are 5'4\" or taller?",
+   "answer": 43.5,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "51.1 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 10,
+   "prompt": "What percentage of American women are 5'6\" or taller?",
+   "answer": 18.7,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "22.0 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 11,
+   "prompt": "What percentage of American women are 5'8\" or taller?",
+   "answer": 5,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "5.8 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 12,
+   "prompt": "What percentage of American men weigh 160 lb or more?",
+   "answer": 81.1,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "90.3 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 13,
+   "prompt": "What percentage of American men weigh 200 lb or more?",
+   "answer": 43.1,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "48.0 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 14,
+   "prompt": "What percentage of American men weigh 240 lb or more?",
+   "answer": 17.9,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "20.0 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 15,
+   "prompt": "What percentage of American men weigh 280 lb or more?",
+   "answer": 6.6,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "7.4 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 16,
+   "prompt": "What percentage of American men weigh 320 lb or more?",
+   "answer": 2.5,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "2.8 million men.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 17,
+   "prompt": "What percentage of American women weigh 120 lb or more?",
+   "answer": 90.2,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "106.0 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 18,
+   "prompt": "What percentage of American women weigh 160 lb or more?",
+   "answer": 53.1,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "62.4 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 19,
+   "prompt": "What percentage of American women weigh 200 lb or more?",
+   "answer": 24.4,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "28.6 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 20,
+   "prompt": "What percentage of American women weigh 240 lb or more?",
+   "answer": 9.4,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "11.1 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 21,
+   "prompt": "What percentage of American women weigh 280 lb or more?",
+   "answer": 3.3,
+   "unit": "percent",
+   "range": {
+    "min": 0,
+    "max": 100,
+    "step": 0.5
+   },
+   "hint": "Adults aged 20 to 79",
+   "note": "3.8 million women.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 22,
+   "prompt": "What is the median height of American men aged 20 to 29?",
+   "answer": 69,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "176 cm — 5'9\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 23,
+   "prompt": "What is the median height of American women aged 20 to 29?",
+   "answer": 64,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "163.1 cm — 5'4\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 24,
+   "prompt": "What is the median height of American men aged 30 to 39?",
+   "answer": 69,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "176.2 cm — 5'9\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 25,
+   "prompt": "What is the median height of American women aged 30 to 39?",
+   "answer": 64,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "162.6 cm — 5'4\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 26,
+   "prompt": "What is the median height of American men aged 40 to 49?",
+   "answer": 69,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "175.9 cm — 5'9\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 27,
+   "prompt": "What is the median height of American women aged 40 to 49?",
+   "answer": 64,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "162.4 cm — 5'4\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 28,
+   "prompt": "What is the median height of American men aged 50 to 59?",
+   "answer": 69,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "175 cm — 5'9\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 29,
+   "prompt": "What is the median height of American women aged 50 to 59?",
+   "answer": 63,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "161 cm — 5'3\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 30,
+   "prompt": "What is the median height of American men aged 60 to 69?",
+   "answer": 69,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "174.3 cm — 5'9\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 31,
+   "prompt": "What is the median height of American women aged 60 to 69?",
+   "answer": 63,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "160.4 cm — 5'3\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 32,
+   "prompt": "What is the median height of American men aged 70 to 79?",
+   "answer": 68,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "172.7 cm — 5'8\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 33,
+   "prompt": "What is the median height of American women aged 70 to 79?",
+   "answer": 62,
+   "unit": "inches",
+   "range": {
+    "min": 58,
+    "max": 76,
+    "step": 0.5
+   },
+   "hint": "Measured, not self-reported",
+   "note": "157.5 cm — 5'2\".",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 34,
+   "prompt": "What is the median weight of American men aged 20 to 29?",
+   "answer": 182,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "82.4 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 35,
+   "prompt": "What is the median weight of American women aged 20 to 29?",
+   "answer": 154,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "69.7 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 36,
+   "prompt": "What is the median weight of American men aged 30 to 39?",
+   "answer": 195,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "88.4 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 37,
+   "prompt": "What is the median weight of American women aged 30 to 39?",
+   "answer": 166,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "75.2 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 38,
+   "prompt": "What is the median weight of American men aged 40 to 49?",
+   "answer": 198,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "89.8 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 39,
+   "prompt": "What is the median weight of American women aged 40 to 49?",
+   "answer": 166,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "75.2 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 40,
+   "prompt": "What is the median weight of American men aged 50 to 59?",
+   "answer": 197,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "89.3 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 41,
+   "prompt": "What is the median weight of American women aged 50 to 59?",
+   "answer": 168,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "76.1 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 42,
+   "prompt": "What is the median weight of American men aged 60 to 69?",
+   "answer": 193,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "87.6 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 43,
+   "prompt": "What is the median weight of American women aged 60 to 69?",
+   "answer": 164,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "74.3 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 44,
+   "prompt": "What is the median weight of American men aged 70 to 79?",
+   "answer": 188,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "85.5 kg.",
+   "source": "nhanes-2017-2023"
+  },
+  {
+   "id": 45,
+   "prompt": "What is the median weight of American women aged 70 to 79?",
+   "answer": 159,
+   "unit": "pounds",
+   "range": {
+    "min": 100,
+    "max": 280,
+    "step": 1
+   },
+   "hint": "Measured, not self-reported",
+   "note": "72.1 kg.",
+   "source": "nhanes-2017-2023"
+  }
+ ]
+}
