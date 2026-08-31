@@ -1,6 +1,12 @@
 ---
 import Base from '../../layouts/Base.astro';
 import heightData from '../../../data/percentiles/height.json';
+import { slugFor, formatFeet } from '../../lib/height-facts.js';
+
+// Zelfde bereik als getStaticPaths in [slug].astro: 5'0" t/m 6'4". Wijzigt dat daar,
+// dan hoort het hier mee te veranderen, anders ontstaan er dode of weeslinks.
+const heightIndex = Array.from({ length: 17 }, (_, i) => 60 + i)
+  .map((inch) => ({ slug: slugFor(inch), label: formatFeet(inch) }));
 
 /**
  * De lengtepagina: statische inhoud die Google indexeert, met de rekenmodule
@@ -212,6 +218,19 @@ const description =
     .threshold-card[data-thin="true"] strong { font-size: 1.1rem; color: var(--warning); }
     #threshold-bar { width: 100%; height: auto; margin-top: 10px; }
 
+    /* Index naar de losse lengtepagina's */
+    .height-index {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin: 0 0 32px; padding: 0; list-style: none;
+    }
+    .height-index a {
+      display: inline-block; padding: 8px 14px;
+      border: 1px solid var(--line); border-radius: 999px;
+      background: var(--paper); font-weight: 640;
+      font-variant-numeric: tabular-nums; text-decoration: none;
+    }
+    .height-index a:hover { border-color: var(--data); background: var(--data-soft); }
+
     @media (max-width: 640px) {
       .threshold-grid { grid-template-columns: 1fr; }
     }
@@ -262,6 +281,17 @@ const description =
 
   <section class="section tint">
     <div class="container narrow content">
+      <h2>How rare is a specific height?</h2>
+      <p>
+        Each of these answers one height in full: how many Americans reach it, what percentile
+        it is at every adult age, and how differently it lands for men and women.
+      </p>
+      <ul class="height-index">
+        {heightIndex.map((h) => (
+          <li><a href={`/height/${h.slug}/`}>{h.label}</a></li>
+        ))}
+      </ul>
+
       <h2>Average height of American adults</h2>
       <p>
         Across all adults aged 20 to 79, the median American man is

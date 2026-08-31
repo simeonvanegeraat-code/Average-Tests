@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/build-sitemap.mjs",
     "preview": "astro preview",
     "data:fetch": "node scripts/fetch-nhanes.mjs",
     "data:build": "node scripts/build-percentiles.mjs",
