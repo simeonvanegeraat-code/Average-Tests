@@ -1,0 +1,261 @@
+---
+import Base from '../../layouts/Base.astro';
+import index from '../../../data/wealth/index.json';
+import { euro, multiple, formatPeriod, percentChange, withArticle } from '../../lib/wealth.js';
+
+/**
+ * Eén pagina per land.
+ *
+ * Deze pagina's zijn geen varianten van hetzelfde sjabloon met een ander cijfer:
+ * landen verschillen werkelijk. Duitsland heeft een lagere mediaan dan Italië
+ * ondanks een hoger inkomen, in Zuid-Europa zit het vermogen in stenen en in
+ * Nederland in pensioen. De tekst hieronder leest die verschillen uit de data en
+ * benoemt per land wat er opvalt.
+ */
+
+export async function getStaticPaths() {
+  const files = import.meta.glob('../../../data/wealth/*.json', { eager: true });
+
+  return index.countries.map((summary) => {
+    const key = Object.keys(files).find((p) => p.endsWith(`/${summary.area.toLowerCase()}.json`));
+    const country = files[key].default ?? files[key];
+    return { params: { country: summary.area.toLowerCase() }, props: { country } };
+  });
+}
+
+const { country } = Astro.props;
+const c = country;
+
+const byCode = Object.fromEntries(c.groups.map((g) => [g.code, g]));
+const status = Object.fromEntries(c.status.map((s) => [s.code, s]));
+const owners = status.HSO;
+const renters = status.HST;
+const housingGap = owners && renters ? owners.netWealth / renters.netWealth : null;
+
+const yearChange = c.medianYearAgo ? percentChange(c.medianYearAgo.value, c.median) : null;
+const meanToMedian = c.mean ? c.mean / c.median : null;
+
+// Rangorde binnen Europa, uit de index in plaats van met de hand.
+const ranked = [...index.countries].sort((a, b) => b.median - a.median);
+const position = ranked.findIndex((x) => x.area === c.area) + 1;
+const euroArea = index.euroArea;
+
+// Waar zit het vermogen van de middenmoot in? Dit verschilt sterk per land en is
+// het punt waarop deze pagina's echt uiteenlopen.
+const middle = c.composition?.Q3 ?? [];
+const assets = middle.filter((p) => p.side === 'asset').sort((a, b) => b.value - a.value);
+const biggest = assets[0];
+const secondBiggest = assets[1];
+const debts = middle.filter((p) => p.side === 'liability');
+const totalDebt = debts.reduce((sum, d) => sum + Math.abs(d.value), 0);
+
+const bottomQuintile = byCode.Q1;
+const negativeBottom = bottomQuintile && bottomQuintile.netWealth < 0;
+
+const where = withArticle(c.name);
+const Where = withArticle(c.name, { capitalise: true });
+
+const title = `Household Wealth in ${Where} — Where You Stand`;
+const description =
+  `The median household in ${where} is worth ${euro(c.median)}. See the full distribution, ` +
+  `the gap between owning and renting, and where your own household would sit.`;
+---
+
+<Base title={title} description={description} canonical={`/wealth/${c.area.toLowerCase()}/`}>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">{c.name} · {formatPeriod(c.period)}</p>
+      <h1>The median household in {where} is worth {euro(c.median)}</h1>
+      <p class="lead">
+        That is the middle household — half of the country owns more, half owns less. It ranks
+        {position === 1 ? ' highest' : position === ranked.length ? ' lowest' : ` ${position}${position === 2 ? 'nd' : position === 3 ? 'rd' : 'th'}`}
+        {' '}of the {ranked.length} countries the European Central Bank measures.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow">
+      <div class="stat-row">
+        <div class="stat-block">
+          <span class="eyebrow-sm">Median household</span>
+          <strong>{euro(c.median)}</strong>
+          {yearChange != null && (
+            <span class={yearChange >= 0 ? 'up' : 'down'}>
+              {yearChange >= 0 ? '▲' : '▼'} {Math.abs(yearChange).toFixed(1)}% over the year
+            </span>
+          )}
+        </div>
+        <div class="stat-block">
+          <span class="eyebrow-sm">Average household</span>
+          <strong>{euro(c.mean)}</strong>
+          {meanToMedian && <span>{multiple(meanToMedian)} the median</span>}
+        </div>
+      </div>
+
+      <div class="content">
+        <p>
+          The average is {meanToMedian ? multiple(meanToMedian) : ''} the median, and that gap is
+          the whole story of wealth statistics. Averages are dragged upward by a small number of
+          very large fortunes; the median describes the household in the middle. Whenever a
+          headline quotes the average wealth of a country, it is describing almost nobody.
+        </p>
+
+        {housingGap && (
+          <>
+            <h2>Owning versus renting</h2>
+            <p>
+              In {where} this is the single sharpest divide in the data — wider than any
+              difference between age groups or professions.
+            </p>
+            <div class="split">
+              <div class="split-side own">
+                <span class="eyebrow-sm">Homeowners</span>
+                <strong>{euro(owners.netWealth)}</strong>
+              </div>
+              <div class="split-vs">{multiple(housingGap)}</div>
+              <div class="split-side rent">
+                <span class="eyebrow-sm">Renters</span>
+                <strong>{euro(renters.netWealth)}</strong>
+              </div>
+            </div>
+            <p>
+              A homeowning household in {where} holds {multiple(housingGap)} what a renting
+              household holds. Comparing yourself to the average household here, without knowing which side of that
+              line you are on, tells you very little.
+            </p>
+          </>
+        )}
+
+        <h2>The whole distribution</h2>
+        <p>
+          What each fifth of households owns on average. These are group averages, not the
+          boundaries between groups — the ECB publishes the former and not the latter.
+        </p>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <caption>Average net wealth per household by group, {Where}, {formatPeriod(c.period)}</caption>
+            <thead>
+              <tr><th scope="col">Group</th><th scope="col">Average net wealth</th></tr>
+            </thead>
+            <tbody>
+              {c.groups.filter((g) => g.kind === 'quintile').map((g) => (
+                <tr>
+                  <th scope="row">{g.label}</th>
+                  <td class={g.netWealth < 0 ? 'negative' : ''}>{euro(g.netWealth)}</td>
+                </tr>
+              ))}
+              {byCode.D10 && (
+                <tr class="emphasis">
+                  <th scope="row">Top 10%</th>
+                  <td>{euro(byCode.D10.netWealth)}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {negativeBottom && (
+          <div class="callout">
+            <p>
+              <strong>The bottom fifth of households in {where} has negative net wealth</strong>
+              {' '}— on average {euro(bottomQuintile.netWealth)}. They owe more than they own. This
+              is not unusual across Europe and it is not a rounding artefact: mortgages, student
+              loans and consumer credit can exceed everything a young household has managed to
+              accumulate.
+            </p>
+          </div>
+        )}
+
+        {biggest && (
+          <>
+            <h2>Where the middle keeps its money</h2>
+            <p>
+              The balance sheet of a household in the middle fifth of {where}. Everything below
+              adds up to their net wealth — assets first, then what is owed against them.
+            </p>
+
+            <div class="data-table-wrap">
+              <table class="data-table">
+                <caption>Middle 20% of households, average per household</caption>
+                <tbody>
+                  {middle.map((p) => (
+                    <tr class={p.side === 'liability' ? 'liability' : ''}>
+                      <th scope="row">{p.label}</th>
+                      <td class={p.value < 0 ? 'negative' : ''}>{euro(p.value)}</td>
+                    </tr>
+                  ))}
+                  <tr class="emphasis">
+                    <th scope="row">Net wealth</th>
+                    <td>{euro(byCode.Q3?.netWealth)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              For this household the largest holding is <strong>{biggest.label.toLowerCase()}</strong>
+              {' '}at {euro(biggest.value)}
+              {secondBiggest && <>, followed by {secondBiggest.label.toLowerCase()} at {euro(secondBiggest.value)}</>}.
+              {totalDebt > 0 && <> Against that sits {euro(totalDebt)} of debt.</>}
+            </p>
+          </>
+        )}
+
+        <h2>Where would you sit?</h2>
+        <p>
+          <a class="button" href="/wealth/">Compare your own household →</a>
+        </p>
+
+        {euroArea && (
+          <p class="field-hint">
+            For context, the median household across the whole euro area is worth
+            {' '}{euro(euroArea.median)}.
+          </p>
+        )}
+
+        <p class="source-note">
+          Source: European Central Bank, Distributional Wealth Accounts, {formatPeriod(c.period)}.
+          Net wealth is all assets minus all liabilities, per household. Group figures are averages
+          within each group. Every component on this page reconciles against the ECB's own published
+          net wealth total.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .stat-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 30px; }
+    .stat-block { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: #faf7ef; }
+    .stat-block strong {
+      display: block; margin: 2px 0 4px; color: var(--data);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem; font-weight: 500; line-height: 1;
+    }
+    .stat-block > span:last-child { font-size: 0.88rem; color: var(--ink-soft); }
+    .eyebrow-sm {
+      display: block; color: var(--ink-soft); font-size: 0.7rem;
+      font-weight: 780; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .up { color: var(--data); }
+    .down { color: var(--accent-dark); }
+
+    .split { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin: 22px 0; }
+    .split-side { padding: 18px; border-radius: var(--radius-sm); text-align: center; }
+    .split-side strong { display: block; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+    .split-side.own { background: var(--data-soft); }
+    .split-side.rent { background: var(--warning-soft); }
+    .split-vs { font-weight: 800; color: var(--ink-soft); font-size: 1.1rem; }
+
+    .data-table .negative { color: var(--accent-dark); }
+    .data-table .liability th { font-weight: 500; color: var(--ink-soft); }
+    .data-table .emphasis th, .data-table .emphasis td { font-weight: 800; border-top: 2px solid var(--line); }
+    .field-hint { color: var(--ink-soft); font-size: 0.9rem; }
+
+    @media (max-width: 560px) {
+      .stat-row { grid-template-columns: 1fr; }
+      .split { grid-template-columns: 1fr; }
+    }
+  </style>
+</Base>

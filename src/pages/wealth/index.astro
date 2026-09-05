@@ -1,0 +1,402 @@
+---
+import Base from '../../layouts/Base.astro';
+import index from '../../../data/wealth/index.json';
+import validation from '../../../data/wealth-validation.json';
+import { euro, multiple, formatPeriod, percentChange } from '../../lib/wealth.js';
+
+/**
+ * Het hoofdinstrument: waar staat jouw huishouden.
+ *
+ * De hele landenset gaat mee in de pagina, zodat de vergelijking over 21 landen in
+ * de browser gebeurt en er geen server aan te pas komt.
+ */
+
+const countries = index.countries;
+const richest = countries[0];
+const poorest = countries[countries.length - 1];
+const spread = richest.median / poorest.median;
+
+// De grootste kloof tussen eigenaren en huurders, uit de data gehaald in plaats van
+// met de hand gekozen.
+const gaps = countries
+  .filter((c) => c.homeowners && c.renters)
+  .map((c) => ({ ...c, gap: c.homeowners / c.renters }))
+  .sort((a, b) => b.gap - a.gap);
+const widestGap = gaps[0];
+
+const title = 'Where Does Your Household Stand? — European Wealth';
+const description =
+  'Enter what your household is worth and see where it sits among households in 21 European ' +
+  'countries. Official ECB figures, updated every quarter.';
+---
+
+<Base title={title} description={description} canonical="/wealth/">
+  <Fragment slot="head">
+    <script type="application/json" id="wealth-index" set:html={JSON.stringify(index)} is:inline />
+  </Fragment>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">European household wealth · {formatPeriod(index.latestPeriod)}</p>
+      <h1>Nobody tells you where you stand</h1>
+      <p class="lead">
+        Money is the one number people will not compare out loud. So here it is against official
+        figures instead: enter what your household is worth, and see where that puts you among
+        {countries.length} European countries.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow">
+      <div class="tool-panel">
+        <div class="tool-panel-header"><h2>Your position</h2></div>
+
+        <form id="wealth-form" class="tool-form" novalidate>
+          <div class="field">
+            <label class="field-label" for="country">I live in</label>
+            <select class="text-input" id="country" name="country">
+              {countries.map((c) => (
+                <option value={c.area} selected={c.area === 'NL'}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="amount">My household is worth about</label>
+            <div class="amount-row">
+              <span class="currency" aria-hidden="true">€</span>
+              <input class="text-input" type="number" id="amount" name="amount"
+                     inputmode="numeric" step="1000" placeholder="250000" required />
+            </div>
+            <p class="field-hint">
+              Everything you own minus everything you owe — home, savings, investments and
+              pension pot, less mortgage and other debt. A rough figure is fine.
+            </p>
+          </div>
+
+          <p class="button-row">
+            <button class="button" type="submit">Show me where I stand</button>
+          </p>
+          <p class="warning-note" id="form-error" role="alert" hidden></p>
+        </form>
+
+        <div class="tool-results" id="result" aria-live="polite">
+          <p class="percentile-eyebrow">Compared with your country</p>
+          <p class="headline" id="headline"></p>
+          <p class="lead-line" id="lead-line"></p>
+
+          <div class="result-grid">
+            <div class="stat-chip"><strong id="stat-you"></strong> <span>your household</span></div>
+            <div class="stat-chip"><strong id="stat-median"></strong> <span>median household</span></div>
+            <div class="stat-chip"><strong id="stat-gap"></strong> <span>difference</span></div>
+          </div>
+
+          <p class="bracket" id="bracket"></p>
+
+          <h3 class="sub">Where the same amount would put you elsewhere</h3>
+          <figure class="chart-figure">
+            <svg id="country-chart" viewBox="0 0 640 460" role="img"
+                 aria-labelledby="chart-title"></svg>
+            <figcaption class="field-hint" id="chart-caption"></figcaption>
+          </figure>
+
+          <div class="button-row">
+            <button class="button" type="button" id="share">Copy my result</button>
+            <a class="button secondary" href="#countries" id="see-country">See my country in full →</a>
+          </div>
+        </div>
+      </div>
+
+      <p class="privacy-note">
+        Your figure is never sent anywhere. Everything is calculated in your browser.
+      </p>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="container narrow content">
+      <h2>What the figures already say</h2>
+      <p>
+        Three things stand out before you enter anything, and all three come straight from the
+        ECB's own quarterly accounts.
+      </p>
+
+      <div class="fact-grid">
+        <div class="fact">
+          <strong>{multiple(spread)}</strong>
+          <p>
+            between the highest and lowest median in the union — {richest.name}
+            at {euro(richest.median)} against {poorest.name} at {euro(poorest.median)}.
+          </p>
+        </div>
+        <div class="fact">
+          <strong>{multiple(widestGap.gap)}</strong>
+          <p>
+            the gap between homeowners and renters in {widestGap.name}, the widest anywhere:
+            {euro(widestGap.homeowners)} against {euro(widestGap.renters)}.
+          </p>
+        </div>
+        <div class="fact">
+          <strong>{countries.filter((c) => c.mean && c.mean > c.median * 2).length} of {countries.length}</strong>
+          <p>
+            countries where the average household is worth more than twice the median — the
+            signature of wealth concentrated at the top.
+          </p>
+        </div>
+      </div>
+
+      <h2 id="countries">Every country</h2>
+      <p>
+        Median net wealth per household, and the gap between owning and renting. Each country
+        has its own page with the full breakdown.
+      </p>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <caption>Household net wealth, {formatPeriod(index.latestPeriod)}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Country</th>
+              <th scope="col">Median</th>
+              <th scope="col">Homeowners</th>
+              <th scope="col">Renters</th>
+            </tr>
+          </thead>
+          <tbody>
+            {countries.map((c) => (
+              <tr>
+                <th scope="row"><a href={`/wealth/${c.area.toLowerCase()}/`}>{c.name}</a></th>
+                <td>{euro(c.median)}</td>
+                <td>{c.homeowners ? euro(c.homeowners) : '—'}</td>
+                <td>{c.renters ? euro(c.renters) : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2>How this is calculated</h2>
+      <p>
+        Every figure comes from the European Central Bank's <strong>Distributional Wealth
+        Accounts</strong>, which break household wealth down by position, housing situation and
+        employment for each euro area country. They are published quarterly; this page shows
+        {' '}{formatPeriod(index.latestPeriod)}.
+      </p>
+
+      <div class="callout">
+        <p>
+          <strong>One thing we deliberately do not tell you.</strong> The ECB publishes the
+          <em>average</em> of each wealth group, not the <em>boundary</em> between groups. So we
+          can tell you exactly how you compare with the median household — that figure is
+          published — and which two group averages your amount falls between. We cannot tell you
+          that you are "in the 63rd percentile", because that number does not exist in the data.
+          Sites that give it to you are estimating and not saying so.
+        </p>
+      </div>
+
+      <p class="source-note">
+        Source: European Central Bank, Distributional Wealth Accounts, {formatPeriod(index.latestPeriod)}.
+        Retrieved {validation.checkedOn}. Net wealth is total assets minus total liabilities per
+        household. Figures cover {validation.countries} countries across {validation.quarters}
+        {' '}quarters. Our pipeline reconciles every published component against the published net
+        wealth total before anything appears here.
+      </p>
+    </div>
+  </section>
+
+  <style>
+    .tool-form { padding: 26px; display: grid; gap: 22px; }
+    .field { margin: 0; padding: 0; border: 0; }
+    .field-hint { margin: 6px 0 0; color: var(--ink-soft); font-size: 0.9rem; }
+    select.text-input { font-size: 1.05rem; letter-spacing: 0; }
+
+    .amount-row { display: flex; align-items: center; gap: 10px; }
+    .currency { font-size: 1.6rem; font-weight: 700; color: var(--ink-soft); }
+
+    .headline {
+      margin: 0; color: var(--data);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.9rem, 6vw, 3rem); font-weight: 500;
+      letter-spacing: -0.02em; line-height: 1.05;
+    }
+    .lead-line { margin: 10px 0 0; font-size: 1.1rem; }
+    .percentile-eyebrow {
+      display: block; margin: 0 0 4px; color: var(--ink-soft); font-size: 0.74rem;
+      font-weight: 780; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .result-grid { margin-top: 20px; }
+    .stat-chip span { color: var(--ink-soft); }
+    .bracket {
+      margin: 18px 0 0; padding: 14px 16px; border-radius: var(--radius-sm);
+      background: var(--data-soft); font-size: 0.95rem;
+    }
+    .sub { margin: 30px 0 4px; font-size: 1.05rem; }
+    .chart-figure { margin: 8px 0 0; }
+    .chart-figure svg { width: 100%; height: auto; display: block; }
+
+    .fact-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+      gap: 14px; margin: 24px 0 36px;
+    }
+    .fact {
+      padding: 18px; border: 1px solid var(--line);
+      border-radius: var(--radius-sm); background: var(--paper);
+    }
+    .fact strong {
+      display: block; margin-bottom: 6px; color: var(--data);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2.1rem; font-weight: 500; line-height: 1;
+    }
+    .fact p { margin: 0; font-size: 0.93rem; color: var(--ink-soft); }
+
+    .privacy-note { margin-top: 18px; text-align: center; }
+  </style>
+
+  <script>
+    import { placeAmount, rankAcrossCountries, euro, multiple, formatPeriod } from '../../lib/wealth.js';
+    import { track, EVENTS } from '../../lib/analytics.js';
+
+    const el = (id) => document.getElementById(id);
+    const index = JSON.parse(el('wealth-index').textContent);
+    const form = el('wealth-form');
+    const result = el('result');
+    const errorNote = el('form-error');
+
+    const byArea = Object.fromEntries(index.countries.map((c) => [c.area, c]));
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      errorNote.hidden = true;
+
+      const area = el('country').value;
+      const amount = Number(el('amount').value);
+
+      if (!Number.isFinite(amount) || el('amount').value.trim() === '') {
+        return fail('Enter a figure for what your household is worth.');
+      }
+      if (amount < -5_000_000 || amount > 100_000_000) {
+        return fail('Enter an amount between −€5 million and €100 million.');
+      }
+
+      render(area, amount);
+      track(EVENTS.valueSubmitted, { metric: 'wealth', country: area });
+    });
+
+    function fail(message) {
+      errorNote.textContent = message;
+      errorNote.hidden = false;
+      result.classList.remove('visible');
+    }
+
+    function render(area, amount) {
+      const country = byArea[area];
+      const placed = placeAmount(country, amount);
+      const ranked = rankAcrossCountries(index.countries, amount);
+
+      el('headline').textContent = placed.aboveMedian
+        ? `Above the median household in ${country.name}`
+        : `Below the median household in ${country.name}`;
+
+      el('lead-line').textContent = leadSentence(placed, ranked);
+
+      el('stat-you').textContent = euro(amount);
+      el('stat-median').textContent = euro(placed.median);
+      el('stat-gap').textContent =
+        `${placed.differenceFromMedian >= 0 ? '+' : '−'}${euro(Math.abs(placed.differenceFromMedian)).replace('€', '€')}`;
+
+      el('bracket').textContent = bracketSentence(placed, country);
+      el('see-country').setAttribute('href', `/wealth/${area.toLowerCase()}/`);
+
+      el('chart-caption').textContent =
+        `Median household net wealth per country, ${formatPeriod(index.latestPeriod)}. Your amount is the marked line.`;
+
+      drawChart(ranked, amount);
+      result.classList.add('visible');
+      result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    /**
+     * De openingszin. Drie gevallen, want "het zou nog steeds boven de mediaan
+     * liggen in 0 van de 21 landen" is onzin en dat is precies wat er uit een
+     * enkele sjabloonzin rolt.
+     */
+    function leadSentence(placed, ranked) {
+      const times = multiple(placed.timesMedian);
+      if (ranked.aboveIn === 0) {
+        return `That is ${times} the median household, and below the median in every one of the ${ranked.total} countries here.`;
+      }
+      if (ranked.aboveIn === ranked.total) {
+        return `That is ${times} the median household — above the median in all ${ranked.total} countries here.`;
+      }
+      return placed.aboveMedian
+        ? `That is ${times} the median household, and above the median in ${ranked.aboveIn} of the ${ranked.total} countries here.`
+        : `That is ${times} the median household at home, but it would still sit above the median in ${ranked.aboveIn} of the other ${ranked.total} countries.`;
+    }
+
+    /** Alleen uitspraken die de data draagt: tussen welke twee groepsgemiddelden val je. */
+    function bracketSentence(placed, country) {
+      if (placed.beyondLadder && placed.below) {
+        return `Your amount is above the average of the top 20% of households in ${country.name} (${euro(placed.below.netWealth)}). Beyond that point the published groups stop telling us anything useful — the top fifth stretches a very long way.`;
+      }
+      if (placed.below && placed.above) {
+        return `It sits between what the ${placed.below.label.toLowerCase()} of households own on average (${euro(placed.below.netWealth)}) and what the ${placed.above.label.toLowerCase()} own (${euro(placed.above.netWealth)}).`;
+      }
+      if (placed.above) {
+        return `It sits below what the ${placed.above.label.toLowerCase()} of households own on average (${euro(placed.above.netWealth)}) — the bottom fifth of households in several countries owes more than it owns.`;
+      }
+      return '';
+    }
+
+    function drawChart(ranked, amount) {
+      const svg = el('country-chart');
+      const rows = [...ranked.countries].sort((a, b) => b.median - a.median);
+      const W = 640, rowH = 19, padTop = 8, padLeft = 118, padRight = 76;
+      const H = padTop + rows.length * rowH + 26;
+      const max = Math.max(...rows.map((r) => r.median), amount) * 1.05;
+      const x = (v) => padLeft + (Math.max(v, 0) / max) * (W - padLeft - padRight);
+
+      const bars = rows.map((r, i) => {
+        const y = padTop + i * rowH;
+        const width = Math.max(x(r.median) - padLeft, 1);
+        const above = amount >= r.median;
+        return `
+          <text x="${padLeft - 8}" y="${y + 12}" text-anchor="end" font-size="11"
+                fill="${above ? 'var(--ink)' : 'var(--ink-soft)'}">${r.name}</text>
+          <rect x="${padLeft}" y="${y + 3}" width="${width.toFixed(1)}" height="${rowH - 7}" rx="2"
+                fill="${above ? 'var(--data-soft)' : 'var(--canvas)'}" />
+          <text x="${(x(r.median) + 6).toFixed(1)}" y="${y + 12}" font-size="10"
+                fill="var(--ink-soft)">${euro(r.median, { compact: true })}</text>`;
+      }).join('');
+
+      const markerX = x(amount).toFixed(1);
+      svg.innerHTML = `
+        <title id="chart-title">Median household net wealth by country, with your amount marked</title>
+        ${bars}
+        <line x1="${markerX}" y1="${padTop - 2}" x2="${markerX}" y2="${padTop + rows.length * rowH + 2}"
+              stroke="var(--accent)" stroke-width="2" />
+        <text x="${markerX}" y="${H - 8}" text-anchor="middle" font-size="11"
+              font-weight="700" fill="var(--accent)">you · ${euro(amount, { compact: true })}</text>`;
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    }
+
+    el('share').addEventListener('click', async () => {
+      const area = el('country').value;
+      const amount = Number(el('amount').value);
+      const ranked = rankAcrossCountries(index.countries, amount);
+      const country = byArea[area];
+      const text = [
+        `My household would sit above the median in ${ranked.aboveIn} of ${ranked.total} European countries.`,
+        `In ${country.name} the median household is worth ${euro(country.median)}.`,
+        'humanaverage.com/wealth',
+      ].join('\n');
+      try {
+        await navigator.clipboard.writeText(text);
+        el('share').textContent = 'Copied';
+        track(EVENTS.resultShared, { metric: 'wealth' });
+      } catch {
+        window.prompt('Copy your result:', text);
+      }
+    });
+  </script>
+</Base>

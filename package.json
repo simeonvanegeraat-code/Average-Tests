@@ -11,7 +11,11 @@
     "data:build": "node scripts/build-percentiles.mjs",
     "data:validate": "node scripts/validate-percentiles.mjs",
     "data": "npm run data:fetch && npm run data:build && npm run data:validate && npm run data:questions",
-    "data:questions": "node scripts/build-questions.mjs"
+    "data:questions": "node scripts/build-questions.mjs",
+    "wealth:fetch": "node scripts/fetch-dwa.mjs",
+    "wealth:build": "node scripts/build-wealth.mjs",
+    "wealth:validate": "node scripts/validate-wealth.mjs",
+    "wealth": "npm run wealth:fetch && npm run wealth:build && npm run wealth:validate"
   },
   "devDependencies": {
     "astro": "^5.14.1"
