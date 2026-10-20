@@ -1,0 +1,610 @@
+---
+import Base from '../../layouts/Base.astro';
+import CountryMap from '../../components/CountryMap.astro';
+import CountryTable from '../../components/CountryTable.astro';
+import geo from '../../../data/geo/europe.json';
+import index from '../../../data/leaving-home/index.json';
+import {
+  age,
+  years,
+  count,
+  headline,
+  genderGap,
+  trend,
+  ranked,
+  staleCountries,
+  currentCountries,
+  withArticle,
+} from '../../lib/leaving-home.js';
+
+/**
+ * Pagina 1 van het Europese cluster.
+ *
+ * De opbouw is antwoord-eerst: het cijfer en de kloof staan boven de vouw, zonder
+ * formulier ervoor. De kaart is de samenvatting, de tabel het bewijs, en de
+ * persoonlijke laag staat eronder — nooit ertussen.
+ *
+ * Elk getal in de tekst komt uit src/lib/leaving-home.js. Er staat opzettelijk
+ * geen enkel cijfer met de hand in deze pagina: Eurostat publiceert jaarlijks bij
+ * en een achtergebleven getal in een zin is precies het soort fout dat niemand ziet.
+ *
+ * Let op de terminologie. Eurostat noemt de dataset "estimated average age", maar
+ * de eigen definitie is de leeftijd waarop de helft niet meer thuis woont. Dat is
+ * een middelpunt, geen gemiddelde, en deze pagina zegt dat ook. De zoekvraag luidt
+ * wel "average age", dus die formulering staat in de title en wordt in de lead
+ * uitgelegd in plaats van weggelaten.
+ */
+
+const h = headline(index);
+const gender = genderGap(index);
+const movement = trend(index);
+const stale = staleCountries(index);
+const current = currentCountries(index);
+const order = ranked(index);
+
+const euValue = h.eu ? age(h.eu.total) : age(order[Math.floor(order.length / 2)].total);
+
+/** Alleen wat de browser nodig heeft voor de vergelijking: codes, namen, cijfers. */
+const clientIndex = {
+  latestYear: index.latestYear,
+  countries: current.map(({ code, name, year, total }) => ({ code, name, year, total })),
+};
+const clientJson = JSON.stringify(clientIndex).replace(/</g, '\\u003c');
+
+const title = `Average Age of Leaving Home by Country in Europe (${h.year})`;
+const description =
+  `Half of young Europeans have left the parental home by age ${euValue}. ` +
+  `Compare all ${h.countries} countries on a map, from ${h.earliest.name} at ` +
+  `${age(h.earliest.total)} to ${h.latest.name} at ${age(h.latest.total)}, and see where your own age fits.`;
+---
+
+<Base title={title} description={description} canonical="/leaving-home/">
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Eurostat · {h.countries} countries · {h.year}</p>
+      <h1>Half of young Europeans have left home by age {euValue}</h1>
+      <p class="lead">
+        In {withArticle(h.earliest.name)} that point arrives at {age(h.earliest.total)}. In {
+          withArticle(h.latest.name)
+        } it does not arrive until {age(h.latest.total)} — a gap of {years(h.gap)} for the same
+        step in life. This compares European countries with each other, not with the United States.
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-block">
+          <span class="stat-label">European Union</span>
+          <span class="stat-value">{euValue}</span>
+          <span class="stat-note">all {h.countries} countries, {h.year}</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-label">Earliest</span>
+          <span class="stat-value">{age(h.earliest.total)}</span>
+          <span class="stat-note">{h.earliest.name}</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-label">Latest</span>
+          <span class="stat-value">{age(h.latest.total)}</span>
+          <span class="stat-note">{h.latest.name}</span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-label">Spread</span>
+          <span class="stat-value">{years(h.gap)}</span>
+          <span class="stat-note">earliest to latest</span>
+        </div>
+      </div>
+
+      <p class="hero-note">
+        Searches for this figure usually call it the <em>average age of leaving home</em>. It is not
+        quite an average: Eurostat measures the age by which half of young people no longer live
+        with their parents. <a href="#method">How that changes the reading.</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading">
+        <h2>Where in Europe young people leave earliest</h2>
+        <p>
+          Switch between everyone, men and women. Hatched countries have no figure for {h.year};
+          they show their most recent year instead.
+        </p>
+      </div>
+
+      <CountryMap geo={geo} rows={index.countries} latestYear={index.latestYear} />
+    </div>
+  </section>
+
+  <section class="section" id="compare">
+    <div class="container narrow">
+      <div class="section-heading">
+        <h2>Where do you fit?</h2>
+        <p>
+          Enter the age you left your parents' home. We will place it against the midpoint of every
+          country in the dataset.
+        </p>
+      </div>
+
+      <form class="compare" data-compare novalidate>
+        <div class="compare-fields">
+          <label class="field">
+            <span class="field-label">Your country</span>
+            <select name="country" data-compare-country required>
+              {order.map((country) => <option value={country.code}>{country.name}</option>)}
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Age you left home</span>
+            <input
+              type="number"
+              name="age"
+              data-compare-age
+              min="10"
+              max="60"
+              step="0.5"
+              inputmode="decimal"
+              placeholder="21"
+              required
+            />
+          </label>
+
+          <button type="submit" class="compare-button">Compare me</button>
+        </div>
+
+        <p class="field-hint">
+          Nothing is sent anywhere. Your answer is kept in this browser so the next page already
+          knows it, and you can clear it at any time.
+        </p>
+      </form>
+
+      <output class="result" data-compare-result hidden></output>
+
+      <div class="callout">
+        <h3>Why there is no percentile here</h3>
+        <p>
+          Every other figure on this site that calls itself a percentile is calculated from
+          microdata — thousands of individual records. This dataset is different: Eurostat
+          publishes one number per country, the age by which half have left. That tells you which
+          side of the midpoint you are on, and nothing about the shape of the distribution around
+          it. So we will not tell you that you are in the 30th percentile, because the data cannot
+          support it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading">
+        <h2>Every country</h2>
+        <p>
+          All {index.countries.length} countries Eurostat covers, sorted from earliest to latest.
+          Sort by any column. The gap column is men minus women, so a positive number means women
+          leave earlier.
+        </p>
+      </div>
+
+      <CountryTable
+        rows={index.countries}
+        latestYear={index.latestYear}
+        caption={`Age by which half of young people have left the parental home. ${h.countries} countries at ${h.year}; ${stale.length} shown at their most recent year instead.`}
+      />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow">
+      <div class="content">
+        <h2>What the numbers say</h2>
+
+        {
+          gender && (
+            <>
+              <h3>Women leave earlier almost everywhere</h3>
+              <p>
+                In {gender.womenEarlier} of {gender.of} countries women reach the midpoint before
+                men, by {years(gender.mean)} on average. The widest split is in{' '}
+                {withArticle(gender.widest.name)}, at {years(gender.widestGap)}.
+                {gender.exceptions.length === 0
+                  ? ' There is no country where the pattern reverses.'
+                  : ` The exception${gender.exceptions.length === 1 ? ' is' : 's are'} ${gender.exceptions
+                      .map((country) => country.name)
+                      .join(', ')}.`}
+              </p>
+            </>
+          )
+        }
+
+        {
+          movement && (
+            <>
+              <h3>The European figure is flat. The countries are converging.</h3>
+              <p>
+                Between {movement.since} and {movement.until} the European Union figure barely
+                moved, from {age(movement.euThen)} to {age(movement.euNow)}. That flat line hides
+                the actual change: the spread between the earliest and latest country narrowed from{' '}
+                {years(movement.spreadThen)} to {years(movement.spreadNow)}.
+              </p>
+              <p>
+                {count(movement.earlier.length, 'country', 'countries')} moved earlier by at least{' '}
+                {years(movement.minimumMove)}, led by{' '}
+                {movement.earlier
+                  .slice(0, 3)
+                  .map((country) => `${country.name} (${years(country.change, { sign: true })})`)
+                  .join(', ')}
+                . Only {movement.later.map((country) => `${country.name} (${years(country.change, { sign: true })})`).join(' and ')}{' '}
+                moved later. The remaining {movement.stable} stayed within{' '}
+                {years(movement.minimumMove)} of where they were.
+              </p>
+              <div class="callout">
+                <h3>Why this page does not go back further than {movement.since}</h3>
+                <p>
+                  Eurostat flags a break in the series in {index.lastBreak}, when the European
+                  Labour Force Survey was reorganised. Nearly every country carries that flag, and
+                  the break year itself is transitional: {
+                    (() => {
+                      const pt = index.countries.find((country) => country.code === 'PT');
+                      if (!pt) return 'several countries jump by more than a year across it';
+                      return `Portugal reads ${age(pt.series[index.lastBreak])} in ${index.lastBreak}, ${age(
+                        pt.series[movement.since],
+                      )} the year after, and ${age(pt.series['2019'])} back in 2019`;
+                    })()
+                  }. Comparing today with 2005 would produce a number that looks real and means
+                  nothing, so the comparison above starts the year after the break and the code
+                  refuses to calculate it any other way.
+                </p>
+              </div>
+            </>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="method">
+    <div class="container narrow">
+      <div class="content">
+        <h2>How this is measured</h2>
+
+        <h3>What the figure is</h3>
+        <p>
+          Eurostat publishes one indicator per country per year: the age by which half of young
+          people no longer live in a household with their parents. It is derived from the European
+          Union Labour Force Survey. Eurostat's own dataset title calls it an "estimated average
+          age", which does not match its own definition — a midpoint and an average are different
+          things, and they differ most where the distribution is lopsided. This page follows the
+          definition.
+        </p>
+
+        <h3>What it is not</h3>
+        <p>
+          It is not a distribution, so no percentile can be calculated from it. It is not a count of
+          people. And it is a country-level figure: it describes a cohort, not any individual in it.
+        </p>
+
+        <h3>Coverage</h3>
+        <p>
+          {h.countries} countries have a figure for {h.year}.
+          {
+            stale.length > 0 && (
+              <>
+                {' '}
+                {stale.map((country) => `${country.name} (${country.year})`).join(', ')} stopped
+                reporting earlier and are shown at their most recent year, hatched on the map and
+                labelled in the table.
+              </>
+            )
+          }{' '}
+          The United States, Canada and Australia are not in this dataset, because Eurostat does not
+          cover them. Figures before {index.comparableSince} exist in the source but are not
+          comparable with today.
+        </p>
+
+        <h3>Source</h3>
+        <ul class="source-list">
+          <li>
+            <strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}
+          </li>
+          <li><strong>Series</strong> {index.years[0]} to {index.years[index.years.length - 1]}</li>
+          <li>
+            <strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}
+          </li>
+          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li>
+            <strong>DOI</strong>
+            <a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a>
+          </li>
+          <li>
+            <strong>Eurostat metadata</strong>
+            <a href={index.source.metadata} data-method-link>explanatory texts</a>
+          </li>
+        </ul>
+
+        <p class="source-note">
+          Licence: Eurostat data may be reused, including commercially, with attribution. Read how
+          we handle data on <a href="/method/">our method page</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="leaving-home-data" set:html={clientJson} />
+
+  <script>
+    import { comparison, age, years, withArticle } from '../../lib/leaving-home.js';
+    import { track, EVENTS } from '../../lib/analytics.js';
+
+    /**
+     * De persoonlijke laag.
+     *
+     * Gebruikt dezelfde comparison() als de build, zodat er één definitie van
+     * "waar sta jij" bestaat in plaats van twee die uiteen kunnen lopen.
+     *
+     * Het profiel blijft in localStorage. Dat is geen account: het verlaat de
+     * browser niet en er staat geen server achter. Zie CLAUDE.md.
+     */
+    const PROFILE_KEY = 'humanaverage:profile';
+
+    const holder = document.getElementById('leaving-home-data');
+    const form = document.querySelector('[data-compare]');
+    const result = document.querySelector('[data-compare-result]');
+
+    if (holder && form && result) {
+      const index = JSON.parse(holder.textContent ?? '{}');
+      const countrySelect = form.querySelector('[data-compare-country]');
+      const ageInput = form.querySelector('[data-compare-age]');
+
+      function readProfile() {
+        try {
+          const raw = localStorage.getItem(PROFILE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          // Privémodus of geblokkeerde opslag. Dan werkt de pagina gewoon zonder.
+          return null;
+        }
+      }
+
+      function writeProfile(profile) {
+        try {
+          localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+        } catch {
+          // Niets aan te doen, en geen reden om de vergelijking te laten mislukken.
+        }
+      }
+
+      function render(code, own) {
+        const outcome = comparison(index, { code, age: own });
+        const home = outcome.home;
+        const sentences = [];
+
+        if (home) {
+          const side = outcome.difference < 0 ? 'before' : 'after';
+          sentences.push(
+            `You left home at ${own.toFixed(1)} — ${years(Math.abs(outcome.difference))} ${side} the point where half of ${withArticle(home.name)} had left (${age(home.total)} in ${home.year}).`,
+          );
+        }
+
+        sentences.push(
+          outcome.beforeMidpoint === outcome.of
+            ? `That is before the midpoint of every one of the ${outcome.of} countries in the dataset.`
+            : outcome.beforeMidpoint === 0
+              ? `That is after the midpoint of all ${outcome.of} countries in the dataset.`
+              : `That is before the midpoint in ${outcome.beforeMidpoint} of ${outcome.of} countries, and after it in ${outcome.of - outcome.beforeMidpoint}.`,
+        );
+
+        sentences.push(
+          `The country closest to your age is ${withArticle(outcome.closest.name)}, at ${age(outcome.closest.total)}.`,
+        );
+
+        result.textContent = sentences.join(' ');
+        result.hidden = false;
+      }
+
+      // Profiel terugzetten, en meteen rekenen als het compleet is.
+      const saved = readProfile();
+      if (saved?.country && countrySelect) countrySelect.value = saved.country;
+      if (saved?.age && ageInput) ageInput.value = String(saved.age);
+      if (saved?.country && saved?.age) render(saved.country, Number(saved.age));
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const code = countrySelect?.value ?? '';
+        const own = Number(ageInput?.value);
+
+        if (!code || !Number.isFinite(own) || own < 10 || own > 60) {
+          result.textContent = 'Enter an age between 10 and 60.';
+          result.hidden = false;
+          return;
+        }
+
+        render(code, own);
+        writeProfile({ country: code, age: own });
+        track(EVENTS.valueSubmitted, { metric: 'leaving-home', country: code });
+      });
+    }
+
+    for (const link of document.querySelectorAll('[data-method-link]')) {
+      link.addEventListener('click', () => {
+        track(EVENTS.methodologyOpened, { from: 'leaving-home' });
+      });
+    }
+  </script>
+
+  <style>
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1px;
+      margin-top: 2rem;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .stat-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      padding: 1rem 1.1rem;
+      background: var(--paper);
+    }
+
+    .stat-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .stat-value {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 1.9rem;
+      line-height: 1.05;
+      color: var(--data);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-note {
+      font-size: 0.84rem;
+      color: var(--ink-soft);
+    }
+
+    /* Staat op de donkere hero, dus niet --ink-soft: dat is donkergrijs op
+       donkergroen. Zelfde lichte tint als de rest van de hero. */
+    .hero-note {
+      margin-top: 1.6rem;
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 62ch;
+    }
+
+    .hero-note a {
+      color: #fff;
+      text-decoration-color: rgba(255, 255, 255, 0.5);
+      text-underline-offset: 3px;
+    }
+
+    .hero-note a:hover {
+      text-decoration-color: #fff;
+    }
+
+    .compare {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      padding: 1.3rem;
+    }
+
+    .compare-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      align-items: flex-end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      flex: 1 1 11rem;
+    }
+
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .field select,
+    .field input {
+      font: inherit;
+      padding: 0.6rem 0.7rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--paper);
+      color: var(--ink);
+      width: 100%;
+    }
+
+    .field select:focus-visible,
+    .field input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .compare-button {
+      font: inherit;
+      font-weight: 700;
+      padding: 0.65rem 1.3rem;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: var(--data);
+      color: var(--paper);
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .compare-button:hover {
+      background: #0f655a;
+    }
+
+    .compare-button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .field-hint {
+      margin: 0.9rem 0 0;
+      font-size: 0.84rem;
+      color: var(--ink-soft);
+    }
+
+    .result {
+      display: block;
+      margin-top: 1.1rem;
+      padding: 1.1rem 1.2rem;
+      border-left: 4px solid var(--accent);
+      background: var(--canvas);
+      border-radius: var(--radius-sm);
+      font-size: 1.04rem;
+      line-height: 1.6;
+    }
+
+    .source-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .source-list li {
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.92rem;
+    }
+
+    .source-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .source-list strong {
+      display: inline-block;
+      min-width: 12rem;
+      color: var(--ink-soft);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 540px) {
+      .source-list strong {
+        display: block;
+        min-width: 0;
+      }
+    }
+  </style>
+</Base>
