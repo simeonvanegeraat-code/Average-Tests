@@ -1,0 +1,513 @@
+---
+/**
+ * Choroplethkaart van Europa met de waarde op elk land.
+ *
+ * Twee keuzes die uitleg verdienen:
+ *
+ * 1. **Het getal staat op het land.** Een kaart met alleen kleur moet je
+ *    overhoveren om te lezen en is op een telefoon nutteloos. Met het getal erop
+ *    is de kaart zelf het bericht — en dat is precies wat ervan gedeeld wordt.
+ *    Het betekent ook dat de kaart niet op kleur alléén leunt.
+ * 2. **Landen die te klein zijn voor een label worden chips** onder de kaart.
+ *    De geometrie levert per land `lr`, de ruimte die er voor een label is; onder
+ *    de drempel wordt het een aantikbare chip in plaats van onleesbare tekst.
+ *
+ * De paden zelf zijn niet focusbaar. 34 landen zouden 34 tabstops betekenen voor
+ * informatie die volledig in de tabel onder de kaart staat. De kaart is role="img"
+ * met een samenvatting; de chips zijn echte knoppen, want dat is de enige manier
+ * om de kleine landen te bereiken.
+ *
+ * De namen komen uit `rows` (Eurostat), niet uit de geometrie. Natural Earth
+ * noemt CY "N. Cyprus" en MK "Macedonia", en dat zijn deels andere gebieden.
+ */
+import { BANDS, band, age } from '../lib/leaving-home.js';
+
+interface Row {
+  code: string;
+  name: string;
+  year: string;
+  total: number;
+  men: number | null;
+  women: number | null;
+}
+
+interface Shape {
+  ctx?: number;
+  name: string;
+  d: string;
+  lx: number;
+  ly: number;
+  lr: number;
+  area: number;
+}
+
+interface Props {
+  geo: { w: number; h: number; countries: Record<string, Shape> };
+  rows: Row[];
+  latestYear: string;
+  /** Onder deze labelruimte wordt het een chip in plaats van een label op de kaart. */
+  labelThreshold?: number;
+}
+
+const { geo, rows, latestYear, labelThreshold = 13 } = Astro.props;
+
+const byCode = new Map(rows.map((row) => [row.code, row]));
+
+/** Contextlanden: vorm wel, data niet. Zonder die vormen is Europa een eiland. */
+const context = Object.entries(geo.countries).filter(([, shape]) => shape.ctx === 1);
+
+const shapes = rows
+  .map((row) => ({ row, shape: geo.countries[row.code] }))
+  .filter((entry): entry is { row: Row; shape: Shape } => Boolean(entry.shape))
+  // Grote landen eerst, zodat kleine buren erbovenop liggen en aantikbaar blijven.
+  .sort((a, b) => b.shape.area - a.shape.area);
+
+const labelled = shapes.filter((entry) => entry.shape.lr >= labelThreshold);
+const chipped = shapes
+  .filter((entry) => entry.shape.lr < labelThreshold)
+  .sort((a, b) => a.row.total - b.row.total);
+
+const stale = shapes.filter((entry) => entry.row.year !== latestYear);
+
+/** Labelgrootte naar beschikbare ruimte; krap betekent kleiner, niet weglaten. */
+function labelSize(lr: number) {
+  if (lr >= 22) return 15;
+  if (lr >= 17) return 13;
+  return 11;
+}
+
+const lowest = Math.min(...rows.map((row) => row.total));
+const highest = Math.max(...rows.map((row) => row.total));
+
+const summary =
+  `Map of Europe showing the average age of leaving the parental home in ${latestYear}, ` +
+  `ranging from ${age(lowest)} to ${age(highest)} years. ` +
+  'Every value is also listed in the table below this map.';
+---
+
+<figure class="map">
+  <div class="map-controls">
+    <div class="lens" role="group" aria-label="Show values for">
+      <button type="button" class="lens-button is-on" data-lens="total" aria-pressed="true">Everyone</button>
+      <button type="button" class="lens-button" data-lens="men" aria-pressed="false">Men</button>
+      <button type="button" class="lens-button" data-lens="women" aria-pressed="false">Women</button>
+    </div>
+    <p class="map-readout" data-map-readout aria-live="polite">
+      Hover or tap a country to see its figures.
+    </p>
+  </div>
+
+  <div class="map-frame">
+    <svg viewBox={`0 0 ${geo.w} ${geo.h}`} role="img" aria-label={summary} data-map>
+      <defs>
+        <pattern
+          id="stale-hatch"
+          width="6"
+          height="6"
+          patternTransform="rotate(45)"
+          patternUnits="userSpaceOnUse"
+        >
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#41514b" stroke-width="1.4" opacity="0.5" />
+        </pattern>
+      </defs>
+
+      <g class="context" aria-hidden="true">
+        {context.map(([code, shape]) => <path d={shape.d} data-ctx={code} />)}
+      </g>
+
+      <g class="areas">
+        {
+          shapes.map(({ row, shape }) => (
+            <path
+              d={shape.d}
+              class:list={['area', `band-${band(row.total)}`, { 'is-stale': row.year !== latestYear }]}
+              data-code={row.code}
+              data-name={row.name}
+              data-year={row.year}
+              data-total={row.total}
+              data-men={row.men ?? ''}
+              data-women={row.women ?? ''}
+            />
+          ))
+        }
+      </g>
+
+      <g class="hatches" aria-hidden="true">
+        {stale.map(({ shape }) => <path d={shape.d} fill="url(#stale-hatch)" stroke="none" />)}
+      </g>
+
+      <g class="labels" aria-hidden="true">
+        {
+          labelled.map(({ row, shape }) => (
+            <text
+              x={shape.lx}
+              y={shape.ly}
+              font-size={labelSize(shape.lr)}
+              class="label"
+              data-label-for={row.code}
+            >
+              {age(row.total)}
+            </text>
+          ))
+        }
+      </g>
+    </svg>
+  </div>
+
+  {
+    chipped.length > 0 && (
+      <div class="chips">
+        <span class="chips-label">Too small to label:</span>
+        {chipped.map(({ row }) => (
+          <button
+            type="button"
+            class:list={['chip', `band-${band(row.total)}`]}
+            data-chip-for={row.code}
+          >
+            <span>{row.name}</span>
+            <span class="chip-value" data-chip-value={row.code}>
+              {age(row.total)}
+            </span>
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <div class="legend" aria-hidden="true">
+    {
+      BANDS.map((bucket, i) => (
+        <span class="legend-step">
+          <span class:list={['legend-swatch', `band-${i}`]} />
+          {bucket.label}
+        </span>
+      ))
+    }
+    {
+      stale.length > 0 && (
+        <span class="legend-step">
+          <span class="legend-swatch legend-hatch" />
+          older than {latestYear}
+        </span>
+      )
+    }
+  </div>
+
+  <figcaption>
+    Average age of leaving the parental home, {latestYear}. Hatched countries have no
+    figure for {latestYear}; the map shows their most recent year instead, and the table
+    below names that year. Every figure is also in that table, which is where to read them
+    on a small screen.
+  </figcaption>
+</figure>
+
+<script>
+  /**
+   * Lenswissel en uitlezen.
+   *
+   * De SVG is één keer op de server getekend; de client verzet alleen klassen en
+   * labelteksten. Er is dus geen tweede tekenpad dat van het eerste kan afwijken.
+   * De klassegrenzen staan hier én in src/lib/leaving-home.js; ze horen gelijk te
+   * blijven, en de validatie in validate-leaving-home.mjs controleert de data, niet
+   * deze twee lijsten. Verander je de ene, verander dan de andere.
+   */
+  const BAND_LIMITS = [22, 24, 26, 28, 30, Infinity];
+  const bandOf = (value: number) => BAND_LIMITS.findIndex((limit) => value < limit);
+
+  type Lens = 'total' | 'men' | 'women';
+
+  for (const map of document.querySelectorAll<HTMLElement>('.map')) {
+    const readout = map.querySelector<HTMLElement>('[data-map-readout]');
+    const areas = [...map.querySelectorAll<SVGPathElement>('.area')];
+    const idle = readout?.textContent?.trim() ?? '';
+    let lens: Lens = 'total';
+
+    function valueOf(el: SVGPathElement) {
+      const raw = el.dataset[lens];
+      return raw === '' || raw === undefined ? null : Number(raw);
+    }
+
+    function show(el: SVGPathElement) {
+      if (!readout) return;
+      const men = el.dataset.men || '—';
+      const women = el.dataset.women || '—';
+      const stale = el.classList.contains('is-stale') ? ` · ${el.dataset.year}, no newer figure` : '';
+      const total = Number(el.dataset.total).toFixed(1);
+      readout.textContent = `${el.dataset.name}: ${total} — men ${men}, women ${women}${stale}`;
+    }
+
+    function clear() {
+      if (readout) readout.textContent = idle;
+    }
+
+    function paint() {
+      for (const el of areas) {
+        const code = el.dataset.code;
+        const label = map.querySelector<SVGTextElement>(`[data-label-for="${code}"]`);
+        const chipValue = map.querySelector<HTMLElement>(`[data-chip-value="${code}"]`);
+        const chip = map.querySelector<HTMLElement>(`[data-chip-for="${code}"]`);
+        const value = valueOf(el);
+
+        for (let i = 0; i < BAND_LIMITS.length; i += 1) {
+          el.classList.remove(`band-${i}`);
+          chip?.classList.remove(`band-${i}`);
+        }
+
+        if (value === null) {
+          el.classList.add('is-empty');
+          if (label) label.textContent = '·';
+          if (chipValue) chipValue.textContent = '—';
+          continue;
+        }
+
+        el.classList.remove('is-empty');
+        const index = bandOf(value);
+        el.classList.add(`band-${index}`);
+        chip?.classList.add(`band-${index}`);
+        if (label) label.textContent = value.toFixed(1);
+        if (chipValue) chipValue.textContent = value.toFixed(1);
+      }
+    }
+
+    for (const el of areas) {
+      el.addEventListener('pointerenter', () => show(el));
+      el.addEventListener('pointerleave', clear);
+    }
+
+    for (const chip of map.querySelectorAll<HTMLElement>('[data-chip-for]')) {
+      const el = areas.find((area) => area.dataset.code === chip.dataset.chipFor);
+      if (!el) continue;
+      chip.addEventListener('pointerenter', () => show(el));
+      chip.addEventListener('focus', () => show(el));
+      chip.addEventListener('pointerleave', clear);
+      chip.addEventListener('blur', clear);
+      chip.addEventListener('click', () => show(el));
+    }
+
+    for (const button of map.querySelectorAll<HTMLElement>('.lens-button')) {
+      button.addEventListener('click', () => {
+        lens = (button.dataset.lens ?? 'total') as Lens;
+        for (const other of map.querySelectorAll<HTMLElement>('.lens-button')) {
+          const on = other === button;
+          other.classList.toggle('is-on', on);
+          other.setAttribute('aria-pressed', String(on));
+        }
+        paint();
+        clear();
+      });
+    }
+  }
+</script>
+
+<style>
+  .map {
+    margin: 0;
+  }
+
+  .map-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .lens {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .lens-button {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 0.45rem 0.9rem;
+    background: var(--paper);
+    color: var(--ink-soft);
+    border: 0;
+    border-right: 1px solid var(--line);
+    cursor: pointer;
+  }
+
+  .lens-button:last-child {
+    border-right: 0;
+  }
+
+  .lens-button.is-on {
+    background: var(--data);
+    color: var(--paper);
+  }
+
+  .lens-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .map-readout {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    min-height: 1.4em;
+  }
+
+  .map-frame {
+    background: var(--canvas);
+    border-radius: var(--radius);
+    padding: 0.5rem;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .context path {
+    fill: var(--canvas);
+    stroke: var(--line);
+    stroke-width: 0.6;
+  }
+
+  .area {
+    stroke: var(--paper);
+    stroke-width: 0.7;
+    transition: filter 120ms ease;
+  }
+
+  .area:hover {
+    filter: brightness(0.93);
+  }
+
+  .area.is-empty {
+    fill: var(--canvas);
+    stroke: var(--line);
+  }
+
+  /* Eén tint in zes stappen. Alle zes houden donkere tekst leesbaar, zodat het
+     getal op het land altijd contrast heeft en de kaart niet op kleur alleen leunt. */
+  .band-0 {
+    fill: #eef6f4;
+  }
+  .band-1 {
+    fill: #d6ebe5;
+  }
+  .band-2 {
+    fill: #b9ddd4;
+  }
+  .band-3 {
+    fill: #99cdc1;
+  }
+  .band-4 {
+    fill: #74b8aa;
+  }
+  .band-5 {
+    fill: #4e9f90;
+  }
+
+  .hatches path {
+    pointer-events: none;
+  }
+
+  .label {
+    fill: var(--ink);
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    paint-order: stroke;
+    stroke: rgba(255, 253, 247, 0.72);
+    stroke-width: 2.5px;
+    pointer-events: none;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    margin-top: 0.9rem;
+  }
+
+  .chips-label {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  .chip {
+    font: inherit;
+    font-size: 0.85rem;
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: baseline;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+
+  .chip:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .chip-value {
+    font-weight: 700;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .legend-step {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .legend-swatch {
+    width: 1.1rem;
+    height: 0.75rem;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    display: inline-block;
+  }
+
+  .legend-hatch {
+    background: repeating-linear-gradient(
+      45deg,
+      var(--canvas),
+      var(--canvas) 2px,
+      var(--ink-soft) 2px,
+      var(--ink-soft) 3px
+    );
+  }
+
+  figcaption {
+    margin-top: 1rem;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+  }
+
+  /* Op een telefoon is de kaart ongeveer 330px breed. De viewBox is 1000 eenheden,
+     dus een label van 15 eenheden rendert op zo'n 5 pixels: onleesbaar. Dan liever
+     geen getallen op de kaart dan onleesbare. De kleur draagt het patroon, de chips
+     blijven aantikbaar, en elk cijfer staat in de tabel eronder. */
+  @media (max-width: 560px) {
+    .labels {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .area {
+      transition: none;
+    }
+  }
+</style>
