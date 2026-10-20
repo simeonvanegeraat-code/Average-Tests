@@ -95,3 +95,151 @@ uit op de werkelijke Amerikaanse volwassenenpopulatie.
 > Centers for Disease Control and Prevention (CDC), National Center for Health
 > Statistics (NCHS). National Health and Nutrition Examination Survey, 2017–March 2020
 > and August 2021–August 2023. U.S. Department of Health and Human Services.
+
+---
+
+## Eurostat — jongeren die het ouderlijk huis verlaten
+
+**Uitgever** Eurostat (Statistical Office of the European Union)
+**Licentie** Hergebruik toegestaan, ook commercieel, met bronvermelding. De
+copyright-pagina van Eurostat is op de URL die we probeerden niet rechtstreeks gelezen
+(404); de voorwaarde hierboven komt uit samenvattingen van die pagina. **Nog te
+verifiëren bij de bron zelf.**
+**Opgehaald** 20 oktober 2026, via de dissemination-API (geen sleutel nodig)
+**Gebruikt voor** `/leaving-home/`: de leeftijd waarop de helft van de jongeren niet meer
+bij de ouders woont, per land
+
+### Dataset
+
+| | |
+|---|---|
+| Code | `yth_demo_030` |
+| Titel | Estimated average age of young persons leaving the parental household |
+| DOI | [10.2908/YTH_DEMO_030](https://doi.org/10.2908/YTH_DEMO_030) |
+| Metadata | https://ec.europa.eu/eurostat/cache/metadata/en/lfst_hh_esms.htm |
+| Bijgewerkt door Eurostat | 16 april 2026 |
+| Dimensies | freq (A) × unit (AVG) × sex (T/M/F) × geo (36) × time (2000–2025) |
+| Waarnemingen | 2.331 |
+
+### Wat het cijfer is, en wat het níet is
+
+De titel van de dataset zegt "estimated average age", maar de definitie die Eurostat zelf
+bij de dataset meelevert zegt iets anders: de leeftijd waarop 50% van de bevolking niet
+meer in een huishouden met de ouder(s) woont, op basis van de EU Labour Force Survey. Dat
+is een middelpunt, geen gemiddelde. De site volgt de definitie en benoemt het verschil op
+de pagina zelf.
+
+Omdat er per land één getal is en geen verdeling, kan hier **geen percentiel** uit. De
+pagina zegt dat expliciet. Dat is het verschil met de NHANES-pagina's, die wel op
+microdata draaien.
+
+### Dekking
+
+Na scheiding van de twee aggregaten (`EU27_2020`, `EA21`) blijven er 34 landen over.
+**31 daarvan hebben een cijfer voor 2025.** Drie lopen achter en worden op de site met
+hun eigen jaar getoond: VK (2019), Montenegro (2020), Türkiye (2024). De VS, Canada en
+Australië zitten niet in deze dataset.
+
+### Reeksbreuken — belangrijk
+
+Eurostat vlagt waarnemingen met `b` ("break in time series"). In 2021 is de European
+Labour Force Survey herzien en **vrijwel elk land heeft daar een breuk**; daarnaast staan
+er oudere breuken in losse landen. Het breukjaar zelf is bovendien een overgangsjaar:
+
+| Land | 2019 | 2021 (breuk) | 2022 | 2025 |
+|---|---|---|---|---|
+| Portugal | 28,9 | 33,3 | 30,1 | 28,8 |
+| Zweden | 17,8 | 22,0 | 21,6 | 23,1 |
+
+Een vergelijking met bijvoorbeeld 2005 levert daardoor een getal op dat echt lijkt en
+niets betekent. De build legt per land de breukjaren vast en berekent `comparableSince`
+= het eerste jaar ná de laatste breuk (nu 2022). `trend()` in `src/lib/leaving-home.js`
+weigert te rekenen als er alsnog een breuk in het venster valt, en
+`validate-leaving-home.mjs` controleert dat.
+
+### Bewerkingen
+
+`node scripts/fetch-eurostat.mjs` haalt het JSON-stat-antwoord naar `data/raw/eurostat/`
+(gitignored) met een fetch-log; `build-leaving-home.mjs` schrijft
+`data/leaving-home/index.json`. Geen checksum op het ruwe bestand: Eurostat publiceert
+bij, dus een veranderend antwoord is correct gedrag en geen fout. In plaats daarvan
+controleert het fetch-script het dataset-label, zodat een stille codewissel niet
+ongemerkt doorkomt.
+
+### Validatie
+
+`node scripts/validate-leaving-home.mjs` moet slagen voordat er iets wordt gepubliceerd.
+De controle rekent elk gepubliceerd cijfer én elke breukvlag terug naar het ruwe
+antwoord, controleert dat aggregaten niet als land zijn geteld, dat elk land zijn eigen
+jaar meedraagt, en dat het vergelijkbare venster werkelijk breukvrij is.
+
+### Bronvermelding op de site
+
+> Eurostat, *Estimated average age of young persons leaving the parental household*
+> (`yth_demo_030`), bijgewerkt 16 april 2026. Afgeleid van de EU Labour Force Survey.
+
+---
+
+## Natural Earth — landgrenzen voor de Europakaart
+
+**Uitgever** Natural Earth
+**Licentie** Publiek domein. Commercieel gebruik toegestaan, bronvermelding niet
+verplicht (https://www.naturalearthdata.com/about/terms-of-use/)
+**Opgehaald** 20 oktober 2026
+**Gebruikt voor** de SVG-kaart op `/leaving-home/`
+
+### Bron
+
+| | |
+|---|---|
+| Dataset | Natural Earth, "Admin 0 – Countries", schaal 1:50m, versie 4.1.0 |
+| Verspreid als | TopoJSON via npm-pakket `world-atlas` 2.0.2 (Mike Bostock, ISC) |
+| URL | `https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json` |
+| Bestand | `countries-50m.json`, 756.420 bytes |
+| SHA-256 | `04342cdc1e3016bcd7db1630de95684d67b79fe3c8c460321e87aef469502394` |
+
+Anders dan bij Eurostat staat hier **wel** een checksum op: een vastgepinde
+pakketversie hoort niet te veranderen, dus als hij dat toch doet is dat een fout en
+geen bijwerking. `scripts/build-geo.mjs` weigert te draaien als de checksum afwijkt.
+
+### Bewerking
+
+`node scripts/build-geo.mjs` schrijft `data/geo/europe.json` (55.907 bytes, 54
+landvormen: 34 met Eurostat-data, 20 als achtergrond).
+
+| | |
+|---|---|
+| Projectie | Lambert azimutale equal-area, middelpunt 10°O 52°N, y gespiegeld |
+| Kader | viewBox 1000 × 855, omhullende van veertien randlanden plus 1,5% marge |
+| Vereenvoudiging | Ramer–Douglas–Peucker per TopoJSON-arc, ε = 0,55 viewBox-eenheden voor datalanden en 1,1 voor achtergrondlanden |
+| Eilandjes | vallen weg onder 0,25 eenheden² (datalanden) of 1,5 (achtergrond); het grootste polygoon van een land blijft altijd staan |
+| Labelpunt | middelpunt van de grootste ingeschreven cirkel (polylabel, precisie 0,6) in het grootste polygoon; `lr` is de straal daarvan |
+| Afronding | coördinaten op 0,1 eenheid |
+
+De site gebruikt `lr` om te bepalen of een land zijn waarde als label op de kaart
+krijgt of als chip eronder: onder de 13 eenheden is er geen ruimte voor leesbare tekst.
+
+Equal-area omdat oppervlakten op een kaart met waarden per land eerlijk horen te
+zijn, en azimutaal omdat Europa in Mercator of in een platte lengte/breedtekaart
+scheef staat. Landen delen hun arcs, dus gedeelde grenzen blijven op elkaar
+aansluiten.
+
+### Twee punten die geverifieerd zijn
+
+- **Reproduceerbaar, binnen één engine.** Het script is op 20 oktober 2026 meermaals
+  gedraaid op Node v24.19.0 en levert elke keer een bestand dat byte-voor-byte gelijk is
+  aan de versie die in de repo staat. Op een andere Node- of V8-versie kan een enkel
+  coördinaat in de laatste decimaal afwijken, omdat `sin`/`cos` per engine mogen
+  verschillen. Een diff van een paar tienden van een eenheid is daarom geen fout; een
+  afwijkende SHA-256 op de download wél, en daar stopt het script op.
+- **Cyprus.** Natural Earth splitst het eiland in "Cyprus" en "N. Cyprus". Het script
+  geeft beide dezelfde code `CY`, omdat Eurostat het hele eiland onder CY rekent; het
+  pad heeft dan ook twee subpaden. Zonder die samenvoeging zou er een grijs gat in
+  Cyprus staan dat als ontbrekende data leest.
+
+### Namen
+
+Het bestand draagt per land de Natural Earth-naam mee, en die wijkt op drie plekken af
+van Eurostat: `CY` staat er als "N. Cyprus", `MK` als "Macedonia", `TR` als "Turkey".
+**De site gebruikt die namen niet.** Elke naam op de pagina komt uit de Eurostat-data;
+de geometrie levert alleen vormen.
