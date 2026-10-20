@@ -15,7 +15,12 @@
     "wealth:fetch": "node scripts/fetch-dwa.mjs",
     "wealth:build": "node scripts/build-wealth.mjs",
     "wealth:validate": "node scripts/validate-wealth.mjs",
-    "wealth": "npm run wealth:fetch && npm run wealth:build && npm run wealth:validate"
+    "wealth": "npm run wealth:fetch && npm run wealth:build && npm run wealth:validate",
+    "leaving:fetch": "node scripts/fetch-eurostat.mjs",
+    "leaving:build": "node scripts/build-leaving-home.mjs",
+    "leaving:validate": "node scripts/validate-leaving-home.mjs",
+    "leaving": "npm run leaving:fetch && npm run leaving:build && npm run leaving:validate",
+    "geo:build": "node scripts/build-geo.mjs"
   },
   "devDependencies": {
     "astro": "^5.14.1"
