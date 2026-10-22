@@ -193,8 +193,9 @@ export function comparison(index, { code, age: own }) {
  * de data bijwerkt, en een kaart waarvan de klassegrenzen elk jaar schuiven is
  * niet te vergelijken met de kaart van vorig jaar.
  *
- * Deze grenzen staan ook in src/components/CountryMap.astro, in de client-side
- * lens. Verander je ze hier, verander ze daar dan ook.
+ * Dit is de enige plek waar de grenzen staan. src/lib/leaving-home-map.js
+ * importeert ze hiervandaan en StageMap leest ze daar weer uit, zodat de kaart,
+ * de legenda en de tekst niet uit elkaar kunnen lopen.
  */
 export const BANDS = [
   { until: 22, label: 'under 22' },

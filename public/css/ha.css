@@ -690,3 +690,16 @@
     .tip { border: 1px solid CanvasText; }
   }
 }
+
+/* ---------- proza onder de tegels ----------
+   Besluit A uit research/migration-leaving-home-v2.md. De tegels van FactsBento
+   geven de cijfers; dit blok geeft het argument dat een tegel niet kan dragen:
+   wat de vlakke EU-lijn verbergt, en waarom de vergelijking bij comparableSince
+   begint en niet bij 2005. Die tweede alinea bevat de Portugal-reeks als bewijs
+   en staat daarmee nergens anders op de pagina — MethodBlock noemt de breuk wel,
+   maar zonder de cijfers die laten zien waarom het breukjaar onbruikbaar is. */
+@layer sections {
+  .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+  .prose p { margin: 0 0 1.1em; line-height: 1.7; }
+  .prose p:last-child { margin-bottom: 0; }
+}
