@@ -1,0 +1,95 @@
+---
+/**
+ * "Waar pas jij?" als invultekst: *I live in [land] and left home at [leeftijd]*.
+ *
+ * De haken `data-compare`, `data-compare-country` en `data-compare-age` zijn dezelfde
+ * als in de huidige pagina, zodat het script dat het profiel bewaart en de metingen
+ * verstuurt niet hoeft te veranderen. De landen staan op alfabet: wie zijn land zoekt
+ * leest een naam, geen rangorde.
+ *
+ * Dit onderdeel controleert en meldt, en bewaart niets. Het stuurt op `document`:
+ *   `ha:country` { code }       het gekozen land veranderde
+ *   `ha:age` { age }            er staat een geldige leeftijd in het veld (tijdens het typen)
+ *   `ha:submit` { code, age }   het formulier is verstuurd met geldige invoer
+ * en luistert naar `ha:country`, zodat het land gelijk loopt met de kiezer in de kop.
+ * Het bewaren van de keuze en de eventnaam `value_submitted` zijn aan de pagina.
+ */
+import { currentCountries } from '../lib/leaving-home.js';
+import { AGE_MIN, AGE_MAX } from '../lib/leaving-home-copy.js';
+
+interface Props {
+  index: any;
+}
+
+const { index } = Astro.props;
+const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<form class="madlib" data-compare novalidate>
+  <label for="compare-country">I live in</label>
+  <span class="select">
+    <select id="compare-country" name="country" data-compare-country required>
+      {options.map((country) => <option value={country.code}>{country.name}</option>)}
+    </select>
+  </span>
+  <label for="compare-age">and left home at</label>
+  <input
+    id="compare-age"
+    type="number"
+    name="age"
+    data-compare-age
+    min={AGE_MIN}
+    max={AGE_MAX}
+    step="0.5"
+    inputmode="decimal"
+    required
+    aria-describedby="compare-error"
+  />
+  <button class="btn" type="submit">
+    Compare me
+    <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
+  </button>
+</form>
+<p class="field-error" id="compare-error" data-compare-error role="alert" hidden></p>
+<p class="field-hint">
+  Nothing is sent anywhere. Your answer is kept in this browser so the next page already knows it, and you can clear it at any time.
+</p>
+
+<script>
+  import { validAge, AGE_MIN, AGE_MAX } from '../lib/leaving-home-copy.js';
+
+  const form = document.querySelector<HTMLFormElement>('[data-compare]');
+  const select = form?.querySelector<HTMLSelectElement>('[data-compare-country]');
+  const input = form?.querySelector<HTMLInputElement>('[data-compare-age]');
+  const problem = document.querySelector<HTMLElement>('[data-compare-error]');
+
+  if (form && select && input && problem) {
+    const send = (name: string, detail: object) => document.dispatchEvent(new CustomEvent(name, { detail }));
+
+    select.addEventListener('change', () => send('ha:country', { code: select.value, source: 'form' }));
+
+    document.addEventListener('ha:country', (event) => {
+      const code = (event as CustomEvent<{ code?: string }>).detail?.code;
+      if (code && select.value !== code) select.value = code;
+    });
+
+    input.addEventListener('input', () => {
+      problem.hidden = true;
+      const value = input.valueAsNumber;
+      if (validAge(value)) send('ha:age', { age: value });
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const value = input.valueAsNumber;
+      if (!select.value || !validAge(value)) {
+        problem.textContent = `Enter an age between ${AGE_MIN} and ${AGE_MAX}.`;
+        problem.hidden = false;
+        input.focus();
+        return;
+      }
+      problem.hidden = true;
+      send('ha:submit', { code: select.value, age: value });
+    });
+  }
+</script>

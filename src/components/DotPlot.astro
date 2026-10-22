@@ -1,0 +1,178 @@
+---
+/**
+ * De stippengrafiek: elk land een stip op een as met de leeftijd, het Europese cijfer
+ * als stippellijn, en jouw land of jouw leeftijd als markering.
+ *
+ * Alles wat vaststaat wordt op de server getekend (src/lib/dotplot.js): de stapeling,
+ * de labels van de uitersten en van de EU, de as. Plek is een percentage van de breedte
+ * en grootte is een vast aantal pixels, dus de grafiek staat zonder JavaScript en blijft
+ * op elke breedte scherp. Labels zijn echte tekst, geen onderdeel van een afbeelding.
+ *
+ * De stippen zijn niet focusbaar en de grafiek is één role="img" met een samenvatting.
+ * Dezelfde reden als bij de kaart: 31 tabstops voor informatie die volledig in de tabel
+ * staat. Het toegankelijke alternatief is de landkiezer en de tabel.
+ *
+ * Wat de browser erbij doet staat onderaan en volgt twee gebeurtenissen op `document`:
+ *   `ha:country` { code }  markeert dat land (stip, label, geleidelijn)
+ *   `ha:age` { age }       zet een verticale markering op die leeftijd (alleen mode="result")
+ * Een klik op een stip in mode="hero" stuurt zelf `ha:country`, zodat de kiezer en de
+ * grafiek altijd hetzelfde land tonen.
+ *
+ * Er blijven bovenaan vaste labelrijen vrij voor wat de browser toevoegt (`--extra`),
+ * zodat er niets verspringt als een land gekozen wordt.
+ */
+import { age } from '../lib/leaving-home.js';
+import { axisRange, xOf, ticks, stackDots, placeLabels } from '../lib/dotplot.js';
+
+interface Row {
+  code: string;
+  name: string;
+  total: number;
+}
+
+interface Props {
+  /** De landen op het laatste jaar. */
+  rows: Row[];
+  /** Het Europese cijfer. Zonder wordt er geen EU-markering getekend. */
+  eu?: number | null;
+  /** hero: de uitersten krijgen een label, één rij is vrij voor het gekozen land. result: twee rijen zijn vrij, voor het gekozen land en voor je leeftijd. */
+  mode?: 'hero' | 'result';
+  /** De samenvatting voor schermlezers. */
+  label: string;
+}
+
+const { rows, eu = null, mode = 'hero', label } = Astro.props;
+
+const range = axisRange(rows.map((row) => row.total));
+const dots = stackDots(rows, range);
+const first = dots[0];
+const last = dots[dots.length - 1];
+
+const fixed = [
+  ...(mode === 'hero'
+    ? [
+        { x: first.x, text: `${first.code} ${age(first.total)}`, kind: 'ext', trow: first.row, code: first.code },
+        { x: last.x, text: `${last.code} ${age(last.total)}`, kind: 'ext', trow: last.row, code: last.code },
+      ]
+    : []),
+  ...(eu === null ? [] : [{ x: xOf(eu, range), text: `EU ${age(eu)}`, kind: 'eu', trow: 0 }]),
+];
+
+const placed = placeLabels(fixed);
+const extra = mode === 'hero' ? 1 : 2;
+const stack = Math.max(...dots.map((dot) => dot.row)) + 1;
+const axis = ticks(range);
+---
+
+<div
+  class="dp"
+  data-dotplot
+  data-mode={mode}
+  data-lo={range.lo}
+  data-hi={range.hi}
+  style={`--rows:${stack};--lrows:${placed.rows + extra};--extra:${extra}`}
+  role="img"
+  aria-label={label}
+>
+  <div class="dp-plot" aria-hidden="true">
+    {placed.labels.filter((l) => l.kind === 'eu').map((l) => <i class="dp-line dp-line--eu" style={`--x:${l.x};--lrow:${l.row}`}></i>)}
+    {
+      dots.map((dot, i) => (
+        <span
+          class="dp-dot"
+          data-code={dot.code}
+          data-total={dot.total}
+          title={`${dot.name} ${age(dot.total)}`}
+          style={`--x:${dot.x};--row:${dot.row};--i:${i}`}
+        />
+      ))
+    }
+    {placed.labels.filter((l) => l.kind === 'ext').map((l) => <i class="dp-leader" data-fixed-code={l.code} style={`--x:${l.x};--lrow:${l.row};--trow:${l.trow}`}></i>)}
+    {placed.labels.map((l) => <span class={`dp-label dp-label--${l.kind}`} data-fixed-code={l.code} style={`--x:${l.lx};--lrow:${l.row}`}>{l.text}</span>)}
+    <div class="dp-axis">
+      {axis.map((tick) => <span style={`--x:${tick.x}`}>{tick.value}</span>)}
+    </div>
+  </div>
+</div>
+
+<script>
+  import { age } from '../lib/leaving-home.js';
+  import { xOf, labelX, PAD } from '../lib/dotplot.js';
+  import { ownAge } from '../lib/leaving-home-copy.js';
+
+  const plots = [...document.querySelectorAll<HTMLElement>('[data-dotplot]')];
+
+  const clear = (plot: HTMLElement, selector: string) => {
+    for (const element of plot.querySelectorAll(selector)) element.remove();
+  };
+
+  function add(plot: HTMLElement, tag: string, className: string, style: string, text = '') {
+    const element = document.createElement(tag);
+    element.className = `${className} dp-you`;
+    element.setAttribute('style', style);
+    if (text) element.textContent = text;
+    plot.querySelector('.dp-plot')?.append(element);
+    return element;
+  }
+
+  function showCountry(plot: HTMLElement, code: string) {
+    clear(plot, '.dp-you[data-for="country"]');
+    for (const dot of plot.querySelectorAll('.dp-dot.is-you')) dot.classList.remove('is-you');
+    for (const fixed of plot.querySelectorAll('.is-covered')) fixed.classList.remove('is-covered');
+    const dot = plot.querySelector<HTMLElement>(`.dp-dot[data-code="${code}"]`);
+    if (!dot) return;
+
+    dot.classList.add('is-you');
+    // Is dit land een van de uitersten, dan staat zijn vaste label er al: dat verdwijnt zolang het gekozen is.
+    for (const fixed of plot.querySelectorAll(`[data-fixed-code="${code}"]`)) fixed.classList.add('is-covered');
+    const x = Number(dot.style.getPropertyValue('--x'));
+    const row = Number(dot.style.getPropertyValue('--row'));
+    // In de hero is er één vrije rij bovenaan; in het resultaat twee, daar komt het land onder je leeftijd.
+    const crow = plot.dataset.mode === 'result' ? 1 : 0;
+    const text = `${code} ${age(Number(dot.dataset.total))}`;
+    const leader = add(plot, 'i', 'dp-leader dp-leader--you', `--x:${x};--crow:${crow};--trow:${row}`);
+    const label = add(plot, 'span', 'dp-label dp-label--you', `--x:${labelX(x, text)};--crow:${crow}`, text);
+    leader.dataset.for = 'country';
+    label.dataset.for = 'country';
+  }
+
+  function showAge(plot: HTMLElement, value: number) {
+    clear(plot, '.dp-you[data-for="age"]');
+    const range = { lo: Number(plot.dataset.lo), hi: Number(plot.dataset.hi) };
+    const offScale = value < range.lo || value > range.hi;
+    const x = Math.min(Math.max(xOf(value, range), PAD), 100 - PAD);
+    const text = `${offScale ? (value < range.lo ? '← ' : '') : ''}you · ${ownAge(value)}${offScale && value > range.hi ? ' →' : ''}`;
+    const line = add(plot, 'i', 'dp-line dp-line--age', `--x:${x};--crow:0`);
+    const label = add(plot, 'span', 'dp-label dp-label--age', `--x:${labelX(x, text)};--crow:0`, text);
+    line.dataset.for = 'age';
+    label.dataset.for = 'age';
+  }
+
+  document.addEventListener('ha:country', (event) => {
+    const code = (event as CustomEvent<{ code: string }>).detail?.code;
+    for (const plot of plots) showCountry(plot, code);
+  });
+
+  document.addEventListener('ha:age', (event) => {
+    const value = (event as CustomEvent<{ age: number }>).detail?.age;
+    if (!Number.isFinite(value)) return;
+    for (const plot of plots) if (plot.dataset.mode === 'result') showAge(plot, value);
+  });
+
+  document.addEventListener('ha:submit', (event) => {
+    const { code, age: value } = (event as CustomEvent<{ code: string; age: number }>).detail;
+    for (const plot of plots) {
+      if (plot.dataset.mode !== 'result') continue;
+      showCountry(plot, code);
+      showAge(plot, value);
+    }
+  });
+
+  for (const plot of plots) {
+    if (plot.dataset.mode !== 'hero') continue;
+    plot.addEventListener('click', (event) => {
+      const dot = (event.target as HTMLElement).closest<HTMLElement>('.dp-dot');
+      if (dot) document.dispatchEvent(new CustomEvent('ha:country', { detail: { code: dot.dataset.code, source: 'dotplot' } }));
+    });
+  }
+</script>

@@ -1,0 +1,82 @@
+---
+/**
+ * De uitkomst van "waar pas jij": een kop, een zin over jouw land, de stippengrafiek met
+ * jouw leeftijd erin, en de eerlijke kanttekening dat dit geen percentiel is.
+ *
+ * Staat verborgen tot er een geldige invoer is. De zinnen komen uit resultCopy()
+ * (src/lib/leaving-home-copy.js), dezelfde functie op de server en in de browser, en
+ * bouwen op comparison() uit de bibliotheek. Er staat geen getal in dit onderdeel.
+ *
+ * Luistert naar `ha:submit` { code, age } van CompareForm. Het deelbeeld en de knoppen
+ * om te delen horen onder `<slot name="share" />` en komen in een volgende stap.
+ *
+ * Het is een div met role="status" en geen <output>: een <output> mag alleen lopende
+ * tekst bevatten, en dit blok bevat een kop, een grafiek en een paneel.
+ */
+import DotPlot from './DotPlot.astro';
+import { age, ranked, headline } from '../lib/leaving-home.js';
+
+interface Props {
+  index: any;
+}
+
+const { index } = Astro.props;
+const h = headline(index);
+const rows = ranked(index).map(({ code, name, total }) => ({ code, name, total }));
+const label = `Dot plot of ${h.countries} countries by the age by which half of young people have left home, with your age marked.`;
+---
+
+<div class="result" data-compare-result role="status" hidden>
+  <p class="tag mono" data-result-tag>Your result</p>
+  <h3 data-result-head></h3>
+  <p class="sub" data-result-sub></p>
+  <figure class="panel hued">
+    <DotPlot rows={rows} eu={h.eu ? h.eu.total : null} mode="result" label={label} />
+    <div class="panel-foot" data-result-chips></div>
+  </figure>
+  <p class="closest" data-result-closest></p>
+  <p class="note">
+    This compares your age with <b>each country’s midpoint</b>, not with individual people. Eurostat publishes one number per country, not
+    the spread around it, so no percentile can be given.
+  </p>
+  <slot name="share" />
+</div>
+
+<script>
+  import { resultCopy } from '../lib/leaving-home-copy.js';
+  import { fillParts, replay } from '../lib/parts.js';
+
+  const holder = document.getElementById('leaving-home-data');
+  const result = document.querySelector<HTMLElement>('[data-compare-result]');
+
+  if (holder && result) {
+    const data = JSON.parse(holder.textContent ?? '{}');
+    const part = (name: string) => result.querySelector<HTMLElement>(`[data-result-${name}]`)!;
+
+    document.addEventListener('ha:submit', (event) => {
+      const { code, age } = (event as CustomEvent<{ code: string; age: number }>).detail;
+      const copy = resultCopy(data, { code, age });
+      if (!copy) return;
+
+      fillParts(part('head'), copy.head);
+      fillParts(part('sub'), copy.sub);
+      fillParts(part('closest'), copy.closest);
+
+      const chips = part('chips');
+      chips.replaceChildren(
+        ...copy.chips.map(([name, value]) => {
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.append(`${name} `);
+          const strong = document.createElement('b');
+          strong.textContent = value;
+          chip.append(strong);
+          return chip;
+        }),
+      );
+
+      result.hidden = false;
+      replay(result);
+    });
+  }
+</script>
