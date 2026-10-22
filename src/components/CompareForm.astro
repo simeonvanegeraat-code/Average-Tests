@@ -73,6 +73,17 @@ const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare
       if (code && select.value !== code) select.value = code;
     });
 
+    /**
+     * Een teruggezet profiel komt binnen als `ha:submit` en wordt eronder meteen
+     * als uitkomst getoond. Zonder deze regel staat er dan een resultaat voor
+     * leeftijd 24 boven een leeg leeftijdsveld. Waarde zetten stuurt geen
+     * `input`-gebeurtenis, dus dit kan niet terugkoppelen.
+     */
+    document.addEventListener('ha:submit', (event) => {
+      const value = (event as CustomEvent<{ age?: number }>).detail?.age;
+      if (validAge(Number(value)) && input.valueAsNumber !== value) input.value = String(value);
+    });
+
     input.addEventListener('input', () => {
       problem.hidden = true;
       const value = input.valueAsNumber;
