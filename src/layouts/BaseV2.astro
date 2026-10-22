@@ -197,26 +197,16 @@ const isCurrent = (href: string) => here === href || here.startsWith(href);
        * Alles hier is versiering of gemak: zonder JavaScript staat de inhoud er gewoon,
        * leesbaar en in het thema van het systeem.
        */
+      import { readProfile, mergeProfile } from '../lib/profile.js';
+
       const root = document.documentElement;
-      const PROFILE_KEY = 'humanaverage:profile';
       const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      function readProfile(): Record<string, unknown> {
-        try {
-          return JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') ?? {};
-        } catch {
-          return {};
-        }
-      }
-
-      function saveTheme(theme: 'light' | 'dark') {
-        try {
-          // Samenvoegen, niet vervangen: land en leeftijd staan in dezelfde sleutel.
-          localStorage.setItem(PROFILE_KEY, JSON.stringify({ ...readProfile(), theme }));
-        } catch {
-          // Opslag geblokkeerd: de keuze geldt dan alleen voor deze pagina.
-        }
-      }
+      /**
+       * Samenvoegen, niet vervangen: land en leeftijd staan in dezelfde sleutel.
+       * mergeProfile doet dat en gooit nooit, ook niet zonder localStorage.
+       */
+      const saveTheme = (theme: 'light' | 'dark') => mergeProfile({ theme });
 
       const currentTheme = () => (root.dataset.theme === 'dark' ? 'dark' : 'light');
       const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')];
