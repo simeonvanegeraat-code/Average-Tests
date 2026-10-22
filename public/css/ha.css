@@ -606,3 +606,87 @@
     }
   }
 }
+
+@layer sections {
+  /* ---------- kaart en tabel van de pagina: StageMap en RankTable ---------- */
+  .stage-sec .picker { margin: 0 0 16px; }
+  .stage-sec .select select { background: oklch(1 0 0 / .07); border-color: var(--stage-line); }
+  .stage-sec .select select:hover { background: oklch(1 0 0 / .11); }
+  .stage-sec .select select option { color: oklch(0.2 0.03 268); background: oklch(0.97 0.006 265); }
+
+  /* kleur per klasse: --r0 t/m --r5 staan als variabelen op <html> (src/lib/hue.js), de tekst erop in --rt0 t/m --rt5 */
+  #map .land path.b0 { fill: var(--r0); }
+  #map .land path.b1 { fill: var(--r1); }
+  #map .land path.b2 { fill: var(--r2); }
+  #map .land path.b3 { fill: var(--r3); }
+  #map .land path.b4 { fill: var(--r4); }
+  #map .land path.b5 { fill: var(--r5); }
+  #map .land path.is-empty { fill: var(--stage-2); stroke: var(--stage-line); }
+  #map .hatches path { fill: url(#stale-hatch); pointer-events: none; }
+  #map pattern line { stroke: oklch(0.14 0.03 268 / .55); }
+  /* het getal heeft een rand in de kleur van zijn eigen klasse: valt het deels buiten het land, dan blijft het leesbaar */
+  #map text { font-size: 15px; paint-order: stroke; stroke-width: 2.6px; stroke-linejoin: round; }
+  #map text.b0 { fill: var(--rt0); stroke: var(--r0); }
+  #map text.b1 { fill: var(--rt1); stroke: var(--r1); }
+  #map text.b2 { fill: var(--rt2); stroke: var(--r2); }
+  #map text.b3 { fill: var(--rt3); stroke: var(--r3); }
+  #map text.b4 { fill: var(--rt4); stroke: var(--r4); }
+  #map text.b5 { fill: var(--rt5); stroke: var(--r5); }
+  #map text.is-empty { fill: var(--text-2); stroke: none; }
+
+  /* welke landen een getal op de kaart krijgen hangt af van de breedte van de kaart zelf (tierOf in leaving-home-map.js);
+     de rest staat als knop eronder. Een container query, dus het is er al bij de eerste verf en er verspringt niets. */
+  .mapcol { container: mapcol / inline-size; min-width: 0; }
+  #map text.t0 { font-size: 17px; }
+  #map text.t1 { font-size: 15px; }
+  #map text.t2 { font-size: 14px; }
+  .smallchip.t2 { display: none; }
+  @container mapcol (max-width: 719px) {
+    #map text.t0 { font-size: 24px; }
+    #map text.t1 { font-size: 21px; }
+    #map text.t2 { display: none; }
+    .smallchip.t2 { display: inline-flex; }
+  }
+  @container mapcol (max-width: 479px) {
+    #map text.t0 { font-size: 35px; }
+    #map text.t1 { display: none; }
+  }
+  .smallchips { align-items: center; }
+  .smallchip span { white-space: nowrap; }
+
+  .legend-title { margin-bottom: 10px; color: var(--text-2); }
+  .legend-nodata i.legend-stale { background: repeating-linear-gradient(135deg, var(--r3) 0 3px, oklch(0.14 0.03 268 / .6) 3px 5px); }
+  /* het jaar boven de naam in plaats van ernaast: een lange naam (Bosnia and Herzegovina) wordt zo niet twee regels,
+     en de hoogte van het paneel blijft hetzelfde voor elk land, dus er verspringt niets als het land wisselt */
+  .inspect .who { flex-direction: column-reverse; align-items: flex-start; gap: 6px; }
+  .inspect h3 { font-size: clamp(1.2rem, .75rem + 1.5vw, 1.5rem); }
+  .inspect .rk { min-height: 3.2em; }
+  .inspect .brkcap { min-height: 4.4em; }
+  @media (max-width: 360px) { .inspect .rk { min-height: 4.8em; } }
+  .inspect dl div { display: flex; flex-direction: column; justify-content: space-between; }
+  /* de stip op het laatste jaar is een los element: een cirkel in de uitgerekte svg zou een ovaal worden */
+  .inspect .sparkwrap { position: relative; margin-top: 14px; color: var(--glow); }
+  .inspect .sparkwrap .spark { margin-top: 0; }
+  .spark-dot { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2.5px var(--glow); }
+
+  /* tabel */
+  .tablewrap:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+  /* de hele kolomkop is de knop, zodat hij ook op een telefoon een ruim tikdoel heeft */
+  thead th.sortable { padding: 0; }
+  thead th.sortable button { width: 100%; margin: 0; padding: 13px 18px; text-align: inherit; }
+  thead th[aria-sort="ascending"] button::after { content: " ↑"; content: " ↑" / ""; }
+  thead th[aria-sort="descending"] button::after { content: " ↓"; content: " ↓" / ""; }
+  td.strong { color: var(--text); font-weight: 700; }
+  .stale-year { margin-left: .55em; padding: .2em .55em; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); color: var(--text-2); font: 500 .7rem/1 var(--font-mono); font-variant-numeric: tabular-nums; vertical-align: .08em; }
+  td.trend { white-space: nowrap; color: var(--data); }
+  td.trend .spark { display: inline-block; vertical-align: middle; }
+
+  /* in de modus voor geforceerde kleuren houden de kaart, de legendabalk en de stip hun eigen kleuren: zonder zijn klassen is de kaart
+     één egale vlek en de legenda leeg. Wat ingedrukt is krijgt de systeemkleur voor een selectie, want de achtergrond valt weg. */
+  @media (forced-colors: active) {
+    .mapwrap, .legend-bar, .legend-nodata i, .spark-dot { forced-color-adjust: none; }
+    .mapwrap { background: var(--stage); }
+    .seg button[aria-pressed="true"], .smallchip[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+    .tip { border: 1px solid CanvasText; }
+  }
+}
