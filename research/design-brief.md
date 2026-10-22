@@ -1,126 +1,112 @@
-# Ontwerpvoorstel: doorklikken, onthouden, doorsturen
+# Ontwerpvoorstel v2: doorklikken, onthouden, doorsturen, in een nieuwe vormtaal
 
-*19 oktober 2026. Vervolg op [metric-shortlist.md](metric-shortlist.md). Er is niets in de live site veranderd. Wel is er een werkende mock-up van één pagina (de nummer 1 uit de shortlist, leeftijd uit huis), op echte Eurostat-data: [mockups/leaving-home.html](mockups/leaving-home.html). Dubbelklik het bestand om het in een gewone browser te openen; het heeft geen server nodig.*
+*22 oktober 2026, herzien (v1 was van 19 oktober; de nieuwe vormtaal is van 20 oktober). Vervolg op [metric-shortlist.md](metric-shortlist.md). Er is niets in de live site, in `public/css/style.css` of in een Astro-bestand veranderd. Er zijn twee zelfstandige bestanden, te openen met een dubbelklik, zonder server: de pagina-mock [mockups/leaving-home.html](mockups/leaving-home.html) (pagina 1, echte Eurostat-data) en de stijlgids [mockups/styleguide.html](mockups/styleguide.html) (tinten, tokens, typografie, componenten).*
 
-Wat ik zag en mat is gemarkeerd als **gezien**. Wat een ontwerpkeuze is waarvan het effect pas na livegang meetbaar wordt, is gemarkeerd als **aanname**. De mock-up kan geen gedrag bewijzen, alleen laten zien wat ik voorstel.
+**Wat er is veranderd.** Simeon vond de eerste mock te veel op de oude site lijken (inkt, papier, teal, koraal, Georgia, ruitjesachtergrond, afgeronde kaarten) en vroeg om een compleet nieuwe stijl die er echt uitziet als een site uit 2026/2027. De visuele laag is daarom van de grond af nieuw. De ideeën uit v1 die niet over stijl gaan staan nog: antwoord eerst, de levenslijn, jouw beurt onder de kaart, het deelbeeld is het product, de vier vaste events. **Gezien** = zelf bekeken of gemeten. **Aanname** = ontwerpkeuze waarvan het effect pas na livegang te meten valt.
 
 ## In het kort
 
-1. **De hoofdgedachte: elke pagina geeft eerst het antwoord, dan een kaart, dan jouw eigen plek, dan de volgende vraag. Alle pagina's samen vertellen één verhaal: de levenslijn.** Uit huis (23,4) → trouwen (34,1) → eerste kind (30,5) → pensioen (64,7) → gezonde jaren (59,5), steeds met de cijfers van jouw land (hier Nederland, uit Eurostat). Daarmee wordt "de volgende pagina" geen link onderaan maar de volgende stap in een verhaal dat de bezoeker al begonnen is.
-2. **Doorklikken** komt van drie dingen: de levenslijn bovenaan elke pagina (navigatie én voortgang in één), kaarten met de volgende vraag waarin het jouw-land-getal al staat (je ziet de helft van het antwoord, dus je klikt voor de rest), en een verzamelkaart ("My European life line") die na drie stops vrijkomt.
-3. **Onthouden** komt van één groot getal per pagina, één zin over de kloof ("Finland 21,3, Kroatië 31,5: tien jaar verschil voor dezelfde stap"), en jouw eigen cijfer ernaast. Een eigen getal blijft beter hangen dan een gemiddelde; dat is een aanname, geen meting.
-4. **Doorsturen**: bij de Eurostat-kaarten die ik op Google tegenkwam was de afbeelding het ding dat gedeeld werd (Reddit-kaartdraden, een Instagram-kaartaccount met 20K likes, Facebook-posts van Eurostat met 610 tot 1.400 reacties en van het Europees Parlement met 2,2K), geen link. De afbeeldingen zelf kon ik niet bekijken (Reddit is geblokkeerd in de ingebouwde browser); dat het beeld het bericht is, volgt uit de titels en bijschriften. Daarom is in het ontwerp het deelbeeld het product: een poster (4:5) en een linkkaart (1,91:1), persoonlijk of van de kaart zoals je hem net hebt ingesteld, met merk, URL en bron erop, gemaakt in de browser. Plus een embed-code, voor de backlinks.
-5. **Een persoonlijk linkvoorbeeld (OG-afbeelding per bezoeker) kan niet zonder server.** Dat is een harde grens van "statisch, geen backend". Dus de afbeelding zelf reist, niet de link. Een algemene OG-afbeelding per pagina kan wel, maar dat vraagt een PNG-renderer als dev-dependency en dus jouw akkoord.
-6. **Er is nog geen enkele metingsbasis.** Search Console meet vertoningen en klikken, geen pagina's per sessie. Mijn vraag: hoeveel pagina's per sessie en welk percentage terugkerende bezoekers haalt EUDebtMap nu? Dat is de enige echte maatstaf die er is om te zeggen wat "beter" betekent.
+1. **De richting in één zin:** een neutrale zwart-witte schil, één tint per metriek, een donker podium voor kaart en grafiek, en getallen op posterformaat in Bricolage Grotesque. Kleur is er alleen voor data. Elke stop op de levenslijn heeft een eigen tint (uit huis blauwviolet, trouwen roze, eerste kind oranje, pensioen groen, gezonde jaren cyaan) en alles wat bij die metriek hoort (kaart, groot getal, kaartjes, deelbeeld) leest die tint uit één variabele, `--h`. De vijf tinten samen zijn het merkbeeld: logo, levenslijn in de navigatie, streep onder elk deelbeeld.
+2. **Het onderscheidende beeld is de stippengrafiek:** elk land een stip op een leeftijdsas, jouw land licht op, het EU-gemiddelde als stippellijn. Het eerste scherm geeft zo het antwoord (26,3), de spreiding (Finland 21,3 tot Kroatië 31,5, 2025) en jouw plek, zonder iets in te vullen.
+3. **Waarom deze richting** (aanname, afgewogen tegen drie alternatieven):
 
-## 1. Wat vergelijkbare sites doen (gezien, 19 oktober 2026)
+| Richting | Waarom wel/niet |
+|---|---|
+| Donker-eerst SaaS met aurora (Linear, Raycast) | Actueel, maar overal; slecht voor lange tekst en voor advertenties later. Alleen overgenomen als podium |
+| Warm papier + serif (Cursor, Felt) | Gezien dat dit in 2026 ook actueel is. Niet gekozen: het is in wezen de oude HumanAverage-stijl |
+| Neo-brutalistische kleurvlakken | Onderscheidend, maar vermoeiend en tegen het "betrouwbare data"-signaal |
+| **Gekozen: monochrome schil + tint per metriek** | Kleur betekent iets (welke metriek), schaalt naar nieuwe pagina's met één variabele, dezelfde beelden werken als deelkaart |
 
-| Site | Wat ze goed doen | Wat ontbreekt |
+4. **Gemeten** (headless Chrome, gescript): 0 van 497 tekstelementen (desktop, licht en donker) en 0 van 510 (mobiel) onder WCAG-contrast na één correctie; CLS 0,0002 desktop en 0,0000 mobiel (meting over laden, scrollen en interacties); geen horizontale scroll bij 320, 360, 390, 1280 en 1920 px; 20 geautomatiseerde interactiecontroles slagen, waaronder PNG-export op 1080×1920, 1080×1350 en 1200×630; toetsenbordvolgorde logisch met focusring in de tint; `prefers-reduced-motion` laat alles direct zien; een gesimuleerde browser zonder `light-dark()` valt netjes terug op licht.
+5. **Niet gemeten:** Safari en Firefox, een echte telefoon, schermlezer, Web Share met bestand, geforceerde-kleurenmodus (CSS staat erin, niet bekeken). Lettertypen in SVG naar PNG zijn alleen in Chrome getest; Safari is hier historisch het risico. De hele testreeks (interactie, contrast, CLS, overflow, schermafbeeldingen) is gedraaid op de definitieve bouw van 22 oktober.
+6. **Beslissing van Simeon (20 okt., via de andere sessie): de nieuwe vormtaal komt alleen op het Engelse cluster; het Nederlandse blijft onaangeroerd.** Mijn voorstel voor de techniek staat in §5.
+
+## 1. Onderzoek: hoe ziet 2026 eruit
+
+**Gezien (20 okt.):** Raycast (bijna zwart, zwevende nav-pil van glas met haarlijnrand, pil-knop met gloed); Cursor (warm crème, pil-knoppen, serif-accent, schilderachtige hero); Our World in Data (marineblauw, serif-koppen: data-opzet goed, vormtaal klassiek); Awwwards en recent.design (vooral agency-showcases en illustratieposters, geen bruikbare look voor een datatool, dus niets uit overgenomen).
+**Uit mijn aantekeningen van de eerste ronde (19-20 okt.):** Linear (pil-knoppen 9999px, kop 56px/510/-0,022em, inblurrende tekst), Vercel (pillen, kop 48px/400/-0,06em, mono-tagline), Stripe (gewicht rond 300), Felt (serif-kop, mono-coördinatenticker), The Pudding (mono-datums). Gemeenschappelijk: strak gespatieerde variabele grotesk met groot schaalcontrast, mono voor micro-labels, pil of heel scherpe radii, donker als gelijkwaardig thema, haarlijnen in plaats van schaduwen.
+**Uit artikelen, niet zelf gemeten (aanname):** bento-rasters zijn volwassen; kinetische typografie en glassmorphism worden overbeloofd (spaarzaam); Spotify Wrapped 2025 als voorbeeld van een deelkaartensysteem; OKLCH-ramps met constante chroma; fluïde `clamp()`-typografie.
+
+| Wat de mock gebruikt | Baseline-status (web-features, okt. 2026) | Terugval in de mock |
 |---|---|---|
-| **Eurostat**, persbericht uit huis (23-09-2025, geopend) | Het officiële cijfer, met datasetcode | Tekst plus één statische grafiek (over huisvestingskosten, niet over de metriek). Geen kaart, tabel of tool. De aparte tool "Young Europeans" opent met een laadscherm en daarna "Create your avatar" (met een Skip-knop); verder ben ik niet doorgeklikt |
-| **Our World in Data** (grafiek schooljaren, geopend) | Eén object met Tabel/Kaart/Lijn/Staaf, een tijdlijn met afspeelknop, een zoekbare lijst naast de kaart, knoppen Download/Delen/Volledig scherm, het logo als watermerk in elk beeld, bron en licentie onder de grafiek | Geen persoonlijke vergelijking, geen "wat nu?" |
-| **Visual Capitalist** (uit huis, geopend) | Een poster met één beeldmetafoor (een deur), landen gegroepeerd per afgerond jaar, een callout met het EU-gemiddelde, gemaakt om te delen | De pagina *is* het plaatje: niet interactief, niet doorzoekbaar, geen eigen cijfer |
-| **mappr.co** (huishoudgrootte, tekst gelezen) | "Key takeaways" bovenaan, top-10-tabellen met het jaar van de data | Een artikel zonder tool, voor zover uit de tekst te zien (de pagina zelf kon ik door de cookiebanner niet goed bekijken) |
-| **EUDebtMap** (jouw site, geopend) | Een live teller als hero ("geeft de pagina energie"), drie lenzen op de kaart, zijpaneel, chips voor kleine landen, kaartjes per land, analyses als verse content, FAQ, methode | Geen persoonlijke laag; de volgende klik is een landkaartje of een artikel |
-| **HumanAverage nu** | Een herkenbaar redactioneel merk (donkergroen, papier, serif, koraal), een landpagina met antwoord-eerst-kop ("The median household in the Netherlands is worth €231,763"), een dagelijks raadspel met emoji-deelregel en reeks | Toolpagina's beginnen met een formulier in plaats van het antwoord; geen kaart; delen = tekst kopiëren; geen pad van de ene metriek naar de volgende |
+| `@layer`, `oklch()`, `color-mix()`, `<dialog>`, `:focus-visible` | widely available | niet nodig |
+| `light-dark()` | newly sinds 13 mei 2024 (Chrome 123, Firefox 120, Safari 17.5); widely rond 13 nov. 2026 | lichte waarden als standaard, donker alleen via expliciete vlakken |
+| `popover`, `backdrop-filter`, `text-wrap: balance`, View Transitions (zelfde document) | newly | levenslijnknop verborgen zonder popover; nav zonder blur; geen cirkelanimatie |
+| `text-wrap: pretty`, `background-clip: text` ongeprefixt | limited (Firefox mist de ongeprefixte vorm) | gewone afbreking; geprefixt én ongeprefixt; effen kleur in geforceerde-kleurenmodus |
 
-Samengevat: wie de data goed toont (OWID) heeft geen persoonlijke laag; wie wil dat het gedeeld wordt (Visual Capitalist) heeft geen tool; en niemand verbindt de metrieken tot één verhaal. Dat is het gat.
+## 2. De vormtaal
 
-## 2. Paginaopbouw (zie de mock-up)
+**Kleur.** Alles in OKLCH, als paren per thema (`--bg-l`/`--bg-d`) gekoppeld met `light-dark()`. Schil licht/donker: achtergrond `#f9fafd` / `#050815`, oppervlak `#ffffff` / `#0e1322`, tekst `#121723` / `#f1f3f8` (contrast 17,2 / 18,0), tekst-2 `#4e5564` / `#a9b1c2` (7,2 / 9,3), meta 5,1 / 6,2. Podium `#0a1020`, in beide thema's gelijk, met binnenin automatisch donkere tokens. Knoppen zijn zwart op licht en wit op donker; tint zit nooit op knoppen, alleen op data.
+
+| Stop | Tint (hue) | Datakleur licht / donker |
+|---|---|---|
+| Uit huis | 262 | `#1957d2` / `#9bbeff` |
+| Trouwen | 350 | `#ae1173` / `#ff98ca` |
+| Eerste kind | 50 | `#9c4700` / `#ffa571` |
+| Pensioen | 145 | `#03791f` / `#81d584` |
+| Gezonde jaren | 205 | `#06717a` / `#07d6e7` |
+
+Alle datakleuren halen 4,5:1 als tekst op licht, donker en podium. Gradiëntcijfers (groot, dus 3:1 nodig) halen 3,8 tot 5,1 op licht en 10 tot 13 op donker. **Kaartschaal:** zes klassen, helderheid 0,34 tot 0,89, hue -6 tot +36 rond de tint, de labelkleur (wit of inkt) per klasse gekozen op contrast. Bij het controleren bleek klasse 3 voor groen en cyaan onder 4,5:1 uit te komen; de helderheid is daarom van 0,56 naar 0,54 gezet (berekend: wit-label 4,7 tot 5,6:1 voor alle vijf). De klassengrenzen zijn die van de echte pagina, `BANDS` in `src/lib/leaving-home.js`: 22, 24, 26, 28, 30 (mijn eerste mock gebruikte 21, 24, 27, 30, 33; die stonden niet in de repo en zijn op 22 okt. gelijkgetrokken).
+
+**Typografie.** Bricolage Grotesque (koppen en getallen, weight 700-800, tracking -0,04 tot -0,07em), Geist (tekst en interface), Geist Mono (labels, codes, hoofdletters met +0,07em). Fluïde `clamp()`: h1 36 tot 70px, het grote getal 112 tot 232px. Alle drie SIL OFL 1.1, variabel, Latin-subset, samen 129 KB woff2: Bricolage (opsz+wght) 76.888 B, Geist 29.400 B, Geist Mono 23.128 B. Bron: fontsource-variable 5.3.x via jsDelivr (oorspronkelijk ateliertriay/bricolage en vercel/geist-font); de bestanden en licentieteksten staan in [mockups/fonts/](mockups/fonts/). SHA-256: Bricolage `a79fdb52…a99cd`, Geist `19f9c925…d54e1`, Geist Mono `684ad5b5…33c8cc`. Pijlen en vinkjes zijn inline SVG, niet uit het lettertype (de Latin-subset mist →).
+
+**Vorm en beweging.** Grote radii (28 tot 36px) voor vlakken, pillen voor besturing, haarlijnen in plaats van schaduwen. Zwevende nav-pil met blur; popover voor de levenslijn; View Transition (cirkel uit de knop) voor het themawisselen. Beweging alleen waar die iets betekent: tellen van het hoofdgetal, vallende stippen, onthullen van secties, hoverlift. Alles uit onder `prefers-reduced-motion`.
+
+**Deelbeelden.** Eén generator, drie formaten (verhaal 9:16, post 4:5, link 1,91:1), persoonlijk, van de kaart of de levenslijnkaart. Zelfde tokens als de pagina, lettertypen als data-URI ingesloten (anders valt SVG naar PNG terug op een systeemfont), spectrumstreep onderaan, URL en bron erop.
+
+## 3. Paginaopbouw (herzien) en onderdelen
 
 ```
-[ levenslijn: ● Leave home 23,4 ─ ○ Marry 34,1 ─ ○ First child 30,5 ─ ○ Retire 64,7 ─ ○ Healthy years 59,5 ]
-[ HERO   H1 met het getal   |   groot getal "26,3"   chips: vroegst · laatst · kloof · vrouwen · mannen   [Where do you fit? ↓] ]
-[ KAART  lens: Everyone/Men/Women · tijdlijn 2000–2025 ▶ · [Share this map]
-         kaart met waarden op de landen | detailpaneel + zoekbare ranglijst met mini-trendlijn ]
-[ JOUW BEURT  land + leeftijd → "Earlier than the average in 29 of 31 countries" + stippenstrook + deelbeeld + Save/Share/Copy link/Embed ]
-[ advertentieplek, gereserveerde hoogte ]
-[ VOLGENDE VRAAG  4 kaarten met jouw-land-cijfers · voortgang · verzamelkaart na 3 stops ]
-[ TABEL  elk land, alle getallen, sorteerbaar, mini-trendlijn ]  [ advertentieplek ]
-[ WAT DE CIJFERS ZEGGEN (berekend) · wat dit niet is · bron + datasetcode + download CSV ]
+[ zwevende nav-pil: logo · levenslijn (5 segmenten, popover) · Metrics Play Method · thema ]
+[ HERO       kop + reusachtig getal + zin | donker paneel: landkeuze + stippengrafiek + chips ]
+[ PODIUM     lens + tijdlijn ▶ + Share this map | kaart (waarden op landen) | detail + ranglijst ]
+[ JOUW BEURT invultekst "I live in __ and left home at __" → resultaat + stippengrafiek | deelbeeld + Share/Save/Copy link/Embed ]
+[ advertentieplek, vaste hoogte, onder het resultaat ]
+[ LEVENSLIJN vier kaarten in eigen tint met jouw-land-getal · voortgang · verzamelkaart na 3 stops ]
+[ BENTO       vijf berekende feiten ]  [ TABEL ]  [ advertentieplek ]  [ METHODE: bron, maat, dekking, grenzen ]
+[ voet met spectrum-woordmerk ]   plakkende "Next:"-pil na het invullen
 ```
 
-| # | Onderdeel | Waarom | Gezien / aanname |
-|---|---|---|---|
-| 1 | **Antwoord eerst**: kop met het getal en de kloof, groot getal rechts, zonder formulier ervoor | De zoeker wil het getal; het eerste scherm is ook de screenshot die mensen delen | Gezien: veel snippets in de zoekresultaten noemen het getal zelf. Aanname: een groot getal blijft beter hangen |
-| 2 | **Kaart met de waarde op elk land**, kleine landen als aantikbare chips | Een kaart zonder getallen moet je overhoveren; een kaart met getallen is op zichzelf een bericht. EUDebtMap gebruikt alleen een legenda | Aanname. De Instagram-bijschriften in de zoekresultaten lijsten landgetallen op; of de kaart zelf ze draagt kon ik niet zien |
-| 3 | **Eén object, drie lenzen** (iedereen/mannen/vrouwen) en een **tijdlijn met afspeelknop** | Geeft een reden om te blijven spelen en geeft elke landpagina een eigen verhaal (reeks sinds 2000) | Gezien: OWID doet dit |
-| 4 | **Ranglijst naast de kaart** met zoekveld en mini-trendlijn; daaronder de volledige HTML-tabel | Mensen zoeken eerst hun eigen land; de tabel is wat Google en toetsenbordgebruikers lezen | Gezien: OWID (lijst), mappr (tabel) |
-| 5 | **Jouw beurt onder de kaart**, niet erboven | Regel uit CLAUDE.md: nooit advertenties tussen invoer en antwoord; en de bezoeker ziet het antwoord zonder iets in te vullen | Gezien: de wealth-pagina begint nu met een formulier |
-| 6 | **Het deelbeeld is het product**: poster 4:5 en linkkaart 1,91:1, met koraal de kern, merk, URL, bron; "Save image" eerst, daarna Share (op telefoon met bestand), Copy link | Platforms tonen afbeeldingen, links worden minder bekeken | Gezien: de kaartposts hierboven. Aanname: een merkplaatje op elke kaart levert bekendheid |
-| 7 | **Embed + CSV-download** met bronlink | Het backlinkmechanisme uit CLAUDE.md (OmniCalculator) | Gezien: OWID doet dit onder elke grafiek |
-| 8 | **Levenslijn bovenaan**: vijf stops, huidige in koraal, bezochte gevuld, met het cijfer van jouw land | Navigatie en voortgang in één; elke pagina is zichtbaar deel van een geheel | Aanname |
-| 9 | **Volgende-vraag-kaarten met jouw-land-getal** (op mobiel een veegrij waarvan de tweede kaart half zichtbaar is) | Je ziet de helft van het antwoord, de rest zit achter de klik | Aanname |
-| 10 | **Verzamelkaart "My European life line"** na drie stops | Een reden om de volgende pagina's te openen én iets om door te sturen | Aanname |
-| 11 | **Profiel (land, leeftijd) blijft lokaal** (`localStorage`), elke volgende pagina is al ingevuld | CLAUDE.md eist dit; ieder formulier minder is een klik minder | Aanname; in de mock werkt het al |
-| 12 | **Berekende zinnen onderaan de pagina** ("30 van 31 landen: vrouwen eerder weg dan mannen, gemiddeld 2,0 jaar") | Geen handgetypte getallen; elk cijfer volgt uit de data | In de mock berekend, zie hieronder |
-| 13 | **Bronblok**: datasetcode, laatste update, "dit zijn landgemiddelden, geen mensen" | Zelfde eerlijkheid als de wealth-pagina; vertrouwen is wat EUDebtMap ook benadrukt | Gezien |
-| 14 | **Advertentieplekken** onder het resultaat en na de tabel, met gereserveerde hoogte | CLAUDE.md: niet tussen invoer en antwoord, let op CLS | In de mock als grijze vlakken |
+| Onderdeel in de mock | Verwacht Astro-onderdeel (de andere sessie bouwt nu pagina 1) |
+|---|---|
+| hero met reusachtig getal | `.stat-row` / `.stat-block` in `leaving-home/index.astro` |
+| paneel met stippengrafiek, landkeuze | nieuw: `DotPlot` (SVG), clientscript voor de keuze |
+| podium, kaart, lens, ranglijst | `CountryMap.astro` met `.lens`, `.map-frame`, `.legend`, `.country-table` |
+| invultekst + resultaat + deelbeeld | `.compare` / `.field` en `.result`, plus nieuw `ShareCard` |
+| levenslijnkaarten, bento, methode | nieuw: `NextStops`, `Facts`; `.source-list` |
 
-**Visuele taal.** Dezelfde tokens als `public/css/style.css` (inkt `#15231f`, papier, teal voor data, koraal voor "jij", Georgia voor koppen), geen tweede systeem. De kaart gebruikt één kleur in zes stappen, zonder rood-groen en met de getallen erbij (niet getoetst met een kleurenblindheidssimulatie). Een donker thema is in de mock als proef meegenomen; de live site heeft dat nu niet. Beweging alleen waar die iets betekent (de tijdlijn, de hover); `prefers-reduced-motion` wordt gerespecteerd. Een kleine set lijn-pictogrammen (deur, ringen, kind, zonsondergang, hart) als herkenbaar merkbeeld per levensfase, op kaarten en deelbeelden.
+De kaartbanden `.band-0` t/m `.band-5` staan hardgecodeerd in `CountryMap.astro`; in de nieuwe taal volgen ze de tint van de pagina (zes CSS-variabelen per pagina, vooraf berekend), met dezelfde grenzen als `BANDS`.
 
-## 3. Het verhaal zit in de data (berekend in de mock, geen mening)
+**Het verhaal zit in de data (berekend in de mock, geen mening).**
 
-Dit zijn zinnen die de mock zelf uit de Eurostat-reeks rekent. Ze laten zien dat een pagina meer kan zijn dan een tabel met één jaar:
-
-- In **30 van de 31 landen** gaan vrouwen eerder het huis uit dan mannen, gemiddeld **2,0 jaar**.
-- ~~De EU-gemiddelde leeftijd is nauwelijks bewogen (**26,7 in 2005, 26,3 in 2025**), maar de afstand tussen het vroegste en het laatste land is gegroeid van **8,1 naar 10,2 jaar** (de 24 landen met data in beide jaren). Spanje, Griekenland, Kroatië en Slowakije schoven één jaar of meer op; zes landen gingen een jaar of meer eerder.~~
-
-  > **Achterhaald, 20 oktober 2026.** Deze vergelijking stapt over een reeksbreuk
-  > heen. Eurostat vlagt 2021 met `b` bij vrijwel elk land — de Labour Force Survey
-  > is toen herzien — en het breukjaar is zelf een overgangsjaar (Portugal: 28,9 in
-  > 2019, 33,3 in 2021, 30,1 in 2022). Binnen het eerste volledig vergelijkbare
-  > venster, 2022–2025, is de conclusie omgekeerd: de EU staat vlak (26,4 naar 26,3)
-  > maar de kloof **krimpt** van 12,1 naar 10,2 jaar, met elf landen die eerder gaan
-  > en alleen Zweden en Noorwegen later. `trend()` in `src/lib/leaving-home.js`
-  > weigert sindsdien te rekenen over een venster met een breuk erin. Zie de sectie
-  > over reeksbreuken in `data/sources.md`.
+- In **30 van de 31 landen** gaan vrouwen eerder het huis uit dan mannen, gemiddeld **2,0 jaar** (2025, één jaar, dus geen reeksbreuk).
 - Sinds 16 april 2026 staat 2025 in de data: EU 26,3; Kroatië 31,5; Finland 21,3. Eurostat's eigen persbericht zit nog op 2024.
+- **Terugtrekking uit v1 en de eerste mock-versie.** Ik rekende een trend van 2005 naar 2025 (EU 26,7 naar 26,3, kloof 8,1 naar 10,2 jaar, Griekenland +2,6). Die vergelijking stapt over een reeksbreuk heen: Eurostat vlagt 2021 met `b` bij vrijwel elk land (herziene Labour Force Survey), en het breukjaar is zelf een overgangsjaar. Volgens de berekening van de andere sessie (zie `data/sources.md`, sectie reeksbreuken) is binnen 2022-2025 de conclusie omgekeerd: de EU staat vlak (26,4 naar 26,3) en de kloof krimpt van 12,1 naar 10,2 jaar; `trend()` in `src/lib/leaving-home.js` weigert te rekenen over een venster met een breuk. De bento-feiten in de mock rekenen daarom nu vanaf 2022 (`comparableSince` uit `data/leaving-home/index.json`) en komen op dezelfde cijfers uit als de andere sessie: EU 26,4 naar 26,3; kloof 12,1 naar 10,2 jaar (31 landen met een waarde in beide jaren); grootste verschuiving Zweden +1,5 (21,6 naar 23,1). Controle: alle 777 waarnemingen in de mock (36 reeksen, 2000-2025) zijn gelijk aan `index.json`, 0 afwijkingen.
+- **Gedaan in de mock (22 okt.):** de reeksbreuk is zichtbaar in plaats van weggemoffeld. Op de jaarschuif staat een amberkleurig streepje bij 2021, en voor elk jaar tot en met 2021 verschijnt een korte toelichting ("Compare countries within one year, not one year with another"). De trendlijntjes (zijpaneel en tabel) breken af bij elk breukjaar van het betreffende land, met een kerfje op de plek en een bijschrift; het breukjaar zelf telt in het zijpaneel als "series break year". Het methodeblok heeft een rij "Series breaks" (32 van 34 landen hebben in 2021 een breukvlag), en onder het bento- en tabelblok staat een korte voetnoot. Vergelijken van landen binnen één jaar blijft ongemoeid.
 
-Zulke zinnen zijn de synthese die CLAUDE.md vraagt ("een berekening die nergens anders staat") en de reden dat een landpagina geen dun sjabloon is.
+Zulke zinnen zijn de synthese die CLAUDE.md vraagt ("een berekening die nergens anders staat") en de reden dat een landpagina geen dun sjabloon is, mits ze de reeksbreuk respecteren.
 
-## 4. Meten: dezelfde vier eventnamen
+**Meten: dezelfde vier eventnamen.** Ongewijzigd uit `src/lib/analytics.js`, met `props`: "Compare me" is `value_submitted` (`metric`, `country`); Save image, Share, Copy link en Embed zijn `result_shared` (`via`, `kind`); een levenslijnstop of volgende-vraag-kaart is `second_metric_opened` (`from`, `to`); de bronlink is `methodology_opened`. De knop "events" rechtsonder in de mock toont wat per klik zou gaan. Plausible staat bewust uit.
 
-Geen nieuwe namen nodig; de vaste namen uit `src/lib/analytics.js` dekken het ontwerp, met extra `props`:
+## 4. Wat de mock wel en niet is
 
-| Actie in de mock | Event | Props |
-|---|---|---|
-| "Compare me" | `value_submitted` | `metric`, `country` |
-| Save image / Share / Copy link / Embed | `result_shared` | `via`: `image`, `native`, `link`, `embed-opened`, `embed`; `kind`: persoonlijk, kaart, levenslijn |
-| Klik op een levenslijnstop of volgende-vraag-kaart | `second_metric_opened` | `from`, `to` |
-| Bronlink | `methodology_opened` | `from` |
+**Echt:** Eurostat-reeksen (`yth_demo_030`, `tps00014`, `tps00017`, `lfso_23pens03`, `hlth_hlye`), kaartgeometrie uit `data/geo/europe.json`, kaart, lenzen, tijdlijn, ranglijst, resultaat, deelbeelden en export, profiel in `localStorage`, voortgang, licht en donker. **Nep of leeg:** andere pagina's (een toast), embed-URL, advertentievlakken, landpagina's.
+**Terminologie (gecorrigeerd 22 okt.):** de echte pagina zegt terecht dat dit geen gemiddelde is maar een middelpunt (de leeftijd waarop de helft niet meer thuis woont, zie `src/lib/leaving-home.js`). Mijn eerste mock sprak van "average"; de mock, de stijlgids en deze brief volgen nu de pagina ("Half of young Europeans have left home by age 26.3", "before the midpoint in 29 of 31 countries"). In de bouw komt elke tekst met een getal uit die bibliotheek, niet uit de mock. **Toegankelijkheid:** de mock maakt elk land focusbaar (34 tabstops); de pagina kiest bewust anders (paden niet focusbaar, chips als knoppen, tabel als alternatief). Die keuze blijft staan.
+**Bekende zwakke plekken:** de kaart is op een telefoon klein omdat de viewBox heel Europa plus context toont (een bijgesneden uitsnede voor mobiel is niet gedaan); bij botsende labels gaan de kleinste naar de chips (automatisch); UK stopt in 2019 en is gearceerd; de breukjaren komen uit `data/leaving-home/index.json` en horen bij de totaalreeks, de lenzen Men en Women gebruiken dezelfde jaren (niet apart gecontroleerd); de plakkende "Next:"-pil botst met anker-advertenties; lettertypen in de PNG zijn alleen in Chrome getest; fallback-metrics tegen layoutverschuiving bij het laden van de lettertypen zijn niet gemeten; het getal in de h1 telt in de mock op vanaf 0 (in productie moet de HTML de eindwaarde bevatten, de teller is alleen een versiering). **Gewicht:** CSS 46,7 KB (10,6 KB gzip), JS 63,5 KB (20,6 KB gzip, inclusief mock-code), geometrie 55,9 KB (18,4 gzip), data 36,7 KB (8,1 gzip), lettertypen 129 KB.
 
-In de mock staat rechtsonder een knopje "events" dat laat zien wat er per klik zou worden verstuurd. Plausible staat bewust uit tot er verkeer is; de wrapper doet niets zolang het script niet geladen is.
+## 5. Beslissingen voor jou, en hoe het in de repo past
 
-## 5. Wat de mock wel en niet is
+1. **Richting goedkeuren?** Aanbeveling: ja (tabel in "In het kort"). Alternatief: kleurloze schil zonder tint per metriek.
+2. **Hoe in de repo. Besloten 22 okt.: optie B.** De uitwerking staat in [build-plan-v2.md](build-plan-v2.md). Het ligt vast dat het alleen het Engelse cluster raakt. Feiten van de andere sessie: 29 NL-pagina's in `public/` zijn allemaal `lang="nl"`, 12 Astro-pagina's lopen via `Base.astro` met `lang="en"`; `style.css` heeft 121 `var(--…)`-gebruiken tegenover 67 hardgecodeerde kleuren buiten `:root`. **A:** tokens herdefiniëren onder `html[lang="en"]` en de 67 kleuren tokeniseren met identieke standaardwaarde. Goedkoop, NL blijft bewijsbaar gelijk (daarna wel een paar NL-pagina's bekijken via `npm run build` en `npm run preview`), maar het herkleurt alleen bestaande componenten; podium, paneel, bento, invultekst en typografie zijn nieuwe componenten, dus het wordt een mengvorm. **B (mijn aanbeveling):** één nieuw stylesheet dat `Base.astro` alleen laadt voor pagina's die erom vragen (een prop), nieuwe pagina's eerst, de andere Engelse pagina's blijven tot ze zijn omgezet op `style.css`, NL raakt het nooit. Geen tokenjongleren, omkeerbaar. Dan wijkt het bewust af van de CLAUDE.md-regel "geen tweede designsysteem"; die regel moet jij of de bouwsessie bijwerken, ik pas CLAUDE.md niet aan.
+3. **Lettertypen:** drie OFL-bestanden zelf hosten (129 KB, `font-display: swap`, kop- en tekstfont preloaden), met licentietekst in de repo? Het zijn geen npm-dependency's, wel nieuwe bestanden van derden.
+4. **Levenslijn als ordenend idee en vaste tint per stop:** aanbeveling ja. De geld-categorie van fase 5 heeft een eigen tintenreeks nodig; die kies ik pas als het zover is.
+5. **Voorbeeldafbeelding (OG) per pagina:** kan niet zonder PNG-renderer (resvg of sharp als dev-dependency, of headless Chrome tijdens de build). Jouw akkoord nodig. Een persoonlijke OG per bezoeker kan niet zonder server.
+6. **Plakkende "Next:"-pil versus advertenties:** bij AdSense moeten anker- en vignetformaten uit, of de pil vervalt op mobiel. Beslissen vóór fase 6.
+7. **Reeksbreuk zichtbaar in tijdlijn en trendlijntjes** (gedaan in de mock, zie §3): aanbeveling is dit over te nemen vóór de echte pagina live gaat, met de breukjaren per land uit `index.json` ook voor de lijntjes.
+8. **Profiel lokaal bewaren, echte kaart plus chips of tegelkaart voor mobiel, raadspel omzetten, OECD-scope, baseline van EUDebtMap:** ongewijzigd uit v1.
 
-**Echt:** de Eurostat-reeksen (`yth_demo_030`, `tps00014`, `tps00017`, `lfso_23pens03`, `hlth_hlye`), de kaartgeometrie (Natural Earth, publiek domein, 56 KB), kaart, lenzen, tijdlijn, ranglijst, zoeken, sorteren, het persoonlijke resultaat, de stippenstrook, het deelbeeld (SVG naar PNG in de browser, zonder dependencies), de gedeelde-linkparameters (`?c=IT&age=21`, `?sex=F&year=2010`), het lokale profiel, de voortgang, de verzamelkaart, licht en donker, mobiel (getest op 375 px).
+## 6. Bouwvolgorde als je akkoord gaat (nog niets gebouwd)
 
-**Nep of leeg:** de andere pagina's (een toast zegt "hier opent X"), de embed-URL, de advertentievlakken, de landpagina ("Open the Italy page").
+1. Besluit 1 tot 3. 2. Tokens en basiscomponenten als het nieuwe stylesheet (de `style.css` en `app.js` in de sessienotities, map `tools/design-v2/`, zijn het uitgangspunt), lettertypen naar `public/fonts/` met licentie. 3. Pagina 1 omzetten naar de nieuwe taal, inclusief de reeksbreuk in de tijdlijn; daarna de rest van de top 4 uit de shortlist. 4. Controleren zoals hier (contrast, CLS, toetsenbord, mobiel) plus Safari en Firefox. 5. Levenslijnkaart en raadspel zodra er drie metriekpagina's staan.
 
-**Niet getest:** Web Share met bestand op een echte telefoon, Safari, het kopiëren van een afbeelding naar het klembord, `<dialog>` in oude browsers, prestaties op een goedkope telefoon, hoe sociale platforms de poster uitsnijden.
-
-**Bekende zwakke plekken:**
-- *Lettertype in het deelbeeld.* Georgia staat op Windows en Mac maar naar mijn weten niet op Android; een Android-bezoeker krijgt een andere serif op de poster. Oplossing: een OFL-lettertype als base64 in de SVG, maar dat is een keuze voor jou (zie 6).
-- *De kaart kent alleen Eurostat-landen.* UK stopt in 2019 en wordt gearceerd getoond met de laatste waarde; VS/Canada/Australië ontbreken. Een bezoeker daar kan zijn land niet kiezen.
-- *Veel labels in het midden van Europa* zijn bij 1024 px krap; de chips voor kleine landen vangen een deel op. Een tegelkaart (elk land een even groot vierkant) is het alternatief voor mobiel.
-
-## 6. Beslissingen voor jou
-
-1. **Levenslijn als ordenend idee?** Mijn aanbeveling: ja. Het maakt van tien losse metrieken één verhaal en geeft de nav een functie. Alternatief: platte categorieën zoals nu.
-2. **Echte kaart of tegelkaart voor mobiel?** Mijn aanbeveling: echte kaart plus chips (zoals de mock), tegelkaart alleen als blijkt dat mobiel te krap is.
-3. **Deelbeeld alleen in de browser, of ook vooraf als PNG voor linkvoorbeelden?** Het eerste kost niets. Het tweede vraagt een dev-dependency (een renderer zoals resvg of sharp) en dat is jouw akkoord.
-4. **Lettertype op de deelbeelden:** systeem-Georgia (verschilt per apparaat) of een ingesloten OFL-lettertype (maakt elk deelbeeld iets zwaarder)?
-5. **Profiel lokaal bewaren** (land, leeftijd, welke stops je zag): akkoord? Het verlaat de browser nooit; de privacypagina moet het wel noemen.
-6. **Raadspel nu al omzetten naar Europese metrieken** ("hoger of lager") als vierde lus? Aanbeveling: ja, maar pas na de eerste metriekpagina's; de code bestaat al.
-7. **Scope:** alleen Eurostat/Europa, of OECD erbij voor UK/VS? Dat verandert welke pagina's in de eerste golf zitten (zie de shortlist).
-8. **Baseline:** pagina's per sessie en terugkeerpercentage van EUDebtMap, voor het ijkpunt bij livegang.
-
-## 7. Bouwvolgorde als je akkoord gaat (nog niets gebouwd)
-
-1. **Gedeelde onderdelen** als Astro-componenten, zonder framework: kaart, lens + tijdlijn, ranglijst, jouw-beurt-strook, deelbeeld + embed, levenslijn, volgende-vraag. Eén Eurostat-lader die JSON-stat naar compacte JSON in de repo schrijft (zoals `scripts/` nu doet voor NHANES en de ECB). Kaartpaden eenmalig in de repo.
-2. **Pagina 1** (uit huis), daarna de rest van de top 4 uit de shortlist: dezelfde onderdelen, andere data.
-3. **Levenslijn-verzamelkaart en raadspel** zodra er drie metriekpagina's staan.
-4. **OECD-pagina's** (pensioen, werkuren) als de scope-keuze dat vraagt.
-
-De mock, het kaartscript, het databestand en de buildscripts staan in de sessienotities (`tools/mock/`), buiten de repo.
+De bronnen (`style.css`, `app.js`, sjablonen, buildscript) en het testgereedschap (headless-Chrome-scripts voor schermafbeeldingen, interactie, contrast, CLS) staan in de sessienotities onder `tools/design-v2/`, buiten de repo.
