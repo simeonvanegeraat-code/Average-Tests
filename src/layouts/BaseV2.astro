@@ -1,0 +1,314 @@
+---
+/**
+ * Basislayout voor de nieuwe vormtaal (v2) van het Engelse cluster.
+ *
+ * Opt-in per pagina: een pagina kiest deze layout in plaats van Base.astro. Base.astro,
+ * /css/style.css en /js/main.js blijven ongemoeid, en het Nederlandse cluster in public/
+ * laadt niets hiervan. Zie research/build-plan-v2.md.
+ *
+ * Twee keuzes die uitleg verdienen:
+ *
+ * 1. Een eigen layout in plaats van een prop op Base.astro. Dan blijft Base.astro
+ *    byte-identiek, wat mechanisch te bewijzen is (dist van vóór en na vergelijken).
+ *    De prijs is dat de <head> hieronder tijdelijk twee keer bestaat. Zodra de laatste
+ *    pagina is omgezet verdwijnt Base.astro en is er weer één.
+ * 2. De stylesheet is een statisch bestand (public/css/ha.css), niet een import uit
+ *    src/. De bundelaar van Astro kan moderne CSS (light-dark(), @layer) herschrijven
+ *    voor oudere doelen; dit bestand moet precies zo in de browser komen als het is
+ *    ontworpen en getest.
+ *
+ * De tint van de metriek (`hue`) en de zes kaartkleuren staan als variabelen op <html>,
+ * op de server uitgerekend (src/lib/hue.js). Daar is geen clientcode voor nodig.
+ *
+ * Het thema: de bezoeker volgt het systeem tot hij zelf kiest. Die keuze staat in het
+ * profiel (`humanaverage:profile`, dezelfde ene sleutel als land en leeftijd), en wordt
+ * vóór de eerste verf gezet zodat er geen flits is. Schrijf het profiel dus altijd als
+ * samenvoeging van wat er al staat, nooit als vervanging.
+ */
+import { hueStyle } from '../lib/hue.js';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  noindex?: boolean;
+  /** Tint van de metriek, zie STAGES in src/lib/hue.js. */
+  hue?: number;
+  /** Pad naar een voorbeeldafbeelding voor links in sociale media. Zonder: geen og:image. */
+  ogImage?: string;
+}
+
+const { title, description, canonical, noindex = false, hue = 262, ogImage } = Astro.props;
+const canonicalUrl = new URL(canonical, Astro.site).href;
+const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : null;
+const here = Astro.url.pathname;
+
+const links = [
+  { href: '/leaving-home/', label: 'Leaving home' },
+  { href: '/wealth/', label: 'Wealth' },
+  { href: '/height/', label: 'Height' },
+  { href: '/weight/', label: 'Weight' },
+  { href: '/method/', label: 'Method' },
+];
+
+const isCurrent = (href: string) => here === href || here.startsWith(href);
+---
+
+<!doctype html>
+<html lang="en" style={hueStyle(hue)}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    {ogImageUrl && <meta name="twitter:card" content="summary_large_image" />}
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafd" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#050815" />
+
+    <link rel="icon" href="/favicon-ha.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/bricolage-grotesque-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geist-variable.woff2" as="font" type="font/woff2" crossorigin />
+
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        root.classList.add('js');
+        try {
+          var profile = JSON.parse(localStorage.getItem('humanaverage:profile') || 'null');
+          if (profile && (profile.theme === 'light' || profile.theme === 'dark')) {
+            root.dataset.theme = profile.theme;
+            return;
+          }
+        } catch (error) {
+          // Privémodus of geblokkeerde opslag: dan volgt de pagina gewoon het systeem.
+        }
+        root.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      })();
+    </script>
+    <link rel="stylesheet" href="/css/ha.css" />
+    <slot name="head" />
+  </head>
+
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+
+    <header class="nav-shell">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/" aria-label="HumanAverage home">
+          <svg class="mark" viewBox="0 0 36 16" aria-hidden="true">
+            <defs>
+              <linearGradient id="ha-spectrum" x1="0" x2="1">
+                <stop offset="0" style="stop-color: var(--sp0)"></stop>
+                <stop offset=".25" style="stop-color: var(--sp1)"></stop>
+                <stop offset=".5" style="stop-color: var(--sp2)"></stop>
+                <stop offset=".75" style="stop-color: var(--sp3)"></stop>
+                <stop offset="1" style="stop-color: var(--sp4)"></stop>
+              </linearGradient>
+            </defs>
+            <rect width="36" height="16" rx="8" fill="url(#ha-spectrum)"></rect>
+            <circle cx="24" cy="8" r="4.6" fill="#fff"></circle>
+          </svg>
+          <span>HumanAverage</span>
+        </a>
+
+        <div class="nav-links">
+          {links.map((link) => <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>)}
+        </div>
+
+        <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Switch theme">
+          <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+          </svg>
+          <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+        </button>
+
+        <button class="icon-btn menu-btn" type="button" popovertarget="site-menu" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"></path>
+          </svg>
+        </button>
+      </nav>
+
+      <div id="site-menu" class="sheet" popover>
+        <nav aria-label="Menu">
+          <p class="sheet-title">Menu</p>
+          <div class="menu-list">
+            {links.map((link) => <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>)}
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="content">
+      <slot />
+    </main>
+
+    <footer class="foot">
+      <div class="wrap">
+        <div class="foot-cols">
+          <div>
+            <p>
+              Percentiles calculated from public health survey microdata, not copied from
+              published averages. Every figure is traceable to its source.
+            </p>
+          </div>
+          <div>
+            <h3>Compare yourself</h3>
+            <div class="foot-links">
+              <a href="/leaving-home/">Leaving home in Europe</a>
+              <a href="/wealth/">European wealth</a>
+              <a href="/height/">Height percentile</a>
+              <a href="/weight/">Weight percentile</a>
+              <a href="/method/">How we calculate it</a>
+            </div>
+          </div>
+          <div>
+            <h3>About</h3>
+            <div class="foot-links">
+              <a href="/about/">About</a>
+              <a href="/contact/">Contact</a>
+              <a href="/privacy/">Privacy</a>
+            </div>
+          </div>
+        </div>
+        <div class="foot-bottom">
+          <span>© <span data-current-year>2026</span> HumanAverage</span>
+          <span>Not medical advice. Informational comparison only.</span>
+        </div>
+        <div class="wordmark" aria-hidden="true">HumanAverage</div>
+      </div>
+    </footer>
+
+    <script>
+      /**
+       * Wat elke v2-pagina nodig heeft: de themaknop, het onthullen bij scrollen en het jaartal.
+       * Alles hier is versiering of gemak: zonder JavaScript staat de inhoud er gewoon,
+       * leesbaar en in het thema van het systeem.
+       */
+      const root = document.documentElement;
+      const PROFILE_KEY = 'humanaverage:profile';
+      const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function readProfile(): Record<string, unknown> {
+        try {
+          return JSON.parse(localStorage.getItem(PROFILE_KEY) ?? 'null') ?? {};
+        } catch {
+          return {};
+        }
+      }
+
+      function saveTheme(theme: 'light' | 'dark') {
+        try {
+          // Samenvoegen, niet vervangen: land en leeftijd staan in dezelfde sleutel.
+          localStorage.setItem(PROFILE_KEY, JSON.stringify({ ...readProfile(), theme }));
+        } catch {
+          // Opslag geblokkeerd: de keuze geldt dan alleen voor deze pagina.
+        }
+      }
+
+      const currentTheme = () => (root.dataset.theme === 'dark' ? 'dark' : 'light');
+      const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')];
+
+      function labelButtons() {
+        const label = currentTheme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+        for (const button of buttons) button.setAttribute('aria-label', label);
+      }
+
+      labelButtons();
+
+      for (const button of buttons) {
+        button.addEventListener('click', () => {
+          const next = currentTheme() === 'dark' ? 'light' : 'dark';
+          const apply = () => {
+            root.dataset.theme = next;
+            saveTheme(next);
+            labelButtons();
+          };
+
+          // Een cirkel die uit de knop groeit, waar View Transitions bestaan; anders gewoon wisselen.
+          if (!('startViewTransition' in document) || reduceMotion) return apply();
+
+          const box = button.getBoundingClientRect();
+          const x = box.left + box.width / 2;
+          const y = box.top + box.height / 2;
+          const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+          const transition = (document as any).startViewTransition(apply);
+          transition.ready
+            .then(() =>
+              root.animate(
+                { clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+                { duration: 650, easing: 'cubic-bezier(.2,.8,.2,1)', pseudoElement: '::view-transition-new(root)' },
+              ),
+            )
+            .catch(() => {});
+        });
+      }
+
+      // Zolang de bezoeker niets koos, volgt het thema het systeem.
+      matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+        if (readProfile().theme) return;
+        root.dataset.theme = event.matches ? 'dark' : 'light';
+        labelButtons();
+      });
+
+      // De nav-pil wordt donker zolang hij boven een donker podium (.stage-sec) zweeft.
+      const shell = document.querySelector<HTMLElement>('.nav-shell');
+      const stages = [...document.querySelectorAll<HTMLElement>('.stage-sec')];
+      if (shell && stages.length) {
+        let waiting = false;
+        const check = () => {
+          waiting = false;
+          const over = stages.some((stage) => {
+            const box = stage.getBoundingClientRect();
+            return box.top <= 44 && box.bottom >= 44;
+          });
+          shell.toggleAttribute('data-dark', over);
+        };
+        addEventListener(
+          'scroll',
+          () => {
+            if (waiting) return;
+            waiting = true;
+            requestAnimationFrame(check);
+          },
+          { passive: true },
+        );
+        addEventListener('resize', check);
+        check();
+      }
+
+      const reveals = document.querySelectorAll('[data-reveal]');
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('in');
+              observer.unobserve(entry.target);
+            }
+          },
+          { threshold: 0.15, rootMargin: '0px 0px -6% 0px' },
+        );
+        for (const element of reveals) observer.observe(element);
+      } else {
+        for (const element of reveals) element.classList.add('in');
+      }
+
+      for (const node of document.querySelectorAll('[data-current-year]')) {
+        node.textContent = String(new Date().getFullYear());
+      }
+    </script>
+  </body>
+</html>
