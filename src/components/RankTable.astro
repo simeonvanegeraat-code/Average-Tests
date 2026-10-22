@@ -1,0 +1,166 @@
+---
+/**
+ * De volledige tabel onder de kaart, in de nieuwe vormtaal. Vervangt in stap 4
+ * CountryTable.astro op dezelfde plek; de kolommen, de volgorde en het sorteergedrag zijn
+ * dezelfde, er komt een kolom bij: het trendlijntje.
+ *
+ * Dit is niet de "toegankelijke versie" van de kaart maar de echte inhoud: hier staat elk
+ * cijfer, hier leest een zoekmachine de pagina, en hier komt iemand die zijn eigen land
+ * zoekt in plaats van naar een plaatje te kijken. De kaart is de samenvatting; deze tabel
+ * is het bewijs.
+ *
+ * Het lijntje breekt af bij elke reeksbreuk van Eurostat (src/lib/sparkline.js): een lijn
+ * die over een breuk heen loopt toont een sprong die niets betekent. Het lijntje is
+ * versiering voor wie ziet; wat een schermlezer hoort is het bereik en de breukjaren, en
+ * uitdrukkelijk geen "gestegen" of "gedaald", want juist dat laat een breuk niet toe.
+ *
+ * Sorteren gebeurt in de browser, maar de tabel staat volledig en in een zinnige volgorde
+ * (van vroeg naar laat) in de HTML. Zonder JavaScript mis je alleen het sorteren.
+ */
+import { age, years } from '../lib/leaving-home.js';
+import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
+
+interface Props {
+  /** De inhoud van data/leaving-home/index.json. */
+  index: any;
+}
+
+const { index } = Astro.props;
+const latestYear: string = index.latestYear;
+const yearMin = Number(index.years[0]);
+const yearMax = Number(latestYear);
+
+const rows = [...(index.countries as any[])].sort((a, b) => a.total - b.total);
+const behind = rows.filter((row) => row.year !== latestYear).length;
+const withBreak = rows.filter((row) => row.breaks.includes(index.lastBreak)).length;
+
+const gapOf = (row: any) => (row.men !== null && row.women !== null ? row.men - row.women : null);
+
+const line = (row: any) => {
+  const spark = sparkline(row.series, row.breaks, { ...SPARK_SIZES.row, yearMin, yearMax });
+  const first = Math.min(...Object.keys(row.series).map(Number));
+  const breaks = (row.breaks as string[]).map(Number).filter((year) => year > first);
+  return {
+    spark,
+    note: `Trend ${first} to ${Math.max(...Object.keys(row.series).map(Number))}.${breaks.length ? ` Series breaks in ${breaks.join(', ')}.` : ''}`,
+  };
+};
+
+const caption = `Age by which half of young people have left the parental home. ${rows.length - behind} countries at ${latestYear}; ${behind} shown at their most recent year instead.`;
+---
+
+<div class="tablewrap" tabindex="0" role="region" aria-label="Every country, sortable table" data-reveal>
+  <table data-rank-table>
+    <caption class="vh">{caption}</caption>
+    <thead>
+      <tr>
+        <th scope="col" class="sortable" aria-sort="none">
+          <button type="button" data-sort="name" data-type="text">Country</button>
+        </th>
+        <th scope="col" class="n sortable" aria-sort="ascending">
+          <button type="button" data-sort="total" data-type="number">Everyone</button>
+        </th>
+        <th scope="col" class="n sortable" aria-sort="none">
+          <button type="button" data-sort="men" data-type="number">Men</button>
+        </th>
+        <th scope="col" class="n sortable" aria-sort="none">
+          <button type="button" data-sort="women" data-type="number">Women</button>
+        </th>
+        <th scope="col" class="n sortable" aria-sort="none">
+          <button type="button" data-sort="gap" data-type="number">Gap<span class="vh"> between men and women</span></button>
+        </th>
+        <th scope="col">Trend {yearMin}–{yearMax}, with breaks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => {
+          const gap = gapOf(row);
+          const { spark, note } = line(row);
+          return (
+            <tr data-name={row.name} data-total={row.total} data-men={row.men ?? ''} data-women={row.women ?? ''} data-gap={gap ?? ''}>
+              <th scope="row">
+                {row.name}
+                {row.year !== latestYear && <span class="stale-year">{row.year}</span>}
+              </th>
+              <td class="n strong">{age(row.total)}</td>
+              <td class="n">{age(row.men)}</td>
+              <td class="n">{age(row.women)}</td>
+              <td class="n">{gap === null ? '—' : years(gap, { sign: true })}</td>
+              <td class="trend">
+                {
+                  spark ? (
+                    <>
+                      <svg
+                        class="spark"
+                        viewBox={`0 0 ${SPARK_SIZES.row.width} ${SPARK_SIZES.row.height}`}
+                        preserveAspectRatio="none"
+                        aria-hidden="true"
+                      >
+                        {
+                          sparkElements(spark).map((item) => {
+                            const Tag = item.tag as any;
+                            return <Tag {...item.attrs} />;
+                          })
+                        }
+                      </svg>
+                      <span class="vh">{note}</span>
+                    </>
+                  ) : (
+                    '—'
+                  )
+                }
+              </td>
+            </tr>
+          );
+        })
+      }
+    </tbody>
+  </table>
+</div>
+
+<p class="brk-foot">
+  The gap is men minus women, so a positive number means women reach the midpoint earlier.
+  {behind > 0 && <> A year next to a country means Eurostat has no {latestYear} figure for it, and the row shows that year instead.</>}
+  Trend lines are not drawn across series breaks (the small notches): in {index.lastBreak} the EU Labour Force Survey was
+  reorganized, and {withBreak} of {rows.length} countries carry a break there.
+</p>
+
+<script>
+  /**
+   * Sorteren op de kolomknoppen. Bewust geen bibliotheek: het is een tabel met 34 rijen en de
+   * waarden staan al als data-attributen op de rij.
+   */
+  for (const table of document.querySelectorAll<HTMLTableElement>('[data-rank-table]')) {
+    const body = table.querySelector('tbody');
+    if (!body) continue;
+
+    for (const button of table.querySelectorAll<HTMLButtonElement>('th button[data-sort]')) {
+      button.addEventListener('click', () => {
+        const key = button.dataset.sort ?? '';
+        const numeric = button.dataset.type === 'number';
+        const header = button.closest('th');
+        const direction = header?.getAttribute('aria-sort') === 'ascending' ? 'descending' : 'ascending';
+
+        for (const other of table.querySelectorAll('th[aria-sort]')) other.setAttribute('aria-sort', 'none');
+        header?.setAttribute('aria-sort', direction);
+
+        const rows = [...body.querySelectorAll<HTMLTableRowElement>('tr')];
+        rows.sort((a, b) => {
+          const left = a.dataset[key] ?? '';
+          const right = b.dataset[key] ?? '';
+
+          // Rijen zonder waarde horen onderaan, in welke richting je ook sorteert.
+          if (left === '' && right === '') return 0;
+          if (left === '') return 1;
+          if (right === '') return -1;
+
+          const result = numeric ? Number(left) - Number(right) : left.localeCompare(right);
+          return direction === 'ascending' ? result : -result;
+        });
+
+        for (const row of rows) body.appendChild(row);
+      });
+    }
+  }
+</script>
