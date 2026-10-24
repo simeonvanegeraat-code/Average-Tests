@@ -98,6 +98,77 @@ uit op de werkelijke Amerikaanse volwassenenpopulatie.
 
 ---
 
+## ECB — vermogen van Europese huishoudens
+
+**Uitgever** Europese Centrale Bank (ECB), Distributional Wealth Accounts (DWA)
+**Licentie** **Niet vastgesteld.** De voorwaarden van de ECB zijn niet gelezen; er staat
+nergens in de code of op de pagina een licentieregel. Nalopen voordat er advertenties
+bij komen, want dan wordt het gebruik commercieel.
+**Opgehaald** 5 september 2026
+**Gebruikt voor** `/wealth/` en `/wealth/<land>/`: mediaan en verdeling van het
+huishoudvermogen per land
+
+### Opvraag
+
+| | |
+|---|---|
+| API | `https://data-api.ecb.europa.eu/service/data/DWA` |
+| Reekssleutel | `Q..S14..LE.....` vanaf `2023-Q1`, formaat `csvdata` |
+| Waarnemingen | 250.680, waarvan 19.704 netto-vermogensreeksen |
+| Periodes | 13 kwartalen, 2023-Q1 t/m 2026-Q1 |
+| Gebieden | 23: 21 landen plus de aggregaten `I9` en `I10` (eurozone), die niet in de landenlijst horen |
+
+Geen checksum op het ruwe antwoord: de ECB publiceert elk kwartaal bij, dus een
+veranderend antwoord is correct gedrag. Wat we vastleggen is de opvraagdatum en de
+gevonden periodes in `data/raw/dwa/fetch-log.json`.
+
+### Waarom DWA en niet HFCS
+
+De HFCS-microdata zou percentielen toelaten, maar vereist een formele aanvraag bij de
+ECB (paspoort, cv, aanvraagformulier) en ververst eens per drie à vier jaar. DWA is vrij
+opvraagbaar en komt elk kwartaal uit. Wat we inleveren is de leeftijdsindeling; wat we
+terugkrijgen is actualiteit plus een indeling naar woonsituatie en werkstatus, die voor
+vermogen meer zegt dan leeftijd.
+
+### Waarom hier geen percentiel staat
+
+**DWA publiceert per groep het gemiddelde, niet de grens van die groep.** We kennen dus
+het gemiddelde vermogen van het zevende deciel, maar niet waar dat deciel begint. "Je zit
+op het 63e percentiel" is daarmee niet te onderbouwen. Wat wel mag, en wat de pagina doet:
+de mediaan (die publiceert DWA exact) en "jouw bedrag ligt tussen het gemiddelde van
+deciel X en dat van deciel Y".
+
+### Drie valkuilen, alle drie in de code vastgelegd
+
+1. Netto vermogen staat onder `ACCOUNT_ENTRY` = `N` (Net), niet `A` (Assets). Een
+   sleutel met alleen `A` levert stilzwijgend alles op behalve het belangrijkste cijfer.
+2. Schulden komen als negatieve bedragen binnen.
+3. `F5`, `F51` en `F_NNA` zijn optelposten die dubbeltellen als je ze meeneemt.
+
+### Validatie
+
+`node scripts/validate-wealth.mjs` moet slagen voordat er iets wordt gepubliceerd. Zes
+controles; gedraaid op 24 oktober 2026, allemaal geslaagd:
+
+| Controle | Uitkomst |
+|---|---|
+| Bedragen in euro's, niet in duizenden | alle groepen plausibel |
+| Gemiddelde boven de mediaan (vermogen is scheef) | 21 landen, hoogste verhouding 3,7× |
+| Groepen lopen op: B50 < Q3 < D8 < D9 < D10 | 21 landen |
+| Huiseigenaren bezitten meer dan huurders | 20 landen |
+| **Som van alle posten = gepubliceerd netto vermogen** | grootste afwijking **0,11%** bij LT/B50 |
+| Dekking: ≥18 landen met mediaan, ≥8 kwartalen historie | 21 landen, alle kwartalen |
+
+De vijfde is de scherpste die deze dataset toelaat: ontbreekt er een post, telt een
+optelpost dubbel of zit er een schaalfout in, dan sluit de balans niet. Alle drie zijn
+onzichtbaar op de pagina zelf.
+
+### Bronvermelding op de site
+
+> European Central Bank, Distributional Wealth Accounts, 2026-Q1.
+
+---
+
 ## Eurostat — jongeren die het ouderlijk huis verlaten
 
 **Uitgever** Eurostat (Statistical Office of the European Union)
