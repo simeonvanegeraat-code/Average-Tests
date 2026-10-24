@@ -46,8 +46,6 @@ const here = Astro.url.pathname;
 const links = [
   { href: '/leaving-home/', label: 'Leaving home' },
   { href: '/wealth/', label: 'Wealth' },
-  { href: '/height/', label: 'Height' },
-  { href: '/weight/', label: 'Weight' },
   { href: '/method/', label: 'Method' },
 ];
 
@@ -160,8 +158,9 @@ const isCurrent = (href: string) => here === href || here.startsWith(href);
         <div class="foot-cols">
           <div>
             <p>
-              Percentiles calculated from public health survey microdata, not copied from
-              published averages. Every figure is traceable to its source.
+              One question per page, answered from figures that Eurostat, the OECD and the ECB
+              publish themselves. Nothing is estimated on top, and every number is traceable to
+              its source.
             </p>
           </div>
           <div>
@@ -169,8 +168,6 @@ const isCurrent = (href: string) => here === href || here.startsWith(href);
             <div class="foot-links">
               <a href="/leaving-home/">Leaving home in Europe</a>
               <a href="/wealth/">European wealth</a>
-              <a href="/height/">Height percentile</a>
-              <a href="/weight/">Weight percentile</a>
               <a href="/method/">How we calculate it</a>
             </div>
           </div>
