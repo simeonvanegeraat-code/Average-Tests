@@ -260,6 +260,80 @@ jaar meedraagt, en dat het vergelijkbare venster werkelijk breukvrij is.
 
 ---
 
+## Eurostat — de vijf metrieken naast leaving-home
+
+**Uitgever** Eurostat
+**Licentie** zie de Eurostat-sectie hierboven; dezelfde voorwaarden, en dezelfde
+openstaande controle
+**Opgehaald** 2026-10-24
+**Gebruikt voor** de metriekpagina's buiten `/leaving-home/`
+
+Alle vijf komen door dezelfde pipeline: `npm run metrics` haalt op, bouwt en
+valideert ze met `scripts/lib/metric-build.mjs`. De regels die bij leaving-home geld
+hebben gekost staan daar één keer en gelden dus overal: aggregaten buiten de
+landenlijst, elk land draagt zijn eigen jaar, en nooit rekenen over een reeksbreuk heen.
+
+| Code | Pagina | Reeks | Laatste | Landen | Breukjaren | Vergelijkbaar venster | Naar geslacht |
+|---|---|---|---|---|---|---|---|
+| `lfsi_dwl_a` | /working-life/ | 2000–2025 | 2025 | 32 | 0 | 2000–2025 | ja |
+| `ilc_lvph01` | /household-size/ | 2003–2025 | 2025 | 31 | 11 | **geen** | nee |
+| `hlth_hlye` | /healthy-years/ | 2004–2024 | 2024 | 28 | 16 | **geen** | ja |
+| `lfsa_ewhuis` | /working-hours/ | 1983–2025 | 2025 | 34 | 27 | **geen** | ja |
+| `demo_find` | /first-child/ | 1960–2024 | 2024 | 37 | 13 | **geen** | nee |
+
+### Wat dit betekent voor de pagina's
+
+**Alleen `lfsi_dwl_a` heeft een breukvrije reeks.** Vierentwintig jaar over 32 landen,
+ononderbroken. Daarom draagt `/working-life/` als enige een verhaal over verandering,
+en tonen de andere vier bewust geen trendsectie: hun laatste breuk ligt in of vlak vóór
+het laatste jaar, en dan bestaat er geen venster om iets in te vergelijken. Een grafiek
+met een voetnoot zou daar erger zijn dan geen grafiek.
+
+**Twee datasets hebben geen uitsplitsing naar geslacht** — huishoudgrootte heeft er geen
+(een huishouden heeft geen geslacht) en `demo_find` publiceert alleen de leeftijd van de
+moeder. Hun kolommen voor mannen en vrouwen zijn leeg in plaats van een kopie van het
+totaal; de kaart heeft daar één lens in plaats van drie.
+
+### Twee fouten die de poort ving
+
+1. **Aggregaten als land.** `ilc_lvph01` gebruikt de codes `EU` en `EA18`, en
+   `demo_find` leverde daarnaast `EFTA` en `DE_TOT` ("Germany including former GDR")
+   aan. Die stonden in de landenlijst. De regel is nu dat een land bij Eurostat een code
+   van twee letters heeft; al het andere valt eruit.
+2. **Mannen en vrouwen gelijk aan het totaal** bij datasets zonder splitsing. Dat gaf een
+   kolom die er was maar niets zei, en een "verschil tussen mannen en vrouwen" van precies
+   nul dat als bevinding kon worden gelezen.
+
+### Eén waarde die opvalt en die we niet kunnen verifiëren
+
+Kosovo staat in `ilc_lvph01` op **6,0 personen per huishouden**, uit één waarneming van
+2018. Het eerstvolgende land zit op 3,1. Zes personen per huishouden is fysiek mogelijk en
+Kosovo is bekend om grote huishoudens, dus het is niet uitgesloten — maar het is één punt,
+zeven jaar oud, en we hebben het niet tegen een tweede bron kunnen leggen. Het staat op de
+site met zijn eigen jaartal erbij, zoals elk achterlopend land, en het valt buiten elke
+vergelijking met het laatste jaar.
+
+### Niet gebouwd, en waarom
+
+- `tps00014`
+- `ilc_lvho04`
+
+De redenen staan in `scripts/metrics.mjs`. Kort: **trouwleeftijd** (`tps00014`) splitst
+in mannen en vrouwen zonder een gepubliceerd totaal, en dat zelf middelen zou een verzonnen
+statistiek zijn, dus de bouwer weigert een metriek zonder totaal. **Kamers per persoon**
+(`ilc_lvho04`) heeft dimensies voor armoederisico en huishoudsamenstelling waarvan de
+juiste doorsnede eerst een redactionele keuze vraagt.
+
+### Toelichtingen van Eurostat
+
+- `lfsi_dwl_a` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/lfsi_dwl_a_esms.htm)
+- `ilc_lvph01` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/ilc_sieusilc.htm)
+- `hlth_hlye` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/hlth_hlye_esms.htm)
+- `lfsa_ewhuis` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/lfsa_esms.htm)
+- `demo_find` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/demo_fer_esms.htm)
+
+---
+
 ## Natural Earth — landgrenzen voor de Europakaart
 
 **Uitgever** Natural Earth

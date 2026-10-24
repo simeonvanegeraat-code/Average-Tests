@@ -53,7 +53,7 @@ export function oklchHex(L, C, hue) {
 }
 
 /** De vijf stops van de levenslijn. De volgorde is de volgorde van het spectrum in logo en footer. */
-export const STAGES = { leave: 262, marry: 350, child: 50, retire: 145, healthy: 205 };
+export const STAGES = { leave: 262, marry: 350, child: 50, retire: 145, healthy: 205, household: 25, hours: 310 };
 
 /** Zes klassen, zelfde helderheids- en chromastappen voor elke tint, hue schuift licht mee. */
 const RAMP = {

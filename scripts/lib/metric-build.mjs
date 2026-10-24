@@ -91,16 +91,30 @@ export async function buildMetric(spec) {
       name: data.labelOf('geo', geo),
       year,
       total: at(geo, year),
-      men: at(geo, year, 'men') ?? null,
-      women: at(geo, year, 'women') ?? null,
+      // Zonder splitsing bestaan mannen en vrouwen niet in deze dataset. Ze op het
+      // totaal zetten zou een kolom opleveren die er is maar niets zegt, en een
+      // "verschil tussen mannen en vrouwen" van nul dat als bevinding leest.
+      men: split ? (at(geo, year, 'men') ?? null) : null,
+      women: split ? (at(geo, year, 'women') ?? null) : null,
       breaks: years.filter((time) => flagAt(geo, time) === 'b'),
       series,
     };
   }
 
   const areas = data.categories('geo');
-  const countries = areas.filter((g) => !AGGREGATES.has(g)).map(entry).filter(Boolean);
+
+  /**
+   * Een land heeft bij Eurostat een code van twee letters — EL, UK, XK en de rest.
+   * Alles wat langer is, is een aggregaat of een samengesteld gebied, en hoort niet
+   * in een landenlijst: `demo_find` leverde zo "European Free Trade Association" en
+   * "Germany including former GDR" als land aan, naast de EU-aggregaten.
+   */
+  const isCountry = (code) => code.length === 2 && !AGGREGATES.has(code);
+
+  const countries = areas.filter(isCountry).map(entry).filter(Boolean);
   const aggregates = areas.filter((g) => AGGREGATES.has(g)).map(entry).filter(Boolean);
+  const dropped = areas.filter((g) => !isCountry(g) && !AGGREGATES.has(g));
+  if (dropped.length) spec.dropped = dropped;
 
   if (countries.length === 0) throw new Error(`${spec.code} leverde geen enkel land op.`);
 
