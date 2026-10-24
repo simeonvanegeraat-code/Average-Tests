@@ -1,163 +1,227 @@
 # CLAUDE.md — humanaverage.com
 
-Werkinstructie voor Claude Code. Kort en operationeel. Bij twijfel: vraag het, bouw niet door.
+Werkinstructie voor Claude Code. Kort en operationeel. Bij twijfel: vraag het Simeon,
+bouw niet door op een aanname.
 
-## Doel & propositie
+Geschreven op 24 oktober 2026, de dag dat de site live ging, uit een interview met
+Simeon. De vorige versie was van 31 augustus en beschreef een plan dat niet is
+uitgevoerd; hij staat in git (`git show 4be9c43:CLAUDE.md`) als het je ooit interesseert
+hoe het toen bedoeld was.
 
-1. Mensen zoeken massaal op "average X". Google beantwoordt dat zelf met een gemiddelde in een snippet.
-2. Wij beantwoorden een andere vraag: **waar sta jíj?** De bezoeker vult zijn eigen waarde in en krijgt een percentiel.
-3. Dat percentiel wordt berekend uit **microdata**, niet overgenomen uit een gepubliceerd gemiddelde. Dat is het enige bestaansrecht van deze site.
-4. Einddoel is organisch zoekverkeer, daarna advertentie-inkomsten. Dat is het einddoel, niet de eerste stap.
-5. Markt en taal: **en-US**. Domeinnaam, zoekvolume en brondata (NHANES, VS) wijzen alle drie dezelfde kant op.
+## Wat deze site is
 
-**De categoriemix is de hefboom, niet het bezoekersaantal** (onderzoek augustus 2026). AdSense-RPM verschilt 10 tot 20× per onderwerp. Lichaamsmaten zijn het slechtst betaalde vak dat er is — informatieve intentie, geen adverteerder. Geld is 5 tot 10× beter. Dezelfde percentielmotor bedient beide:
+**Eén metriek per pagina: een kaart van Europa, een landentabel, en jouw eigen plek
+daarin.** De cijfers komen van Eurostat, de OECD en de ECB — kant-en-klare landencijfers,
+geen eigen schattingen.
 
-| Categorie | Volume | RPM | Rol |
-|---|---|---|---|
-| Lichaam (lengte, gewicht) | zeer hoog | ~$5 | **verkeer en backlinks** |
-| Tijd & gedrag (slaap, schermtijd) | hoog | ~$8-12 | brug |
-| Geld (salaris, spaargeld, vermogen) | hoog | **$25-50** | **de omzet** |
+Live sinds 24 oktober 2026 op `https://www.humanaverage.com`:
 
-Lengte en gewicht zijn dus niet het product, ze zijn de etalage. Bouw ze goed, maar verwar volume niet met opbrengst. Zelfde verkeer, andere mix: $1.200/maand versus $3.600/maand.
+| | |
+|---|---|
+| `/` | Het Engelse product, `lang="en"` |
+| `/leaving-home/` | De eerste metriekpagina in de nieuwe vormtaal: op welke leeftijd de helft van de jongeren het huis uit is, 34 landen |
+| `/wealth/` + `/wealth/<land>/` | Huishoudvermogen in Europa, ECB-data, 22 pagina's |
+| `/nl/` en `/tools/`, `/articles/` | Het bevroren Nederlandse cluster. Niet uitbreiden, niet vertalen, alleen aanraken als er iets structureel breekt |
 
-## De opbouw en het ijkpunt
+De vorm is overgenomen van EUDebtMap, Simeons andere site: landen-aggregaat uit een
+publieke bron, kaart, pagina per land, verkeer uit organische search. Dat werkt daar, en
+dat is de reden dat het hier zo gebouwd wordt.
 
-**De MVP-meting is vervallen.** Simeon heeft in augustus 2026 bewust gekozen: eerst een echt product bouwen, dan live, en pas analyseren als er verkeer is. Dat is zijn beslissing en die staat — niet opnieuw ter discussie stellen.
+## Het doel, en wat er niet is
 
-De consequentie moet je wel kennen, en die mag je één keer benoemen als het relevant wordt: **er is nu geen moment waarop dit project zichzelf kan falsificeren.** De git-historie toont drie eerdere herstarts, waarvan de vorige juist wél veel pagina's had (vier generators over negen categorieën) maar op verzonnen data draaide. Bouwen zonder ijkpunt is hoe dat ging.
+Passief inkomen uit advertenties. **Er is bewust geen doelbedrag en geen ijkpunt
+afgesproken** (24 oktober 2026, gevraagd en beantwoord).
 
-### Fasering
+Dat is Simeons keuze en die staat. Het gevolg dat je moet kennen: er is geen moment
+waarop dit project zichzelf kan tegenspreken. De git-historie toont drie eerdere
+herstarts. Noem dit niet opnieuw — het is gevraagd, beantwoord en genoteerd.
 
-| | Fase | Omvang | Status |
-|---|---|---|---|
-| 1 | Percentielmotor, lengte + gewicht, methode, ondersteunende pagina's | 7 pagina's | ✅ |
-| 2 | Lengte-cluster: drempelpagina's, vraagpagina's, leeftijdsscrubber | ~25 pagina's | |
-| 3 | Gewicht-cluster, zelfde structuur | ~25 pagina's | |
-| 4 | Live, Search Console-dekking controleren | — | |
-| 5 | **Geld-categorie** op SCF- en CPS-microdata | ~30 pagina's | |
-| 6 | AdSense aanvragen, daarna richten op Mediavine | — | |
+Search Console staat aan en is het enige meetinstrument. Plausible is uitgesteld tot er
+verkeer is; de wrapper in `src/lib/analytics.js` doet niets zolang het script niet
+geladen is.
 
-Fase 5 is waar het geld zit. Behandel hem niet als "later ooit": lengte en gewicht bouwen de autoriteit waarmee het geldvak kan ranken, maar ze verdienen zelf bijna niets.
+## Stack en commando's
 
-### Het ijkpunt
-
-Search Console staat al aan en kost niets. Dat is het enige meetinstrument tot er verkeer is.
-
-**Spreek bij go-live met Simeon een concreet ijkpunt af**: hoeveel vertoningen bij hoeveel geïndexeerde pagina's, tegen welke datum. Zonder die afspraak is er geen beslismoment en wordt dit fase vier van hetzelfde patroon. Vraag erom, verzin het niet zelf.
-
-### Wat de architectuur van het verdienmodel moet erven
-
-Advertentie-omzet is *paginaweergaven* × RPM, en tools scoren notoir slecht op paginaweergaven per sessie: binnenkomen, antwoord, weg. Daarom is dit geen feature maar een eis:
-
-- **Eén profiel dat de bezoeker één keer invult** (leeftijd, geslacht) en dat lokaal meereist, zodat elke volgende metriek één klik is in plaats van een nieuw formulier.
-- Elke resultaatweergave eindigt in een volgende vraag.
-- **Deelbare en embedbare beelden.** OmniCalculator kwam aan ~29.000 verwijzende domeinen doordat anderen hun tools citeerden, niet door content. Dat is het backlinkmechanisme voor een jong domein.
-
-## Stack, commando's, lokaal draaien, deployen
-
-- **Site**: Astro, statische output. Geen client-side framework.
-- **Datapipeline**: Node, zonder dependencies. Output is JSON dat in de repo staat. (Oorspronkelijk stond hier Python/pandas; er staat op deze machine geen Python, alleen een Windows Store-stub. De XPT-lezer in `scripts/lib/xpt.mjs` is daarom zelfgeschreven en gevalideerd tegen de NCHS-publicatie — zie `data/sources.md`.)
-- **Hosting**: Vercel, al gekoppeld. `vercel.json` (redirects + security headers) blijft zoals het is.
-- **Analytics**: nu alleen Search Console. Plausible is bewust uitgesteld tot er verkeer is — $9/maand betalen om nullen te bekijken is weggegooid geld. De eventnamen staan al in `src/lib/analytics.js`; die wrapper doet niets zolang het script niet geladen is, dus later hoeft er alleen een scripttag bij.
-
-Datapipeline — werkt vandaag:
+- **Site**: Astro, statische output, geen client-side framework.
+- **Datapipeline**: Node, zonder dependencies. Output is JSON dat in de repo staat.
+- **Hosting**: Vercel, gekoppeld aan `main`. **Push naar `main` is publiceren**, meteen.
+- **Geen nieuwe dependency zonder het te vragen.** De repo heeft er precies één: Astro.
 
 ```
-node scripts/fetch-nhanes.mjs         # NHANES ophalen naar data/raw/, checksums controleren
-node scripts/build-percentiles.mjs    # -> data/percentiles/height.json, weight.json
-node scripts/validate-percentiles.mjs # poort: moet slagen voordat er iets gepubliceerd wordt
+npm run dev                  # http://localhost:4321
+npm run build                # statische build + sitemap
+npm run preview              # build lokaal serveren
+
+npm run leaving              # fetch + build + validate voor leaving-home
+npm run wealth               # idem voor de ECB-vermogensdata
+npm run geo:build            # Europakaart uit Natural Earth
 ```
 
-> ⚠️ De Astro-setup bestaat nog niet. Onderstaande commando's gelden zodra die is opgezet; werk ze bij in dezelfde commit als de setup. Verzin hier geen commando's die niet echt werken.
+Elke bron heeft drie losse stappen (`:fetch`, `:build`, `:validate`) als je er één apart
+wilt draaien. `npm run build` draait de validatie **niet** mee; dat doe je zelf.
 
-```
-npm install                           # dependencies
-npm run dev                           # lokaal op http://localhost:4321
-npm run build                         # statische build naar dist/
-npm run preview                       # build lokaal serveren
-```
+Astro's dev-server serveert geen directory-index voor mappen in `public/`, dus `/nl/`,
+`/tools/` en `/articles/` geven daar 404. Op Vercel werken ze wel. Debug daar niet op.
 
-Deployen: push naar `main` → Vercel bouwt automatisch. Feature-werk via branch + PR.
+## Dataregels
 
-**URL-structuur**: de root is het Engelse product. Het Nederlandse cluster staat op `/nl/` (homepage) plus de onveranderde paden `/tools/*`, `/articles/*` en de losse `.html`-pagina's. Die verhuizing is gedaan; er zijn geen 404's ontstaan. Het NL-cluster is bevroren — niet uitbreiden, niet vertalen, alleen aanraken als iets structureel breekt.
+Deze staan er omdat het eerder misging. Een vorige poging in deze repo had een map
+`data/raw/` waarvan de eigen README zei: *"plausible demo figures"* — verzonnen data die
+als echt op een website stond.
 
-Astro's dev-server serveert geen directory-index voor mappen in `public/`, dus `/nl/`, `/tools/` en `/articles/` geven daar 404. Op Vercel werken ze wel. Ga daar niet op debuggen.
+1. **Verzin nooit een statistiek.** Niet uit je hoofd, niet uit een zoekresultaat, niet
+   "ongeveer", niet als plaatshouder. Elk getal komt uit een dataset die in de repo staat
+   of die we reproduceerbaar ophalen.
+2. **Kun je iets niet onderbouwen, schrijf het dan niet op.** Zeg dat de data ontbreekt.
+   Een lege plek is beter dan een plausibel getal.
+3. **`data/sources.md`** bevat per dataset: bron, code, periode, dekking, licentie en
+   ophaaldatum. Geen dataset in de repo zonder regel daar.
+4. **Elke metriekpagina heeft een zichtbare methodesectie**: bron, wat het cijfer is, wat
+   het niet is, en de beperkingen.
+5. **Geen enkel getal staat met de hand in een pagina.** Alles komt uit een lib die uit de
+   data rekent. Bronnen publiceren bij, en een achtergebleven getal in een zin is precies
+   de fout die niemand ziet.
 
-Eventnamen (vast, niet stilletjes wijzigen — de latere meting hangt eraan):
-`value_submitted` · `result_shared` · `second_metric_opened` · `methodology_opened`
+### Twee soorten pagina's, en ze heten anders
 
-## Dataregels — de belangrijkste sectie
+- **Aggregaatpagina's** (alles wat er nu staat): gebouwd op gepubliceerde landencijfers.
+  Die mogen vergelijken, rangschikken en afgeleide zinnen rekenen, maar **noemen zichzelf
+  nooit een percentiel** en zeggen op de pagina wat het cijfer wél is. `/leaving-home/`
+  is het model: Eurostat publiceert een middelpunt, dus de pagina zegt aan welke kant van
+  het middelpunt je zit, en legt in een eigen blok uit waarom er geen percentiel staat.
+- **Percentielpagina's** mogen alleen bestaan op **microdata** — records per respondent,
+  met gewichten. Op dit moment heeft de site er geen (zie "Besloten op 24 oktober"). De
+  regel staat hier klaar voor als er ooit weer een microdata-bron komt, niet omdat er nu
+  iets onder valt.
 
-Deze regels gelden zonder uitzondering. Ze zijn er omdat de vorige poging in deze repo een map `data/raw/` had waarvan de eigen README zei: *"plausible demo figures"*. Dat is verzonnen data die als echt op een website stond.
+### Vier lessen die geld hebben gekost
 
-1. **Verzin nooit een statistiek.** Niet uit je hoofd, niet uit een zoekresultaat, niet "ongeveer", niet als plaatshouder om even door te kunnen. Elk getal op de site komt uit een dataset die in de repo staat of die we reproduceerbaar ophalen.
-2. **Percentielen komen uit microdata**, nooit uit gepubliceerde gemiddelden of samenvattingstabellen.
-3. **Een percentiel mag alleen bestaan waar microdata het draagt.** Dit is de aangescherpte versie van de oude siteregel "wij tonen geen percentielen". Gevolg: de lengtetool krijgt een percentiel, de bestaande reactietijd-/typ-/geheugentests krijgen er nóóit een — daar bestaat geen representatieve dataset van. De bestaande Nederlandse teksten daarover blijven kloppen en blijven staan.
-4. **`data/sources.md`** bevat per dataset: bron, jaar/cyclus, steekproefgrootte, licentie, en de datum waarop we hem ophaalden. Geen dataset in de repo zonder regel in dit bestand.
-5. **Elke metriekpagina heeft een zichtbare methodologie-sectie**: wat is de bron, welke steekproef, hoe is gerekend, wat zijn de beperkingen.
-6. **Kun je iets niet uit data onderbouwen, dan schrijf je het niet op.** Zeg tegen Simeon dat de data ontbreekt. Een lege plek is beter dan een plausibel getal.
+Allemaal uit de Eurostat-pagina, allemaal breder geldig:
 
-Specifiek voor de percentielmotor:
+1. **Lees de definitie van een dataset, niet de titel.** `yth_demo_030` heet "estimated
+   average age" en is volgens zijn eigen beschrijving de leeftijd waarop 50% niet meer
+   thuis woont. Dat is een middelpunt, geen gemiddelde. De titel loog, de metadata niet.
+2. **Vergelijk nooit over een reeksbreuk heen, en laat de code weigeren.** Eurostat vlagt
+   breuken met `b`; in 2021 is de Labour Force Survey herzien en vrijwel elk land heeft
+   die vlag. Het breukjaar is zelf een overgangsjaar (Portugal: 28,9 in 2019, 33,3 in
+   2021, 30,1 in 2022). Over 2005 gerekend groeit de kloof tussen landen; binnen het
+   vergelijkbare venster krimpt hij. `trend()` in `src/lib/leaving-home.js` weigert te
+   rekenen als er een breuk in het venster valt. Een voetnoot was niet genoeg geweest.
+3. **Houd aggregaten buiten landenlijsten.** EU27 en de eurozone staan in dezelfde
+   dimensie als landen en zijn geen land.
+4. **Laat elk land zijn eigen jaar dragen.** Het VK stopt in 2019, Montenegro in 2020,
+   Türkiye in 2024. Eén ranglijst over verschillende jaren is geen ranglijst.
 
-- Bron: NHANES (CDC/NCHS), publiek domein. Demografie- en body-measures-bestanden per cyclus, gejoind op respondent-ID. **Verifieer exacte cyclusnamen, bestandsnamen en aantallen bij het ophalen — schrijf ze niet uit je hoofd op.**
-- Tweede bron, voor de geld-categorie in fase 5: **Survey of Consumer Finances** (Federal Reserve, vermogen) en **CPS ASEC** (Census, inkomen). Beide publieke microdata, dus dezelfde belofte houdt stand. Let op twee dingen die anders zijn dan bij NHANES: de SCF publiceert **vijf implicates** per huishouden voor ontbrekende antwoorden — bereken percentielen per implicate en middel daarna, zoals de Fed zelf voorschrijft — en de SCF oversamplet rijke huishoudens, wat schattingen tot ongeveer de top 0,5% betrouwbaar maakt en daarboven niet. Verifieer dit alles bij het ophalen; dit staat hier als aanwijzing, niet als feit om over te schrijven.
-- **Aantallen mensen boven een drempel** mogen alleen uit de steekproefgewichten komen, en alleen waar genoeg respondenten achter zitten. De grens staat op 30 in `src/lib/threshold-explorer.js`; daaronder zeggen we dat we het niet weten. Een miljoenental op vijf waarnemingen is een verzonnen getal met een echt uitziende komma.
-- **Weeg met de officiële sample weights.** NHANES oversamplet bepaalde groepen; ongewogen percentielen zijn simpelweg fout. Bij het poolen van meerdere cycli gelden de standaard NCHS-regels voor gecombineerde gewichten.
-- **Pool meerdere cycli en strijk glad over leeftijd.** Per los leeftijdsjaar zijn er te weinig respondenten voor een stabiel uiterste percentiel. De methode (bijv. gewogen kwantielregressie of LMS) leg je vóór het bouwen voor aan Simeon.
-- Output: compacte JSON per geslacht, leeftijd × percentiel, in de repo gecommit. De client interpoleert; de client rekent niets opnieuw uit ruwe data.
-- **Elke percentielpagina zegt expliciet dat er wordt vergeleken met volwassenen in de VS.** Een Britse bezoeker moet weten waartegen hij wordt afgezet.
+### De poort
 
-## SEO- en AdSense-regels
+Elke dataset heeft een `validate-*.mjs` die **moet slagen voordat er iets gepubliceerd
+wordt**. De poort rekent terug naar het ruwe antwoord in plaats van het gebouwde bestand
+te geloven: elk cijfer, en bij Eurostat ook elke breukvlag. Bouw je een nieuwe bron, bouw
+dan ook een poort — dat is geen extra, dat is het werk.
 
-- **Geen honderden pagina's uit één template waarin alleen een cijfer verandert.** Google's maart 2026-update heeft dat afgestraft als scaled content abuse, met "data-aggregatie zonder synthese" letterlijk als categorie.
-- Een pagina bestaat alleen als hij een vraag beantwoordt die **aantoonbaar verschilt** van elke andere pagina, met een berekening die nergens anders staat. Liever 400 sterke pagina's dan 8.000 dunne.
-- Stel je een generator voor, laat dan per uitkomst zien waarom die uniek waardevol is. Kun je dat niet, dan komt de generator er niet.
-- **Resultaat- en deelpagina's krijgen `noindex`.** Duizenden geparametriseerde URL's laten indexeren ís het scaled-content-patroon.
-- Search Console is actief; controleer daar het effect van elke publicatie.
-- **De hoofdzoekwoorden zijn niet te winnen.** De SERP voor "average height" is Cleveland Clinic, Wikipedia, Healthline en World Population Review. Een domein van acht maanden pakt die posities niet. Richt op de staart waar wij als enige het antwoord hebben uitgerekend: *"how many men are 6 feet tall"*, *"how rare is 6'4"*, *"what percentage of men are over 6 feet"*. Veel minder concurrentie, en geen van de grote sites beantwoordt ze.
-- **Backlinks komen van tools, niet van teksten.** Zorg dat elk resultaat en elke grafiek te delen en in te sluiten is.
+## Wanneer een pagina mag bestaan
 
-### Advertenties — de volgorde
+Een pagina bestaat alleen als hij een vraag beantwoordt die **aantoonbaar verschilt** van
+elke andere pagina, met een berekening die nergens anders staat.
 
-- **Nog geen advertentiecode.** `ads.txt` blijft staan zoals het is.
-- AdSense-goedkeuring vraagt in de praktijk **15 tot 25 substantiële pagina's** plus About, Privacy en Contact, een professioneel ogende site en geen automatisch gegenereerde inhoud. Vraag pas aan als fase 2 en 3 staan.
-- **AdSense is niet het eindpunt maar de toegangsproef.** Mediavine hanteert sinds 2026 geen sessiedrempel meer maar **$5.000 advertentieomzet per jaar** voor het hoofdnetwerk; Journey by Mediavine begint bij 1.000 sessies per maand. Dat is 2 tot 4× de RPM van AdSense. Het pad is dus AdSense → Journey → Mediavine/Raptive.
-- Komen er advertenties, dan is dat één gecoördineerde stap: gecertificeerde CMP-banner (Google eist die voor EER/VK), bijgewerkt privacybeleid, dán pas de code. Niet andersom.
-- Advertentieplekken hoor je in het ontwerp mee te nemen, niet later erbij te proppen. **Nooit tussen invoer en antwoord** — wel eronder. En let op layout shift: advertenties straffen CLS af, en CLS straft je ranking af.
+**Landpagina's per metriek mogen** (besloten 24 oktober). De lat waar ze overheen moeten:
+elke landpagina leest uit de data wat er aan dát land opvalt en schrijft dat op. Het model
+staat in `src/pages/wealth/[country].astro` — die leest per land waar het vermogen in zit
+en benoemt het verschil, in plaats van hetzelfde sjabloon met een ander cijfer.
 
-## Codeconventies
+Kun je per uitkomst niet uitleggen waarom die uniek waardevol is, dan komt de generator er
+niet. Google's maart 2026-update strafte "data-aggregatie zonder synthese" letterlijk af.
 
-- Hergebruik `css/style.css` en de bestaande designtokens. **Geen Tailwind, geen tweede designsysteem.**
-- Semantische HTML. Houd het toegankelijkheidsniveau van de huidige site vast: skip-link, `aria-*`, `visually-hidden`, werkend met toetsenbord.
-- Nieuwe pagina's zijn `lang="en"`, Amerikaans-Engelse spelling. Bestaande NL-pagina's blijven `lang="nl"`.
-- Vanilla JS voor de rekenmodule, klein en leesbaar. Geen framework voor iets dat een formulier en een berekening is.
-- **Geen nieuwe dependency zonder het te vragen.**
-- Nederlandse bestanden niet aanraken tenzij expliciet gevraagd.
+**Resultaat- en deelpagina's krijgen `noindex`.** Duizenden geparametriseerde URL's laten
+indexeren ís het patroon dat afgestraft wordt.
 
-## Expliciet buiten scope
+De hoofdzoekwoorden zijn bezet door World Population Review, Wikipedia en Our World in
+Data, vaak met een AI Overview erboven. Richt op de Europa-variant en de staart, waar die
+sites niet staan. Het onderzoek daarachter staat in `research/metric-shortlist.md`.
 
-Niet bouwen, ook niet "vast even":
+## Vormgeving
 
-- **Andere landen dan de VS.** Eén markt, één set brondata per metriek.
-- **Accounts, login, backend, database.** Het profiel uit de architectuureis leeft in `localStorage` en verlaat de browser niet — dat is iets anders dan een account, en de grens ligt daar hard.
-- Het opslaan van ingevoerde waarden op een server
-- Een CMS
-- Nieuwsbrief of e-mailverzameling
-- **Dunne gegenereerde pagina's.** Let op de nuance: ~50 tot 100 pagina's is het plan en is prima, mits élke pagina een eigen berekening draagt. Verboden is de variant waarin alleen een cijfer verandert. Kun je per uitkomst niet uitleggen waarom die uniek waardevol is, dan komt de generator er niet.
-- Advertentiecode en cookiebanner (tot fase 6, zie de volgorde hierboven)
-- Het Nederlandse cluster vertalen of uitbreiden
-- Een percentiel op de bestaande reactietijd-/typ-/geheugentests
+**Twee systemen vandaag, één is de bestemming.**
 
-Wél gepland, dus géén scope-oprekking: de geld-categorie op SCF- en CPS-microdata in fase 5.
+- `public/css/ha.css` + `src/layouts/BaseV2.astro` — de vormtaal van 2026. Nu alleen op
+  `/leaving-home/`. **Hier gaat alles naartoe** (besloten 24 oktober).
+- `public/css/style.css` + `src/layouts/Base.astro` — de oude vormgeving. Nog op elf
+  pagina's, en op het bevroren Nederlandse cluster.
 
-Alles wat hier tegenaan schuurt gaat op de later-lijst. Zeg dat, en bouw het niet.
+**De scheiding is `html[lang="en"]`.** Alle 29 Nederlandse pagina's in `public/` staan op
+`lang="nl"`, alle Astro-pagina's renderen `lang="en"`. Een token dat je onder
+`html[lang="en"]` herdefinieert wint van `:root` en laat het Nederlandse cluster
+ongemoeid. **Raak `:root` in `style.css` niet aan** — dat restylet elke NL-pagina zonder
+dat iemand ernaar kijkt.
+
+Semantische HTML, toetsenbord werkt, skip-link en `aria-*` blijven. Vanilla JS, klein en
+leesbaar. Onderdelen praten via gebeurtenissen op `document` (`ha:country`, `ha:age`,
+`ha:submit`) en kennen elkaar verder niet.
+
+Eventnamen voor de meting liggen vast, wijzig ze niet stilletjes:
+`value_submitted` · `result_shared` · `second_metric_opened` · `methodology_opened`.
+
+## Advertenties
+
+**Nog geen advertentiecode.** `ads.txt` blijft zoals hij is. Komen er advertenties, dan is
+dat één gecoördineerde stap: gecertificeerde CMP-banner, bijgewerkt privacybeleid, dán pas
+de code. Niet andersom.
+
+Plekken hoor je in het ontwerp mee te nemen: **nooit tussen invoer en antwoord**, wel
+eronder, en let op layout shift.
 
 ## Werkwijze
 
-- **Leg het plan voor voordat je bouwt.** Ook bij kleine dingen: eerst wat en waarom, dan pas code.
-- Kleine commits met een duidelijke boodschap. Eén onderwerp per commit.
-- **Geen ongevraagde refactors.** Kom je slechte code tegen die buiten de opdracht valt, meld het, verander het niet.
-- Komt er werk bij dat buiten de fasering valt, zeg dat en stel voor het op de later-lijst te zetten.
-- Klopt een aanname van Simeon niet, corrigeer hem. Direct, zonder omweg — en met bewijs, niet met een mening. De sterkste correcties in dit project kwamen uit de eigen git-historie en uit de data zelf.
-- **Herhaalt Simeon een beslissing nadat je bezwaar hebt gemaakt, dan is het besloten.** Noteer het en bouw door; ga niet twee keer hetzelfde punt maken.
-- Rapporteer eerlijk: werkt iets niet of is iets overgeslagen, zeg dat met het bewijs erbij.
+- **Plan vooraf bij grote dingen**: een nieuwe pagina, een nieuwe databron, een
+  verbouwing. Een fix, een tekstwijziging of een bug: gewoon doen en achteraf melden.
+- **Eén sessie is eigenaar van een bestand.** Werkt er een andere sessie in `src/pages/x`,
+  blijf eraf en stuur een bericht. Dit ging deze week twee keer mis: twee sessies in
+  dezelfde bestanden, en een sessie die verdween mét de controlescripts in haar notities.
+  **Wat je oplevert hoort in de repo, niet in je sessienotities.**
+- **Kleine commits, één onderwerp per commit.** Engelse onderwerpsregel, Nederlandse
+  toelichting met het waarom en de valkuil erin — zoals de bestaande historie.
+- **Alles wat de site verandert gaat via een branch en een PR.** Vercel bouwt daar een
+  voorbeeldversie van, en die link is hoe Simeon kijkt voordat er iets live gaat; zo is
+  het op 24 oktober ook gegaan. Documentatie en onderzoeksnotities mogen rechtstreeks
+  naar `main`. Mergen doet Simeon of doe je op zijn verzoek, nooit uit jezelf.
+- **Geen ongevraagde refactors.** Kom je slechte code tegen buiten de opdracht, meld het,
+  verander het niet.
+- **Klopt een aanname van Simeon niet, corrigeer hem.** Direct, met bewijs, niet met een
+  mening. De sterkste correcties in dit project kwamen uit de git-historie en uit de data
+  zelf.
+- **Herhaalt Simeon een beslissing nadat je bezwaar hebt gemaakt, dan is het besloten.**
+  Noteer het en bouw door; maak niet twee keer hetzelfde punt.
+- **Rapporteer eerlijk.** Werkt iets niet of is iets overgeslagen, zeg dat met het bewijs
+  erbij.
+
+## Buiten scope
+
+- Accounts, login, backend, database. Het profiel leeft in `localStorage` onder één
+  sleutel (`humanaverage:profile`: land, leeftijd, thema), verlaat de browser niet, en de
+  grens ligt daar hard.
+- Een CMS, een nieuwsbrief, e-mailverzameling.
+- Het Nederlandse cluster vertalen of uitbreiden.
+- Een percentiel op de bestaande reactietijd-, typ- en geheugentests: daar bestaat geen
+  representatieve dataset van.
+- Advertentiecode en cookiebanner, tot de stap hierboven.
+
+Op de later-lijst, dus niet "buiten scope" maar ook niet nu: **de geld-categorie**
+(inkomen en vermogen), en het dagelijkse raadspel herbouwen op Europese data.
+
+## Besloten op 24 oktober 2026
+
+Uit het interview. Wat hier staat is beslist; wat nog niet gedaan is, staat erbij.
+
+| Besluit | Status |
+|---|---|
+| De site is Europese landenvergelijkingen | Gedaan, live |
+| Geen doelbedrag, geen ijkpunt | Genoteerd |
+| **De Amerikaanse pagina's gaan eraf**: `/height/` (18 pagina's), `/weight/`, `/play/`, plus de NHANES-pipeline, data en libs. Navigatie en homepage herbedraden. `/wealth/` blijft | **Nog niet uitgevoerd** |
+| Alle pagina's gaan naar de v2-vormtaal | Alleen `/leaving-home/` is om |
+| Landpagina's per metriek mogen, mits elke pagina eigen inhoud uit de data draagt | Nog niet gebouwd |
+| Plan vooraf alleen bij grote dingen | Vanaf nu |
+| Eén sessie is eigenaar van een bestand | Vanaf nu |
+| Geld-categorie naar de later-lijst | Genoteerd |
+
+Volgende metriek volgens `research/metric-shortlist.md`: huishoudgrootte, Eurostat
+`ilc_lvph01`.
