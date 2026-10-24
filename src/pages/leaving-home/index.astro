@@ -11,6 +11,7 @@ import geo from '../../../data/geo/europe.json';
 import index from '../../../data/leaving-home/index.json';
 import { STAGES } from '../../lib/hue.js';
 import { clientData } from '../../lib/leaving-home-copy.js';
+import metric from '../../lib/metrics/leaving-home.js';
 import { age, years, headline, trend } from '../../lib/leaving-home.js';
 
 /**
@@ -58,7 +59,7 @@ const description =
 <BaseV2 title={title} description={description} canonical="/leaving-home/" hue={STAGES.leave}>
   <StatHero index={index} />
 
-  <StageMap geo={geo} index={index} />
+  <StageMap geo={geo} index={index} metric={metric} />
 
   <section class="block" id="compare" aria-labelledby="compare-title">
     <div class="wrap">

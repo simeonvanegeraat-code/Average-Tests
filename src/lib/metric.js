@@ -33,6 +33,44 @@ export function count(n, singular, plural = `${singular}s`) {
   return `${n} ${n === 1 ? singular : plural}`;
 }
 
+/**
+ * Formattering als gegevens, niet als code.
+ *
+ * Dat lijkt omslachtig tegenover een functie per metriek, maar het is de enige vorm
+ * die de browser kan bereiken. De componenten staan op de server én draaien een
+ * script in de pagina; een functie kan niet door het JSON-blok dat de client leest,
+ * een `{ decimals, unit, unitOne }` wel. Zo rekenen beide kanten met dezelfde
+ * configuratie in plaats van met twee lijstjes die gelijk moeten blijven.
+ *
+ * leaving-home: `{ decimals: 1, unit: 'years', unitOne: 'year' }`
+ * huishoudgrootte: `{ decimals: 2, unit: 'people', unitOne: 'person' }`
+ */
+export function formatValue(value, { decimals = 1 } = {}) {
+  return value === null || value === undefined ? '—' : value.toFixed(decimals);
+}
+
+/** Een hoeveelheid mét eenheid: "10.2 years", "0.4 people", met optioneel teken. */
+export function formatAmount(value, { decimals = 1, unit = '', unitOne = unit } = {}, { sign = false } = {}) {
+  if (value === null || value === undefined) return '—';
+  const rounded = Math.abs(value).toFixed(decimals);
+  const word = Number(rounded) === 1 ? unitOne : unit;
+  const prefix = sign && value > 0 ? '+' : sign && value < 0 ? '−' : '';
+  return word ? `${prefix}${rounded} ${word}` : `${prefix}${rounded}`;
+}
+
+/** Ondertekend getal zonder eenheid: "+1.4", "−0.6", "0.0". */
+export function signed(value, { decimals = 1 } = {}) {
+  if (value === null || value === undefined) return '—';
+  return `${value > 0 ? '+' : value < 0 ? '−' : ''}${Math.abs(value).toFixed(decimals)}`;
+}
+
+/** 1st, 2nd, 3rd, 4th, 11th, 12th, 13th, 21st. */
+export function ordinal(n) {
+  const lastTwo = n % 100;
+  if (lastTwo >= 11 && lastTwo <= 13) return `${n}th`;
+  return `${n}${{ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] ?? 'th'}`;
+}
+
 /** Alleen de landen die écht op het laatste jaar staan. */
 export function currentCountries(index) {
   return index.countries.filter((country) => country.year === index.latestYear);
@@ -193,5 +231,9 @@ export function comparison(index, { code, value }) {
  */
 export function bandOf(value, bands) {
   if (value === null || value === undefined) return -1;
-  return bands.findIndex((bucket) => value < bucket.until);
+  // De bovengrens van de laatste klasse is Infinity, en JSON.stringify maakt daar
+  // null van. Omdat de beschrijving via een JSON-blok de browser bereikt, moet een
+  // ontbrekende bovengrens hier hetzelfde betekenen als een oneindige — anders valt
+  // de hoogste klasse in de client buiten elke band.
+  return bands.findIndex((bucket) => bucket.until === null || bucket.until === undefined || value < bucket.until);
 }
