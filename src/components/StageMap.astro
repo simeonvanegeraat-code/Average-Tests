@@ -286,7 +286,6 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
 
   type Lens = 'total' | 'men' | 'women';
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const bandClasses = cfg.bands.map((_: any, i: number) => `b${i}`);
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-stage-map]')) {
     const raw = root.querySelector('[data-map-data]')?.textContent;
@@ -300,6 +299,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
     // rekenen daardoor met één configuratie in plaats van met twee lijstjes die
     // gelijk moeten blijven.
     const cfg = data.cfg;
+    const bandClasses = cfg.bands.map((_: any, i: number) => `b${i}`);
     const paths = new Map(
       [...root.querySelectorAll<SVGPathElement>('.land path')].map((path) => [path.dataset.c ?? '', path] as const),
     );
