@@ -79,6 +79,7 @@ const leavingHome = {
     max: 60,
     step: 0.5,
     placeholder: '21',
+    noun: 'an age',
   },
 };
 

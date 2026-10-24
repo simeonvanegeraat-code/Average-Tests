@@ -14,18 +14,20 @@
  * en luistert naar `ha:country`, zodat het land gelijk loopt met de kiezer in de kop.
  * Het bewaren van de keuze en de eventnaam `value_submitted` zijn aan de pagina.
  */
-import { currentCountries } from '../lib/leaving-home.js';
-import { AGE_MIN, AGE_MAX } from '../lib/leaving-home-copy.js';
+import { currentCountries } from '../lib/metric.js';
 
 interface Props {
   index: any;
+  /** De beschrijving uit src/lib/metrics/: het invoerveld hangt eraan. */
+  metric: any;
 }
 
-const { index } = Astro.props;
+const { index, metric } = Astro.props;
+const field = metric.input;
 const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare(b.name));
 ---
 
-<form class="madlib" data-compare novalidate>
+<form class="madlib" data-compare data-noun={field.noun} novalidate>
   <label for="compare-country">I live in</label>
   <span class="select">
     <select id="compare-country" name="country" data-compare-country required>
@@ -38,9 +40,9 @@ const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare
     type="number"
     name="age"
     data-compare-age
-    min={AGE_MIN}
-    max={AGE_MAX}
-    step="0.5"
+    min={field.min}
+    max={field.max}
+    step={field.step}
     inputmode="decimal"
     required
     aria-describedby="compare-error"
@@ -56,14 +58,19 @@ const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare
 </p>
 
 <script>
-  import { validAge, AGE_MIN, AGE_MAX } from '../lib/leaving-home-copy.js';
-
   const form = document.querySelector<HTMLFormElement>('[data-compare]');
   const select = form?.querySelector<HTMLSelectElement>('[data-compare-country]');
   const input = form?.querySelector<HTMLInputElement>('[data-compare-age]');
   const problem = document.querySelector<HTMLElement>('[data-compare-error]');
 
   if (form && select && input && problem) {
+    // De grenzen staan op het veld zelf; zo kan de controle hier niet afwijken
+    // van wat de bezoeker mag invullen.
+    const min = Number(input.min);
+    const max = Number(input.max);
+    const noun = form.dataset.noun ?? 'value';
+    const valid = (value: number) => Number.isFinite(value) && value >= min && value <= max;
+
     const send = (name: string, detail: object) => document.dispatchEvent(new CustomEvent(name, { detail }));
 
     select.addEventListener('change', () => send('ha:country', { code: select.value, source: 'form' }));
@@ -81,20 +88,20 @@ const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare
      */
     document.addEventListener('ha:submit', (event) => {
       const value = (event as CustomEvent<{ age?: number }>).detail?.age;
-      if (validAge(Number(value)) && input.valueAsNumber !== value) input.value = String(value);
+      if (valid(Number(value)) && input.valueAsNumber !== value) input.value = String(value);
     });
 
     input.addEventListener('input', () => {
       problem.hidden = true;
       const value = input.valueAsNumber;
-      if (validAge(value)) send('ha:age', { age: value });
+      if (valid(value)) send('ha:age', { age: value });
     });
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       const value = input.valueAsNumber;
-      if (!select.value || !validAge(value)) {
-        problem.textContent = `Enter an age between ${AGE_MIN} and ${AGE_MAX}.`;
+      if (!select.value || !valid(value)) {
+        problem.textContent = `Enter ${noun} between ${min} and ${max}.`;
         problem.hidden = false;
         input.focus();
         return;
