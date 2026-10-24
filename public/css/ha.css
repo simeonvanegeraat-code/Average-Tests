@@ -137,8 +137,6 @@
   .mono { font: 500 .72rem/1.2 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; }
   .num { font-variant-numeric: tabular-nums; }
   .eyebrow { display: inline-flex; align-items: center; gap: .65em; color: var(--text-2); }
-  .eyebrow .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--glow); box-shadow: 0 0 0 0 color-mix(in oklab, var(--glow) 60%, transparent); animation: pulse 2.4s var(--ease) infinite; }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--glow) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 10px transparent; } }
 }
 
 @layer components {
