@@ -26,6 +26,7 @@ import { STAGES } from '../hue.js';
 /** @type {import('../metric.js').MetricConfig} */
 const leavingHome = {
   key: 'leaving-home',
+  label: 'Leaving home',
   path: '/leaving-home/',
   hue: STAGES.leave,
   sourceName: 'Eurostat',

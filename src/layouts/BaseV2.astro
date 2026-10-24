@@ -26,6 +26,7 @@
  * samenvoeging van wat er al staat, nooit als vervanging.
  */
 import { hueStyle } from '../lib/hue.js';
+import { CATALOGUE } from '../lib/catalogue.js';
 
 interface Props {
   title: string;
@@ -43,18 +44,20 @@ const canonicalUrl = new URL(canonical, Astro.site).href;
 const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : null;
 const here = Astro.url.pathname;
 
-const links = [
-  { href: '/leaving-home/', label: 'Leaving home' },
-  { href: '/working-life/', label: 'Working life' },
-  { href: '/working-hours/', label: 'Working hours' },
-  { href: '/household-size/', label: 'Household size' },
-  { href: '/healthy-years/', label: 'Healthy years' },
-  { href: '/first-child/', label: 'First child' },
-  { href: '/wealth/', label: 'Wealth' },
-  { href: '/method/', label: 'Method' },
-];
-
 const isCurrent = (href: string) => here === href || here.startsWith(href);
+
+/**
+ * Staan we zelf op een metriekpagina? Alleen dan is een klik in het paneel een
+ * tweede metriek, en alleen dan hoort `second_metric_opened` af te gaan. Vanaf de
+ * homepage is het de eerste.
+ */
+const onMetric = CATALOGUE.some((metric) => isCurrent(metric.path));
+
+/** Alleen --h: de rest van de tintvariabelen leidt ha.css zelf af op .hued. */
+const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
+  [`--i:${i}`, metric.hue === null ? '' : `--h:${metric.hue}`, metric.at === null ? '' : `--at:${metric.at.toFixed(1)}%`]
+    .filter(Boolean)
+    .join(';');
 ---
 
 <!doctype html>
@@ -123,9 +126,14 @@ const isCurrent = (href: string) => here === href || here.startsWith(href);
           <span>HumanAverage</span>
         </a>
 
-        <div class="nav-links">
-          {links.map((link) => <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>)}
-        </div>
+        <button class="cat-btn" type="button" popovertarget="metrics-menu" aria-expanded="false">
+          <span>Metrics</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
+        </button>
+
+        <a class="nav-method" href="/method/" aria-current={isCurrent('/method/') ? 'page' : undefined}>Method</a>
 
         <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Switch theme">
           <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -137,19 +145,48 @@ const isCurrent = (href: string) => here === href || here.startsWith(href);
           </svg>
         </button>
 
-        <button class="icon-btn menu-btn" type="button" popovertarget="site-menu" aria-label="Open menu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-            <path d="M4 7h16M4 12h16M4 17h16"></path>
-          </svg>
-        </button>
       </nav>
 
-      <div id="site-menu" class="sheet" popover>
-        <nav aria-label="Menu">
-          <p class="sheet-title">Menu</p>
-          <div class="menu-list">
-            {links.map((link) => <a href={link.href} aria-current={isCurrent(link.href) ? 'page' : undefined}>{link.label}</a>)}
-          </div>
+      <div id="metrics-menu" class="catalogue" popover data-on-metric={onMetric ? 'yes' : 'no'}>
+        <nav class="cat-grid" aria-label="All metrics">
+          {
+            CATALOGUE.map((metric, i) => (
+              <a
+                class:list={['cat-card', metric.hue === null ? 'plain' : 'hued']}
+                href={metric.path}
+                style={cardStyle(metric, i)}
+                aria-current={isCurrent(metric.path) ? 'page' : undefined}
+                data-metric={metric.key}
+              >
+                <span class="name">{metric.label}</span>
+                {metric.value && (
+                  <span class="val">
+                    <span data-count>{metric.value}</span>
+                    <small>{metric.unit}</small>
+                  </span>
+                )}
+                {metric.at !== null && (
+                  <span class="bar">
+                    <span class="track"><i /></span>
+                    <span class="ends">
+                      <span>{metric.low}</span>
+                      <span>{metric.high}</span>
+                    </span>
+                  </span>
+                )}
+              </a>
+            ))
+          }
+
+          <a class="cat-card cat-method" href="/method/" style={`--i:${CATALOGUE.length}`} data-method-card>
+            <span class="cue">How we read it</span>
+            <span class="name">Sources, and the breaks we refuse to cross</span>
+            <span class="go" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h13M12 5l7 7-7 7"></path>
+              </svg>
+            </span>
+          </a>
         </nav>
       </div>
     </header>
@@ -169,11 +206,9 @@ const isCurrent = (href: string) => here === href || here.startsWith(href);
             </p>
           </div>
           <div>
-            <h3>Compare yourself</h3>
+            <h3>Every metric</h3>
             <div class="foot-links">
-              <a href="/leaving-home/">Leaving home in Europe</a>
-              <a href="/working-life/">Working life in Europe</a>
-              <a href="/wealth/">European wealth</a>
+              {CATALOGUE.map((metric) => <a href={metric.path}>{metric.label}</a>)}
               <a href="/method/">How we calculate it</a>
             </div>
           </div>
@@ -201,6 +236,7 @@ const isCurrent = (href: string) => here === href || here.startsWith(href);
        * leesbaar en in het thema van het systeem.
        */
       import { readProfile, mergeProfile } from '../lib/profile.js';
+      import { track, EVENTS } from '../lib/analytics.js';
 
       const root = document.documentElement;
       const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -301,6 +337,92 @@ const isCurrent = (href: string) => here === href || here.startsWith(href);
 
       for (const node of document.querySelectorAll('[data-current-year]')) {
         node.textContent = String(new Date().getFullYear());
+      }
+
+      /**
+       * Het paneel met de metrieken. Alles wat beweegt doet CSS — het openen, de
+       * kaarten na elkaar, en de balk die naar zijn breedte groeit. Alleen het cijfer
+       * heeft een script nodig: de echte waarde staat in de HTML en wordt bij het
+       * openen van nul af opgeteld. Zonder JavaScript, in een oudere browser of met
+       * beperkte beweging blijft dat echte getal gewoon staan.
+       */
+      const panel = document.getElementById('metrics-menu');
+      const catButton = document.querySelector<HTMLButtonElement>('.cat-btn');
+
+      if (panel && catButton) {
+        type Counter = {
+          node: HTMLElement;
+          final: string;
+          prefix: string;
+          suffix: string;
+          target: number;
+          decimals: number;
+        };
+
+        const counters: Counter[] = [];
+        for (const node of panel.querySelectorAll<HTMLElement>('[data-count]')) {
+          const final = node.textContent ?? '';
+          // "26.3", maar ook "€167k": wat ervoor en erna staat blijft staan.
+          const parts = /^(\D*)([\d.]+)(\D*)$/.exec(final.trim());
+          if (!parts) continue;
+          const target = Number(parts[2]);
+          if (!Number.isFinite(target)) continue;
+          counters.push({
+            node,
+            final,
+            prefix: parts[1],
+            suffix: parts[3],
+            target,
+            decimals: (parts[2].split('.')[1] ?? '').length,
+          });
+        }
+
+        let frame = 0;
+
+        /** Terug naar de tekst die de server schreef, nooit naar een afgerond restje. */
+        const settle = () => {
+          cancelAnimationFrame(frame);
+          for (const counter of counters) counter.node.textContent = counter.final;
+        };
+
+        const countUp = () => {
+          cancelAnimationFrame(frame);
+          const started = performance.now();
+          const tick = (now: number) => {
+            const part = Math.min(1, (now - started) / 820);
+            const eased = 1 - (1 - part) ** 3;
+            for (const counter of counters) {
+              counter.node.textContent =
+                counter.prefix + (counter.target * eased).toFixed(counter.decimals) + counter.suffix;
+            }
+            if (part < 1) frame = requestAnimationFrame(tick);
+            else settle();
+          };
+          frame = requestAnimationFrame(tick);
+        };
+
+        // `toggle` vuurt ná de wissel, dus :popover-open staat er al goed voor.
+        panel.addEventListener('toggle', () => {
+          const open = panel.matches(':popover-open');
+          catButton.setAttribute('aria-expanded', String(open));
+          if (!open) return settle();
+          if (!reduceMotion && counters.length) countUp();
+        });
+
+        // Een klik hierin is pas een tweede metriek als je er al op een staat.
+        if (panel.dataset.onMetric === 'yes') {
+          for (const card of panel.querySelectorAll<HTMLAnchorElement>('[data-metric]')) {
+            card.addEventListener('click', () => {
+              track(EVENTS.secondMetricOpened, { from: location.pathname, to: card.dataset.metric });
+            });
+          }
+        }
+
+        for (const card of panel.querySelectorAll('[data-method-card]')) {
+          card.addEventListener('click', () => {
+            track(EVENTS.methodologyOpened, { from: location.pathname });
+          });
+        }
       }
     </script>
   </body>

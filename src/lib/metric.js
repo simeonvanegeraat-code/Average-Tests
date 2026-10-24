@@ -113,6 +113,29 @@ export function headline(index) {
 }
 
 /**
+ * Waar het Europese cijfer ligt tussen het laagste en het hoogste land, als
+ * percentage van die afstand. Bedoeld voor een balkje dat de positie toont zonder
+ * de hele verdeling te beloven: het zegt alleen iets over de twee uitersten en het
+ * aggregaat, en dat zijn alle drie gepubliceerde cijfers.
+ *
+ * Geeft null zodra één van de drie ontbreekt, of als alle landen gelijk zijn — dan
+ * is er geen afstand om een positie in uit te drukken en zou elke waarde liegen.
+ */
+export function spread(index) {
+  const { eu, earliest, latest } = headline(index);
+  if (!eu || !earliest || !latest) return null;
+
+  const distance = latest.total - earliest.total;
+  if (distance <= 0) return null;
+
+  return {
+    low: earliest,
+    high: latest,
+    at: ((eu.total - earliest.total) / distance) * 100,
+  };
+}
+
+/**
  * De uitsplitsing naar geslacht, waar de dataset die heeft. Geeft null als er geen
  * enkel land een splitsing levert, zodat een pagina de sectie gewoon weglaat in
  * plaats van lege cellen te tonen.
