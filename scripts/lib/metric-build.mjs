@@ -17,6 +17,43 @@ import { datasetUrl, reader, AGGREGATES, RAW_DIR } from './eurostat.mjs';
 
 const DATA_DIR = new URL('../../data/', import.meta.url);
 
+/**
+ * Landen die niet op de site komen, met per stuk de reden.
+ *
+ * De eerste vijf vallen buiten wat Eurostat voor **commercieel** hergebruik toestaat.
+ * Het copyrightbericht (gelezen op 24 oktober 2026,
+ * https://ec.europa.eu/eurostat/en/help/copyright-notice) staat hergebruik toe, ook
+ * commercieel en zonder schriftelijke licentie, met één uitzondering die ons raakt:
+ * "Data for countries other than: Member States of the European Union (EU), Member
+ * States of the European Free Trade Association (EFTA), official EU acceding and
+ * candidate countries" mag niet commercieel worden hergebruikt, en "the user will
+ * need to eliminate these data from the tables before reusing them commercially".
+ *
+ * Deze site draait vandaag zonder advertenties en is dus niet commercieel. We halen
+ * ze er toch nu al uit: zodra AdSense aangaat verandert dat, en een regel die je op
+ * precies dat moment moet onthouden is een regel die vergeten wordt. Alle zeven zijn
+ * bovendien achterlopende rijen die al buiten elke vergelijking vielen, dus het kost
+ * vrijwel niets.
+ */
+const EXCLUDED = new Map([
+  ['UK', 'Verenigd Koninkrijk: geen EU, geen EFTA, geen kandidaat-land sinds de brexit'],
+  ['AM', 'Armenie: buiten EU, EFTA en de kandidaat-landen'],
+  ['AZ', 'Azerbeidzjan: buiten EU, EFTA en de kandidaat-landen'],
+  ['BY', 'Belarus: buiten EU, EFTA en de kandidaat-landen'],
+  ['SM', 'San Marino: buiten EU, EFTA en de kandidaat-landen'],
+  [
+    'XK',
+    'Kosovo: potentieel kandidaat-land, geen officieel kandidaat-land. Bovendien ' +
+      'verouderd — Eurostat heeft 6,0 personen per huishouden uit 2018, terwijl de ' +
+      'eigen volkstelling van 2024 op 4,3 uitkomt (5,9 in 2011).',
+  ],
+  [
+    'FX',
+    'Metropolitan France is geen land maar Frankrijk zonder de overzeese departementen; ' +
+      'hij dubbelt met FR.',
+  ],
+]);
+
 /** Leest het ruwe antwoord dat fetch-eurostat.mjs heeft weggeschreven. */
 export async function readRaw(spec) {
   const json = JSON.parse(await readFile(new URL(`${spec.code}.json`, RAW_DIR), 'utf8'));
@@ -109,7 +146,7 @@ export async function buildMetric(spec) {
    * in een landenlijst: `demo_find` leverde zo "European Free Trade Association" en
    * "Germany including former GDR" als land aan, naast de EU-aggregaten.
    */
-  const isCountry = (code) => code.length === 2 && !AGGREGATES.has(code);
+  const isCountry = (code) => code.length === 2 && !AGGREGATES.has(code) && !EXCLUDED.has(code);
 
   const countries = areas.filter(isCountry).map(entry).filter(Boolean);
   const aggregates = areas.filter((g) => AGGREGATES.has(g)).map(entry).filter(Boolean);

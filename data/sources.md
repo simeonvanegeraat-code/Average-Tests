@@ -110,9 +110,17 @@ uit op de werkelijke Amerikaanse volwassenenpopulatie.
 ## ECB — vermogen van Europese huishoudens
 
 **Uitgever** Europese Centrale Bank (ECB), Distributional Wealth Accounts (DWA)
-**Licentie** **Niet vastgesteld.** De voorwaarden van de ECB zijn niet gelezen; er staat
-nergens in de code of op de pagina een licentieregel. Nalopen voordat er advertenties
-bij komen, want dan wordt het gebruik commercieel.
+**Licentie** Vrij hergebruik, uitdrukkelijk ook commercieel. **Gelezen bij de bron op
+24 oktober 2026**: https://www.ecb.europa.eu/stats/ecb_statistics/governance_and_quality_framework/html/usage_policy.en.html
+
+> "The ESCB is committed to providing its statistics free of charge as a public good of
+> high quality irrespective of any subsequent commercial or non-commercial use."
+
+Twee voorwaarden: de bron moet genoemd worden, en de statistieken inclusief metadata
+mogen niet gewijzigd worden. Beide gehaald — de pagina citeert "European Central Bank,
+Distributional Wealth Accounts" met de periode, en toont de gepubliceerde cijfers
+ongewijzigd. Wat de site eromheen rekent (waar je bedrag tussen twee groepsgemiddelden
+valt) is eigen tekst naast die cijfers, geen aanpassing ervan.
 **Opgehaald** 5 september 2026
 **Gebruikt voor** `/wealth/` en `/wealth/<land>/`: mediaan en verdeling van het
 huishoudvermogen per land
@@ -181,10 +189,20 @@ onzichtbaar op de pagina zelf.
 ## Eurostat — jongeren die het ouderlijk huis verlaten
 
 **Uitgever** Eurostat (Statistical Office of the European Union)
-**Licentie** Hergebruik toegestaan, ook commercieel, met bronvermelding. De
-copyright-pagina van Eurostat is op de URL die we probeerden niet rechtstreeks gelezen
-(404); de voorwaarde hierboven komt uit samenvattingen van die pagina. **Nog te
-verifiëren bij de bron zelf.**
+**Licentie** Hergebruik toegestaan, ook commercieel, met bronvermelding en zonder
+schriftelijke licentie. **Gelezen bij de bron op 24 oktober 2026**:
+https://ec.europa.eu/eurostat/en/help/copyright-notice (de oudere URL
+`/about-us/policies/copyright` geeft 404 en was de reden dat dit zo lang openstond).
+
+> "Reuse of statistical data, metadata, publications, and other dissemination tools
+> published on this website for commercial or non-commercial purposes is authorised
+> provided the source is acknowledged."
+
+**Eén uitzondering raakt deze site.** Hetzelfde bericht sluit van commercieel hergebruik
+uit: *"Data for countries other than: Member States of the European Union (EU), Member
+States of the European Free Trade Association (EFTA), official EU acceding and candidate
+countries"*, met daarbij *"the user will need to eliminate these data from the tables
+before reusing them commercially"*. Zie "Uitgesloten landen" hieronder.
 **Opgehaald** 20 oktober 2026, via de dissemination-API (geen sleutel nodig)
 **Gebruikt voor** `/leaving-home/`: de leeftijd waarop de helft van de jongeren niet meer
 bij de ouders woont, per land
@@ -263,8 +281,8 @@ jaar meedraagt, en dat het vergelijkbare venster werkelijk breukvrij is.
 ## Eurostat — de vijf metrieken naast leaving-home
 
 **Uitgever** Eurostat
-**Licentie** zie de Eurostat-sectie hierboven; dezelfde voorwaarden, en dezelfde
-openstaande controle
+**Licentie** zie de Eurostat-sectie hierboven; dezelfde voorwaarden, inclusief de
+uitsluiting van landen buiten EU, EFTA en de kandidaat-landen
 **Opgehaald** 2026-10-24
 **Gebruikt voor** de metriekpagina's buiten `/leaving-home/`
 
@@ -304,14 +322,37 @@ totaal; de kaart heeft daar één lens in plaats van drie.
    kolom die er was maar niets zei, en een "verschil tussen mannen en vrouwen" van precies
    nul dat als bevinding kon worden gelezen.
 
-### Eén waarde die opvalt en die we niet kunnen verifiëren
+### Uitgesloten landen
 
-Kosovo staat in `ilc_lvph01` op **6,0 personen per huishouden**, uit één waarneming van
-2018. Het eerstvolgende land zit op 3,1. Zes personen per huishouden is fysiek mogelijk en
-Kosovo is bekend om grote huishoudens, dus het is niet uitgesloten — maar het is één punt,
-zeven jaar oud, en we hebben het niet tegen een tweede bron kunnen leggen. Het staat op de
-site met zijn eigen jaartal erbij, zoals elk achterlopend land, en het valt buiten elke
-vergelijking met het laatste jaar.
+Zeven landcodes komen niet op de site. De reden staat per stuk in `EXCLUDED` in
+`scripts/lib/metric-build.mjs`.
+
+| Code | Land | Reden |
+|---|---|---|
+| `UK` | Verenigd Koninkrijk | Sinds de brexit geen EU, geen EFTA, geen kandidaat-land |
+| `AM` | Armenië | Buiten EU, EFTA en de kandidaat-landen |
+| `AZ` | Azerbeidzjan | Idem |
+| `BY` | Belarus | Idem |
+| `SM` | San Marino | Idem |
+| `XK` | Kosovo | Potentieel kandidaat-land, geen officieel kandidaat-land — plus de reden hieronder |
+| `FX` | Metropolitan France | Geen land maar Frankrijk zonder de overzeese departementen; dubbelt met `FR` |
+
+De site draait vandaag zonder advertenties en is dus niet commercieel; strikt genomen
+mochten deze landen er nu nog op staan. Ze zijn er toch nu al uit gehaald, omdat een regel
+die je moet onthouden op het moment dat AdSense aangaat een regel is die vergeten wordt.
+Het kostte bovendien niets: alle zeven waren achterlopende rijen die al buiten elke
+vergelijking vielen, en het aantal landen op het laatste jaar bleef op elke pagina gelijk.
+
+### De Kosovo-waarde, uitgezocht
+
+Kosovo stond in `ilc_lvph01` op **6,0 personen per huishouden** uit 2018, terwijl het
+eerstvolgende land op 3,1 zit. Dat zag eruit als een fout en is het niet: de volkstelling
+van Kosovo zelf geeft **5,9 in 2011** en **4,3 in 2024**, dus 6,0 in 2018 past precies in
+die reeks.
+
+Het probleem is niet juistheid maar actualiteit. Naast cijfers van 2025 overdrijft een
+waarde van 2018 de huidige Kosovaarse huishoudgrootte met ongeveer veertig procent. Samen
+met de licentiereden hierboven is dat genoeg om hem niet te tonen.
 
 ### Niet gebouwd, en waarom
 
