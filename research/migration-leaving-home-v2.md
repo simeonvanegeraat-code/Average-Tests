@@ -1,5 +1,14 @@
 # Migratieblad stap 4: de pagina `leaving-home` naar de nieuwe vormtaal
 
+> **Uitgevoerd op 22 oktober 2026.** De pagina draait op de v2-vormtaal (commits
+> `f1e019a`, `a3f09b9`, `b098eb6`, `90e2fd6`), `CountryMap.astro` en
+> `CountryTable.astro` zijn verwijderd, en besluiten A, D en E uit §5 zijn genomen.
+> Bij het omzetten kwam één fout boven water die hier niet voorzien was: `CompareForm`
+> luisterde niet naar `ha:submit`, waardoor een teruggekeerde bezoeker een resultaat zag
+> boven een leeg leeftijdsveld. Dit blad blijft staan als verslag van hoe het bedoeld was;
+> de stand van de site staat in CLAUDE.md.
+
+
 Hoort bij `research/build-plan-v2.md` (stap 4). **Dit blad is voorbereiding.** Er is niets gewijzigd aan `src/pages/leaving-home/index.astro`, `src/components/CountryMap.astro` en `src/components/CountryTable.astro`; die zijn van de sessie die de pagina bouwt. Alles hieronder is nieuw en staat ernaast.
 
 Stand 22 oktober 2026. De nieuwe bestanden zijn gecommit (`f93a218`, `976cb11`, `70086a3`); de pagina is niet omgezet.
