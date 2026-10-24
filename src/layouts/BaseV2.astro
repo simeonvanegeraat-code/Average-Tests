@@ -55,7 +55,7 @@ const onMetric = CATALOGUE.some((metric) => isCurrent(metric.path));
 
 /** Alleen --h: de rest van de tintvariabelen leidt ha.css zelf af op .hued. */
 const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
-  [`--i:${i}`, metric.hue === null ? '' : `--h:${metric.hue}`, metric.at === null ? '' : `--at:${metric.at.toFixed(1)}%`]
+  [`--i:${i}`, `--h:${metric.hue}`, metric.at === null ? '' : `--at:${metric.at.toFixed(1)}%`]
     .filter(Boolean)
     .join(';');
 ---
@@ -152,7 +152,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
           {
             CATALOGUE.map((metric, i) => (
               <a
-                class:list={['cat-card', metric.hue === null ? 'plain' : 'hued']}
+                class="cat-card hued"
                 href={metric.path}
                 style={cardStyle(metric, i)}
                 aria-current={isCurrent(metric.path) ? 'page' : undefined}

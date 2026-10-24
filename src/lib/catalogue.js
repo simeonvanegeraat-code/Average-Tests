@@ -16,6 +16,7 @@
  */
 import { headline, spread, formatValue } from './metric.js';
 import { euro, formatPeriod } from './wealth.js';
+import { STAGES } from './hue.js';
 
 import leavingHome from './metrics/leaving-home.js';
 import workingLife from './metrics/working-life.js';
@@ -56,9 +57,6 @@ function entry(metric, index) {
  * Vermogen komt van de ECB en heeft geen beschrijving in src/lib/metrics: de
  * landenrijen hebben `median` in plaats van `total`. De vorm van de kaart is verder
  * gelijk, dus dezelfde rekensom staat hier één keer uitgeschreven.
- *
- * Geen tint. Deze pagina staat als enige nog op de oude vormgeving, en een kleur
- * verzinnen zou betekenis suggereren die de vormtaal er niet aan geeft.
  */
 function wealthEntry() {
   const withMedian = wealthData.countries.filter((country) => typeof country.median === 'number');
@@ -72,7 +70,7 @@ function wealthEntry() {
     key: 'wealth',
     path: '/wealth/',
     label: 'Wealth',
-    hue: null,
+    hue: STAGES.money,
     value: euro(middle, { compact: true }),
     unit: 'median',
     low: low ? `${low.name} ${euro(low.median, { compact: true })}` : null,
