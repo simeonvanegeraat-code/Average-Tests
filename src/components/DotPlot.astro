@@ -21,7 +21,7 @@
  * Er blijven bovenaan vaste labelrijen vrij voor wat de browser toevoegt (`--extra`),
  * zodat er niets verspringt als een land gekozen wordt.
  */
-import { age } from '../lib/leaving-home.js';
+import { formatValue } from '../lib/metric.js';
 import { axisRange, xOf, ticks, stackDots, placeLabels } from '../lib/dotplot.js';
 
 interface Row {
@@ -33,6 +33,8 @@ interface Row {
 interface Props {
   /** De landen op het laatste jaar. */
   rows: Row[];
+  /** Aantal decimalen waarin deze metriek geschreven wordt. */
+  decimals?: number;
   /** Het Europese cijfer. Zonder wordt er geen EU-markering getekend. */
   eu?: number | null;
   /** hero: de uitersten krijgen een label, één rij is vrij voor het gekozen land. result: twee rijen zijn vrij, voor het gekozen land en voor je leeftijd. */
@@ -41,7 +43,7 @@ interface Props {
   label: string;
 }
 
-const { rows, eu = null, mode = 'hero', label } = Astro.props;
+const { rows, eu = null, mode = 'hero', label, decimals = 1 } = Astro.props;
 
 const range = axisRange(rows.map((row) => row.total));
 const dots = stackDots(rows, range);
@@ -51,11 +53,11 @@ const last = dots[dots.length - 1];
 const fixed = [
   ...(mode === 'hero'
     ? [
-        { x: first.x, text: `${first.code} ${age(first.total)}`, kind: 'ext', trow: first.row, code: first.code },
-        { x: last.x, text: `${last.code} ${age(last.total)}`, kind: 'ext', trow: last.row, code: last.code },
+        { x: first.x, text: `${first.code} ${formatValue(first.total, { decimals })}`, kind: 'ext', trow: first.row, code: first.code },
+        { x: last.x, text: `${last.code} ${formatValue(last.total, { decimals })}`, kind: 'ext', trow: last.row, code: last.code },
       ]
     : []),
-  ...(eu === null ? [] : [{ x: xOf(eu, range), text: `EU ${age(eu)}`, kind: 'eu', trow: 0 }]),
+  ...(eu === null ? [] : [{ x: xOf(eu, range), text: `EU ${formatValue(eu, { decimals })}`, kind: 'eu', trow: 0 }]),
 ];
 
 const placed = placeLabels(fixed);
@@ -67,6 +69,7 @@ const axis = ticks(range);
 <div
   class="dp"
   data-dotplot
+  data-decimals={decimals}
   data-mode={mode}
   data-lo={range.lo}
   data-hi={range.hi}
@@ -82,7 +85,7 @@ const axis = ticks(range);
           class="dp-dot"
           data-code={dot.code}
           data-total={dot.total}
-          title={`${dot.name} ${age(dot.total)}`}
+          title={`${dot.name} ${formatValue(dot.total, { decimals })}`}
           style={`--x:${dot.x};--row:${dot.row};--i:${i}`}
         />
       ))
@@ -96,9 +99,8 @@ const axis = ticks(range);
 </div>
 
 <script>
-  import { age } from '../lib/leaving-home.js';
+  import { formatValue } from '../lib/metric.js';
   import { xOf, labelX, PAD } from '../lib/dotplot.js';
-  import { ownAge } from '../lib/leaving-home-copy.js';
 
   const plots = [...document.querySelectorAll<HTMLElement>('[data-dotplot]')];
 
@@ -129,7 +131,8 @@ const axis = ticks(range);
     const row = Number(dot.style.getPropertyValue('--row'));
     // In de hero is er één vrije rij bovenaan; in het resultaat twee, daar komt het land onder je leeftijd.
     const crow = plot.dataset.mode === 'result' ? 1 : 0;
-    const text = `${code} ${age(Number(dot.dataset.total))}`;
+    const decimals = Number(plot.dataset.decimals ?? 1);
+    const text = `${code} ${formatValue(Number(dot.dataset.total), { decimals })}`;
     const leader = add(plot, 'i', 'dp-leader dp-leader--you', `--x:${x};--crow:${crow};--trow:${row}`);
     const label = add(plot, 'span', 'dp-label dp-label--you', `--x:${labelX(x, text)};--crow:${crow}`, text);
     leader.dataset.for = 'country';
@@ -141,7 +144,10 @@ const axis = ticks(range);
     const range = { lo: Number(plot.dataset.lo), hi: Number(plot.dataset.hi) };
     const offScale = value < range.lo || value > range.hi;
     const x = Math.min(Math.max(xOf(value, range), PAD), 100 - PAD);
-    const text = `${offScale ? (value < range.lo ? '← ' : '') : ''}you · ${ownAge(value)}${offScale && value > range.hi ? ' →' : ''}`;
+    const decimals = Number(plot.dataset.decimals ?? 1);
+    // Een heel getal schrijven we zonder decimalen: "you · 21", niet "you · 21.0".
+    const own = Number.isInteger(value) ? String(value) : value.toFixed(decimals);
+    const text = `${offScale ? (value < range.lo ? '← ' : '') : ''}you · ${own}${offScale && value > range.hi ? ' →' : ''}`;
     const line = add(plot, 'i', 'dp-line dp-line--age', `--x:${x};--crow:0`);
     const label = add(plot, 'span', 'dp-label dp-label--age', `--x:${labelX(x, text)};--crow:0`, text);
     line.dataset.for = 'age';

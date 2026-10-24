@@ -18,8 +18,19 @@ export const RAW_DIR = new URL('../../data/raw/eurostat/', import.meta.url);
 
 const USER_AGENT = 'humanaverage/1.0 (data pipeline)';
 
-/** Aggregaten staan in dezelfde geo-dimensie als landen, maar zijn geen land. */
-export const AGGREGATES = new Set(['EU27_2020', 'EU28', 'EU27_2007', 'EA', 'EA19', 'EA20', 'EA21']);
+/**
+ * Aggregaten staan in dezelfde geo-dimensie als landen, maar zijn geen land.
+ *
+ * Een vaste lijst bleek te smal: `ilc_lvph01` gebruikt `EU` en `EA18`, die er niet
+ * in stonden, en die kwamen daardoor als "land" in de ranglijst terecht — met namen
+ * als "European Union (EU6-1958, …)" erbij. Daarom nu een patroon: geen enkele
+ * landcode van Eurostat begint met EU of EA (EE, EL, ES wel, maar die matchen niet).
+ */
+const AGGREGATE_PATTERN = /^(EU|EA)\d*(_\d+)?$/;
+
+export const AGGREGATES = {
+  has: (code) => AGGREGATE_PATTERN.test(code) || code === 'EU27_2020' || code === 'EU27_2007',
+};
 
 export function datasetUrl(code, params = {}) {
   const query = new URLSearchParams({ format: 'JSON', lang: 'en', ...params });

@@ -11,11 +11,11 @@
     "wealth:build": "node scripts/build-wealth.mjs",
     "wealth:validate": "node scripts/validate-wealth.mjs",
     "wealth": "npm run wealth:fetch && npm run wealth:build && npm run wealth:validate",
-    "leaving:fetch": "node scripts/fetch-eurostat.mjs",
-    "leaving:build": "node scripts/build-leaving-home.mjs",
-    "leaving:validate": "node scripts/validate-leaving-home.mjs",
-    "leaving": "npm run leaving:fetch && npm run leaving:build && npm run leaving:validate",
-    "geo:build": "node scripts/build-geo.mjs"
+    "geo:build": "node scripts/build-geo.mjs",
+    "metrics:fetch": "node scripts/fetch-metrics.mjs",
+    "metrics:build": "node scripts/build-metrics.mjs",
+    "metrics:validate": "node scripts/validate-metrics.mjs",
+    "metrics": "npm run metrics:fetch && npm run metrics:build && npm run metrics:validate"
   },
   "devDependencies": {
     "astro": "^5.14.1"

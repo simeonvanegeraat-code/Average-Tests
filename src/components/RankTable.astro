@@ -17,15 +17,17 @@
  * Sorteren gebeurt in de browser, maar de tabel staat volledig en in een zinnige volgorde
  * (van vroeg naar laat) in de HTML. Zonder JavaScript mis je alleen het sorteren.
  */
-import { age, years } from '../lib/leaving-home.js';
+import { formatAmount, formatValue } from '../lib/metric.js';
 import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
 
 interface Props {
-  /** De inhoud van data/leaving-home/index.json. */
+  /** Het gebouwde databestand van de metriek. */
   index: any;
+  /** De beschrijving uit src/lib/metrics/: eenheid en decimalen. */
+  metric: any;
 }
 
-const { index } = Astro.props;
+const { index, metric } = Astro.props;
 const latestYear: string = index.latestYear;
 const yearMin = Number(index.years[0]);
 const yearMax = Number(latestYear);
@@ -83,10 +85,10 @@ const caption = `Age by which half of young people have left the parental home. 
                 {row.name}
                 {row.year !== latestYear && <span class="stale-year">{row.year}</span>}
               </th>
-              <td class="n strong">{age(row.total)}</td>
-              <td class="n">{age(row.men)}</td>
-              <td class="n">{age(row.women)}</td>
-              <td class="n">{gap === null ? '—' : years(gap, { sign: true })}</td>
+              <td class="n strong">{formatValue(row.total, metric)}</td>
+              <td class="n">{formatValue(row.men, metric)}</td>
+              <td class="n">{formatValue(row.women, metric)}</td>
+              <td class="n">{gap === null ? '—' : formatAmount(gap, metric, { sign: true })}</td>
               <td class="trend">
                 {
                   spark ? (

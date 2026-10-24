@@ -33,9 +33,9 @@
  * Gebeurtenissen: luistert naar `ha:country` { code }. Stuurt niets zelf.
  * De gegevens voor de browser staan in één JSON-element in dit onderdeel (`data-map-data`).
  */
-import { age, euAggregate } from '../lib/leaving-home.js';
+import { euAggregate, formatValue } from '../lib/metric.js';
 import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
-import { BANDS, band, LENSES, EU_CODE, legendTicks, tierOf, mapSummary, inspectFacts } from '../lib/leaving-home-map.js';
+import { band, EU_CODE, legendTicks, tierOf, mapSummary, inspectFacts } from '../lib/metric-map.js';
 
 interface Shape {
   ctx?: number;
@@ -49,8 +49,10 @@ interface Shape {
 
 interface Props {
   geo: { w: number; h: number; countries: Record<string, Shape> };
-  /** De inhoud van data/leaving-home/index.json. */
+  /** Het gebouwde databestand van de metriek, bijv. data/leaving-home/index.json. */
   index: any;
+  /** De beschrijving uit src/lib/metrics/: eenheid, klassegrenzen, lenzen, woorden. */
+  metric: any;
   eyebrow?: string;
   title?: string;
   lede?: string;
@@ -59,6 +61,7 @@ interface Props {
 const {
   geo,
   index,
+  metric,
   eyebrow = 'The map',
   title = 'Where is it earliest, where is it latest?',
   lede = 'Tap a country, or switch between everyone, men and women.',
@@ -77,7 +80,8 @@ const pick = (row: any) => ({
   breaks: row.breaks,
   series: row.series,
 });
-const data = { latestYear, yearMin: Number(index.years[0]), eu: eu ? pick(eu) : null, rows: index.countries.map(pick) };
+// `cfg` reist mee zodat het script hieronder met dezelfde beschrijving rekent.
+const data = { latestYear, yearMin: Number(index.years[0]), eu: eu ? pick(eu) : null, rows: index.countries.map(pick), cfg: metric };
 const json = JSON.stringify(data).replace(/</g, '\\u003c');
 
 /** Contextlanden: vorm wel, data niet. Zonder die vormen is Europa een eiland. */
@@ -94,10 +98,10 @@ const stale = shapes.filter(({ row }) => row.year !== latestYear);
 // Landen die te klein zijn om aan te tikken, van vroeg naar laat. Welke ervan zichtbaar zijn kiest de stylesheet.
 const chips = shapes.filter(({ shape }) => tierOf(shape.lr) > 1).sort((a, b) => a.row.total - b.row.total);
 
-const ticks = legendTicks();
-const summary = mapSummary(data.rows, latestYear, 'total');
+const ticks = legendTicks(metric);
+const summary = mapSummary(data.rows, latestYear, 'total', metric);
 
-const start = eu ? inspectFacts({ latestYear, eu: data.eu, rows: data.rows }, EU_CODE, 'total') : null;
+const start = eu ? inspectFacts({ latestYear, eu: data.eu, rows: data.rows }, EU_CODE, 'total', metric) : null;
 const startSpark = start
   ? sparkline(start.series, start.breaks, { ...SPARK_SIZES.card, yearMin: data.yearMin, yearMax: Number(latestYear) })
   : null;
@@ -114,7 +118,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
 
     <div class="controls" data-reveal>
       <div class="seg" role="group" aria-label="Show figures for">
-        {LENSES.map((lens, i) => <button type="button" data-lens={lens.key} aria-pressed={i === 0 ? 'true' : 'false'}>{lens.label}</button>)}
+        {metric.lenses.map((lens: any, i: number) => <button type="button" data-lens={lens.key} aria-pressed={i === 0 ? 'true' : 'false'}>{lens.label}</button>)}
       </div>
     </div>
 
@@ -135,7 +139,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
             <g class="land">
               {
                 shapes.map(({ row, shape }) => (
-                  <path d={shape.d} class:list={[`b${band(row.total)}`, { 'is-stale': row.year !== latestYear }]} data-c={row.code}></path>
+                  <path d={shape.d} class:list={[`b${band(row.total, metric)}`, { 'is-stale': row.year !== latestYear }]} data-c={row.code}></path>
                 ))
               }
             </g>
@@ -147,7 +151,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
             <g class="labels" aria-hidden="true">
               {
                 labeled.map(({ row, shape }) => (
-                  <text x={shape.lx} y={shape.ly} class={`t${tierOf(shape.lr)} b${band(row.total)}`} data-lc={row.code}>{age(row.total)}</text>
+                  <text x={shape.lx} y={shape.ly} class={`t${tierOf(shape.lr)} b${band(row.total, metric)}`} data-lc={row.code}>{formatValue(row.total, metric)}</text>
                 ))
               }
             </g>
@@ -163,7 +167,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
           <div class="legend-scale">
             <div class="mono legend-title">Age by which half have left home</div>
             <div class="legend-bar">
-              {BANDS.map((_, i) => <i style={`background:var(--r${i})`}></i>)}
+              {metric.bands.map((_: any, i: number) => <i style={`background:var(--r${i})`}></i>)}
             </div>
             <div class="legend-ticks">
               {ticks.map((tick) => <span>{tick}</span>)}
@@ -184,7 +188,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
             chips.map(({ row, shape }) => (
               <button type="button" class={`smallchip t${tierOf(shape.lr)}`} data-c={row.code} aria-pressed="false">
                 <span>{row.name}</span>
-                <b data-chip-value>{age(row.total)}</b>
+                <b data-chip-value>{formatValue(row.total, metric)}</b>
               </button>
             ))
           }
@@ -223,11 +227,11 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
               <dl>
                 <div>
                   <dt>Men</dt>
-                  <dd data-f="men">{age(start.men)}</dd>
+                  <dd data-f="men">{formatValue(start.men, metric)}</dd>
                 </div>
                 <div>
                   <dt>Women</dt>
-                  <dd data-f="women">{age(start.women)}</dd>
+                  <dd data-f="women">{formatValue(start.women, metric)}</dd>
                 </div>
                 <div>
                   <dt>Men − women</dt>
@@ -277,11 +281,11 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
    */
   import { age } from '../lib/leaving-home.js';
   import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
-  import { BANDS, band, EU_CODE, LENSES, inspectFacts, mapSummary, valueFor } from '../lib/leaving-home-map.js';
+  import { formatValue } from '../lib/metric.js';
+  import { band, EU_CODE, inspectFacts, mapSummary, valueFor } from '../lib/metric-map.js';
 
   type Lens = 'total' | 'men' | 'women';
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const bandClasses = BANDS.map((_, i) => `b${i}`);
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-stage-map]')) {
     const raw = root.querySelector('[data-map-data]')?.textContent;
@@ -291,6 +295,11 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
     if (!raw || !svg || !wrap || !picker) continue;
 
     const data = JSON.parse(raw);
+    // De beschrijving van de metriek reist mee in hetzelfde blok. Server en browser
+    // rekenen daardoor met één configuratie in plaats van met twee lijstjes die
+    // gelijk moeten blijven.
+    const cfg = data.cfg;
+    const bandClasses = cfg.bands.map((_: any, i: number) => `b${i}`);
     const paths = new Map(
       [...root.querySelectorAll<SVGPathElement>('.land path')].map((path) => [path.dataset.c ?? '', path] as const),
     );
@@ -318,18 +327,18 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
     function paint() {
       for (const row of data.rows) {
         const value = valueFor(row, lens);
-        const index = value === null ? -1 : band(value);
+        const index = value === null ? -1 : band(value, cfg);
         const path = paths.get(row.code);
         if (path) setBand(path, index);
         const label = labels.get(row.code);
         if (label) {
           setBand(label, index);
-          label.textContent = value === null ? '·' : age(value);
+          label.textContent = value === null ? '·' : formatValue(value, cfg);
         }
         const chipValue = chips.get(row.code)?.querySelector('[data-chip-value]');
-        if (chipValue) chipValue.textContent = age(value);
+        if (chipValue) chipValue.textContent = formatValue(value, cfg);
       }
-      svg!.setAttribute('aria-label', mapSummary(data.rows, data.latestYear, lens));
+      svg!.setAttribute('aria-label', mapSummary(data.rows, data.latestYear, lens, cfg));
     }
 
     function drawSpark(facts: NonNullable<ReturnType<typeof inspectFacts>>) {
@@ -355,7 +364,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
     }
 
     function render() {
-      const facts = inspectFacts(data, selected, lens);
+      const facts = inspectFacts(data, selected, lens, cfg);
       if (!facts) return null;
       const set = (name: string, text: string) => {
         const element = field(name);
@@ -365,8 +374,8 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
       set('meta', facts.meta);
       set('value', facts.valueText);
       set('note', facts.note);
-      set('men', age(facts.men));
-      set('women', age(facts.women));
+      set('men', formatValue(facts.men, cfg));
+      set('women', formatValue(facts.women, cfg));
       set('gap', facts.gapText);
       set('sparkNote', facts.sparkNote);
       drawSpark(facts);
@@ -403,7 +412,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
     }
 
     function showTip(code: string, clientX: number, clientY: number) {
-      const facts = inspectFacts(data, code, lens);
+      const facts = inspectFacts(data, code, lens, cfg);
       if (!facts || !tip) return;
       window.clearTimeout(tipTimer);
       tip.querySelector('[data-tip-name]')!.textContent = facts.name;
@@ -437,13 +446,13 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
 
     for (const button of root.querySelectorAll<HTMLButtonElement>('[data-lens]')) {
       button.addEventListener('click', () => {
-        lens = (LENSES.find((entry) => entry.key === button.dataset.lens)?.key ?? 'total') as Lens;
+        lens = (cfg.lenses.find((entry: any) => entry.key === button.dataset.lens)?.key ?? 'total') as Lens;
         for (const other of root.querySelectorAll<HTMLButtonElement>('[data-lens]')) {
           other.setAttribute('aria-pressed', String(other === button));
         }
         paint();
         render();
-        if (announce) announce.textContent = mapSummary(data.rows, data.latestYear, lens);
+        if (announce) announce.textContent = mapSummary(data.rows, data.latestYear, lens, cfg);
       });
     }
 

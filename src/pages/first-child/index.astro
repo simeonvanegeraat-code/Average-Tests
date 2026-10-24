@@ -1,0 +1,274 @@
+---
+import BaseV2 from '../../layouts/BaseV2.astro';
+import StageMap from '../../components/StageMap.astro';
+import CompareForm from '../../components/CompareForm.astro';
+import RankTable from '../../components/RankTable.astro';
+import geo from '../../../data/geo/europe.json';
+import index from '../../../data/first-child/index.json';
+import metric from '../../lib/metrics/first-child.js';
+import {
+  currentCountries,
+  formatAmount,
+  formatValue,
+  genderGap,
+  headline,
+  ranked,
+  staleCountries,
+  trend,
+  withArticle,
+} from '../../lib/metric.js';
+
+/**
+ * Metriekpagina: first-child.
+ *
+ * Kaart, tabel en formulier zijn gedeelde componenten; kop, bevindingen en methode
+ * zijn voor deze pagina geschreven. Geen cijfer staat hier met de hand ingetypt.
+ */
+
+const h = headline(index);
+const gender = genderGap(index);
+const movement = trend(index);
+const stale = staleCountries(index);
+const order = ranked(index);
+const current = currentCountries(index);
+
+const fmt = (value: number | null) => formatValue(value, metric);
+const amt = (value: number, options = {}) => formatAmount(value, metric, options);
+
+const euValue = h.eu ? fmt(h.eu.total) : fmt(order[Math.floor(order.length / 2)].total);
+const ratio = (h.latest.total / h.earliest.total).toFixed(2);
+const names = (list: any[]) => list.map((country) => country.name).join(', ');
+const small5 = names(order.slice(0, 5));
+const large5 = names(order.slice(-5));
+const bigOnes = current
+  .filter((country) => ['DE', 'FR', 'IT', 'ES', 'PL', 'NL'].includes(country.code))
+  .sort((a, b) => a.total - b.total)
+  .map((country) => `${country.name} ${fmt(country.total)}`)
+  .join(', ');
+
+const clientJson = JSON.stringify({
+  decimals: metric.decimals,
+  unit: metric.unit,
+  unitOne: metric.unitOne,
+  countries: current.map(({ code, name, total }) => ({ code, name, total })),
+}).replace(/</g, '\\u003c');
+
+const title = `Average Age at First Child by Country in Europe (${h.year})`;
+const description = `Mothers in ${withArticle(h.latest.name)} are ${fmt(h.latest.total)} at their first child; in ${withArticle(h.earliest.name)} they are ${fmt(h.earliest.total)}. Compare all ${h.countries} countries on a map and see where your own age sits.`;
+---
+
+<BaseV2 title={title} description={description} canonical="/first-child/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono"><span class="pulse"></span>Eurostat · {h.countries} countries · {h.year}</p>
+      <h1 data-reveal>Europe agrees about this more than about anything else measured here.</h1>
+      <span class="giant num">{euValue}</span>
+      <p class="unit mono">mother's age at first child · <b>European Union</b> · {h.year}</p>
+      <p class="lead">From {fmt(h.earliest.total)} in {withArticle(h.earliest.name)} to {fmt(h.latest.total)} in {withArticle(h.latest.name)}: the whole continent fits inside {amt(h.gap)}. Every other figure on this site spreads wider.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#compare">Compare yourself <span class="arr" aria-hidden="true">→</span></a>
+        <span class="hint">Nothing you type leaves your browser.</span>
+      </div>
+      <p class="hero-note">This is the mother's age. Eurostat publishes no figure for fathers here, so the page says mothers where it means mothers rather than writing "parents" over a gap in the data.</p>
+    </div>
+  </section>
+
+  <StageMap geo={geo} index={index} metric={metric} eyebrow="The map" title="Where first children come earliest" lede="Tap a country to see its figures." />
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>Your turn</p>
+        <h2 id="compare-title">How old were you?</h2>
+        <p>Enter your age when your first child was born.</p>
+      </header>
+      <div data-reveal>
+        <CompareForm index={index} metric={metric} />
+        <output class="result" data-metric-result role="status" hidden></output>
+        <div class="limits">
+          <b>An average age is not a deadline</b>
+          <p>The figure is where the middle of a cohort sits, not a schedule. It also moves with who has children at all: a country where fewer people become parents can show an older average without anyone changing their plans.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>Every country</p>
+        <h2 id="table-title">All {index.countries.length} countries, youngest to oldest</h2>
+        <p>Sort by any column. This dataset covers mothers only, so the sex columns are empty.</p>
+      </header>
+      <div data-reveal><RankTable index={index} metric={metric} /></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>What the numbers say</p>
+        <h2 id="facts-title">The tightest spread on the site</h2>
+      </header>
+      <div data-reveal>
+          <div class="bento">
+            <div class="tile s4">
+              <div>
+                <b>{amt(h.gap)}</b>
+                <p>
+                  separates the youngest country from the oldest — {withArticle(h.earliest.name)} at {fmt(h.earliest.total)} and {withArticle(h.latest.name)}
+                  at {fmt(h.latest.total)}. For comparison, the age at which half of young people have left home
+                  spreads more than twice as wide.
+                </p>
+              </div>
+              <span class="meta mono">{h.year}</span>
+            </div>
+            <div class="tile dark">
+              <div>
+                <h3>Mothers only</h3>
+                <p>
+                  Eurostat publishes no equivalent figure for fathers in this dataset, so there is no
+                  comparison to make and none is shown.
+                </p>
+              </div>
+              <span class="meta mono">what is missing</span>
+            </div>
+          </div>
+        <div class="prose"><p>The large economies land close together at {bigOnes}, and the youngest countries sit in the east and south-east. A continent that disagrees by ten years about leaving home disagrees by about five about this.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono"><span class="pulse"></span>Method</p>
+        <h2 id="method-title">How this is measured</h2>
+        <p>Published by Eurostat. Nothing here is estimated on top of what they publish.</p>
+      </header>
+      <div data-reveal>
+        <dl>
+          <div><dt>What the figure is</dt><dd>The mean age of the mother at the birth of her first child, from Eurostat's fertility indicators, derived from national birth registers.</dd></div>
+          <div><dt>What it is not</dt><dd>It is not the age of fathers, not the age at any birth, and not a distribution. One number per country means no percentile.</dd></div>
+          <div>
+            <dt>Coverage</dt>
+            <dd>
+              {h.countries} countries have a figure for {h.year}.
+              {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} stopped reporting earlier and are shown at their most recent year, hatched on the map and labelled in the table.</>)}
+              {' '}The United States, Canada and Australia are not in this dataset.
+            </dd>
+          </div>
+          <div>
+            <dt>Series breaks</dt>
+            <dd>
+              {movement
+                ? `None inside the window used here, ${movement.since} to ${movement.until}.`
+                : `Eurostat flags a break in ${index.lastBreak}, in or just before the latest year, so no comparison with the past is shown on this page. A figure that looks like a trend across a break is worse than no trend at all.`}
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>Series</strong> {index.years[0]} to {index.years[index.years.length - 1]}</li>
+          <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>DOI</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          {index.source.metadata && (<li><strong>Eurostat metadata</strong><a href={index.source.metadata} data-method-link>explanatory texts</a></li>)}
+        </ul>
+
+        <p class="source-note">
+          Licence: Eurostat data may be reused, including commercially, with attribution. How we handle
+          data is on <a href="/method/">the method page</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="metric-data" set:html={clientJson} />
+
+  <script>
+    import { readProfile, mergeProfile } from '../../lib/profile.js';
+    import { formatAmount, formatValue, withArticle } from '../../lib/metric.js';
+    import { track, EVENTS } from '../../lib/analytics.js';
+
+    /** De persoonlijke laag. De zinnen horen bij deze metriek en staan daarom hier. */
+    const holder = document.getElementById('metric-data');
+    const result = document.querySelector<HTMLElement>('[data-metric-result]');
+    const KEY = 'first-child';
+
+    if (holder && result) {
+      const data = JSON.parse(holder.textContent ?? '{}');
+      const cfg = { decimals: data.decimals, unit: data.unit, unitOne: data.unitOne };
+      const send = (name: string, detail: object) => document.dispatchEvent(new CustomEvent(name, { detail }));
+
+      function render(code: string, own: number) {
+        const home = data.countries.find((country: any) => country.code === code);
+        const larger = data.countries.filter((country: any) => own > country.total).length;
+        const of = data.countries.length;
+        const lines = [];
+        if (home) {
+          const diff = own - home.total;
+          lines.push(
+            Math.abs(diff) < 0.05
+              ? `You were exactly the average age for ${withArticle(home.name)}: ${formatValue(home.total, cfg)}.`
+              : `At ${own} you were ${formatAmount(Math.abs(diff), cfg)} ${diff > 0 ? 'older' : 'younger'} than the average mother in ${withArticle(home.name)} (${formatValue(home.total, cfg)}).`,
+          );
+        }
+        lines.push(
+          larger === of
+            ? `That is older than the average in every one of the ${of} countries here.`
+            : larger === 0
+              ? `That is younger than the average in all ${of} countries here.`
+              : `It is older than the average in ${larger} of ${of} countries, and younger in ${of - larger}.`,
+        );
+        result.textContent = lines.join(' ');
+        result.hidden = false;
+      }
+
+      document.addEventListener('ha:country', (event) => {
+        const { code, source } = (event as CustomEvent<any>).detail ?? {};
+        if (!code || source === 'restore') return;
+        mergeProfile({ country: code });
+      });
+
+      document.addEventListener('ha:submit', (event) => {
+        const { code, age, source } = (event as CustomEvent<any>).detail ?? {};
+        if (!code || !Number.isFinite(age)) return;
+        render(code, age);
+        if (source === 'restore') return;
+        mergeProfile({ country: code, [KEY]: age });
+        track(EVENTS.valueSubmitted, { metric: KEY, country: code });
+      });
+
+      function restore() {
+        const saved = readProfile();
+        const code = typeof saved.country === 'string' ? saved.country : null;
+        if (!code) return;
+        send('ha:country', { code, source: 'restore' });
+        const own = Number(saved[KEY]);
+        if (Number.isFinite(own)) send('ha:submit', { code, age: own, source: 'restore' });
+      }
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restore, { once: true });
+      else restore();
+    }
+
+    for (const link of document.querySelectorAll('[data-method-link]')) {
+      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: KEY }));
+    }
+  </script>
+
+  <style>
+    .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .tile .meta { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
+    .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+    .prose p { margin: 0; line-height: 1.7; }
+    .result { display: block; margin-top: 18px; padding: 18px 22px; border-radius: var(--radius-md); border: 1px solid var(--line-strong); font-size: 1.04rem; line-height: 1.6; }
+    .source-list { list-style: none; padding: 0; }
+    .source-list li { padding: 0.35rem 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+    .source-list li:last-child { border-bottom: 0; }
+    .source-list strong { display: inline-block; min-width: 12rem; color: var(--text-2); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    @media (max-width: 540px) { .source-list strong { display: block; min-width: 0; } }
+  </style>
+</BaseV2>
