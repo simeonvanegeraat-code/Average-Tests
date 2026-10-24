@@ -623,6 +623,22 @@
   .theme-btn .i-sun { display: none; }
   :root[data-theme="dark"] .theme-btn .i-sun { display: block; }
   :root[data-theme="dark"] .theme-btn .i-moon { display: none; }
+  /* ---------- methodologie: een blok per dataset ---------- */
+  .datasets { display: grid; gap: 14px; }
+  .dataset { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); }
+  .dataset-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .dataset-head h3 { font: 650 1.3rem/1.1 var(--font-display); letter-spacing: -.03em; }
+  .dataset-head h3 a { color: var(--data); text-decoration: none; }
+  .dataset-head h3 a:hover { text-decoration: underline; }
+  .dataset-head .who { color: var(--text-2); }
+  .dataset dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px; margin-top: 18px; }
+  .dataset dl > div { min-width: 0; }
+  .dataset dt { font: 500 .7rem/1.2 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; color: var(--text-2); }
+  .dataset dd { margin: 7px 0 0; font-size: .95rem; line-height: 1.55; }
+  .dataset dd.quote { padding-left: 14px; border-left: 2px solid var(--data); color: var(--text-2); font-style: italic; }
+  .dataset dd a { word-break: break-word; }
+  .dataset .wide { grid-column: 1 / -1; }
+  @media (max-width: 680px) { .dataset dl { grid-template-columns: 1fr; } }
   /* ---------- vermogen: de ECB-pagina's hebben een eigen vorm ---------- */
   /* Het bedragveld is breder dan het leeftijdsveld van de andere metrieken, en draagt een euroteken. */
   .madlib .euro { display: inline-flex; align-items: center; gap: .18em; }
@@ -767,4 +783,14 @@
   .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
   .prose p { margin: 0 0 1.1em; line-height: 1.7; }
   .prose p:last-child { margin-bottom: 0; }
+  .prose h2 { margin: 1.7em 0 .5em; font-size: clamp(1.35rem, 1.1rem + .8vw, 1.7rem); line-height: 1.15; letter-spacing: -.03em; color: var(--text); }
+  .prose h2:first-child { margin-top: 0; }
+  /* Lopende tekst in een .wrap: de doos blijft de volle breedte zodat hij links
+     uitlijnt met de kop erboven; alleen de regels erin zijn op leeslengte. */
+  .wrap.prose { max-width: none; margin-top: 0; }
+  .wrap.prose > * { max-width: 70ch; }
+  .prose h3 { margin: 1.4em 0 .4em; font-size: 1.1rem; letter-spacing: -.02em; color: var(--text); }
+  .prose ul { margin: 0 0 1.1em; padding-left: 1.1em; list-style: disc; }
+  .prose li { margin-bottom: .4em; line-height: 1.6; }
+  .prose a { color: var(--data); }
 }

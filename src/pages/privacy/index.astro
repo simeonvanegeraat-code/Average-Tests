@@ -1,12 +1,12 @@
 ---
-import Base from '../../layouts/Base.astro';
+import BaseV2 from '../../layouts/BaseV2.astro';
 
 /**
  * Dit beleid moet beschrijven wat de site fetitelijk doet, niet wat we van plan
  * zijn. Verandert er iets aan de verwerking — analytics, advertenties — dan gaat
  * deze pagina eerst om, en pas daarna de code.
  */
-const updated = '30 August 2026';
+const updated = '25 October 2026';
 
 const title = 'Privacy — HumanAverage';
 const description =
@@ -14,10 +14,10 @@ const description =
   'code, and your measurements never leave your browser.';
 ---
 
-<Base title={title} description={description} canonical="/privacy/">
-  <section class="page-hero">
-    <div class="container">
-      <p class="eyebrow">Privacy</p>
+<BaseV2 title={title} description={description} canonical="/privacy/">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Privacy</p>
       <h1>What we collect: almost nothing</h1>
       <p class="lead">
         What you type is never sent to us. The comparison is calculated inside your own
@@ -26,16 +26,17 @@ const description =
     </div>
   </section>
 
-  <section class="section">
-    <div class="container narrow content">
+  <section class="block">
+    <div class="wrap prose">
       <p class="field-hint">Last updated: {updated}</p>
 
       <h2>The values you enter</h2>
       <p>
-        When you enter your age, sex and a measurement, those values stay in the memory of the
-        page you have open. They are used to look up a position in a table that was downloaded
-        with the page, and they disappear when you reload or close it. Nothing is transmitted to
-        us, and no account is created.
+        The pages ask for a country and one number — the age you left home, the hours you work,
+        what your household is worth. Those values stay in the memory of the page you have open.
+        They are used to look up a position in a table that was downloaded with the page, and they
+        disappear when you reload or close it. Nothing is transmitted to us, and no account is
+        created.
       </p>
 
       <h3>What your browser remembers</h3>
@@ -48,13 +49,13 @@ const description =
         all.
       </p>
 
-      <div class="callout">
+      <div class="limits">
         <p>
-          <strong>One exception you control.</strong> If you press “copy link to this result”,
-          the link that is created contains your age, sex and measurement as part of the web
-          address — that is what makes the result shareable. It is placed on your clipboard and
-          goes nowhere else. But anyone you send that link to can read those values from it, so
-          share it deliberately.
+          <strong>Sharing a result.</strong> Where a page offers to copy your result, what lands
+          on your clipboard is a short piece of text: your own figure, the published figure it was
+          compared against, and the address of the page. No link carries your values in the web
+          address, and nothing is sent anywhere — the copy happens in your browser and stops there.
+          What you then paste, and to whom, is yours to decide.
         </p>
       </div>
 
@@ -108,8 +109,4 @@ const description =
       </p>
     </div>
   </section>
-
-  <style>
-    .field-hint { color: var(--ink-soft); font-size: 0.9rem; }
-  </style>
-</Base>
+</BaseV2>
