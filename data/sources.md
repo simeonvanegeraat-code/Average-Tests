@@ -11,6 +11,15 @@ weigert te draaien als CDC een bestand heeft gewijzigd.
 
 ## NHANES — National Health and Nutrition Examination Survey
 
+> **Niet meer in gebruik sinds 24 oktober 2026.** De percentielpagina's op Amerikaanse
+> microdata (`/height/`, `/weight/`, `/play/`) zijn die dag van de site gehaald en de
+> pipeline, de data en de libs zijn verwijderd; de site richt zich op Europese
+> landenvergelijkingen. Deze sectie blijft staan omdat de validatie hieronder de
+> NCHS-publicatie tot op de decimaal reproduceert, en dat is het bewaren waard als
+> maatstaf voor wat een poort moet kunnen. Alles hieronder beschrijft dus wat er wás,
+> niet wat er is: `data/percentiles/` bestaat niet meer. Terug te halen via git
+> (`git show 0f41e4e:data/percentiles/height.json`).
+
 **Uitgever** CDC / National Center for Health Statistics (NCHS), Verenigde Staten
 **Licentie** Publiek domein. Werk van de Amerikaanse federale overheid, vrij te
 gebruiken en te herverdelen. NCHS vraagt om bronvermelding, geen toestemming.
