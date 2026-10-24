@@ -1,0 +1,118 @@
+---
+/**
+ * Basislayout voor het Engelstalige percentielproduct.
+ *
+ * Hergebruikt /css/style.css uit het bevroren Nederlandse cluster, inclusief de
+ * toegankelijkheidspatronen daar: skip-link, aria-labels en .visually-hidden.
+ *
+ * De merknaam linkt nu naar /height/ omdat er nog geen Engelse homepage is; de
+ * root is nog de Nederlandse pagina. Zie de openstaande beslissing in CLAUDE.md
+ * onder "URL-structuur (MVP)".
+ */
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  noindex?: boolean;
+}
+
+const { title, description, canonical, noindex = false } = Astro.props;
+const canonicalUrl = new URL(canonical, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta name="theme-color" content="#15231f" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <slot name="head" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+
+    <header class="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="/height/" aria-label="HumanAverage home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          HumanAverage
+        </a>
+        <button
+          class="menu-button"
+          type="button"
+          data-menu-button
+          aria-expanded="false"
+          aria-controls="main-navigation"
+        >
+          <span aria-hidden="true">☰</span>
+          <span class="visually-hidden">Open menu</span>
+        </button>
+        <nav class="site-nav" id="main-navigation" data-navigation aria-label="Main navigation">
+          <a href="/leaving-home/">Leaving home</a>
+          <a href="/wealth/">Wealth</a>
+          <a href="/height/">Height</a>
+          <a href="/weight/">Weight</a>
+          <a href="/method/">Method</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="content">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <a class="brand" href="/height/" style="color: var(--ink)">
+              <span class="brand-mark" aria-hidden="true" style="border-color: var(--ink)"></span>
+              HumanAverage
+            </a>
+            <p>
+              Percentiles calculated from public health survey microdata, not copied from
+              published averages. Every figure is traceable to its source.
+            </p>
+          </div>
+          <div>
+            <h3>Compare yourself</h3>
+            <div class="footer-links">
+              <a href="/leaving-home/">Leaving home in Europe</a>
+              <a href="/wealth/">European wealth</a>
+              <a href="/height/">Height percentile</a>
+              <a href="/weight/">Weight percentile</a>
+              <a href="/method/">How we calculate it</a>
+            </div>
+          </div>
+          <div>
+            <h3>About</h3>
+            <div class="footer-links">
+              <a href="/about/">About</a>
+              <a href="/contact/">Contact</a>
+              <a href="/privacy/">Privacy</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© <span data-current-year>2026</span> HumanAverage</span>
+          <span>Not medical advice. Informational comparison only.</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="/js/main.js" is:inline></script>
+  </body>
+</html>

@@ -1,0 +1,456 @@
+---
+/**
+ * De kaart op het donkere podium: elk land gekleurd naar de leeftijd waarop de helft het
+ * ouderlijk huis verlaten heeft, met het getal op het land, een legenda uit BANDS en een
+ * detailpaneel. Vervangt in stap 4 CountryMap.astro op dezelfde plek; de gegevens zijn
+ * dezelfde (index.json), de keuzes hieronder zijn die van de oude kaart.
+ *
+ * Wat vastligt, en waarom:
+ *
+ * 1. **De kaart wordt één keer op de server getekend.** Kleuren komen uit klassen (`b0` t/m
+ *    `b5`) die in de stylesheet naar de tinten van de pagina wijzen (`--r0` t/m `--r5`, zie
+ *    src/lib/hue.js). De browser verzet alleen klassen en tekst. Er is geen tweede
+ *    tekenpad dat van het eerste kan afwijken.
+ * 2. **Paden zijn niet focusbaar.** 34 landen zouden 34 tabstops zijn voor informatie die
+ *    volledig in de tabel eronder staat. De kaart is één role="img" met een samenvatting.
+ *    Toetsenbord en schermlezer gebruiken de knoppen onder de kaart en de landkiezer in het
+ *    paneel; een muis of vinger klikt gewoon op het land.
+ * 3. **Labels op de kaart per breedte.** Elk land met genoeg ruimte krijgt zijn getal als
+ *    tekst. Hoeveel landen dat zijn hangt af van hoe breed de kaart is, en dat kiest de
+ *    stylesheet met een container query op de kaart zelf, dus er verspringt niets na het
+ *    laden. De indeling in rijen staat in `tierOf`. Landen die te klein zijn om aan te
+ *    tikken (de twee kleinste rijen) staan als knop onder de kaart, op een brede kaart
+ *    alleen de kleinste. Een middelgroot land op een smalle kaart heeft geen label maar is
+ *    groot genoeg om aan te tikken; zijn getal staat dan in de toelichting en in de tabel.
+ *    Zonder container queries zijn alle labels zichtbaar, wat alleen minder netjes is.
+ * 4. **Een land zonder cijfer voor het laatste jaar** (nu het Verenigd Koninkrijk, Turkije en
+ *    Montenegro) toont zijn laatste jaar, gearceerd, krijgt geen plek in de rangorde en
+ *    geen vergelijking met het Europese cijfer: zijn waarde komt uit een ander jaar.
+ * 5. **Het paneel begint bij het Europese cijfer**, niet bij een willekeurig land. Wie een
+ *    land kiest in de kop of in het formulier ziet dat land hier terug (`ha:country`);
+ *    klikken op de kaart verandert alleen het paneel, nooit het land van de bezoeker.
+ *
+ * Gebeurtenissen: luistert naar `ha:country` { code }. Stuurt niets zelf.
+ * De gegevens voor de browser staan in één JSON-element in dit onderdeel (`data-map-data`).
+ */
+import { age, euAggregate } from '../lib/leaving-home.js';
+import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
+import { BANDS, band, LENSES, EU_CODE, legendTicks, tierOf, mapSummary, inspectFacts } from '../lib/leaving-home-map.js';
+
+interface Shape {
+  ctx?: number;
+  name: string;
+  d: string;
+  lx: number;
+  ly: number;
+  lr: number;
+  area: number;
+}
+
+interface Props {
+  geo: { w: number; h: number; countries: Record<string, Shape> };
+  /** De inhoud van data/leaving-home/index.json. */
+  index: any;
+  eyebrow?: string;
+  title?: string;
+  lede?: string;
+}
+
+const {
+  geo,
+  index,
+  eyebrow = 'The map',
+  title = 'Where is it earliest, where is it latest?',
+  lede = 'Tap a country, or switch between everyone, men and women.',
+} = Astro.props;
+
+const latestYear: string = index.latestYear;
+const eu = euAggregate(index);
+
+const pick = (row: any) => ({
+  code: row.code,
+  name: row.name,
+  year: row.year,
+  total: row.total,
+  men: row.men,
+  women: row.women,
+  breaks: row.breaks,
+  series: row.series,
+});
+const data = { latestYear, yearMin: Number(index.years[0]), eu: eu ? pick(eu) : null, rows: index.countries.map(pick) };
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+
+/** Contextlanden: vorm wel, data niet. Zonder die vormen is Europa een eiland. */
+const context = Object.entries(geo.countries).filter(([, shape]) => shape.ctx === 1);
+
+const shapes = (index.countries as any[])
+  .map((row) => ({ row, shape: geo.countries[row.code] }))
+  .filter((entry) => Boolean(entry.shape))
+  // Grote landen eerst, zodat kleine buren erbovenop liggen en aantikbaar blijven.
+  .sort((a, b) => b.shape.area - a.shape.area);
+
+const labeled = shapes.filter(({ shape }) => tierOf(shape.lr) < 3);
+const stale = shapes.filter(({ row }) => row.year !== latestYear);
+// Landen die te klein zijn om aan te tikken, van vroeg naar laat. Welke ervan zichtbaar zijn kiest de stylesheet.
+const chips = shapes.filter(({ shape }) => tierOf(shape.lr) > 1).sort((a, b) => a.row.total - b.row.total);
+
+const ticks = legendTicks();
+const summary = mapSummary(data.rows, latestYear, 'total');
+
+const start = eu ? inspectFacts({ latestYear, eu: data.eu, rows: data.rows }, EU_CODE, 'total') : null;
+const startSpark = start
+  ? sparkline(start.series, start.breaks, { ...SPARK_SIZES.card, yearMin: data.yearMin, yearMax: Number(latestYear) })
+  : null;
+const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<section class="stage-sec" id="map-section" aria-labelledby="map-title" data-stage-map>
+  <div class="wrap">
+    <header class="sec-head" data-reveal>
+      <p class="eyebrow mono"><span class="pulse"></span>{eyebrow}</p>
+      <h2 id="map-title">{title}</h2>
+      <p>{lede}</p>
+    </header>
+
+    <div class="controls" data-reveal>
+      <div class="seg" role="group" aria-label="Show figures for">
+        {LENSES.map((lens, i) => <button type="button" data-lens={lens.key} aria-pressed={i === 0 ? 'true' : 'false'}>{lens.label}</button>)}
+      </div>
+    </div>
+
+    <div class="map-grid">
+      <figure class="mapcol">
+        <div class="mapwrap" data-reveal>
+          <svg id="map" viewBox={`0 0 ${geo.w} ${geo.h}`} role="img" aria-label={summary} data-map>
+            <defs>
+              <pattern id="stale-hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="7" stroke-width="2.4"></line>
+              </pattern>
+            </defs>
+
+            <g class="ctx" aria-hidden="true">
+              {context.map(([, shape]) => <path d={shape.d}></path>)}
+            </g>
+
+            <g class="land">
+              {
+                shapes.map(({ row, shape }) => (
+                  <path d={shape.d} class:list={[`b${band(row.total)}`, { 'is-stale': row.year !== latestYear }]} data-c={row.code}></path>
+                ))
+              }
+            </g>
+
+            <g class="hatches" aria-hidden="true">
+              {stale.map(({ shape }) => <path d={shape.d}></path>)}
+            </g>
+
+            <g class="labels" aria-hidden="true">
+              {
+                labeled.map(({ row, shape }) => (
+                  <text x={shape.lx} y={shape.ly} class={`t${tierOf(shape.lr)} b${band(row.total)}`} data-lc={row.code}>{age(row.total)}</text>
+                ))
+              }
+            </g>
+          </svg>
+          <div class="tip" data-map-tip aria-hidden="true">
+            <span data-tip-name></span>
+            <b data-tip-value></b>
+            <span data-tip-note></span>
+          </div>
+        </div>
+
+        <div class="legend" aria-hidden="true">
+          <div class="legend-scale">
+            <div class="mono legend-title">Age by which half have left home</div>
+            <div class="legend-bar">
+              {BANDS.map((_, i) => <i style={`background:var(--r${i})`}></i>)}
+            </div>
+            <div class="legend-ticks">
+              {ticks.map((tick) => <span>{tick}</span>)}
+            </div>
+          </div>
+          {
+            stale.length > 0 && (
+              <span class="legend-nodata">
+                <i class="legend-stale"></i>Latest figure is older than {latestYear}
+              </span>
+            )
+          }
+        </div>
+
+        <div class="smallchips">
+          <span>Not labeled on the map:</span>
+          {
+            chips.map(({ row, shape }) => (
+              <button type="button" class={`smallchip t${tierOf(shape.lr)}`} data-c={row.code} aria-pressed="false">
+                <span>{row.name}</span>
+                <b data-chip-value>{age(row.total)}</b>
+              </button>
+            ))
+          }
+        </div>
+
+        <figcaption class="brk-foot">
+          The age by which half of young people have left the parental home, {latestYear}.
+          {stale.length > 0 && <> Hatched countries have no figure for {latestYear}; the map shows their most recent year instead, and the table below names that year.</>}
+          Every figure is also in that table.
+        </figcaption>
+      </figure>
+
+      <aside class="aside" aria-label="Details for one country" data-reveal>
+        <div class="picker">
+          <label class="mono" for="map-country">Look up a country</label>
+          <div class="select">
+            <select id="map-country" data-map-country>
+              <option value={EU_CODE} selected>European Union</option>
+              {countries.map((row) => <option value={row.code}>{row.name}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {
+          start && (
+            <div class="inspect hued" data-inspect>
+              <div class="who">
+                <h3 data-f="name">{start.name}</h3>
+                <span class="ctxl mono num" data-f="meta">{start.meta}</span>
+              </div>
+              <div class="big">
+                <span data-f="value">{start.valueText}</span>
+                <small>years</small>
+              </div>
+              <p class="rk" data-f="note">{start.note}</p>
+              <dl>
+                <div>
+                  <dt>Men</dt>
+                  <dd data-f="men">{age(start.men)}</dd>
+                </div>
+                <div>
+                  <dt>Women</dt>
+                  <dd data-f="women">{age(start.women)}</dd>
+                </div>
+                <div>
+                  <dt>Men − women</dt>
+                  <dd data-f="gap">{start.gapText}</dd>
+                </div>
+              </dl>
+              <div class="sparkwrap" aria-hidden="true">
+                <svg
+                  class="spark"
+                  data-f-spark
+                  viewBox={`0 0 ${SPARK_SIZES.card.width} ${SPARK_SIZES.card.height}`}
+                  preserveAspectRatio="none"
+                >
+                  {
+                    startSpark &&
+                      sparkElements(startSpark).map((item) => {
+                        const Tag = item.tag as any;
+                        return <Tag {...item.attrs} />;
+                      })
+                  }
+                </svg>
+                <i
+                  class="spark-dot"
+                  data-f-dot
+                  style={startSpark ? `left:${(startSpark.last.x / startSpark.width) * 100}%;top:${(startSpark.last.y / startSpark.height) * 100}%` : 'display:none'}
+                ></i>
+              </div>
+              <p class="brkcap" data-f="sparkNote">{start.sparkNote}</p>
+            </div>
+          )
+        }
+      </aside>
+    </div>
+
+    <p class="vh" role="status" aria-live="polite" data-map-announce></p>
+    <script type="application/json" data-map-data set:html={json} />
+  </div>
+</section>
+
+<script>
+  /**
+   * Lenswissel, kiezen en uitlezen.
+   *
+   * De SVG is één keer op de server getekend; hier verzetten we alleen klassen en tekst.
+   * Alle zinnen en getallen komen uit src/lib/leaving-home-map.js, dezelfde functies als
+   * waarmee de server het paneel voor het Europese cijfer maakte.
+   */
+  import { age } from '../lib/leaving-home.js';
+  import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
+  import { BANDS, band, EU_CODE, LENSES, inspectFacts, mapSummary, valueFor } from '../lib/leaving-home-map.js';
+
+  type Lens = 'total' | 'men' | 'women';
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const bandClasses = BANDS.map((_, i) => `b${i}`);
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-stage-map]')) {
+    const raw = root.querySelector('[data-map-data]')?.textContent;
+    const svg = root.querySelector<SVGSVGElement>('svg[data-map]');
+    const wrap = root.querySelector<HTMLElement>('.mapwrap');
+    const picker = root.querySelector<HTMLSelectElement>('[data-map-country]');
+    if (!raw || !svg || !wrap || !picker) continue;
+
+    const data = JSON.parse(raw);
+    const paths = new Map(
+      [...root.querySelectorAll<SVGPathElement>('.land path')].map((path) => [path.dataset.c ?? '', path] as const),
+    );
+    const labels = new Map(
+      [...root.querySelectorAll<SVGTextElement>('text[data-lc]')].map((label) => [label.dataset.lc ?? '', label] as const),
+    );
+    const chips = new Map(
+      [...root.querySelectorAll<HTMLButtonElement>('.smallchip')].map((chip) => [chip.dataset.c ?? '', chip] as const),
+    );
+    const tip = root.querySelector<HTMLElement>('[data-map-tip]');
+    const announce = root.querySelector<HTMLElement>('[data-map-announce]');
+    const spark = root.querySelector<SVGSVGElement>('[data-f-spark]');
+    const dot = root.querySelector<HTMLElement>('[data-f-dot]');
+    const field = (name: string) => root.querySelector<HTMLElement>(`[data-f="${name}"]`);
+
+    let lens: Lens = 'total';
+    let selected = EU_CODE;
+    let tipTimer = 0;
+
+    function setBand(element: Element, index: number) {
+      element.classList.remove(...bandClasses, 'is-empty');
+      element.classList.add(index < 0 ? 'is-empty' : `b${index}`);
+    }
+
+    function paint() {
+      for (const row of data.rows) {
+        const value = valueFor(row, lens);
+        const index = value === null ? -1 : band(value);
+        const path = paths.get(row.code);
+        if (path) setBand(path, index);
+        const label = labels.get(row.code);
+        if (label) {
+          setBand(label, index);
+          label.textContent = value === null ? '·' : age(value);
+        }
+        const chipValue = chips.get(row.code)?.querySelector('[data-chip-value]');
+        if (chipValue) chipValue.textContent = age(value);
+      }
+      svg!.setAttribute('aria-label', mapSummary(data.rows, data.latestYear, lens));
+    }
+
+    function drawSpark(facts: NonNullable<ReturnType<typeof inspectFacts>>) {
+      if (!spark) return;
+      spark.replaceChildren();
+      const line = sparkline(facts.series, facts.breaks, {
+        ...SPARK_SIZES.card,
+        yearMin: data.yearMin,
+        yearMax: Number(data.latestYear),
+      });
+      if (dot) dot.style.display = line ? '' : 'none';
+      if (!line) return;
+      for (const item of sparkElements(line)) {
+        const element = document.createElementNS(SVG_NS, item.tag);
+        for (const [name, value] of Object.entries(item.attrs)) element.setAttribute(name, String(value));
+        spark.append(element);
+      }
+      // De stip is een los element in plaats van een cirkel in de svg, die zou tot een ovaal uitrekken.
+      if (dot) {
+        dot.style.left = `${(line.last.x / line.width) * 100}%`;
+        dot.style.top = `${(line.last.y / line.height) * 100}%`;
+      }
+    }
+
+    function render() {
+      const facts = inspectFacts(data, selected, lens);
+      if (!facts) return null;
+      const set = (name: string, text: string) => {
+        const element = field(name);
+        if (element) element.textContent = text;
+      };
+      set('name', facts.name);
+      set('meta', facts.meta);
+      set('value', facts.valueText);
+      set('note', facts.note);
+      set('men', age(facts.men));
+      set('women', age(facts.women));
+      set('gap', facts.gapText);
+      set('sparkNote', facts.sparkNote);
+      drawSpark(facts);
+      return facts;
+    }
+
+    function select(code: string, { say = false } = {}) {
+      if (code !== EU_CODE && !paths.has(code)) return;
+      selected = code;
+      for (const [other, path] of paths) path.classList.toggle('sel', other === code);
+      // Het gekozen land bovenop, anders ligt de rand onder die van zijn buren.
+      const own = paths.get(code);
+      if (own) own.parentNode?.append(own);
+      for (const [other, chip] of chips) chip.setAttribute('aria-pressed', String(other === code));
+      if (picker!.value !== code) picker!.value = code;
+      const facts = render();
+      if (say && announce && facts) {
+        announce.textContent =
+          facts.value === null
+            ? `${facts.name}: ${facts.note}`
+            : `${facts.name}: half had left by ${facts.valueText}. ${facts.note}`;
+      }
+    }
+
+    function place(clientX: number, clientY: number) {
+      if (!tip) return;
+      const box = wrap!.getBoundingClientRect();
+      let x = clientX - box.left + 16;
+      let y = clientY - box.top + 16;
+      if (x > box.width - tip.offsetWidth - 8) x = clientX - box.left - tip.offsetWidth - 16;
+      y = Math.min(y, box.height - tip.offsetHeight - 4);
+      tip.style.left = `${Math.max(4, x)}px`;
+      tip.style.top = `${Math.max(4, y)}px`;
+    }
+
+    function showTip(code: string, clientX: number, clientY: number) {
+      const facts = inspectFacts(data, code, lens);
+      if (!facts || !tip) return;
+      window.clearTimeout(tipTimer);
+      tip.querySelector('[data-tip-name]')!.textContent = facts.name;
+      tip.querySelector('[data-tip-value]')!.textContent = facts.value === null ? 'No figure' : `${facts.valueText} years`;
+      tip.querySelector('[data-tip-note]')!.textContent = facts.note;
+      tip.classList.add('on');
+      place(clientX, clientY);
+    }
+
+    const hideTip = () => tip?.classList.remove('on');
+
+    for (const [code, path] of paths) {
+      path.addEventListener('pointerenter', (event) => {
+        if (event.pointerType === 'mouse') showTip(code, event.clientX, event.clientY);
+      });
+      path.addEventListener('pointermove', (event) => {
+        if (event.pointerType === 'mouse') place(event.clientX, event.clientY);
+      });
+      path.addEventListener('pointerleave', hideTip);
+      path.addEventListener('click', (event) => {
+        select(code, { say: true });
+        // Een vinger heeft geen hover: dan laten we de toelichting even staan.
+        showTip(code, event.clientX, event.clientY);
+        window.clearTimeout(tipTimer);
+        tipTimer = window.setTimeout(hideTip, 3200);
+      });
+    }
+
+    for (const [code, chip] of chips) chip.addEventListener('click', () => select(code, { say: true }));
+    picker.addEventListener('change', () => select(picker.value, { say: true }));
+
+    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-lens]')) {
+      button.addEventListener('click', () => {
+        lens = (LENSES.find((entry) => entry.key === button.dataset.lens)?.key ?? 'total') as Lens;
+        for (const other of root.querySelectorAll<HTMLButtonElement>('[data-lens]')) {
+          other.setAttribute('aria-pressed', String(other === button));
+        }
+        paint();
+        render();
+        if (announce) announce.textContent = mapSummary(data.rows, data.latestYear, lens);
+      });
+    }
+
+    // Het land uit de kop, het formulier of het opgeslagen profiel.
+    document.addEventListener('ha:country', (event) => {
+      const code = (event as CustomEvent<{ code?: string }>).detail?.code;
+      if (code) select(code);
+    });
+  }
+</script>

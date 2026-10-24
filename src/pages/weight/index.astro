@@ -1,0 +1,321 @@
+---
+import Base from '../../layouts/Base.astro';
+import weightData from '../../../data/percentiles/weight.json';
+
+/**
+ * De gewichtspagina. Zelfde motor als /height/, maar bewust andere kopij.
+ *
+ * Gewicht ligt gevoeliger dan lengte. We tonen daarom uitsluitend waar iemand
+ * staat ten opzichte van de bevolking, zonder oordeel, zonder BMI-categorieen en
+ * zonder gezondheidsuitspraak. Dat is geen voorzichtigheid maar nauwkeurigheid:
+ * een percentiel beschrijft wat gangbaar is, niet wat goed voor je is.
+ */
+
+const pounds = (kg) => Math.round(kg * 2.2046226218);
+const count = (n) => n.toLocaleString('en-US');
+
+// Gewogen percentielen uit de microdata; niet afleiden uit de curves per leeftijdsjaar.
+const rows = weightData.aggregates.bands;
+const overall = weightData.aggregates.overall;
+const measuredAdults = weightData.sex.male.respondents + weightData.sex.female.respondents;
+
+const spreadBand = rows[1]; // 30-39
+const maleSpread = pounds(spreadBand.male.p90) - pounds(spreadBand.male.p10);
+
+const title = 'Average Weight by Age — Find Your Percentile | HumanAverage';
+const description =
+  'Enter your weight and see where you fall among U.S. adults of your age and sex. ' +
+  'Percentiles calculated from NHANES survey microdata. A comparison, not a health assessment.';
+---
+
+<Base title={title} description={description} canonical="/weight/">
+  <Fragment slot="head">
+    <script type="application/json" id="weight-data" set:html={JSON.stringify(weightData)} is:inline />
+  </Fragment>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Weight percentile</p>
+      <h1>Where does your weight fall?</h1>
+      <p class="lead">
+        Weight varies far more between people than height does. Enter yours and see where it
+        sits among American adults of your age and sex — measured, not self-reported, from
+        {count(measuredAdults)} survey participants.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow">
+      <div class="tool-panel">
+        <div class="tool-panel-header">
+          <h2>Your weight percentile</h2>
+        </div>
+
+        <form id="weight-form" class="tool-form" novalidate>
+          <fieldset class="field">
+            <legend class="field-label">Sex at birth</legend>
+            <div class="option-row" role="radiogroup" aria-label="Sex at birth">
+              <label class="option">
+                <input type="radio" name="sex" value="male" checked /><span>Male</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="sex" value="female" /><span>Female</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label class="field-label" for="age">Age</label>
+            <input class="text-input" type="number" id="age" name="age" min="20" max="79"
+                   inputmode="numeric" placeholder="34" required />
+            <p class="field-hint">Between 20 and 79.</p>
+          </div>
+
+          <fieldset class="field">
+            <legend class="field-label">Units</legend>
+            <div class="option-row" role="radiogroup" aria-label="Units">
+              <label class="option">
+                <input type="radio" name="unit" value="imperial" checked /><span>Pounds</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="unit" value="metric" /><span>Kilograms</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="field" id="input-imperial">
+            <label class="field-label" for="lb">Weight in pounds</label>
+            <input class="text-input" type="number" id="lb" min="60" max="600" step="1"
+                   inputmode="numeric" placeholder="185" aria-label="Weight in pounds" />
+          </div>
+
+          <div class="field" id="input-metric" hidden>
+            <label class="field-label" for="kg">Weight in kilograms</label>
+            <input class="text-input" type="number" id="kg" min="27" max="272" step="0.1"
+                   inputmode="decimal" placeholder="84" aria-label="Weight in kilograms" />
+          </div>
+
+          <p class="button-row">
+            <button class="button" type="submit">Show my percentile</button>
+          </p>
+          <p class="warning-note" id="form-error" role="alert" hidden></p>
+        </form>
+
+        <div class="tool-results" id="result" aria-live="polite">
+          <p class="percentile-eyebrow">Your result</p>
+          <p class="percentile-headline" id="result-percentile"></p>
+          <p class="percentile-sentence" id="result-sentence"></p>
+
+          <figure class="chart-figure">
+            <svg id="result-chart" viewBox="0 0 640 220" role="img" aria-labelledby="chart-title">
+              <title id="chart-title">Weight distribution for your age and sex, with your weight marked</title>
+            </svg>
+            <figcaption class="field-hint" id="chart-caption"></figcaption>
+          </figure>
+
+          <div class="result-grid">
+            <div class="stat-chip"><strong id="stat-you"></strong> <span>your weight</span></div>
+            <div class="stat-chip"><strong id="stat-median"></strong> <span>group median</span></div>
+            <div class="stat-chip"><strong id="stat-diff"></strong> <span>difference</span></div>
+          </div>
+
+          <div class="callout">
+            <p>
+              <strong>This is a comparison, not an assessment.</strong> A percentile tells you
+              how common your weight is among Americans your age. It does not tell you whether
+              it is good for you, and we deliberately show no weight categories: that is a
+              clinical judgement, and it depends on things a survey percentile cannot see.
+            </p>
+          </div>
+
+          <div class="button-row">
+            <a class="button" href="/height/" id="cta-next" data-next="height">Now check your height →</a>
+            <button class="button secondary" type="button" id="share-button">Copy link to this result</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="privacy-note">
+        Your weight is never sent anywhere. The calculation runs entirely in your browser.
+      </p>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="container narrow content">
+      <h2>Average weight of American adults</h2>
+      <p>
+        Across adults aged 20 to 79, the median American man weighs {pounds(overall.male.p50)} lb
+        ({overall.male.p50} kg) and the median American woman weighs {pounds(overall.female.p50)} lb
+        ({overall.female.p50} kg). Those two numbers are also the least interesting thing on
+        this page.
+      </p>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <caption>Median weight, and the range covering the middle 80%, by age group</caption>
+          <thead>
+            <tr>
+              <th scope="col">Age</th>
+              <th scope="col">Men — median</th>
+              <th scope="col">Men — 10th to 90th</th>
+              <th scope="col">Women — median</th>
+              <th scope="col">Women — 10th to 90th</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr>
+                <th scope="row">{row.label}</th>
+                <td>{pounds(row.male.p50)} lb ({row.male.p50} kg)</td>
+                <td>{pounds(row.male.p10)} – {pounds(row.male.p90)} lb</td>
+                <td>{pounds(row.female.p50)} lb ({row.female.p50} kg)</td>
+                <td>{pounds(row.female.p10)} – {pounds(row.female.p90)} lb</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Why an average weight is nearly useless</h2>
+      <p>
+        Look at the men aged {spreadBand.label}. The middle 80% of them span
+        {pounds(spreadBand.male.p10)} to {pounds(spreadBand.male.p90)} lb — a spread of
+        {maleSpread} pounds. For height, the same middle 80% fits inside about seven inches.
+      </p>
+      <p>
+        That is the whole argument for a percentile. When a distribution is narrow, the average
+        describes almost everyone. When it is this wide, the average describes almost nobody:
+        it sits in the middle of a crowd that stretches out of sight in both directions. Knowing
+        the median man weighs {pounds(overall.male.p50)} lb tells you very little. Knowing that
+        your own weight is more than 70% or less than 30% of men your age tells you where you
+        actually stand.
+      </p>
+      <p>
+        Weight also moves with age in a way height does not. It climbs from the twenties into
+        the forties, then falls back — the median man in his forties is
+        {pounds(rows[2].male.p50) - pounds(rows[0].male.p50)} lb heavier than the median man in
+        his twenties, and {pounds(rows[2].male.p50) - pounds(rows[5].male.p50)} lb heavier than
+        the median man in his seventies. Comparing yourself to “the average adult” blurs all of
+        that into one number.
+      </p>
+
+      <h2 id="method">How this is calculated</h2>
+      <ul>
+        <li>
+          <strong>Source.</strong> The National Health and Nutrition Examination Survey
+          (NHANES), run by the U.S. Centers for Disease Control and Prevention. Participants
+          are weighed by trained staff in a mobile examination centre. Self-reported weight is
+          known to be biased; this is not that.
+        </li>
+        <li>
+          <strong>Period.</strong> Two survey cycles: 2017 to March 2020, and August 2021 to
+          August 2023. Together {count(measuredAdults)} measured adults.
+        </li>
+        <li>
+          <strong>Survey weights.</strong> NHANES over-samples some groups on purpose, so every
+          participant carries a factor representing how many Americans they stand for. We apply
+          those factors; without them the figures would simply be wrong.
+        </li>
+        <li>
+          <strong>Smoothing across age.</strong> Each single year of age draws on neighbouring
+          ages, weighted by how close they are, so the curve does not jump around on thin cells.
+        </li>
+        <li>
+          <strong>Ages 20 to 79 only.</strong> NHANES records everyone aged 80 and over as
+          simply “80”, so that group is not an age and is left out.
+        </li>
+      </ul>
+
+      <div class="callout">
+        <p>
+          <strong>This compares you to adults in the United States.</strong> NHANES samples the
+          U.S. civilian population, and body weight differs substantially between countries. If
+          you live elsewhere, your percentile here says where you would stand among Americans.
+        </p>
+      </div>
+
+      <p class="source-note">
+        Source: Centers for Disease Control and Prevention (CDC), National Center for Health
+        Statistics (NCHS). National Health and Nutrition Examination Survey, 2017–March 2020 and
+        August 2021–August 2023. Data retrieved 30 August 2026. Our figures reproduce the
+        published NCHS mean weights for men and women exactly.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Zelfde paginagebonden aanvullingen als /height/. */
+  .tool-form { padding: 26px; display: grid; gap: 22px; }
+  .field { margin: 0; padding: 0; border: 0; }
+  .field-hint { margin: 6px 0 0; color: var(--ink-soft); font-size: 0.9rem; }
+
+  .option-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .option {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--paper); cursor: pointer; font-weight: 640;
+  }
+  .option:hover { border-color: var(--data); }
+  .option:has(input:checked) {
+    border-color: var(--data); background: var(--data-soft); color: var(--data);
+  }
+  .option input { accent-color: var(--data); }
+
+  .percentile-eyebrow {
+    margin: 0 0 4px; color: var(--ink-soft); font-size: 0.74rem;
+    font-weight: 780; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .percentile-headline {
+    margin: 0; color: var(--data);
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(3rem, 11vw, 5rem); font-weight: 500;
+    letter-spacing: -0.04em; line-height: 1;
+  }
+  .percentile-sentence { margin: 10px 0 0; font-size: 1.15rem; }
+
+  .chart-figure { margin: 26px 0 0; }
+  .chart-figure svg { width: 100%; height: auto; display: block; }
+
+  .result-grid { margin-top: 20px; }
+  .stat-chip span { color: var(--ink-soft); }
+
+  .privacy-note { margin-top: 18px; text-align: center; }
+</style>
+
+<script>
+  import { createPercentileTool } from '../../lib/percentile-tool.js';
+  import { formatWeight, fromPounds, toPounds } from '../../lib/percentile.js';
+
+  const el = (id) => document.getElementById(id);
+
+  createPercentileTool({
+    table: JSON.parse(el('weight-data').textContent),
+    metric: 'weight',
+    comparative: { more: 'heavier', less: 'lighter' },
+    shareParam: 'kg',
+    valueRange: {
+      min: 27, max: 272,
+      message: 'Enter a weight between 60 lb and 600 lb (27 kg and 272 kg).',
+    },
+    readValue(unit) {
+      const raw = Number(el(unit === 'metric' ? 'kg' : 'lb').value);
+      if (!(raw > 0)) return null;
+      return unit === 'metric' ? raw : fromPounds(raw);
+    },
+    writeValue(unit, kg) {
+      if (unit === 'metric') el('kg').value = kg.toFixed(1);
+      else el('lb').value = Math.round(toPounds(kg));
+    },
+    format: formatWeight,
+    formatDifference(deltaKg, unit) {
+      const sign = deltaKg < 0 ? '−' : '+';
+      const abs = Math.abs(deltaKg);
+      return unit === 'metric'
+        ? `${sign}${abs.toFixed(1)} kg`
+        : `${sign}${Math.round(toPounds(abs))} lb`;
+    },
+  });
+</script>

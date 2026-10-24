@@ -1,0 +1,177 @@
+---
+import Base from '../layouts/Base.astro';
+import heightData from '../../data/percentiles/height.json';
+import weightData from '../../data/percentiles/weight.json';
+
+/**
+ * De Engelse homepage. De voordeur van het product.
+ *
+ * Alle cijfers hieronder komen uit de gegenereerde databestanden. Type hier nooit
+ * een getal met de hand in: dan gaat het ooit stil afwijken van wat de tools tonen.
+ */
+
+const feetInches = (cm) => {
+  const total = Math.round(cm / 2.54);
+  return `${Math.floor(total / 12)}'${total % 12}"`;
+};
+const pounds = (kg) => Math.round(kg * 2.2046226218);
+const count = (n) => n.toLocaleString('en-US');
+
+const measuredAdults = heightData.sex.male.respondents + heightData.sex.female.respondents;
+
+// De kern van het argument, in twee getallen: gewicht spreidt enorm, lengte niet.
+const menThirties = { height: heightData.aggregates.bands[1].male, weight: weightData.aggregates.bands[1].male };
+const heightSpreadInches = Math.round((menThirties.height.p90 - menThirties.height.p10) / 2.54);
+const weightSpreadPounds = pounds(menThirties.weight.p90) - pounds(menThirties.weight.p10);
+
+const medianManHeight = heightData.aggregates.overall.male.p50;
+const medianWomanHeight = heightData.aggregates.overall.female.p50;
+
+const title = 'HumanAverage — See Where You Actually Stand';
+const description =
+  'Enter your height or weight and see your exact percentile among U.S. adults of your age ' +
+  'and sex. Calculated from survey microdata, not copied from published averages.';
+---
+
+<Base title={title} description={description} canonical="/">
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'HumanAverage',
+      url: 'https://www.humanaverage.com/',
+      inLanguage: 'en-US',
+      description:
+        'Percentile tools for human body measurements, calculated from public health survey microdata.',
+      publisher: { '@type': 'Organization', name: 'HumanAverage', url: 'https://www.humanaverage.com/' },
+    })} />
+  </Fragment>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Percentiles from measured data</p>
+      <h1>You never wanted the average.</h1>
+      <p class="lead">
+        You wanted to know where <em>you</em> stand. Google can show you that the median
+        American man is {feetInches(medianManHeight)} and the median woman
+        is {feetInches(medianWomanHeight)}. It cannot tell you what share of people your own
+        age you are taller than. That takes the individual measurements, and that is what this
+        site is built on — {count(measuredAdults)} of them.
+      </p>
+      <div class="hero-actions">
+        <a class="button" href="/height/">Find your height percentile <span aria-hidden="true">→</span></a>
+        <a class="button secondary" href="/weight/">Or start with weight</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip">
+    <ul class="container trust-list" aria-label="What this site does">
+      <li><span class="dot" aria-hidden="true"></span><span><strong>Measured:</strong> by survey staff, not self-reported</span></li>
+      <li><span class="dot" aria-hidden="true"></span><span><strong>Local:</strong> your input never leaves your browser</span></li>
+      <li><span class="dot" aria-hidden="true"></span><span><strong>Checked:</strong> our figures reproduce the published ones exactly</span></li>
+    </ul>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow">Compare yourself</p>
+        <h2>Two measurements, your exact position</h2>
+        <p>
+          Each tool asks your age and sex, because both change the answer enormously, and
+          returns where you fall among American adults just like you.
+        </p>
+      </div>
+
+      <div class="card-grid">
+        <a class="card" href="/height/">
+          <span class="card-index">01 — HEIGHT</span>
+          <h3>Height percentile</h3>
+          <p>
+            The same height puts a 34-year-old and a 65-year-old in very different places.
+            Enter yours in feet and inches or centimetres.
+          </p>
+          <span class="card-link">Find your percentile →</span>
+        </a>
+        <a class="card" href="/weight/">
+          <span class="card-index">02 — WEIGHT</span>
+          <h3>Weight percentile</h3>
+          <p>
+            Where your weight sits among Americans your age. A comparison, with no categories
+            and no health verdict attached.
+          </p>
+          <span class="card-link">Find your percentile →</span>
+        </a>
+        <a class="card" href="/method/">
+          <span class="card-index">03 — METHOD</span>
+          <h3>How it is calculated</h3>
+          <p>
+            The source, the survey weights, the smoothing, and the checks we run against the
+            published figures before anything appears here.
+          </p>
+          <span class="card-link">Read the method →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tint">
+    <div class="container narrow content">
+      <h2>Why an average is the wrong answer</h2>
+      <p>
+        Take American men in their thirties. The middle 80% of them span about
+        {heightSpreadInches} inches in height — narrow enough that the average really does
+        describe a typical man. Now take their weight: the same middle 80% spans
+        {weightSpreadPounds} pounds.
+      </p>
+      <p>
+        That is the whole problem with a single number. When a distribution is tight, the
+        average stands in for almost everyone. When it is wide, the average sits in the middle
+        of a crowd stretching out of sight in both directions, describing almost nobody. A
+        percentile does not have that failure mode. It tells you your position regardless of
+        how the crowd is spread.
+      </p>
+      <p>
+        <a href="/method/">How we calculate it →</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow content">
+      <h2>Where the numbers come from</h2>
+      <p>
+        The National Health and Nutrition Examination Survey, run by the U.S. Centers for
+        Disease Control and Prevention. Participants are measured by trained staff in a mobile
+        examination centre — nobody is asked what they weigh, because people are wrong about
+        that in predictable directions.
+      </p>
+      <p>
+        We start from the individual records rather than the published summary, apply the
+        survey weights that make a sample represent a population, and then check ourselves by
+        recomputing the statistics that the CDC publishes. All four of those reproduce exactly.
+        If any check fails, nothing is published.
+      </p>
+
+      <div class="callout">
+        <p>
+          <strong>These are American percentiles.</strong> The survey covers the U.S. civilian
+          population. If you live elsewhere, your result tells you where you would stand among
+          Americans — which is worth knowing, as long as you know that is what it is.
+        </p>
+      </div>
+
+      <p class="field-hint">
+        Looking for the older Dutch reaction-time, typing and memory tests? They are still here,
+        at <a href="/nl/">humanaverage.com/nl</a>. Those tests deliberately show no percentile:
+        no representative dataset exists for them, and inventing one is exactly what this site
+        refuses to do.
+      </p>
+    </div>
+  </section>
+
+  <style>
+    .field-hint { color: var(--ink-soft); font-size: 0.9rem; }
+  </style>
+</Base>

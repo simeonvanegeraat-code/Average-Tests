@@ -1,0 +1,95 @@
+---
+/**
+ * De zichtbare methodologiesectie: wat het getal is, wat het niet is, hoe ver het reikt,
+ * waar de reeks breekt, en waar het vandaan komt. Regel 5 uit CLAUDE.md: elke metriekpagina
+ * heeft er een, en hij staat op de pagina zelf, niet erachter.
+ *
+ * De tekst over wat het getal is en wat het niet is volgt de pagina zoals die al stond
+ * (de definitie van Eurostat, niet zijn label). De getallen in de tekst komen uit de
+ * bibliotheek en uit de gegevens. De links naar de bron dragen `data-method-link`, de haak
+ * waarmee de pagina de gebeurtenis `methodology_opened` meet.
+ */
+import { staleCountries, headline } from '../lib/leaving-home.js';
+
+interface Props {
+  index: any;
+}
+
+const { index } = Astro.props;
+const h = headline(index);
+const stale = staleCountries(index);
+const withBreak = index.countries.filter((country: { breaks: string[] }) => country.breaks.includes(index.lastBreak)).length;
+const first = index.years[0];
+const lastYear = index.years[index.years.length - 1];
+---
+
+<section class="block" id="method" aria-labelledby="method-title">
+  <div class="wrap method-grid">
+    <header class="sec-head" data-reveal style="margin: 0">
+      <p class="eyebrow mono"><span class="pulse"></span>Method</p>
+      <h2 id="method-title">How this is measured</h2>
+      <p>Every number on this page is either published by Eurostat or counted from those published numbers. Nothing is estimated on top.</p>
+    </header>
+
+    <div data-reveal>
+      <dl>
+        <div>
+          <dt>What the figure is</dt>
+          <dd>
+            Eurostat publishes one indicator per country per year: the age by which half of young people no longer live in a household with
+            their parents. It is derived from the European Union Labour Force Survey. Eurostat’s own dataset title calls it an “estimated
+            average age”, which does not match its own definition — a midpoint and an average are different things, and they differ most where
+            the distribution is lopsided. This page follows the definition.
+          </dd>
+        </div>
+        <div>
+          <dt>What it is not</dt>
+          <dd>
+            It is not a distribution, so no percentile can be calculated from it. It is not a count of people. And it is a country-level
+            figure: it describes a cohort, not any individual in it.
+          </dd>
+        </div>
+        <div>
+          <dt>Coverage</dt>
+          <dd>
+            {h.countries} countries have a figure for {h.year}.
+            {
+              stale.length > 0 && (
+                <>
+                  {' '}
+                  {stale.map((country: { name: string; year: string }) => `${country.name} (${country.year})`).join(', ')} stopped reporting
+                  earlier and are shown at their most recent year, hatched on the map and labeled in the table.
+                </>
+              )
+            }{' '}
+            The United States, Canada and Australia are not in this dataset, because Eurostat does not cover them.
+          </dd>
+        </div>
+        <div>
+          <dt>Series breaks</dt>
+          <dd>
+            In {index.lastBreak} Eurostat flags a break in the series: the European Labour Force Survey was reorganized, and {withBreak} of
+            {' '}{index.countries.length} countries carry the flag for that year. The break year itself is transitional, so figures before {index.comparableSince}
+            exist in the source but are not comparable with today. Comparisons over time on this page start in {index.comparableSince}.
+          </dd>
+        </div>
+        <div>
+          <dt>Source</dt>
+          <dd>
+            <ul class="source-list">
+              <li><b>Dataset</b> <span>Eurostat <code>{index.source.dataset}</code>, {index.source.label}</span></li>
+              <li><b>Series</b> <span>{first} to {lastYear}</span></li>
+              <li><b>Last updated by Eurostat</b> <span>{index.source.eurostatUpdated.slice(0, 10)}</span></li>
+              <li><b>Retrieved</b> <span>{index.source.fetchedOn.slice(0, 10)}</span></li>
+              <li><b>DOI</b> <a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+              <li><b>Metadata</b> <a href={index.source.metadata} data-method-link>explanatory texts</a></li>
+            </ul>
+          </dd>
+        </div>
+      </dl>
+      <p class="legal">
+        Licence: Eurostat data may be reused, including commercially, with attribution. Read how we handle data on <a href="/method/">our method page</a>.
+      </p>
+    </div>
+  </div>
+</section>

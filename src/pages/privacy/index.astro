@@ -1,0 +1,115 @@
+---
+import Base from '../../layouts/Base.astro';
+
+/**
+ * Dit beleid moet beschrijven wat de site fetitelijk doet, niet wat we van plan
+ * zijn. Verandert er iets aan de verwerking — analytics, advertenties — dan gaat
+ * deze pagina eerst om, en pas daarna de code.
+ */
+const updated = '30 August 2026';
+
+const title = 'Privacy — HumanAverage';
+const description =
+  'What HumanAverage does and does not collect. No accounts, no analytics, no advertising ' +
+  'code, and your measurements never leave your browser.';
+---
+
+<Base title={title} description={description} canonical="/privacy/">
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Privacy</p>
+      <h1>What we collect: almost nothing</h1>
+      <p class="lead">
+        Your height and weight are never sent to us. The percentile is calculated inside your
+        own browser, from a data file your browser already downloaded.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow content">
+      <p class="field-hint">Last updated: {updated}</p>
+
+      <h2>The values you enter</h2>
+      <p>
+        When you enter your age, sex and a measurement, those values stay in the memory of the
+        page you have open. They are used to look up a position in a table that was downloaded
+        with the page, and they disappear when you reload or close it. Nothing is transmitted to
+        us, and no account is created.
+      </p>
+
+      <h3>What your browser remembers</h3>
+      <p>
+        On the European comparison pages there is one exception. The country and the age you enter,
+        together with the light or dark theme you pick, are saved in this browser's local storage,
+        under a single key, so that the next page already knows them instead of asking again. That storage sits on your own device: it is
+        never sent to us, there is no server behind it, and no profile of you exists anywhere
+        else. Clearing site data for this domain removes it, and a private window keeps nothing at
+        all.
+      </p>
+
+      <div class="callout">
+        <p>
+          <strong>One exception you control.</strong> If you press “copy link to this result”,
+          the link that is created contains your age, sex and measurement as part of the web
+          address — that is what makes the result shareable. It is placed on your clipboard and
+          goes nowhere else. But anyone you send that link to can read those values from it, so
+          share it deliberately.
+        </p>
+      </div>
+
+      <h2>Analytics and cookies</h2>
+      <p>
+        This site sets no cookies, runs no analytics, and contains no advertising code. There is
+        nothing to consent to, so we do not ask.
+      </p>
+      <p>
+        That may change. If analytics or advertising is ever added, this page will be updated
+        before the code goes live, and where consent is legally required it will be requested
+        through an appropriate consent platform — with no non-essential cookies set before you
+        have chosen.
+      </p>
+
+      <h2>Technically necessary data</h2>
+      <p>
+        As with virtually any website, the hosting provider processes technical request data:
+        an IP address, the time, the page requested, browser information and errors. This is
+        necessary to deliver the site securely. HumanAverage is hosted by
+        <a href="https://vercel.com/legal/privacy-policy" rel="noopener">Vercel</a>.
+      </p>
+      <p>
+        We do also use Google Search Console, which reports how the site performs in Google
+        Search. It shows aggregated figures — how often pages appeared and were clicked — and
+        does not identify individual visitors to us.
+      </p>
+
+      <h2>External links</h2>
+      <p>
+        We link to the CDC, to scientific publishers and to source datasets. Once you open one
+        of those, that party's own privacy policy applies. We never pass your entered values
+        along in such a link.
+      </p>
+
+      <h2>Email</h2>
+      <p>
+        If you email <a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a> we
+        receive your address, your message and anything else you choose to include, and use it
+        only to handle your question. Email is processed through Gmail, so Google's privacy
+        policy also applies. Please do not send passwords, medical records or other sensitive
+        information.
+      </p>
+
+      <h2>Your rights</h2>
+      <p>
+        Because we never receive your measurements, we cannot show you, correct or delete them —
+        there is nothing on our side to act on. For questions about other data, about deleting
+        an email you sent us, or about this policy, write to
+        <a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>.
+      </p>
+    </div>
+  </section>
+
+  <style>
+    .field-hint { color: var(--ink-soft); font-size: 0.9rem; }
+  </style>
+</Base>

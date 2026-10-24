@@ -1,0 +1,28 @@
+{
+  "name": "humanaverage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node scripts/build-sitemap.mjs",
+    "preview": "astro preview",
+    "data:fetch": "node scripts/fetch-nhanes.mjs",
+    "data:build": "node scripts/build-percentiles.mjs",
+    "data:validate": "node scripts/validate-percentiles.mjs",
+    "data": "npm run data:fetch && npm run data:build && npm run data:validate && npm run data:questions",
+    "data:questions": "node scripts/build-questions.mjs",
+    "wealth:fetch": "node scripts/fetch-dwa.mjs",
+    "wealth:build": "node scripts/build-wealth.mjs",
+    "wealth:validate": "node scripts/validate-wealth.mjs",
+    "wealth": "npm run wealth:fetch && npm run wealth:build && npm run wealth:validate",
+    "leaving:fetch": "node scripts/fetch-eurostat.mjs",
+    "leaving:build": "node scripts/build-leaving-home.mjs",
+    "leaving:validate": "node scripts/validate-leaving-home.mjs",
+    "leaving": "npm run leaving:fetch && npm run leaving:build && npm run leaving:validate",
+    "geo:build": "node scripts/build-geo.mjs"
+  },
+  "devDependencies": {
+    "astro": "^5.14.1"
+  }
+}

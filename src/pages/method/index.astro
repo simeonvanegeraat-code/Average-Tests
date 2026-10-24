@@ -1,0 +1,189 @@
+---
+import Base from '../../layouts/Base.astro';
+import heightData from '../../../data/percentiles/height.json';
+import validation from '../../../data/validation.json';
+
+/**
+ * De methodepagina. Beide metriekpagina's verwijzen hierheen voor het volledige
+ * verhaal. Elk getal komt uit de gegenereerde databestanden of uit
+ * data/validation.json, dat de validatiesuite bij elke geslaagde run wegschrijft.
+ */
+
+const count = (n) => n.toLocaleString('en-US');
+const measuredAdults = heightData.sex.male.respondents + heightData.sex.female.respondents;
+
+const title = 'How We Calculate Percentiles | HumanAverage';
+const description =
+  'Our percentiles come from NHANES survey microdata, weighted and smoothed, not copied ' +
+  'from published averages. Here is the full method, the checks we run, and the limits.';
+---
+
+<Base title={title} description={description} canonical="/method/">
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Method</p>
+      <h1>How we get these numbers</h1>
+      <p class="lead">
+        Anyone can repeat an average. The reason this site exists is that we start one step
+        earlier — from the individual measurements — and do the arithmetic ourselves.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container narrow content">
+      <h2>Averages versus microdata</h2>
+      <p>
+        A published statistic like “the average American man is 5 feet 9 inches” is the end of
+        a calculation. Someone measured thousands of people, weighted them, and reduced all of
+        it to one number. Everything that made the answer interesting — the spread, the shape,
+        how it changes with age — was thrown away at that last step.
+      </p>
+      <p>
+        <strong>Microdata is the row-by-row file that existed before that summary.</strong> One
+        line per person: age, sex, measured height, measured weight, and the statistical weight
+        that says how many Americans that person represents. With those rows you can answer a
+        question no summary can: not “what is typical”, but “where does this specific person
+        fall”. That is the only reason a percentile on this site can exist.
+      </p>
+
+      <h2>Where the data comes from</h2>
+      <p>
+        The <strong>National Health and Nutrition Examination Survey (NHANES)</strong>, run by
+        the U.S. Centers for Disease Control and Prevention. It is unusual among large surveys
+        in one respect that matters enormously here: participants are <em>measured</em> by
+        trained staff in a mobile examination centre. They are not asked what they weigh.
+        Self-reported height and weight are known to be biased, and a percentile built on them
+        would inherit that bias.
+      </p>
+      <p>
+        We use two cycles — 2017 to March 2020, and August 2021 to August 2023 — giving
+        {count(measuredAdults)} measured adults between 20 and 79. The files are in the public
+        domain, and our pipeline records the exact download URLs and a checksum for each, so a
+        silent change at the source makes the build fail rather than quietly shift the numbers.
+      </p>
+
+      <h2>What we do to it</h2>
+      <ol>
+        <li>
+          <strong>Apply the survey weights.</strong> NHANES deliberately over-samples some
+          groups so it can report on them reliably. Every participant therefore carries a factor
+          representing how many Americans they stand for. Ignoring it is not a small
+          simplification: for men aged 20 and over, the unweighted average height is 173.4 cm
+          while the correctly weighted figure is 175.2 cm. Nearly two centimetres, from one
+          skipped step.
+        </li>
+        <li>
+          <strong>Combine the two cycles.</strong> One covers about 3.2 years, the other 2, so
+          each is scaled to its share of the combined period. For equal-length cycles this is
+          exactly the standard practice of dividing by the number of cycles.
+        </li>
+        <li>
+          <strong>Smooth across age.</strong> There are roughly a hundred people per single year
+          of age — plenty for a median, too few for a stable 90th percentile. So each age draws
+          on its neighbours, weighted by how close they are, before the percentiles are
+          calculated. Every age we publish rests on at least {validation.thinnestCellRespondents}
+          effective respondents.
+        </li>
+        <li>
+          <strong>Drop the top-coded ages.</strong> NHANES records everyone aged 80 and over as
+          simply “80”. That bin holds people from 80 to past 100, so it is not an age at all. We
+          exclude it rather than present it as one, and publish ages 20 to 79.
+        </li>
+      </ol>
+
+      <h2>How we check ourselves</h2>
+      <p>
+        A pipeline that reads a binary survey file and applies statistical weights has plenty of
+        room to be subtly, invisibly wrong. So before anything is published, we recompute the
+        summary statistics that NCHS publishes itself and require an exact match.
+      </p>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <caption>Our calculation against the published NCHS figures, {validation.cycle}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Measure</th>
+              <th scope="col">Group</th>
+              <th scope="col">We calculate</th>
+              <th scope="col">NCHS publishes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {validation.reference.map((row) => (
+              <tr>
+                <th scope="row">{row.measure}</th>
+                <td>{row.group}</td>
+                <td>{row.computed} → {row.rounded} {row.unit}</td>
+                <td>{row.published} {row.unit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        All four reproduce the published figures exactly. Two further checks run alongside them:
+        the smoothed curves are compared against raw percentiles computed directly in wide age
+        bands, where the largest disagreement is {validation.smoothingMaxDeviationCm} cm, and the
+        decoded body-mass values are checked against weight divided by height squared. If any
+        check fails, the build stops.
+      </p>
+      <p class="field-hint">
+        Reference figures: {validation.citation} Checked {validation.checkedOn}.
+      </p>
+
+      <h2>What we will not do</h2>
+      <div class="callout">
+        <p>
+          <strong>No percentile without microdata underneath it.</strong> Plenty of sites will
+          tell you that your reaction time beats 85% of people. Ask where that distribution came
+          from and there is usually no answer. We only show a percentile where a representative,
+          measured sample exists — which is why our height and weight tools have one, and why
+          the older reaction-time and memory tests on this domain never will.
+        </p>
+      </div>
+
+      <h2>Limits you should know</h2>
+      <ul>
+        <li>
+          <strong>These are American percentiles.</strong> NHANES samples the U.S. civilian
+          population. Body size differs substantially between countries, so if you live
+          elsewhere your result says where you would fall among Americans.
+        </li>
+        <li>
+          <strong>Ages 20 to 79.</strong> Younger ages belong to growth charts, which are a
+          different instrument with different rules. Older ages are top-coded in the source.
+        </li>
+        <li>
+          <strong>Sex at birth, two categories.</strong> That is what the survey records. We
+          would rather state the limit than invent groups the data cannot support.
+        </li>
+        <li>
+          <strong>A snapshot, not a life story.</strong> The survey measures different people at
+          different ages at one moment in time. When the curve falls after middle age, that mixes
+          two things — people do lose height as they age, and people born decades apart grew up
+          under different conditions. A cross-sectional survey cannot separate them, and neither
+          can we.
+        </li>
+        <li>
+          <strong>Not a health assessment.</strong> A percentile describes how common your
+          measurement is. It says nothing about whether it is good for you.
+        </li>
+      </ul>
+
+      <p class="source-note">
+        Source: Centers for Disease Control and Prevention (CDC), National Center for Health
+        Statistics (NCHS). National Health and Nutrition Examination Survey, 2017–March 2020 and
+        August 2021–August 2023. U.S. Department of Health and Human Services. Data retrieved
+        30 August 2026.
+      </p>
+    </div>
+  </section>
+
+  <style>
+    .field-hint { color: var(--ink-soft); font-size: 0.9rem; }
+    .content ol { display: grid; gap: 14px; }
+  </style>
+</Base>

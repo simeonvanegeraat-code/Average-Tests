@@ -1,0 +1,132 @@
+---
+/**
+ * De kop van de pagina: het antwoord eerst, op posterformaat, naast een donker paneel
+ * met de stippengrafiek en een landkiezer.
+ *
+ * De kop volgt de definitie van Eurostat en niet zijn label (zie src/lib/leaving-home.js):
+ * dit is de leeftijd waarop de helft niet meer bij de ouders woont, een middelpunt, geen
+ * gemiddelde. De zoekvraag luidt wel "average age", dus die formulering staat in de
+ * noot onder de knop en wordt daar uitgelegd in plaats van weggelaten.
+ *
+ * Elk getal komt uit de bibliotheek. De eindwaarde staat in de HTML, ook zonder
+ * JavaScript; de browser voegt alleen toe wat een keuze oplevert: de zin onder de kiezer
+ * en de markering in de grafiek.
+ *
+ * Contract met de pagina: de pagina rendert `<script type="application/json"
+ * id="leaving-home-data">` met `clientData(index)` (src/lib/leaving-home-copy.js).
+ * De kiezer stuurt `ha:country` op `document` en luistert ernaar, zodat hij gelijk
+ * loopt met de landkiezer van het formulier en de grafiek. Het onthouden van de keuze
+ * is aan de pagina, niet aan dit onderdeel.
+ */
+import DotPlot from './DotPlot.astro';
+import { age, years, withArticle, headline, ranked, currentCountries } from '../lib/leaving-home.js';
+import { euChange } from '../lib/leaving-home-copy.js';
+
+interface Props {
+  index: any;
+}
+
+const { index } = Astro.props;
+
+const h = headline(index);
+const order = ranked(index);
+const euValue = h.eu ? age(h.eu.total) : age(order[Math.floor(order.length / 2)].total);
+const change = euChange(index);
+
+const rows = order.map(({ code, name, total }) => ({ code, name, total }));
+const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare(b.name));
+
+const plotLabel =
+  `Dot plot of ${h.countries} countries by the age by which half of young people have left home, ` +
+  `from ${age(h.earliest.total)} in ${h.earliest.name} to ${age(h.latest.total)} in ${h.latest.name}` +
+  (h.eu ? `. The European Union figure is ${age(h.eu.total)}.` : '.');
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow mono" data-reveal>
+        <span class="pulse"></span>Eurostat · {h.countries} countries · {h.year}
+      </p>
+      <h1 id="hero-title" data-reveal>
+        Half of young Europeans have left home by age <span class="giant num">{euValue}</span>
+      </h1>
+      <p class="unit mono" data-reveal>
+        Years old · European Union · <b>{h.year}</b>{change && <> · {years(change.delta, { sign: true })} vs {change.previousYear}</>}
+      </p>
+      <p class="lead" data-reveal>
+        In <b>{withArticle(h.earliest.name)}</b> that point arrives at {age(h.earliest.total)}. In <b>{withArticle(h.latest.name)}</b> it does
+        not arrive until {age(h.latest.total)}, a gap of {years(h.gap)} for the same step in life. This compares European countries with each
+        other, not with the United States.
+      </p>
+      <div class="hero-cta" data-reveal>
+        <a class="btn" href="#compare">
+          Where do you fit?
+          <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
+        </a>
+        <span class="hint">Nothing is sent anywhere.</span>
+      </div>
+      <p class="hero-note" data-reveal>
+        Searches for this figure usually call it the <em>average age of leaving home</em>. It is not quite an average: Eurostat measures the
+        age by which half of young people no longer live with their parents. <a href="#method">How that changes the reading.</a>
+      </p>
+    </div>
+
+    <figure class="panel hued" data-reveal aria-labelledby="hero-panel-label">
+      <div class="panel-head mono">
+        <span id="hero-panel-label">Every country · {h.year}</span>
+        <span class="delta num">{years(h.gap)} apart</span>
+      </div>
+      <div class="picker">
+        <label class="mono" for="hero-country">Where do you live?</label>
+        <div class="select">
+          <select id="hero-country" data-hero-country>
+            <option value="" selected disabled>Choose your country</option>
+            {options.map((country) => <option value={country.code}>{country.name}</option>)}
+          </select>
+        </div>
+      </div>
+      <p class="you-line" data-hero-you aria-live="polite">Choose your country to see where it falls.</p>
+      <DotPlot rows={rows} eu={h.eu ? h.eu.total : null} mode="hero" label={plotLabel} />
+      <div class="panel-foot">
+        {h.eu && h.eu.women !== null && <span class="chip">Women <b>{age(h.eu.women)}</b></span>}
+        {h.eu && h.eu.men !== null && <span class="chip">Men <b>{age(h.eu.men)}</b></span>}
+        <span class="chip">Countries <b>{h.countries}</b></span>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<script>
+  import { youLine } from '../lib/leaving-home-copy.js';
+  import { fillParts, replay } from '../lib/parts.js';
+
+  const holder = document.getElementById('leaving-home-data');
+  const select = document.querySelector<HTMLSelectElement>('[data-hero-country]');
+  const line = document.querySelector<HTMLElement>('[data-hero-you]');
+
+  if (holder && select && line) {
+    const data = JSON.parse(holder.textContent ?? '{}');
+    const idle = line.textContent ?? '';
+
+    function render(code: string | undefined) {
+      const parts = code ? youLine(data, code) : null;
+      if (!parts) {
+        line!.textContent = idle;
+        return;
+      }
+      fillParts(line!, parts);
+      replay(line!);
+    }
+
+    select.addEventListener('change', () => {
+      document.dispatchEvent(new CustomEvent('ha:country', { detail: { code: select.value, source: 'hero' } }));
+    });
+
+    document.addEventListener('ha:country', (event) => {
+      const code = (event as CustomEvent<{ code?: string }>).detail?.code;
+      if (code && select.value !== code) select.value = code;
+      render(code);
+    });
+  }
+</script>

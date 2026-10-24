@@ -1,0 +1,93 @@
+---
+/**
+ * De feiten uit de gegevens, als losse tegels met één groot getal elk.
+ *
+ * Alles wordt berekend door de bibliotheek (genderGap, trend, headline); er staat geen
+ * getal met de hand in dit onderdeel. De tegels over verandering in de tijd verschijnen
+ * alleen als trend() een uitkomst geeft: die weigert te rekenen over een reeksbreuk, en
+ * dan ontbreken die tegels in plaats van dat er iets staat dat niets betekent.
+ *
+ * De sectiekop hoort bij de pagina; dit onderdeel levert alleen de tegels en de voetnoot.
+ */
+import { age, years, count, withArticle, genderGap, trend, headline } from '../lib/leaving-home.js';
+
+interface Props {
+  index: any;
+}
+
+const { index } = Astro.props;
+const h = headline(index);
+const gender = genderGap(index);
+const movement = trend(index);
+
+const sign = (value: number) => (value > 0 ? '+' : '−');
+const names = (list: { name: string }[]) => list.map((country) => country.name).join(', ');
+
+/** De grootste verschuiving in beide richtingen, naar absolute grootte. */
+const biggest = movement
+  ? [...movement.earlier, ...movement.later].sort((a, b) => Math.abs(b.change) - Math.abs(a.change))[0]
+  : null;
+
+const tiles = [
+  gender && {
+    className: 'tile s4 dark',
+    value: `${gender.womenEarlier} of ${gender.of}`,
+    text:
+      `countries where women reach the midpoint before men in ${h.year}, by ${years(gender.mean)} on average.` +
+      (gender.exceptions.length === 0
+        ? ''
+        : ` The exception${gender.exceptions.length === 1 ? ' is' : 's are'} ${names(gender.exceptions)}.`),
+  },
+  movement && {
+    className: 'tile',
+    value: [age(movement.spreadThen), age(movement.spreadNow)],
+    text: `years between the earliest and the latest country, ${movement.since} versus ${movement.until}. Only the ${movement.countries} countries with a value in both years.`,
+  },
+  movement &&
+    movement.euThen !== null &&
+    movement.euNow !== null && {
+      className: 'tile',
+      value: [age(movement.euThen), age(movement.euNow)],
+      text:
+        `the European Union figure, ${movement.since} to ${movement.until}. ` +
+        `${count(movement.earlier.length, 'country', 'countries')} moved earlier by at least ${years(movement.minimumMove)}, ` +
+        `${movement.later.length} moved later.`,
+    },
+  biggest && {
+    className: 'tile',
+    value: `${sign(biggest.change)}${Math.abs(biggest.change).toFixed(1)}`,
+    text: `years: the biggest move since ${movement!.since}, in ${withArticle(biggest.name)} (${age(biggest.series[movement!.since])} to ${age(biggest.series[movement!.until])}).`,
+  },
+  gender && {
+    className: 'tile',
+    value: age(gender.widestGap),
+    text: `years: the widest gap between men and women in ${h.year}, in ${withArticle(gender.widest.name)} (men ${age(gender.widest.men)}, women ${age(gender.widest.women)}).`,
+  },
+].filter(Boolean) as { className: string; value: string | string[]; text: string }[];
+---
+
+<div class="bento">
+  {
+    tiles.map((tile, i) => (
+      <div class={tile.className} data-reveal style={`--d:${i * 70}ms`}>
+        <b>
+          {Array.isArray(tile.value) ? (
+            <>
+              {tile.value[0]} <svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" /></svg> {tile.value[1]}
+            </>
+          ) : (
+            tile.value
+          )}
+        </b>
+        <p>{tile.text}</p>
+      </div>
+    ))
+  }
+</div>
+{
+  movement && (
+    <p class="brk-foot">
+      Comparisons over time start in {index.comparableSince}, the first year after Eurostat’s {index.lastBreak} series break, so they cover a short window.
+    </p>
+  )
+}

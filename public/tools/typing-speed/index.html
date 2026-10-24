@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Typesnelheid test — WPM en nauwkeurigheid | HumanAverage</title>
+  <meta name="description" content="Meet in 60 seconden je typesnelheid in woorden per minuut en je nauwkeurigheid met een vaste Nederlandse tekst.">
+  <link rel="canonical" href="https://www.humanaverage.com/tools/typing-speed/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Typesnelheid test — WPM en nauwkeurigheid | HumanAverage">
+  <meta property="og:description" content="Meet in 60 seconden je typesnelheid in woorden per minuut en je nauwkeurigheid met een vaste Nederlandse tekst.">
+  <meta property="og:url" content="https://www.humanaverage.com/tools/typing-speed/">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#15231f">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/main.js"></script>
+  <script defer src="/tools/typing-speed/typing.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HumanAverage typesnelheidtest",
+    "url": "https://www.humanaverage.com/tools/typing-speed/",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Webbrowser",
+    "inLanguage": "nl-NL",
+    "description": "Een lokale browsertest voor woorden per minuut en nauwkeurigheid.",
+    "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"}
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#inhoud">Ga naar de test</a>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="/nl/"><span class="brand-mark" aria-hidden="true"></span>HumanAverage</a>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false" aria-controls="hoofdnavigatie"><span aria-hidden="true">☰</span><span class="visually-hidden">Menu openen</span></button>
+      <nav class="site-nav" id="hoofdnavigatie" data-navigation aria-label="Hoofdnavigatie">
+        <a href="/nl/">Home</a><a href="/tools/" aria-current="page">Tests</a><a href="/articles/">Inzichten</a><a href="/methodology.html">Methode</a><a href="/about.html">Over</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="inhoud">
+    <section class="page-hero">
+      <div class="container">
+        <div class="breadcrumbs"><a href="/tools/">Tests</a> / Typesnelheid</div>
+        <p class="eyebrow">60 seconden typen</p>
+        <h1>Hoe snel én precies typ je?</h1>
+        <p>Typ de voorbeeldtekst zo nauwkeurig mogelijk. De klok begint bij je eerste teken.</p>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="container tool-layout">
+        <div class="tool-panel">
+          <div class="tool-panel-header">
+            <strong>Typesnelheidtest</strong>
+            <span class="trial-count" id="typing-status">Klaar om te starten</span>
+          </div>
+          <div class="measure-panel">
+            <div class="typing-prompt" id="typing-prompt" aria-label="Tekst om over te typen"></div>
+            <label class="field-label" for="typing-input">Typ de tekst hierboven</label>
+            <textarea class="typing-input" id="typing-input" rows="7" disabled autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="typing-help"></textarea>
+            <p id="typing-help">Plakken is uitgeschakeld. Corrigeren met backspace mag.</p>
+            <div class="inline-stats" aria-live="polite">
+              <span class="stat-chip"><strong id="time-left">60</strong> seconden</span>
+              <span class="stat-chip"><strong id="live-wpm">0</strong> bruto WPM</span>
+              <span class="stat-chip"><strong id="live-accuracy">100</strong>% nauwkeurig</span>
+            </div>
+            <div class="button-row">
+              <button class="button" type="button" id="start-typing">Start test</button>
+              <button class="button ghost" type="button" id="reset-typing">Opnieuw</button>
+            </div>
+            <div class="source-note" id="typing-result" hidden aria-live="polite"></div>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <h2>Zo tellen we</h2>
+          <p>Vijf getypte tekens gelden als één “woord”. Dat is een meetconventie, geen telling van echte Nederlandse woorden.</p>
+          <ul>
+            <li>Bruto WPM gebruikt alle getypte tekens.</li>
+            <li>Nauwkeurigheid vergelijkt ieder teken met de voorbeeldtekst.</li>
+            <li>Netto WPM combineert snelheid en nauwkeurigheid.</li>
+          </ul>
+          <div class="privacy-note"><strong>Lokaal</strong><br>De tekst die je typt verlaat deze pagina niet.</div>
+          <p style="margin-bottom: 0;"><a href="/methodology.html#typen">Bekijk de formule →</a></p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section tint">
+      <div class="narrow tool-copy">
+        <p class="eyebrow">Je resultaat plaatsen</p>
+        <h2>WPM zonder nauwkeurigheid vertelt maar de helft</h2>
+        <p>
+          In een groot online onderzoek met 168.000 vrijwillige deelnemers lag de gemiddelde snelheid rond
+          52 WPM en typte de meerderheid 30–60 WPM. De steekproef was zelfgeselecteerd en de taak verschilde
+          van deze Nederlandse test. Zie het daarom als onderzoekscontext, niet als persoonlijke norm.
+        </p>
+        <div class="button-row">
+          <a class="button ghost" href="/articles/typesnelheid-gemiddelde.html">Hoe WPM wordt berekend</a>
+          <a class="button ghost" href="/articles/typesnelheid-goed.html">Wat is een goede snelheid?</a>
+          <a class="button ghost" href="/tools/typing-consistency/">Vergelijk drie rondes</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div><a class="brand" href="/nl/" style="color: var(--ink)"><span class="brand-mark" aria-hidden="true" style="border-color: var(--ink)"></span>HumanAverage</a><p>Een onafhankelijke, lokale browsertest.</p></div>
+        <div><h3>Verdieping</h3><div class="footer-links"><a href="/articles/typesnelheid-gemiddelde.html">WPM uitgelegd</a><a href="/articles/typesnelheid-nauwkeurigheid.html">Snelheid en fouten</a><a href="/articles/typesnelheid-toetsenbord-tekst.html">Apparaat en tekst</a><a href="/methodology.html#typen">Testmethode</a></div></div>
+        <div><h3>Over</h3><div class="footer-links"><a href="/about.html">Over</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a></div></div>
+      </div>
+      <div class="footer-bottom"><span>© <span data-current-year>2026</span> HumanAverage</span><span>Geen professionele vaardigheidstoets.</span></div>
+    </div>
+  </footer>
+</body>
+</html>
