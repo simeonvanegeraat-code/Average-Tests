@@ -17,6 +17,7 @@ import { STAGES } from '../hue.js';
 
 const firstChild = {
   key: 'first-child',
+  label: 'First child',
   path: '/first-child/',
   hue: STAGES.child,
   sourceName: 'Eurostat',

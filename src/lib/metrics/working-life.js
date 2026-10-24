@@ -14,6 +14,7 @@ import { STAGES } from '../hue.js';
 
 const workingLife = {
   key: 'working-life',
+  label: 'Working life',
   path: '/working-life/',
   hue: STAGES.retire,
   sourceName: 'Eurostat',

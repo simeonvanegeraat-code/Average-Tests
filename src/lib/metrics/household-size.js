@@ -14,6 +14,7 @@ import { STAGES } from '../hue.js';
 
 const householdSize = {
   key: 'household-size',
+  label: 'Household size',
   path: '/household-size/',
   hue: STAGES.household,
   sourceName: 'Eurostat',

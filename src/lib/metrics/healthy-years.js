@@ -17,6 +17,7 @@ import { STAGES } from '../hue.js';
 
 const healthyYears = {
   key: 'healthy-years',
+  label: 'Healthy years',
   path: '/healthy-years/',
   hue: STAGES.healthy,
   sourceName: 'Eurostat',

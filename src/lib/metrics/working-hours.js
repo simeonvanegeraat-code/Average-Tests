@@ -18,6 +18,7 @@ import { STAGES } from '../hue.js';
 
 const workingHours = {
   key: 'working-hours',
+  label: 'Working hours',
   path: '/working-hours/',
   hue: STAGES.hours,
   sourceName: 'Eurostat',
