@@ -1,5 +1,5 @@
 ---
-import Base from '../../layouts/Base.astro';
+import BaseV2 from '../../layouts/BaseV2.astro';
 
 const title = 'About HumanAverage';
 const description =
@@ -7,10 +7,10 @@ const description =
   'statistical agencies publish, shows its working, and says plainly what it cannot know.';
 ---
 
-<Base title={title} description={description} canonical="/about/">
-  <section class="page-hero">
-    <div class="container">
-      <p class="eyebrow">About</p>
+<BaseV2 title={title} description={description} canonical="/about/">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">About</p>
       <h1>A small project with one rule</h1>
       <p class="lead">
         No anonymous “research team”. HumanAverage is an independent project run by one person,
@@ -19,8 +19,8 @@ const description =
     </div>
   </section>
 
-  <section class="section">
-    <div class="container narrow content">
+  <section class="block">
+    <div class="wrap prose">
       <h2>Why it exists</h2>
       <p>
         Search for a European average and you get a number. It is usually correct, and it is
@@ -65,11 +65,11 @@ const description =
       <p>
         If you can show that something here is wrong, that is genuinely useful and it will be
         fixed. Email <a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>. For a
-        question about a specific result, mentioning your age, sex and the value you entered
-        helps.
+        question about a specific result, mentioning which page you were on, the country you
+        picked and the figure you entered helps.
       </p>
 
-      <div class="callout">
+      <div class="limits">
         <p>
           This site is an informational comparison. It is not medical advice, not a diagnosis,
           and not an assessment of your health.
@@ -77,4 +77,4 @@ const description =
       </div>
     </div>
   </section>
-</Base>
+</BaseV2>

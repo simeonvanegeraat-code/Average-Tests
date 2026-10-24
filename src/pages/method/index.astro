@@ -5,6 +5,7 @@ import wealth from '../../../data/wealth/index.json';
 import wealthCheck from '../../../data/wealth-validation.json';
 import { headline, staleCountries } from '../../lib/leaving-home.js';
 import { formatPeriod } from '../../lib/wealth.js';
+import { METHODOLOGY } from '../../lib/methodology.js';
 
 /**
  * De methodepagina. Elke metriekpagina verwijst hierheen voor het volledige verhaal.
@@ -115,6 +116,132 @@ const description =
           </div>
           <span class="meta mono">reproducible</span>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="datasets-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Every dataset, line by line</p>
+        <h2 id="datasets-title">What each source publishes, in its own words</h2>
+        <p>
+          One block per dataset: the code you can look it up by, how far the figures reach, what we
+          read per country, and when it was last refreshed. Nothing here is typed by hand — it is
+          read from the files the pipeline writes.
+        </p>
+        <p>
+          Where a publisher writes its own definition, that definition is quoted rather than
+          summarised, because the gap between a dataset's title and its definition is where this
+          site has been wrong before. Eurostat returns one for {METHODOLOGY.filter((set) => set.definition).length}{' '}
+          of these {METHODOLOGY.length} datasets and nothing for the rest, so the row is absent where
+          the words would have had to be ours.
+        </p>
+      </header>
+
+      <div class="datasets" data-reveal>
+        {
+          METHODOLOGY.map((set) => (
+            <article class="dataset hued" id={`ds-${set.key}`} style={`--h:${set.hue}`}>
+              <header class="dataset-head">
+                <h3><a href={set.path}>{set.label}</a></h3>
+                <p class="mono who">
+                  {set.publisher}
+                  {set.dataset && <> · {set.dataset}</>}
+                </p>
+              </header>
+
+              <dl>
+                {set.sourceLabel && (
+                  <div class="wide">
+                    <dt>What the publisher calls it</dt>
+                    <dd>{set.sourceLabel}</dd>
+                  </div>
+                )}
+
+                {set.definition && (
+                  <div class="wide">
+                    <dt>Its own definition</dt>
+                    <dd class="quote">{set.definition}</dd>
+                  </div>
+                )}
+
+                <div>
+                  <dt>Coverage</dt>
+                  <dd>
+                    {set.countries} countries at {set.year}
+                    {set.firstYear && <> · series {set.firstYear}–{set.lastYear}</>}
+                    {set.quarters && <> · {set.quarters} quarters</>}
+                    {set.stale.length > 0 && (
+                      <> · {set.stale.length} behind ({set.stale.map((c) => `${c.name} ${c.year}`).join(', ')})</>
+                    )}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt>Comparing across time</dt>
+                  <dd>
+                    {set.comparability.kind === 'since' && (
+                      <>
+                        Comparable since {set.comparability.since}.{' '}
+                        {set.comparability.broken === set.countries
+                          ? `All ${set.countries} countries carry`
+                          : `${set.comparability.broken} of the ${set.countries} countries ${set.comparability.broken === 1 ? 'carries' : 'carry'}`}{' '}
+                        a break flag in {set.comparability.year}, and <code>trend()</code> refuses to
+                        measure across it.
+                      </>
+                    )}
+                    {set.comparability.kind === 'break-at-end' && (
+                      <>
+                        The last break falls in {set.comparability.year}, the most recent year itself
+                        ({set.comparability.broken} of {set.countries} countries), so there is no window
+                        left to measure change over. The ranking holds; a trend would not.
+                      </>
+                    )}
+                    {set.comparability.kind === 'unbroken' && (
+                      <>
+                        {set.publisher} flags no break in this series, so the whole run
+                        {set.comparability.from && <> from {set.comparability.from}</>} is comparable.
+                        This is the only one of our Eurostat sources that is.
+                      </>
+                    )}
+                    {set.comparability.kind === 'none' && (
+                      <>These accounts carry no series breaks; the ECB revises the whole run instead.</>
+                    )}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt>What we read per country</dt>
+                  <dd>{set.lenses.length ? set.lenses.join(' · ') : 'One figure per country'}</dd>
+                </div>
+
+                <div>
+                  <dt>Last refreshed</dt>
+                  <dd>
+                    {set.published && <>Published {set.published} · </>}
+                    Fetched {set.fetched}
+                    {set.checked && <> · checked {set.checked}</>}
+                  </dd>
+                </div>
+
+                <div class="wide">
+                  <dt>Look it up yourself</dt>
+                  <dd>
+                    {set.doi && <>DOI <code>{set.doi}</code> · </>}
+                    {set.metadata && (
+                      <>
+                        <a href={set.metadata} rel="noopener" data-method-link>Publisher's metadata</a>
+                        {set.api && <> · </>}
+                      </>
+                    )}
+                    {set.api && <a href={set.api} rel="noopener" data-method-link>the exact query we run</a>}
+                  </dd>
+                </div>
+              </dl>
+            </article>
+          ))
+        }
       </div>
     </div>
   </section>

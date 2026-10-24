@@ -1,5 +1,5 @@
 ---
-import Base from '../../layouts/Base.astro';
+import BaseV2 from '../../layouts/BaseV2.astro';
 
 const title = 'Contact — HumanAverage';
 const description =
@@ -7,10 +7,10 @@ const description =
   'fixed and the correction is noted.';
 ---
 
-<Base title={title} description={description} canonical="/contact/">
-  <section class="page-hero">
-    <div class="container">
-      <p class="eyebrow">Contact</p>
+<BaseV2 title={title} description={description} canonical="/contact/">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Contact</p>
       <h1>Found a mistake? Tell me.</h1>
       <p class="lead">
         A site built on a promise of traceable numbers only works if the numbers can be
@@ -19,11 +19,11 @@ const description =
     </div>
   </section>
 
-  <section class="section">
-    <div class="container narrow content">
+  <section class="block">
+    <div class="wrap prose">
       <h2>Email</h2>
       <p>
-        <a class="button" href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>
+        <a class="btn" href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>
       </p>
       <p>
         There is no contact form, because a form would mean collecting your details on a site
@@ -53,7 +53,7 @@ const description =
       </ul>
 
       <h2>What this is not</h2>
-      <div class="callout">
+      <div class="limits">
         <p>
           HumanAverage cannot answer medical, psychological or personal health questions, and
           nothing here is a diagnosis. If a measurement worries you, that is a conversation for
@@ -68,4 +68,4 @@ const description =
       </p>
     </div>
   </section>
-</Base>
+</BaseV2>
