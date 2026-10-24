@@ -70,7 +70,7 @@ Alle vier staan in de vormtaal van 2026, met de echte cijfers uit `data/*/index.
 | **C** | De header ís een zoekveld, met ⌘K en live filteren | Schaalt het beste van alle vier en voelt het modernst. Bij zeven metrieken lost het een probleem op dat er nog niet is; bij vijfentwintig wel |
 | **D** | De header zegt waar je bent: merk / **Leaving home ▾**, en die naam opent een smalle wisselaar met de zes andere metrieken en hun cijfers | Breedte staat vast, los van hoeveel metrieken er zijn. Antwoordt op de vraag van iemand die via Google binnenkomt: wat is dit, en wat staat er nog |
 
-## Advies
+## Advies, eerste ronde — achterhaald
 
 **D in de header, en de `.nextcard`-kaarten eindelijk onderaan elke pagina.**
 
@@ -92,3 +92,49 @@ kijken. B zou ik niet in de header bouwen maar als onderste sectie, want dat is 
   voor Method en de rest.
 - Of `/wealth/` meedoet zolang die pagina nog op de oude vormgeving staat.
 - Of de levenslijn-groepering (`.stagebtn`) terugkomt of definitief vervalt.
+
+## Ronde 2: wat Apple, Adidas en Samsung werkelijk doen
+
+Simeon was niet overtuigd en wees naar deze drie. Gemeten op 24 oktober 2026, venster
+1440 px:
+
+| Site | In de balk | Daarachter |
+|---|---|---|
+| Apple | 11 woorden plus zoek, balk 44 px hoog | Per woord een mega-menu in kolommen "Ontdek / Shop / Meer", ~176 links in totaal |
+| Samsung | 8 woorden plus zoek, winkelwagen en account | Mega-menu per woord |
+| Adidas | Twee rijen, header 121 px hoog, zoekveld in de balk | 298 links in de header |
+
+Alle drie doen dus wat variant A en B doen: een platte rij van een handvol
+*categoriewoorden*, met achter elk een paneel. Geen van drieën is opvallend geanimeerd —
+de beweging is een korte fade met een kleine verschuiving. Wat ze duur laat voelen is
+niet de rij maar het paneel: daar staan beelden en productkaarten, geen lijstje links.
+
+En het verschil dat telt: **zij hebben categorieën om in de balk te zetten.** Apple heeft
+elf productlijnen, Samsung acht, Adidas heren/dames/kids. Wij hebben zeven metrieken en
+geen categorieën. Variant E neemt de structuur toch over en laat zien wat er dan gebeurt:
+vier categoriewoorden, en daarachter een paneel van 1160 px met twee kaarten erin.
+
+## Advies, herzien
+
+Het eerste advies koos de zuinigste oplossing voor een vraag die niet over zuinigheid
+ging. D is stil; deze drie sites zijn royaal, en dat is wat er gevraagd werd.
+
+**F: één ingang "Metrics", daarachter een paneel over de volle breedte met een kaart per
+metriek** — kopcijfer, de twee uiterste landen, en een balk die laat zien waar het
+Europese cijfer tussen die twee ligt. Dat is de Apple-structuur zonder de categorieën die
+we niet hebben, en het paneel krijgt de aandacht in plaats van de balk.
+
+De beweging, en waarom deze wel mag:
+
+- paneel: fade plus 10 px omhoog, 340 ms
+- kaarten: 42 ms na elkaar
+- het cijfer telt in 820 ms op naar de echte waarde
+- de balk groeit naar de echte positie van het Europese cijfer
+
+Een getal dat optelt naar zijn werkelijke waarde en een balk die naar zijn werkelijke
+positie groeit zijn samen een grafiek die zich opbouwt. Dat is beweging die iets zegt,
+en het verschil met versiering — het bolletje dat we net hebben weggehaald — is dat je
+er na afloop iets aan hebt overgehouden.
+
+Wat blijft staan uit ronde 1: de `.nextcard`-kaarten horen alsnog onderaan elke pagina.
+Het menu en de voet doen verschillend werk.
