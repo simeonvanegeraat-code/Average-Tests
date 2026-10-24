@@ -3,8 +3,8 @@ import Base from '../../layouts/Base.astro';
 
 const title = 'About HumanAverage';
 const description =
-  'An independent project that calculates percentiles from public health survey microdata, ' +
-  'shows its working, and says plainly what it cannot know.';
+  'An independent project that compares European countries using figures their own ' +
+  'statistical agencies publish, shows its working, and says plainly what it cannot know.';
 ---
 
 <Base title={title} description={description} canonical="/about/">
@@ -23,15 +23,16 @@ const description =
     <div class="container narrow content">
       <h2>Why it exists</h2>
       <p>
-        Search for “average height” and you get a number. It is usually correct, and it is
-        almost useless — because you did not really want to know the average. You wanted to know
-        where <em>you</em> stand.
+        Search for a European average and you get a number. It is usually correct, and it is
+        almost useless on its own — because one figure for a continent hides the thing you
+        actually wanted to know: how far apart the countries are, and where you sit between them.
       </p>
       <p>
-        Answering that takes more than quoting a summary. It takes the individual measurements
-        behind the summary, the statistical weights that make them represent a population, and
-        the arithmetic to turn all of it into your position in the distribution. That is what
-        this site does, and the <a href="/method/">method page</a> shows exactly how.
+        Answering that takes the figure for every country rather than the one for the whole, the
+        honesty to say which side of it you fall on rather than inventing a precision the source
+        does not support, and a check that the numbers survived the trip from the agency to the
+        page. That is what this site does, and the <a href="/method/">method page</a> shows
+        exactly how.
       </p>
 
       <h2>Who makes it</h2>
@@ -45,7 +46,8 @@ const description =
       <h2>Editorial principles</h2>
       <ul>
         <li>We never invent a statistic. Every figure comes from a dataset we can point to.</li>
-        <li>Percentiles are calculated from microdata, never copied from published averages.</li>
+        <li>We say which kind of figure a page shows, and never call something a percentile
+        when the source published a single number instead of a distribution.</li>
         <li>We show no percentile where no representative sample exists, however tempting.</li>
         <li>We separate our own calculation from results published by others.</li>
         <li>We describe what a comparison means, and what it does not.</li>

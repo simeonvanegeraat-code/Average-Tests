@@ -143,8 +143,8 @@ sites niet staan. Het onderzoek daarachter staat in `research/metric-shortlist.m
 
 **Twee systemen vandaag, één is de bestemming.**
 
-- `public/css/ha.css` + `src/layouts/BaseV2.astro` — de vormtaal van 2026. Nu alleen op
-  `/leaving-home/`. **Hier gaat alles naartoe** (besloten 24 oktober).
+- `public/css/ha.css` + `src/layouts/BaseV2.astro` — de vormtaal van 2026. Nu op `/`,
+  `/leaving-home/` en `/method/`. **Hier gaat alles naartoe** (besloten 24 oktober).
 - `public/css/style.css` + `src/layouts/Base.astro` — de oude vormgeving. Nog op elf
   pagina's, en op het bevroren Nederlandse cluster.
 
@@ -216,8 +216,8 @@ Uit het interview. Wat hier staat is beslist; wat nog niet gedaan is, staat erbi
 |---|---|
 | De site is Europese landenvergelijkingen | Gedaan, live |
 | Geen doelbedrag, geen ijkpunt | Genoteerd |
-| **De Amerikaanse pagina's gaan eraf**: `/height/` (18 pagina's), `/weight/`, `/play/`, plus de NHANES-pipeline, data en libs. Navigatie en homepage herbedraden. `/wealth/` blijft | **Nog niet uitgevoerd** |
-| Alle pagina's gaan naar de v2-vormtaal | Alleen `/leaving-home/` is om |
+| **De Amerikaanse pagina's gaan eraf**: `/height/`, `/weight/`, `/play/`, plus de NHANES-pipeline, data en libs | Gedaan. De site ging van 48 naar 28 pagina's, de sitemap van 76 naar 56 URL's |
+| Alle pagina's gaan naar de v2-vormtaal | `/`, `/leaving-home/` en `/method/` zijn om. `/wealth/`, `/about/`, `/contact/` en `/privacy/` nog niet |
 | Landpagina's per metriek mogen, mits elke pagina eigen inhoud uit de data draagt | Nog niet gebouwd |
 | Plan vooraf alleen bij grote dingen | Vanaf nu |
 | Eén sessie is eigenaar van een bestand | Vanaf nu |

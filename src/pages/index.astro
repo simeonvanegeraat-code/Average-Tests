@@ -1,177 +1,186 @@
 ---
-import Base from '../layouts/Base.astro';
-import heightData from '../../data/percentiles/height.json';
-import weightData from '../../data/percentiles/weight.json';
+import BaseV2 from '../layouts/BaseV2.astro';
+import leaving from '../../data/leaving-home/index.json';
+import wealth from '../../data/wealth/index.json';
+import { headline, age } from '../lib/leaving-home.js';
+import { euro, formatPeriod } from '../lib/wealth.js';
 
 /**
- * De Engelse homepage. De voordeur van het product.
+ * De Engelse homepage. De voordeur.
  *
- * Alle cijfers hieronder komen uit de gegenereerde databestanden. Type hier nooit
- * een getal met de hand in: dan gaat het ooit stil afwijken van wat de tools tonen.
+ * Herschreven op 24 oktober 2026. De vorige versie verkocht het percentielproduct op
+ * Amerikaanse microdata: de kop was "You never wanted the average", de twee knoppen
+ * wezen naar /height/ en /weight/, en zelfs het logo linkte daarheen. Die pagina's
+ * zijn eraf, dus die voordeur wees naar niets.
+ *
+ * Elk getal hieronder komt uit de gebouwde databestanden. Type hier nooit een getal
+ * met de hand in: dan wijkt de voordeur ooit stilletjes af van de pagina erachter.
  */
 
-const feetInches = (cm) => {
-  const total = Math.round(cm / 2.54);
-  return `${Math.floor(total / 12)}'${total % 12}"`;
-};
-const pounds = (kg) => Math.round(kg * 2.2046226218);
-const count = (n) => n.toLocaleString('en-US');
+const h = headline(leaving);
+const euroArea = wealth.euroArea;
 
-const measuredAdults = heightData.sex.male.respondents + heightData.sex.female.respondents;
+const medians = wealth.countries.map((country: { median: number }) => country.median).sort((a, b) => a - b);
+const poorest = medians[0];
+const richest = medians[medians.length - 1];
 
-// De kern van het argument, in twee getallen: gewicht spreidt enorm, lengte niet.
-const menThirties = { height: heightData.aggregates.bands[1].male, weight: weightData.aggregates.bands[1].male };
-const heightSpreadInches = Math.round((menThirties.height.p90 - menThirties.height.p10) / 2.54);
-const weightSpreadPounds = pounds(menThirties.weight.p90) - pounds(menThirties.weight.p10);
-
-const medianManHeight = heightData.aggregates.overall.male.p50;
-const medianWomanHeight = heightData.aggregates.overall.female.p50;
-
-const title = 'HumanAverage — See Where You Actually Stand';
+const title = 'HumanAverage — European Figures, and Where You Fall';
 const description =
-  'Enter your height or weight and see your exact percentile among U.S. adults of your age ' +
-  'and sex. Calculated from survey microdata, not copied from published averages.';
+  `One question per page, answered for every European country. Half of young Europeans have ` +
+  `left home by age ${age(h.eu.total)}; the median euro-area household is worth ` +
+  `${euro(euroArea.median)}. Published figures from Eurostat and the ECB, with a map, every ` +
+  `country, and your own place in it.`;
 ---
 
-<Base title={title} description={description} canonical="/">
+<BaseV2 title={title} description={description} canonical="/">
   <Fragment slot="head">
-    <script type="application/ld+json" is:inline set:html={JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: 'HumanAverage',
-      url: 'https://www.humanaverage.com/',
-      inLanguage: 'en-US',
-      description:
-        'Percentile tools for human body measurements, calculated from public health survey microdata.',
-      publisher: { '@type': 'Organization', name: 'HumanAverage', url: 'https://www.humanaverage.com/' },
-    })} />
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'HumanAverage',
+        url: 'https://www.humanaverage.com/',
+        inLanguage: 'en-US',
+        description:
+          'Country-by-country comparisons of how Europeans live, built from figures published by Eurostat and the European Central Bank.',
+        publisher: {
+          '@type': 'Organization',
+          name: 'HumanAverage',
+          url: 'https://www.humanaverage.com/',
+        },
+      })}
+    />
   </Fragment>
 
-  <section class="page-hero">
-    <div class="container">
-      <p class="eyebrow">Percentiles from measured data</p>
-      <h1>You never wanted the average.</h1>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono"><span class="pulse"></span>Eurostat · ECB · {h.countries} countries</p>
+
+      <h1 data-reveal>A European average describes almost nobody.</h1>
+
+      <span class="giant num">{h.gap.toFixed(1)}</span>
+      <p class="unit mono">
+        years between the earliest and the latest country — <b>same question</b>, {h.year}
+      </p>
+
       <p class="lead">
-        You wanted to know where <em>you</em> stand. Google can show you that the median
-        American man is {feetInches(medianManHeight)} and the median woman
-        is {feetInches(medianWomanHeight)}. It cannot tell you what share of people your own
-        age you are taller than. That takes the individual measurements, and that is what this
-        site is built on — {count(measuredAdults)} of them.
+        In {h.earliest.name} half of young people have left home by {age(h.earliest.total)}. In {
+          h.latest.name
+        } that point does not arrive until {age(h.latest.total)}. One European figure hides both.
       </p>
-      <div class="hero-actions">
-        <a class="button" href="/height/">Find your height percentile <span aria-hidden="true">→</span></a>
-        <a class="button secondary" href="/weight/">Or start with weight</a>
+
+      <div class="hero-cta">
+        <a class="btn" href="/leaving-home/">
+          Start with leaving home <span class="arr" aria-hidden="true">→</span>
+        </a>
+        <a class="btn btn--ghost" href="/wealth/">Or household wealth</a>
+        <span class="hint">No sign-up. Nothing you type leaves your browser.</span>
+      </div>
+
+      <p class="hero-note">
+        Every page takes one figure that <em>Eurostat</em>, the <em>OECD</em> or the <em>ECB</em>
+        publishes, puts all of Europe on a map, lists every country, and then lets you put
+        yourself next to it. Nothing here is estimated on top of what those sources publish.
+      </p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="what-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>What is here</p>
+        <h2 id="what-title">Two questions so far, answered for every country</h2>
+        <p>
+          Each one is a map, a sortable table of every country, and a comparison with whatever
+          you enter about yourself. More are coming; these two are finished.
+        </p>
+      </header>
+
+      <div class="bento" data-reveal>
+        <a class="tile" href="/leaving-home/">
+          <div>
+            <b>{age(h.eu.total)}</b>
+            <p>
+              The age by which half of young Europeans no longer live with their parents.
+              {h.countries} countries, {h.year}, from the EU Labour Force Survey.
+            </p>
+          </div>
+          <span class="arr">Leaving home <span aria-hidden="true">→</span></span>
+        </a>
+
+        <a class="tile" href="/wealth/">
+          <div>
+            <b>{euro(euroArea.median, { compact: true })}</b>
+            <p>
+              What the middle household in the euro area is worth, {formatPeriod(euroArea.period)}.
+              Across {wealth.countries.length} countries the median runs from {
+                euro(poorest, { compact: true })
+              } to {euro(richest, { compact: true })}.
+            </p>
+          </div>
+          <span class="arr">Household wealth <span aria-hidden="true">→</span></span>
+        </a>
+
+        <a class="tile dark" href="/method/">
+          <div>
+            <h3>How these numbers are checked</h3>
+            <p>
+              Which dataset each figure comes from, what it does and does not say, and the gate
+              every number passes before it appears here.
+            </p>
+          </div>
+          <span class="arr">The method <span aria-hidden="true">→</span></span>
+        </a>
       </div>
     </div>
   </section>
 
-  <div class="trust-strip">
-    <ul class="container trust-list" aria-label="What this site does">
-      <li><span class="dot" aria-hidden="true"></span><span><strong>Measured:</strong> by survey staff, not self-reported</span></li>
-      <li><span class="dot" aria-hidden="true"></span><span><strong>Local:</strong> your input never leaves your browser</span></li>
-      <li><span class="dot" aria-hidden="true"></span><span><strong>Checked:</strong> our figures reproduce the published ones exactly</span></li>
-    </ul>
-  </div>
+  <section class="block" aria-labelledby="honest-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>What this is not</p>
+        <h2 id="honest-title">An average is a bad answer to a personal question</h2>
+      </header>
 
-  <section class="section">
-    <div class="container">
-      <div class="section-heading">
-        <p class="eyebrow">Compare yourself</p>
-        <h2>Two measurements, your exact position</h2>
+      <div class="prose" data-reveal>
         <p>
-          Each tool asks your age and sex, because both change the answer enormously, and
-          returns where you fall among American adults just like you.
+          That is the point of the site, and also its limit. Where a source publishes the whole
+          distribution, a page will tell you your exact position in it. Where a source publishes
+          one figure per country — which is most of the time — a page tells you which side of
+          that figure you are on, and says so plainly instead of dressing it up as a percentile.
+        </p>
+        <p>
+          The difference matters enough that each page carries it in its own words. The wealth
+          pages cannot give you a percentile because the ECB publishes the average of each
+          group and not where the groups begin. The leaving-home page cannot either, because
+          Eurostat publishes a midpoint and not a distribution. Saying so is cheaper than being
+          wrong.
+        </p>
+        <p class="note">
+          Looking for the older Dutch reaction-time, typing and memory tests? They are still here,
+          at <a href="/nl/">humanaverage.com/nl</a>. Those deliberately show no percentile either:
+          no representative dataset exists for them, and inventing one is the one thing this site
+          will not do.
         </p>
       </div>
-
-      <div class="card-grid">
-        <a class="card" href="/height/">
-          <span class="card-index">01 — HEIGHT</span>
-          <h3>Height percentile</h3>
-          <p>
-            The same height puts a 34-year-old and a 65-year-old in very different places.
-            Enter yours in feet and inches or centimetres.
-          </p>
-          <span class="card-link">Find your percentile →</span>
-        </a>
-        <a class="card" href="/weight/">
-          <span class="card-index">02 — WEIGHT</span>
-          <h3>Weight percentile</h3>
-          <p>
-            Where your weight sits among Americans your age. A comparison, with no categories
-            and no health verdict attached.
-          </p>
-          <span class="card-link">Find your percentile →</span>
-        </a>
-        <a class="card" href="/method/">
-          <span class="card-index">03 — METHOD</span>
-          <h3>How it is calculated</h3>
-          <p>
-            The source, the survey weights, the smoothing, and the checks we run against the
-            published figures before anything appears here.
-          </p>
-          <span class="card-link">Read the method →</span>
-        </a>
-      </div>
     </div>
   </section>
+</BaseV2>
 
-  <section class="section tint">
-    <div class="container narrow content">
-      <h2>Why an average is the wrong answer</h2>
-      <p>
-        Take American men in their thirties. The middle 80% of them span about
-        {heightSpreadInches} inches in height — narrow enough that the average really does
-        describe a typical man. Now take their weight: the same middle 80% spans
-        {weightSpreadPounds} pounds.
-      </p>
-      <p>
-        That is the whole problem with a single number. When a distribution is tight, the
-        average stands in for almost everyone. When it is wide, the average sits in the middle
-        of a crowd stretching out of sight in both directions, describing almost nobody. A
-        percentile does not have that failure mode. It tells you your position regardless of
-        how the crowd is spread.
-      </p>
-      <p>
-        <a href="/method/">How we calculate it →</a>
-      </p>
-    </div>
-  </section>
+<style>
+  .tile h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+  }
 
-  <section class="section">
-    <div class="container narrow content">
-      <h2>Where the numbers come from</h2>
-      <p>
-        The National Health and Nutrition Examination Survey, run by the U.S. Centers for
-        Disease Control and Prevention. Participants are measured by trained staff in a mobile
-        examination centre — nobody is asked what they weigh, because people are wrong about
-        that in predictable directions.
-      </p>
-      <p>
-        We start from the individual records rather than the published summary, apply the
-        survey weights that make a sample represent a population, and then check ourselves by
-        recomputing the statistics that the CDC publishes. All four of those reproduce exactly.
-        If any check fails, nothing is published.
-      </p>
+  .tile .arr {
+    font-weight: 600;
+  }
 
-      <div class="callout">
-        <p>
-          <strong>These are American percentiles.</strong> The survey covers the U.S. civilian
-          population. If you live elsewhere, your result tells you where you would stand among
-          Americans — which is worth knowing, as long as you know that is what it is.
-        </p>
-      </div>
-
-      <p class="field-hint">
-        Looking for the older Dutch reaction-time, typing and memory tests? They are still here,
-        at <a href="/nl/">humanaverage.com/nl</a>. Those tests deliberately show no percentile:
-        no representative dataset exists for them, and inventing one is exactly what this site
-        refuses to do.
-      </p>
-    </div>
-  </section>
-
-  <style>
-    .field-hint { color: var(--ink-soft); font-size: 0.9rem; }
-  </style>
-</Base>
+  .prose .note {
+    margin-top: 1.6em;
+    font-size: 0.92rem;
+  }
+</style>

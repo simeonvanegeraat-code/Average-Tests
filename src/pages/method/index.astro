@@ -1,189 +1,284 @@
 ---
-import Base from '../../layouts/Base.astro';
-import heightData from '../../../data/percentiles/height.json';
-import validation from '../../../data/validation.json';
+import BaseV2 from '../../layouts/BaseV2.astro';
+import leaving from '../../../data/leaving-home/index.json';
+import wealth from '../../../data/wealth/index.json';
+import wealthCheck from '../../../data/wealth-validation.json';
+import { headline, staleCountries } from '../../lib/leaving-home.js';
+import { formatPeriod } from '../../lib/wealth.js';
 
 /**
- * De methodepagina. Beide metriekpagina's verwijzen hierheen voor het volledige
- * verhaal. Elk getal komt uit de gegenereerde databestanden of uit
- * data/validation.json, dat de validatiesuite bij elke geslaagde run wegschrijft.
+ * De methodepagina. Elke metriekpagina verwijst hierheen voor het volledige verhaal.
+ *
+ * Herschreven op 24 oktober 2026. De vorige versie ging volledig over NHANES en
+ * percentielen uit microdata; die data en die pagina's zijn eraf. Wat blijft is de
+ * belofte eronder, en die geldt onverminderd voor de Europese bronnen.
+ *
+ * Elk getal komt uit de gebouwde databestanden of uit de validatiebestanden die de
+ * poorten bij elke geslaagde run wegschrijven.
  */
 
-const count = (n) => n.toLocaleString('en-US');
-const measuredAdults = heightData.sex.male.respondents + heightData.sex.female.respondents;
+const h = headline(leaving);
+const stale = staleCountries(leaving);
 
-const title = 'How We Calculate Percentiles | HumanAverage';
+const title = 'How We Get These Numbers | HumanAverage';
 const description =
-  'Our percentiles come from NHANES survey microdata, weighted and smoothed, not copied ' +
-  'from published averages. Here is the full method, the checks we run, and the limits.';
+  'Where each figure on this site comes from, what it does and does not say, and the gate ' +
+  'every number passes before it appears. Eurostat, the ECB, and nothing estimated on top.';
 ---
 
-<Base title={title} description={description} canonical="/method/">
-  <section class="page-hero">
-    <div class="container">
-      <p class="eyebrow">Method</p>
-      <h1>How we get these numbers</h1>
+<BaseV2 title={title} description={description} canonical="/method/">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono"><span class="pulse"></span>Method</p>
+      <h1 data-reveal>How we get these numbers</h1>
       <p class="lead">
-        Anyone can repeat an average. The reason this site exists is that we start one step
-        earlier — from the individual measurements — and do the arithmetic ourselves.
+        Short version: we do not make any up. Every figure is published by a statistical
+        agency, and the only arithmetic we add is the kind you could repeat.
       </p>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container narrow content">
-      <h2>Averages versus microdata</h2>
-      <p>
-        A published statistic like “the average American man is 5 feet 9 inches” is the end of
-        a calculation. Someone measured thousands of people, weighted them, and reduced all of
-        it to one number. Everything that made the answer interesting — the spread, the shape,
-        how it changes with age — was thrown away at that last step.
-      </p>
-      <p>
-        <strong>Microdata is the row-by-row file that existed before that summary.</strong> One
-        line per person: age, sex, measured height, measured weight, and the statistical weight
-        that says how many Americans that person represents. With those rows you can answer a
-        question no summary can: not “what is typical”, but “where does this specific person
-        fall”. That is the only reason a percentile on this site can exist.
-      </p>
+  <section class="block" aria-labelledby="kind-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>What you are looking at</p>
+        <h2 id="kind-title">A figure is not the same as a distribution</h2>
+      </header>
 
-      <h2>Where the data comes from</h2>
-      <p>
-        The <strong>National Health and Nutrition Examination Survey (NHANES)</strong>, run by
-        the U.S. Centers for Disease Control and Prevention. It is unusual among large surveys
-        in one respect that matters enormously here: participants are <em>measured</em> by
-        trained staff in a mobile examination centre. They are not asked what they weigh.
-        Self-reported height and weight are known to be biased, and a percentile built on them
-        would inherit that bias.
-      </p>
-      <p>
-        We use two cycles — 2017 to March 2020, and August 2021 to August 2023 — giving
-        {count(measuredAdults)} measured adults between 20 and 79. The files are in the public
-        domain, and our pipeline records the exact download URLs and a checksum for each, so a
-        silent change at the source makes the build fail rather than quietly shift the numbers.
-      </p>
-
-      <h2>What we do to it</h2>
-      <ol>
-        <li>
-          <strong>Apply the survey weights.</strong> NHANES deliberately over-samples some
-          groups so it can report on them reliably. Every participant therefore carries a factor
-          representing how many Americans they stand for. Ignoring it is not a small
-          simplification: for men aged 20 and over, the unweighted average height is 173.4 cm
-          while the correctly weighted figure is 175.2 cm. Nearly two centimetres, from one
-          skipped step.
-        </li>
-        <li>
-          <strong>Combine the two cycles.</strong> One covers about 3.2 years, the other 2, so
-          each is scaled to its share of the combined period. For equal-length cycles this is
-          exactly the standard practice of dividing by the number of cycles.
-        </li>
-        <li>
-          <strong>Smooth across age.</strong> There are roughly a hundred people per single year
-          of age — plenty for a median, too few for a stable 90th percentile. So each age draws
-          on its neighbours, weighted by how close they are, before the percentiles are
-          calculated. Every age we publish rests on at least {validation.thinnestCellRespondents}
-          effective respondents.
-        </li>
-        <li>
-          <strong>Drop the top-coded ages.</strong> NHANES records everyone aged 80 and over as
-          simply “80”. That bin holds people from 80 to past 100, so it is not an age at all. We
-          exclude it rather than present it as one, and publish ages 20 to 79.
-        </li>
-      </ol>
-
-      <h2>How we check ourselves</h2>
-      <p>
-        A pipeline that reads a binary survey file and applies statistical weights has plenty of
-        room to be subtly, invisibly wrong. So before anything is published, we recompute the
-        summary statistics that NCHS publishes itself and require an exact match.
-      </p>
-
-      <div class="data-table-wrap">
-        <table class="data-table">
-          <caption>Our calculation against the published NCHS figures, {validation.cycle}</caption>
-          <thead>
-            <tr>
-              <th scope="col">Measure</th>
-              <th scope="col">Group</th>
-              <th scope="col">We calculate</th>
-              <th scope="col">NCHS publishes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {validation.reference.map((row) => (
-              <tr>
-                <th scope="row">{row.measure}</th>
-                <td>{row.group}</td>
-                <td>{row.computed} → {row.rounded} {row.unit}</td>
-                <td>{row.published} {row.unit}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <p>
-        All four reproduce the published figures exactly. Two further checks run alongside them:
-        the smoothed curves are compared against raw percentiles computed directly in wide age
-        bands, where the largest disagreement is {validation.smoothingMaxDeviationCm} cm, and the
-        decoded body-mass values are checked against weight divided by height squared. If any
-        check fails, the build stops.
-      </p>
-      <p class="field-hint">
-        Reference figures: {validation.citation} Checked {validation.checkedOn}.
-      </p>
-
-      <h2>What we will not do</h2>
-      <div class="callout">
+      <div class="prose" data-reveal>
         <p>
-          <strong>No percentile without microdata underneath it.</strong> Plenty of sites will
-          tell you that your reaction time beats 85% of people. Ask where that distribution came
-          from and there is usually no answer. We only show a percentile where a representative,
-          measured sample exists — which is why our height and weight tools have one, and why
-          the older reaction-time and memory tests on this domain never will.
+          Most statistical agencies publish one number per country per year. That number tells
+          you where the middle of a country sits. It does not tell you how people are spread
+          around that middle, and no amount of arithmetic can recover the spread from the
+          summary once it has been thrown away.
+        </p>
+        <p>
+          This is why the pages here say <b>which side of a figure you fall on</b> rather than
+          giving you a percentile. A percentile needs the individual records — one row per
+          person — and the sources behind these pages do not publish those. Where a source ever
+          does, the page will say so and give you the real position instead.
+        </p>
+        <p>
+          Two concrete cases, both spelled out on their own pages. The wealth pages cannot give
+          a percentile because the ECB publishes the <em>average of each group</em> and not
+          where the groups begin: we know what the seventh decile owns on average, not where
+          the seventh decile starts. The leaving-home page cannot either, because Eurostat
+          publishes the age by which half have left — a midpoint, not a distribution.
         </p>
       </div>
-
-      <h2>Limits you should know</h2>
-      <ul>
-        <li>
-          <strong>These are American percentiles.</strong> NHANES samples the U.S. civilian
-          population. Body size differs substantially between countries, so if you live
-          elsewhere your result says where you would fall among Americans.
-        </li>
-        <li>
-          <strong>Ages 20 to 79.</strong> Younger ages belong to growth charts, which are a
-          different instrument with different rules. Older ages are top-coded in the source.
-        </li>
-        <li>
-          <strong>Sex at birth, two categories.</strong> That is what the survey records. We
-          would rather state the limit than invent groups the data cannot support.
-        </li>
-        <li>
-          <strong>A snapshot, not a life story.</strong> The survey measures different people at
-          different ages at one moment in time. When the curve falls after middle age, that mixes
-          two things — people do lose height as they age, and people born decades apart grew up
-          under different conditions. A cross-sectional survey cannot separate them, and neither
-          can we.
-        </li>
-        <li>
-          <strong>Not a health assessment.</strong> A percentile describes how common your
-          measurement is. It says nothing about whether it is good for you.
-        </li>
-      </ul>
-
-      <p class="source-note">
-        Source: Centers for Disease Control and Prevention (CDC), National Center for Health
-        Statistics (NCHS). National Health and Nutrition Examination Survey, 2017–March 2020 and
-        August 2021–August 2023. U.S. Department of Health and Human Services. Data retrieved
-        30 August 2026.
-      </p>
     </div>
   </section>
 
-  <style>
-    .field-hint { color: var(--ink-soft); font-size: 0.9rem; }
-    .content ol { display: grid; gap: 14px; }
-  </style>
-</Base>
+  <section class="block" aria-labelledby="source-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>Sources</p>
+        <h2 id="source-title">Where the data comes from</h2>
+        <p>
+          Two statistical agencies, both publishing openly, both recorded per dataset in the
+          repository with their code, coverage, licence and the date we fetched them.
+        </p>
+      </header>
+
+      <div class="bento" data-reveal>
+        <div class="tile">
+          <div>
+            <h3>Eurostat</h3>
+            <p>
+              <b class="code">{leaving.source.dataset}</b> — {leaving.source.label}. Derived from
+              the EU Labour Force Survey, series {leaving.years[0]} to {
+                leaving.years[leaving.years.length - 1]
+              }, last updated by Eurostat on {leaving.source.eurostatUpdated.slice(0, 10)}.
+            </p>
+          </div>
+          <span class="meta mono">{h.countries} countries at {h.year}</span>
+        </div>
+
+        <div class="tile">
+          <div>
+            <h3>European Central Bank</h3>
+            <p>
+              {wealth.source}. Quarterly, openly available through the ECB data portal, covering
+              {wealth.countries.length} countries through {formatPeriod(wealth.latestPeriod)}.
+            </p>
+          </div>
+          <span class="meta mono">{wealthCheck.quarters} quarters</span>
+        </div>
+
+        <div class="tile">
+          <div>
+            <h3>Natural Earth</h3>
+            <p>
+              The country outlines on the maps. Public domain, pinned to one package version and
+              one checksum, projected once by a script in the repository rather than by hand.
+            </p>
+          </div>
+          <span class="meta mono">reproducible</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="pipeline-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>Pipeline</p>
+        <h2 id="pipeline-title">What we do to it</h2>
+      </header>
+
+      <div class="prose" data-reveal>
+        <ol>
+          <li>
+            <b>Fetch.</b> A script pulls the source into an untracked folder and writes down what
+            it got: the exact request, the agency's own update stamp, the periods and the areas.
+            No checksum on the response itself, because these agencies publish on a schedule and
+            a changing answer is correct behaviour. Instead the script checks the dataset's
+            <em>label</em>, so that a silently reassigned code fails the build rather than quietly
+            changing a number on the site.
+          </li>
+          <li>
+            <b>Build.</b> A second script turns that into a compact JSON file that is committed to
+            the repository. Aggregates like the EU total are kept apart from countries, because
+            they sit in the same dimension at the source and are not countries. Each country
+            carries its own reference year rather than being forced into a shared one.
+          </li>
+          <li>
+            <b>Validate.</b> A gate recomputes every published figure from the raw response. If it
+            fails, nothing is published.
+          </li>
+        </ol>
+        <p>
+          The pages themselves calculate every sentence from that committed JSON at build time.
+          There is no number typed into a page by hand anywhere on this site, which is the only
+          way a figure cannot quietly go stale when a source republishes.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="check-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>Checks</p>
+        <h2 id="check-title">How we check ourselves</h2>
+        <p>
+          The gate does not trust the file we built. It goes back to the source response and
+          recomputes.
+        </p>
+      </header>
+
+      <div class="prose" data-reveal>
+        <p>
+          <b>For the wealth data</b>, the sharpest check available is that the balance has to
+          close: every published component, with debts counted negative, must add up to the
+          published net wealth. If a component is missing, a subtotal is double-counted, or a
+          scale is wrong, the sum breaks. All three are invisible on the page itself. Last run
+          on {wealthCheck.checkedOn}, across {wealthCheck.countries} countries and {
+            wealthCheck.quarters
+          } quarters, the largest deviation was <b>0.11%</b>.
+        </p>
+        <p>
+          <b>For the Eurostat data</b>, every figure and every series-break flag is recomputed
+          from the raw response. That second part matters more than it sounds. Eurostat
+          reorganised the Labour Force Survey in {leaving.lastBreak} and flags the break; the
+          break year itself is a transition, so even measuring from it is wrong. Compared with
+          2005 the gap between countries appears to grow. Compared across years that are
+          actually comparable, it shrinks. The code refuses to calculate the first version
+          rather than printing it with a footnote, and the comparable window starts at {
+            leaving.comparableSince
+          }.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="limits-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono"><span class="pulse"></span>Limits</p>
+        <h2 id="limits-title">What we will not do, and what we cannot</h2>
+      </header>
+
+      <div class="prose" data-reveal>
+        <p>
+          <b>We will not invent a statistic.</b> Not from memory, not from a search result, not
+          as a placeholder to get a page finished. If a figure cannot be traced to a dataset,
+          it does not go on the site, and the gap is left visible instead of filled.
+        </p>
+        <p>
+          <b>We will not call something a percentile when it is not one.</b> See the top of this
+          page. It would read better and it would be false.
+        </p>
+
+        <div class="limits">
+          <b>What these figures cannot tell you</b>
+          <p>
+            They are country-level. They describe a population, not anyone in it, and the spread
+            inside a country is almost always wider than the gap between countries. Coverage is
+            European: the United States, Canada and Australia are not in these datasets.
+            {
+              stale.length > 0 && (
+                <>
+                  {' '}
+                  And some countries stop reporting — {
+                    stale.map((country: { name: string; year: string }) => `${country.name} (${country.year})`).join(', ')
+                  } are shown at their most recent year, marked on the map and labelled in the
+                  table rather than quietly mixed in with the rest.
+                </>
+              )
+            }
+          </p>
+        </div>
+
+        <p class="note">
+          Every dataset is recorded in <code>data/sources.md</code> in the repository, with its
+          code, coverage, licence and fetch date. The repository is public.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseV2>
+
+<style>
+  .tile h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+  }
+
+  .tile .code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    color: var(--data);
+  }
+
+  .tile .meta {
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .prose ol {
+    margin: 0 0 1.1em;
+    padding-left: 1.3em;
+  }
+
+  .prose ol li {
+    margin-bottom: 0.9em;
+    line-height: 1.7;
+  }
+
+  .prose b {
+    color: var(--text);
+  }
+
+  .prose .note {
+    margin-top: 1.6em;
+    font-size: 0.92rem;
+  }
+
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+</style>
