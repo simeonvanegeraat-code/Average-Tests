@@ -44,6 +44,10 @@ const workingHours = {
   ],
 
   words: {
+
+    /** De titel boven de legenda van de kaart, in de eenheid van deze metriek. */
+
+    legend: "Usual hours worked per week",
     low: 'Shortest',
     high: 'Longest',
     comparative: 'shortest',

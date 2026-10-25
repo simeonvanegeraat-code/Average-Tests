@@ -40,6 +40,10 @@ const firstChild = {
   lenses: [{ key: 'total', label: 'Mothers', who: 'mothers' }],
 
   words: {
+
+    /** De titel boven de legenda van de kaart, in de eenheid van deze metriek. */
+
+    legend: "Mother's age at her first child",
     low: 'Youngest',
     high: 'Oldest',
     comparative: 'youngest',

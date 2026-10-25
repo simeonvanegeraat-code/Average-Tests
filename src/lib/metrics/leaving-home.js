@@ -62,6 +62,8 @@ const leavingHome = {
    * de beschrijving, niet in een `if` in een component.
    */
   words: {
+    /** De titel boven de legenda van de kaart, in de eenheid van deze metriek. */
+    legend: "Age by which half have left home",
     low: 'Earliest',
     high: 'Latest',
     comparative: 'earliest',

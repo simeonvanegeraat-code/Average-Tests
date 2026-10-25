@@ -165,7 +165,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
 
         <div class="legend" aria-hidden="true">
           <div class="legend-scale">
-            <div class="mono legend-title">Age by which half have left home</div>
+            <div class="mono legend-title">{metric.words?.legend ?? metric.label}</div>
             <div class="legend-bar">
               {metric.bands.map((_: any, i: number) => <i style={`background:var(--r${i})`}></i>)}
             </div>
