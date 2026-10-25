@@ -73,6 +73,34 @@ export const METRICS = [
     expect: 'Fertility indicators',
     plausible: { min: 22, max: 35 },
   },
+  {
+    key: 'dwelling-size',
+    code: 'ilc_lvho32',
+    // quant_inc en tenure hebben allebei een TOTAL, dus er valt hier niets te kiezen.
+    // Dat is het verschil met ilc_lvho04 (kamers per persoon), dat daarom in NOT_BUILT
+    // staat: daar is de doorsnede wél een redactionele keuze.
+    params: { unit: 'M2', quant_inc: 'TOTAL', tenure: 'TOTAL' },
+    fixed: { unit: 'M2', quant_inc: 'TOTAL', tenure: 'TOTAL' },
+    split: null,
+    expect: 'Average size of dwelling by income quintile and tenure status',
+    // Roemenië 54,6 m² en Cyprus 149,4 m² waren de uitersten in 2023; dit vangnet staat
+    // er tegen schaalfouten, niet tegen uitschieters.
+    // m² is geen leeftijd, dus de globale vangrail van 120 geldt hier niet.
+    absurd: { min: 0, max: 500 },
+    plausible: { min: 30, max: 220 },
+  },
+  {
+    key: 'pension-age',
+    code: 'lfso_23pens03',
+    // De leeftijd waarop mensen daadwerkelijk een ouderdomspensioen gingen ontvangen,
+    // niet de wettelijke leeftijd. Y_GE15, Y50-74 en Y_GE50 geven per land identieke
+    // waarden, dus de breedste band; statinfo=AVG want MED is de mediaan.
+    params: { statinfo: 'AVG', age: 'Y_GE15', unit: 'YR' },
+    fixed: { statinfo: 'AVG', age: 'Y_GE15', unit: 'YR' },
+    split: SEX,
+    expect: 'Age at which the person started receiving an old-age pension',
+    plausible: { min: 45, max: 75 },
+  },
 ];
 
 /**

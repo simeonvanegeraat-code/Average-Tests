@@ -53,7 +53,20 @@ export function oklchHex(L, C, hue) {
 }
 
 /** De vijf stops van de levenslijn. De volgorde is de volgorde van het spectrum in logo en footer. */
-export const STAGES = { leave: 262, marry: 350, child: 50, retire: 145, healthy: 205, household: 25, hours: 310, money: 110 };
+/**
+ * Eén tint per metriek. De getallen zijn hues in OKLCH; de rest van de schaal leidt
+ * hue.js eraf.
+ *
+ * Gekozen op afstand, niet op gevoel: elke nieuwe tint moet minstens zo ver van de
+ * bestaande liggen als die onderling al liggen (de vloer is 62, tussen child en money).
+ *
+ * 350 was gereserveerd voor . Die pagina kan niet gebouwd worden: Eurostat
+ * publiceert de trouwleeftijd alleen per geslacht, zonder totaal, en zelf middelen zou
+ * een verzonnen statistiek zijn (zie NOT_BUILT in scripts/metrics.mjs). De plek
+ * vrijhouden voor iets onmogelijks kostte wél de beste vrije tint, dus woninggrootte
+ * krijgt hem — op afstand 85 de ruimste die er nog was.
+ */
+export const STAGES = { leave: 262, child: 50, retire: 145, healthy: 205, household: 25, hours: 310, money: 110, pension: 280, dwelling: 350 };
 
 /** Zes klassen, zelfde helderheids- en chromastappen voor elke tint, hue schuift licht mee. */
 const RAMP = {
