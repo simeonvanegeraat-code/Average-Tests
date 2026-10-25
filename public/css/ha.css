@@ -239,7 +239,7 @@
   .catalogue { display: none; }
   @supports selector(:popover-open) { .catalogue { display: revert; } }
   @supports not selector(:popover-open) { .stagebtn { display: none; } }
-  .catalogue { position: fixed; inset: 82px auto auto 50%; translate: -50% 0; margin: 0; width: min(1160px, calc(100% - 2 * var(--gutter))); max-height: calc(100dvh - 96px); overflow: auto; overscroll-behavior: contain; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: var(--surface); color: var(--text); box-shadow: 0 40px 90px -36px rgb(0 0 0 / .5); }
+  .catalogue { pointer-events: auto; position: fixed; inset: 82px auto auto 50%; translate: -50% 0; margin: 0; width: min(1160px, calc(100% - 2 * var(--gutter))); max-height: calc(100dvh - 96px); overflow: auto; overscroll-behavior: contain; touch-action: pan-y; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: var(--surface); color: var(--text); box-shadow: 0 40px 90px -36px rgb(0 0 0 / .5); }
   .catalogue::backdrop { background: oklch(0.1 0.03 268 / .32); }
   .catalogue:popover-open { animation: cat-in .34s var(--ease); }
   .cat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
@@ -567,11 +567,30 @@
     .cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 560px) {
-    .cat-grid { grid-template-columns: 1fr; }
-    .split { grid-template-columns: 1fr; }
-    .catalogue { padding: 14px; }
-    .cat-card { min-height: 0; }
     .nav-method { display: none; }
+    .split { grid-template-columns: 1fr; }
+  }
+  /* Ook bij een laag venster: liggend op een telefoon is 844 breed en 390 hoog, en
+     daar is een kaart van 157px net zo onbruikbaar als op een smal scherm. */
+  @media (max-width: 560px), (max-height: 560px) {
+    /* Negen ingangen in één scherm: de kaart wordt een regel. De balk blijft, als
+       dunne lijn onderlangs, zodat de codering niet met de hoogte verdwijnt. De twee
+       uiterste landen gaan wel weg — die zijn op deze breedte toch niet te lezen. */
+    .cat-grid { grid-template-columns: 1fr; gap: 6px; }
+    .catalogue { padding: 12px; }
+    .cat-card { position: relative; min-height: 0; flex-direction: row; align-items: center; gap: 12px; padding: 10px 14px 14px; border-radius: 14px; }
+    .cat-card:hover { transform: none; }
+    .cat-card .name { flex: 1 1 auto; min-width: 0; font-size: 1rem; }
+    .cat-card .val { margin: 0; flex: none; font-size: 1.45rem; letter-spacing: -.05em; }
+    .cat-card .val small { margin-left: 4px; font-size: .55rem; }
+    .cat-card .bar { position: absolute; inset: auto 14px 7px 14px; margin: 0; padding: 0; }
+    .cat-card .bar .track { height: 3px; }
+    .cat-card .ends { display: none; }
+    .cat-method { flex-direction: row; align-items: center; gap: 12px; }
+    .cat-method .cue { display: none; }
+    .cat-method .name { flex: 1 1 auto; color: var(--text-2); }
+    .cat-method .go { flex: none; width: 30px; height: 30px; margin: 0; }
+    .cat-method .go svg { width: 14px; height: 14px; }
   }
   @media (max-width: 760px) {
     .nav { padding-left: 16px; }
