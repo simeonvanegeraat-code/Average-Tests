@@ -1,21 +1,16 @@
 ---
 /**
- * Basislayout voor de nieuwe vormtaal (v2) van het Engelse cluster.
+ * Basislayout van het Engelse cluster. Sinds 25 oktober 2026 gebruikt elke pagina in
+ * src/pages deze; Base.astro is daarmee verdwenen en er is weer één <head>.
  *
- * Opt-in per pagina: een pagina kiest deze layout in plaats van Base.astro. Base.astro,
- * /css/style.css en /js/main.js blijven ongemoeid, en het Nederlandse cluster in public/
- * laadt niets hiervan. Zie research/build-plan-v2.md.
+ * Het bevroren Nederlandse cluster in public/ staat hier los van: die 30 pagina's
+ * laden /css/style.css en /js/main.js rechtstreeks. Die twee bestanden blijven dus
+ * staan, ook al verwijst er niets in src/ meer naar.
  *
- * Twee keuzes die uitleg verdienen:
- *
- * 1. Een eigen layout in plaats van een prop op Base.astro. Dan blijft Base.astro
- *    byte-identiek, wat mechanisch te bewijzen is (dist van vóór en na vergelijken).
- *    De prijs is dat de <head> hieronder tijdelijk twee keer bestaat. Zodra de laatste
- *    pagina is omgezet verdwijnt Base.astro en is er weer één.
- * 2. De stylesheet is een statisch bestand (public/css/ha.css), niet een import uit
- *    src/. De bundelaar van Astro kan moderne CSS (light-dark(), @layer) herschrijven
- *    voor oudere doelen; dit bestand moet precies zo in de browser komen als het is
- *    ontworpen en getest.
+ * De stylesheet is een statisch bestand (public/css/ha.css), niet een import uit
+ * src/. De bundelaar van Astro kan moderne CSS (light-dark(), @layer) herschrijven
+ * voor oudere doelen; dit bestand moet precies zo in de browser komen als het is
+ * ontworpen en getest.
  *
  * De tint van de metriek (`hue`) en de zes kaartkleuren staan als variabelen op <html>,
  * op de server uitgerekend (src/lib/hue.js). Daar is geen clientcode voor nodig.
