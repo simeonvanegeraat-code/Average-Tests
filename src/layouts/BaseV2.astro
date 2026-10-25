@@ -232,6 +232,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
        */
       import { readProfile, mergeProfile } from '../lib/profile.js';
       import { track, EVENTS } from '../lib/analytics.js';
+      import { readCounter, animate, countWhenVisible } from '../lib/countup.js';
 
       const root = document.documentElement;
       const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -335,73 +336,36 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
       }
 
       /**
-       * Het paneel met de metrieken. Alles wat beweegt doet CSS — het openen, de
-       * kaarten na elkaar, en de balk die naar zijn breedte groeit. Alleen het cijfer
-       * heeft een script nodig: de echte waarde staat in de HTML en wordt bij het
-       * openen van nul af opgeteld. Zonder JavaScript, in een oudere browser of met
-       * beperkte beweging blijft dat echte getal gewoon staan.
+       * Het kopcijfer van de pagina loopt op zodra het in beeld komt. Elke pagina heeft er
+       * precies één (.giant). De echte waarde staat in de HTML en komt daar na afloop weer
+       * terug te staan, dus zonder JavaScript of met beperkte beweging mist er niets.
+       */
+      countWhenVisible(document.querySelectorAll<HTMLElement>('.giant'));
+
+      /**
+       * Het paneel met de metrieken. Alles wat beweegt doet CSS — het openen, de kaarten na
+       * elkaar, en de balk die naar zijn breedte groeit. Alleen de cijfers hebben een script,
+       * en dat is dezelfde lib als hierboven; hier alleen bij het openen in plaats van bij
+       * het in beeld komen.
        */
       const panel = document.getElementById('metrics-menu');
       const catButton = document.querySelector<HTMLButtonElement>('.cat-btn');
 
       if (panel && catButton) {
-        type Counter = {
-          node: HTMLElement;
-          final: string;
-          prefix: string;
-          suffix: string;
-          target: number;
-          decimals: number;
-        };
-
-        const counters: Counter[] = [];
+        const counters = [];
         for (const node of panel.querySelectorAll<HTMLElement>('[data-count]')) {
-          const final = node.textContent ?? '';
-          // "26.3", maar ook "€167k": wat ervoor en erna staat blijft staan.
-          const parts = /^(\D*)([\d.]+)(\D*)$/.exec(final.trim());
-          if (!parts) continue;
-          const target = Number(parts[2]);
-          if (!Number.isFinite(target)) continue;
-          counters.push({
-            node,
-            final,
-            prefix: parts[1],
-            suffix: parts[3],
-            target,
-            decimals: (parts[2].split('.')[1] ?? '').length,
-          });
+          const counter = readCounter(node);
+          if (counter) counters.push(counter);
         }
 
-        let frame = 0;
-
-        /** Terug naar de tekst die de server schreef, nooit naar een afgerond restje. */
-        const settle = () => {
-          cancelAnimationFrame(frame);
-          for (const counter of counters) counter.node.textContent = counter.final;
-        };
-
-        const countUp = () => {
-          cancelAnimationFrame(frame);
-          const started = performance.now();
-          const tick = (now: number) => {
-            const part = Math.min(1, (now - started) / 820);
-            const eased = 1 - (1 - part) ** 3;
-            for (const counter of counters) {
-              counter.node.textContent =
-                counter.prefix + (counter.target * eased).toFixed(counter.decimals) + counter.suffix;
-            }
-            if (part < 1) frame = requestAnimationFrame(tick);
-            else settle();
-          };
-          frame = requestAnimationFrame(tick);
-        };
+        let stop = () => {};
 
         // `toggle` vuurt ná de wissel, dus :popover-open staat er al goed voor.
         panel.addEventListener('toggle', () => {
           const open = panel.matches(':popover-open');
           catButton.setAttribute('aria-expanded', String(open));
-          if (!open) return settle();
-          if (!reduceMotion && counters.length) countUp();
+          stop();
+          if (open && !reduceMotion) stop = animate(counters);
         });
 
         // Een klik hierin is pas een tweede metriek als je er al op een staat.
