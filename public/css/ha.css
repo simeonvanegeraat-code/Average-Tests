@@ -221,11 +221,6 @@
   .brand { display: inline-flex; align-items: center; align-self: stretch; gap: 10px; color: var(--text); font: 700 1.08rem/1 var(--font-display); letter-spacing: -.035em; text-decoration: none; }
   .brand:hover { text-decoration: none; }
   .mark { width: 36px; height: 16px; }
-  .stagebtn { margin-inline: auto; display: flex; align-items: center; gap: 4px; padding: 19px 14px; border: 0; background: none; cursor: pointer; border-radius: 999px; }
-  .stagebtn:hover { background: color-mix(in oklab, var(--text) 6%, transparent); }
-  .stagebtn i { width: 16px; height: 6px; border-radius: 99px; background: var(--c); opacity: .3; transition: width .3s var(--ease), opacity .3s; }
-  .stagebtn i[data-v="1"] { opacity: .75; }
-  .stagebtn i[aria-current="step"] { opacity: 1; width: 34px; }
   /* De ingang naar het paneel. De open-stand komt uit :has(), niet uit JavaScript,
      zodat de pijl ook draait als het script niet laadt; aria-expanded zet het script. */
   .cat-btn { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; padding: 9px 15px; border: 0; border-radius: 999px; background: transparent; color: var(--text); font-weight: 600; font-size: .94rem; cursor: pointer; transition: background-color .2s; }
@@ -456,33 +451,6 @@
   .sharebar .btn { width: 100%; min-width: 0; }
   .sharebar .btn--primary { grid-column: 1 / -1; }
 
-  /* ---------- volgende vraag ---------- */
-  .next { padding: clamp(64px, 9vw, 120px) 0 0; }
-  .progress { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; color: var(--text-2); font-size: .95rem; }
-  .pips { display: inline-flex; gap: 6px; }
-  .pips i { width: 34px; height: 6px; border-radius: 99px; background: var(--line-strong); transition: background-color .3s; }
-  .pips i[data-on="1"] { background: var(--c); }
-  .nextgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-  .nextcard {
-    position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; min-height: 320px; padding: 24px; text-align: left; cursor: pointer;
-    border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); color: var(--text);
-    transition: transform .3s var(--ease), border-color .3s, box-shadow .3s;
-  }
-  .nextcard::before { content: ""; position: absolute; z-index: -1; inset: 0; background: radial-gradient(90% 70% at 0% 0%, var(--wash), transparent 70%); transition: opacity .3s; }
-  .nextcard:hover { transform: translateY(-6px); border-color: color-mix(in oklab, var(--glow) 60%, var(--line)); box-shadow: 0 30px 60px -30px color-mix(in oklab, var(--glow) 70%, transparent); }
-  .nextcard .top { display: flex; justify-content: space-between; align-items: center; color: var(--text-2); }
-  .nextcard .ico { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 14px; background: var(--data-tint); color: var(--data-on-tint); }
-  .nextcard .ico svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-  .nextcard .val { margin-top: 26px; font: 800 clamp(3.4rem, 2rem + 3vw, 4.6rem)/.86 var(--font-display); letter-spacing: -.065em; font-variant-numeric: tabular-nums; color: var(--data); }
-  .nextcard .val small { margin-left: 6px; font: 500 .7rem/1 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; color: var(--text-2); }
-  .nextcard .q { margin-top: 14px; font: 650 1.4rem/1.12 var(--font-display); letter-spacing: -.03em; }
-  .nextcard .a { margin-top: 8px; font-size: .92rem; line-height: 1.5; color: var(--text-2); }
-  .nextcard .a b { color: var(--text); font-weight: 600; }
-  .nextcard .go { margin-top: auto; padding-top: 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 650; font-size: .94rem; }
-  .nextcard .go i { width: 40px; height: 40px; display: grid; place-items: center; font-size: 1.15rem; border-radius: 50%; background: var(--ink); color: var(--on-ink); font-style: normal; transition: transform .3s var(--ease); }
-  .nextcard:hover .go i { transform: translateX(4px) rotate(-8deg); }
-  .nextcard[data-visited="1"] { border-color: color-mix(in oklab, var(--glow) 55%, var(--line)); }
-  .nextcard[data-visited="1"] .go span::after { content: " · explored"; color: var(--text-2); font-weight: 500; }
   .unlock { display: grid; grid-template-columns: minmax(0, 340px) 1fr; gap: clamp(24px, 4vw, 56px); align-items: center; margin-top: 20px; padding: clamp(20px, 3vw, 32px); border: 1px solid var(--line); border-radius: var(--radius-xl); background: var(--surface); }
   .unlock .cardimg { overflow: hidden; border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--stage); transition: filter .5s; }
   .unlock .cardimg[data-locked="1"] { filter: saturate(.25) brightness(.7) blur(1px); }
@@ -535,10 +503,6 @@
   .wordmark { margin-top: clamp(32px, 6vw, 72px); font: 800 min(12rem, calc((100vw - 2 * var(--gutter)) / 6.4))/.8 var(--font-display); font-variation-settings: "opsz" 96; letter-spacing: -.055em; white-space: nowrap; background: linear-gradient(90deg, var(--sp0), var(--sp1), var(--sp2), var(--sp3), var(--sp4)); -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: .12em; user-select: none; }
 
   /* ---------- plakkende "volgende"-knop ---------- */
-  .nextbar { position: fixed; left: 50%; bottom: 18px; z-index: 45; translate: -50% 140%; max-width: calc(100% - 2 * var(--gutter)); display: inline-flex; align-items: center; gap: 12px; padding: 8px 8px 8px 20px; border: 0; border-radius: 999px; background: var(--ink); color: var(--on-ink); font-weight: 600; box-shadow: 0 24px 50px -16px rgb(0 0 0 / .5); cursor: pointer; transition: translate .5s var(--ease); }
-  .nextbar.on { translate: -50% 0; }
-  .nextbar i { width: 38px; height: 38px; display: grid; place-items: center; font-size: 1.1rem; border-radius: 50%; background: var(--c); color: oklch(0.2 0.03 268); font-style: normal; }
-  .nextbar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 
   /* ---------- breakpoints ---------- */
@@ -547,7 +511,6 @@
     .hero h1 { max-width: 16ch; }
     .map-grid { grid-template-columns: 1fr; }
     .ranklist { max-height: 380px; }
-    .nextgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .fit-grid { grid-template-columns: 1fr; }
     .sharebox { position: static; }
     .unlock { grid-template-columns: 1fr; }
@@ -559,9 +522,6 @@
   @media (max-width: 420px) {
     .nav { padding-left: 14px; gap: 4px; }
     .brand { gap: 8px; font-size: 1rem; }
-    .stagebtn { padding: 19px 8px; gap: 3px; }
-    .stagebtn i { width: 11px; }
-    .stagebtn i[aria-current="step"] { width: 24px; }
   }
   @media (max-width: 1000px) {
     .cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -594,21 +554,15 @@
   }
   @media (max-width: 760px) {
     .nav { padding-left: 16px; }
-    .stagebtn { margin-inline: auto 0; }
     .seg { width: 100%; } .seg button { flex: 1; padding-inline: 8px; }
     .timeline { max-width: none; flex-basis: 100%; }
     .controls .btn { width: 100%; }
     .row { grid-template-columns: 22px 36px minmax(0, 1fr) 46px; } .row .bar { display: none; }
     .madlib { font-size: 1.5rem; }
     .madlib .btn { width: 100%; margin: 6px 0 0; }
-    .nextgrid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); gap: 12px; margin-inline: calc(-1 * var(--gutter)); padding: 4px var(--gutter) 18px; scrollbar-width: none; }
-    .nextgrid::-webkit-scrollbar { display: none; }
-    .nextcard { flex: 0 0 82%; scroll-snap-align: start; min-height: 300px; }
     .method-grid dl div { grid-template-columns: 1fr; gap: 6px; }
     .bento { grid-template-columns: 1fr; }
     .tile.s4, .tile { grid-column: span 1; min-height: 190px; }
-    .nextbar { bottom: 12px; }
-    .progress { flex-direction: column; align-items: flex-start; gap: 10px; }
     .stage-sec { margin-top: -44px; }
   }
 }

@@ -27,8 +27,6 @@ const workingHours = {
   unit: 'hours',
   unitOne: 'hour',
 
-  euCode: 'EU',
-
   /** Stappen van twee uur rond het Europese cijfer van 37,3; uitersten 33,0 en 44,1. */
   bands: [
     { until: 35, label: 'under 35' },

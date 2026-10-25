@@ -36,8 +36,6 @@ const leavingHome = {
   unit: 'years',
   unitOne: 'year',
 
-  euCode: 'EU',
-
   /**
    * Zes vaste stappen in plaats van kwantielen: de legenda blijft dan hetzelfde als
    * de data bijwerkt, en een kaart waarvan de klassegrenzen elk jaar schuiven is niet

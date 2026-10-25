@@ -102,9 +102,3 @@ export function hueStyle(hue) {
   ].join(';');
 }
 
-/** Het spectrum van de levenslijn als zes hexwaarden-lijst voor logo, favicon en deelbeeld. */
-export function spectrum() {
-  const lightness = [0.74, 0.74, 0.76, 0.8, 0.8];
-  const chroma = [0.17, 0.17, 0.16, 0.16, 0.13];
-  return Object.values(STAGES).map((hue, i) => oklchHex(lightness[i], chroma[i], hue));
-}

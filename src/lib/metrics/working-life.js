@@ -23,8 +23,6 @@ const workingLife = {
   unit: 'years',
   unitOne: 'year',
 
-  euCode: 'EU',
-
   /**
    * Zes stappen van drie jaar rond het Europese cijfer (37,5). De uitersten liggen
    * op 30,4 en 44,0, dus de onderste en bovenste klasse vangen de staarten.

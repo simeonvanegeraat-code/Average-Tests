@@ -26,8 +26,6 @@ const firstChild = {
   unit: 'years',
   unitOne: 'year',
 
-  euCode: 'EU',
-
   /** Stappen van één jaar rond het Europese cijfer van 29,9; uitersten 26,4 en 31,9. */
   bands: [
     { until: 27.5, label: 'under 27.5' },
