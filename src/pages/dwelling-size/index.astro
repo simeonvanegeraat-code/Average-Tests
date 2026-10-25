@@ -1,0 +1,397 @@
+---
+import BaseV2 from '../../layouts/BaseV2.astro';
+import StageMap from '../../components/StageMap.astro';
+import CompareForm from '../../components/CompareForm.astro';
+import RankTable from '../../components/RankTable.astro';
+import geo from '../../../data/geo/europe.json';
+import index from '../../../data/dwelling-size/index.json';
+import householdData from '../../../data/household-size/index.json';
+import metric from '../../lib/metrics/dwelling-size.js';
+import householdMetric from '../../lib/metrics/household-size.js';
+import { spacePerPerson } from '../../lib/space-per-person.js';
+import {
+  currentCountries,
+  formatAmount,
+  formatValue,
+  headline,
+  ordinal,
+  ranked,
+  staleCountries,
+  withArticle,
+} from '../../lib/metric.js';
+
+/**
+ * Metriekpagina: dwelling-size.
+ *
+ * Kaart, tabel en formulier zijn gedeelde componenten; kop, bevindingen en methode
+ * zijn voor deze pagina geschreven. Geen cijfer staat hier met de hand ingetypt.
+ *
+ * Wat deze pagina heeft dat geen andere heeft: de deling door de huishoudgrootte.
+ * Vierkante meters per woning en vierkante meters per persoon geven een andere
+ * rangorde, en dat is het antwoord op een vraag die een tabel met woninggroottes
+ * niet beantwoordt. De rekensom staat in src/lib/space-per-person.js, met de
+ * beperking erbij: het is één gepubliceerd gemiddelde gedeeld door een ander.
+ */
+
+const h = headline(index);
+const stale = staleCountries(index);
+const order = ranked(index);
+const current = currentCountries(index);
+const space = spacePerPerson(index, householdData);
+
+const fmt = (value: number | null) => formatValue(value, metric);
+const amt = (value: number, options = {}) => formatAmount(value, metric, options);
+const people = (value: number) => formatAmount(value, householdMetric);
+
+const euValue = h.eu ? fmt(h.eu.total) : fmt(order[Math.floor(order.length / 2)].total);
+const ratio = (h.latest.total / h.earliest.total).toFixed(2);
+const names = (list: any[]) => list.map((country) => country.name).join(', ');
+const small5 = names(order.slice(0, 5));
+const large5 = names(order.slice(-5).reverse());
+const bigOnes = current
+  .filter((country) => ['DE', 'FR', 'IT', 'ES', 'PL', 'NL'].includes(country.code))
+  .sort((a, b) => a.total - b.total)
+  .map((country) => `${country.name} ${fmt(country.total)}`)
+  .join(', ');
+
+/** De landen die het meest van plaats veranderen zodra je door de huishoudgrootte deelt. */
+const movers = space
+  ? [...space.byArea]
+      .sort((a, b) => Math.abs(b.areaRank - b.personRank) - Math.abs(a.areaRank - a.personRank))
+      .slice(0, 3)
+  : [];
+
+const clientJson = JSON.stringify({
+  decimals: metric.decimals,
+  unit: metric.unit,
+  unitOne: metric.unitOne,
+  countries: current.map(({ code, name, total }) => ({ code, name, total })),
+}).replace(/</g, '\\u003c');
+
+const title = `Average Home Size by Country in Europe (${h.year})`;
+const description = `The average home in the European Union is ${euValue} m² — ${fmt(h.earliest.total)} in ${withArticle(h.earliest.name)} and ${fmt(h.latest.total)} in ${withArticle(h.latest.name)}. Compare all ${h.countries} countries on a map, and see which countries have the most floor space per person.`;
+---
+
+<BaseV2 title={title} description={description} canonical="/dwelling-size/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Eurostat · {h.countries} countries · {h.year}</p>
+      <h1 data-reveal>The largest homes in Europe are not where people have the most room.</h1>
+      <span class="giant num">{euValue}</span>
+      <p class="unit mono">m² per home · <b>European Union</b> · {h.year}</p>
+      <p class="lead">A home in {withArticle(h.latest.name)} averages {fmt(h.latest.total)} m² and one in {withArticle(h.earliest.name)} {fmt(h.earliest.total)} — {ratio} times the difference. Divide by the number of people living in them and the order changes.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#compare">Compare yourself <span class="arr" aria-hidden="true">→</span></a>
+        <span class="hint">Nothing you type leaves your browser.</span>
+      </div>
+      <p class="hero-note">This is floor space, averaged over every kind of home: owned and rented, flats and houses, every income group. It is the size of the dwelling, not the size of the plot, and not the size of newly built homes — those are younger and larger almost everywhere.</p>
+    </div>
+  </section>
+
+  <StageMap geo={geo} index={index} metric={metric} eyebrow="The map" title="Where homes are largest" lede="Tap a country to see its figures." />
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Your turn</p>
+        <h2 id="compare-title">How big is your home?</h2>
+        <p>Enter the floor area of your home in square metres — the whole dwelling, not one room.</p>
+      </header>
+      <div data-reveal>
+        <CompareForm index={index} metric={metric} />
+        <output class="result" data-metric-result role="status" hidden></output>
+        <div class="limits">
+          <b>What a floor area does not say</b>
+          <p>Two homes of the same size are not the same home. This figure ignores how many people live there, how the space is divided, whether there is outdoor space, and what it costs. A 90 m² flat in a capital city and a 90 m² house in a village are the same number here and nothing like each other.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Every country</p>
+        <h2 id="table-title">All {index.countries.length} countries, smallest to largest</h2>
+        <p>Sort by any column. This dataset has no breakdown by sex, so those columns are empty.</p>
+      </header>
+      <div data-reveal><RankTable index={index} metric={metric} /></div>
+    </div>
+  </section>
+
+  {
+    space && (
+      <section class="block" id="per-person" aria-labelledby="per-person-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">Our own calculation</p>
+            <h2 id="per-person-title">Floor space per person</h2>
+            <p>
+              Divide the average home by the average household and {space.moved} of the {space.of}{' '}
+              countries change places.
+            </p>
+          </header>
+
+          <div data-reveal>
+            <div class="split">
+              <div class="split-side">
+                <span class="k">Largest homes</span>
+                <b>{fmt(space.biggest.m2)} m²</b>
+                <span class="d">
+                  {space.biggest.name} — {people(space.biggest.people)} per household, so{' '}
+                  {fmt(space.biggest.per)} m² each, which is {ordinal(space.biggest.personRank)} of{' '}
+                  {space.of}.
+                </span>
+              </div>
+              <span class="split-vs" aria-hidden="true">vs</span>
+              <div class="split-side own">
+                <span class="k">Most space per person</span>
+                <b>{fmt(space.mostSpace.per)} m²</b>
+                <span class="d">
+                  {space.mostSpace.name} — smaller homes at {fmt(space.mostSpace.m2)} m², but{' '}
+                  {people(space.mostSpace.people)} living in them.
+                </span>
+              </div>
+            </div>
+
+            <div class="prose">
+              <p>
+                The spread widens when you do this. Measured by floor area the largest country is{' '}
+                {space.ratioArea} times the smallest; measured per person it is {space.ratioPerson} times.
+                Countries with large homes tend to have large households, and the two partly cancel out:
+                {movers.map((row, i) => (
+                  <>
+                    {i === 0 ? ' ' : i === movers.length - 1 ? ' and ' : ', '}
+                    {row.name} goes from {ordinal(row.areaRank)} to {ordinal(row.personRank)}
+                  </>
+                ))}.
+              </p>
+              <p>
+                <b>This is a ratio of two averages, not an average of ratios.</b> It is one published figure
+                divided by another, so it describes a country and not a household in it — no home holds{' '}
+                {space.eu ? people(space.eu.people) : 'the average number of people'}. Both figures come from
+                the same survey, EU-SILC, and the same year, {space.year}; household size is published up to{' '}
+                {householdData.latestYear}, and this calculation uses {space.year} on both sides rather than
+                the newest of each.
+              </p>
+            </div>
+
+            <div class="tablewrap" tabindex="0" role="region" aria-label="Floor space per person by country">
+              <table>
+                <caption class="vh">
+                  Average home size, average household size and floor space per person, {space.year}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Country</th>
+                    <th scope="col" class="n">m² per home</th>
+                    <th scope="col" class="n">People</th>
+                    <th scope="col" class="n">m² per person</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {space.byPerson.map((row) => (
+                    <tr>
+                      <th scope="row">{row.name}</th>
+                      <td class="n">{fmt(row.m2)}</td>
+                      <td class="n">{formatValue(row.people, householdMetric)}</td>
+                      <td class="n strong">{fmt(row.per)}</td>
+                    </tr>
+                  ))}
+                  {space.eu && (
+                    <tr class="emphasis">
+                      <th scope="row">European Union</th>
+                      <td class="n">{fmt(space.eu.m2)}</td>
+                      <td class="n">{formatValue(space.eu.people, householdMetric)}</td>
+                      <td class="n strong">{fmt(space.eu.per)}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">What the numbers say</p>
+        <h2 id="facts-title">Wealth explains less of this than you would think</h2>
+      </header>
+      <div data-reveal>
+        <div class="bento">
+          <div class="tile s4">
+            <div>
+              <b>{ratio}×</b>
+              <p>
+                separates the largest homes from the smallest — {withArticle(h.latest.name)} at{' '}
+                {fmt(h.latest.total)} m² and {withArticle(h.earliest.name)} at {fmt(h.earliest.total)} m², a
+                gap of {amt(h.gap)}. The five largest are {large5}; the five smallest are {small5}.
+              </p>
+            </div>
+            <span class="meta mono">{h.year}</span>
+          </div>
+          <div class="tile dark">
+            <div>
+              <h3>One year, no trend</h3>
+              <p>
+                Eurostat publishes this table for {h.year} alone. There is no earlier year to compare with,
+                so this page shows none — not a line through a single point.
+              </p>
+            </div>
+            <span class="meta mono">why this page has no history</span>
+          </div>
+        </div>
+        <div class="prose">
+          <p>
+            The big economies sit in the middle and close together: {bigOnes}. Above them are small rich
+            countries and the Mediterranean; below them is central and eastern Europe. But the richest
+            countries are not at the top, and {space ? `${space.biggest.name}, with the largest homes of all, is ${ordinal(space.biggest.personRank)} per person` : 'the order shifts once household size is taken into account'}.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">Method</p>
+        <h2 id="method-title">How this is measured</h2>
+        <p>Published by Eurostat. The only figure we calculate ourselves is floor space per person, and it is marked as ours.</p>
+      </header>
+      <div data-reveal>
+        <dl>
+          <div><dt>What the figure is</dt><dd>The average useful floor area of a dwelling in square metres, from EU-SILC, the European survey on income and living conditions. Eurostat publishes it by income quintile and by tenure status; this page takes the total of both, which is the figure for all households in the country.</dd></div>
+          <div><dt>What it is not</dt><dd>It is not space per person — that calculation is further up this page and is ours, not Eurostat's. It is not the size of new homes, not a count of rooms, and not a distribution: Eurostat publishes one number per country, so there is no percentile to be had, only which side of the average you fall on.</dd></div>
+          <div>
+            <dt>Coverage</dt>
+            <dd>
+              {h.countries} countries have a figure for {h.year}.
+              {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} stopped reporting earlier and are shown at their most recent year, hatched on the map and labelled in the table.</>)}
+              {' '}The United States, Canada and Australia are not in this dataset.
+            </dd>
+          </div>
+          <div>
+            <dt>Series breaks</dt>
+            <dd>
+              None, because there is nothing to break: {index.years.length === 1
+                ? `Eurostat has published this table for ${index.years[0]} only.`
+                : `the published series runs ${index.years[0]} to ${index.years[index.years.length - 1]}.`} A single
+              year cannot be compared with its own past, and this page does not pretend otherwise.
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>Series</strong> {index.years[0]}{index.years.length > 1 && ` to ${index.years[index.years.length - 1]}`}</li>
+          <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>DOI</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          {index.source.metadata && (<li><strong>Eurostat metadata</strong><a href={index.source.metadata} data-method-link>explanatory texts</a></li>)}
+          {space && (<li><strong>Household size</strong> Eurostat <code>{householdData.source.dataset}</code> at {space.year}, used only for the per-person calculation — <a href="/household-size/">its own page is here</a></li>)}
+        </ul>
+
+        <p class="source-note">
+          Licence: Eurostat data may be reused, including commercially, with attribution. How we handle
+          data is on <a href="/method/">the method page</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="metric-data" set:html={clientJson} />
+
+  <script>
+    import { readProfile, mergeProfile } from '../../lib/profile.js';
+    import { formatAmount, formatValue, withArticle } from '../../lib/metric.js';
+    import { track, EVENTS } from '../../lib/analytics.js';
+
+    /** De persoonlijke laag. De zinnen horen bij deze metriek en staan daarom hier. */
+    const holder = document.getElementById('metric-data');
+    const result = document.querySelector<HTMLElement>('[data-metric-result]');
+    const KEY = 'dwelling-size';
+
+    if (holder && result) {
+      const data = JSON.parse(holder.textContent ?? '{}');
+      const cfg = { decimals: data.decimals, unit: data.unit, unitOne: data.unitOne };
+      const send = (name: string, detail: object) => document.dispatchEvent(new CustomEvent(name, { detail }));
+
+      function render(code: string, own: number) {
+        const home = data.countries.find((country: any) => country.code === code);
+        const larger = data.countries.filter((country: any) => own > country.total).length;
+        const of = data.countries.length;
+        const lines = [];
+        if (home) {
+          const diff = own - home.total;
+          lines.push(
+            Math.abs(diff) < 0.5
+              ? `Your ${own} m² is the average home in ${withArticle(home.name)}.`
+              : `Your ${own} m² is ${formatAmount(Math.abs(diff), cfg)} ${diff > 0 ? 'above' : 'below'} the average home in ${withArticle(home.name)} (${formatValue(home.total, cfg)} m²).`,
+          );
+        }
+        lines.push(
+          larger === of
+            ? `That is larger than the average home in every one of the ${of} countries here.`
+            : larger === 0
+              ? `That is smaller than the average home in all ${of} countries here.`
+              : `It is larger than the average in ${larger} of ${of} countries, and smaller in ${of - larger}.`,
+        );
+        result.textContent = lines.join(' ');
+        result.hidden = false;
+      }
+
+      document.addEventListener('ha:country', (event) => {
+        const { code, source } = (event as CustomEvent<any>).detail ?? {};
+        if (!code || source === 'restore') return;
+        mergeProfile({ country: code });
+      });
+
+      document.addEventListener('ha:submit', (event) => {
+        const { code, age, source } = (event as CustomEvent<any>).detail ?? {};
+        if (!code || !Number.isFinite(age)) return;
+        render(code, age);
+        if (source === 'restore') return;
+        mergeProfile({ country: code, [KEY]: age });
+        track(EVENTS.valueSubmitted, { metric: KEY, country: code });
+      });
+
+      function restore() {
+        const saved = readProfile();
+        const code = typeof saved.country === 'string' ? saved.country : null;
+        if (!code) return;
+        send('ha:country', { code, source: 'restore' });
+        const own = Number(saved[KEY]);
+        if (Number.isFinite(own)) send('ha:submit', { code, age: own, source: 'restore' });
+      }
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restore, { once: true });
+      else restore();
+    }
+
+    for (const link of document.querySelectorAll('[data-method-link]')) {
+      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: KEY }));
+    }
+  </script>
+
+  <style>
+    .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .tile .meta { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
+    .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+    .prose p { margin: 0 0 14px; line-height: 1.7; }
+    .prose p:last-child { margin-bottom: 0; }
+    .result { display: block; margin-top: 18px; padding: 18px 22px; border-radius: var(--radius-md); border: 1px solid var(--line-strong); font-size: 1.04rem; line-height: 1.6; }
+    #per-person .tablewrap { margin-top: 28px; }
+    /* .split komt van de vermogenspagina's; daar heeft de toelichting geen eigen regel. */
+    .split-side .d { display: block; margin-top: 10px; color: var(--text-2); font-size: 0.86rem; line-height: 1.5; }
+    .source-list { list-style: none; padding: 0; }
+    .source-list li { padding: 0.35rem 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+    .source-list li:last-child { border-bottom: 0; }
+    .source-list strong { display: inline-block; min-width: 12rem; color: var(--text-2); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    @media (max-width: 540px) { .source-list strong { display: block; min-width: 0; } }
+  </style>
+</BaseV2>

@@ -3,9 +3,11 @@ import BaseV2 from '../../layouts/BaseV2.astro';
 import leaving from '../../../data/leaving-home/index.json';
 import wealth from '../../../data/wealth/index.json';
 import wealthCheck from '../../../data/wealth-validation.json';
+import exitAge from '../../../data/exit-age/index.json';
 import { headline, staleCountries } from '../../lib/leaving-home.js';
 import { formatPeriod } from '../../lib/wealth.js';
 import { METHODOLOGY } from '../../lib/methodology.js';
+import { count } from '../../lib/metric.js';
 
 /**
  * De methodepagina. Elke metriekpagina verwijst hierheen voor het volledige verhaal.
@@ -20,6 +22,16 @@ import { METHODOLOGY } from '../../lib/methodology.js';
 
 const h = headline(leaving);
 const stale = staleCountries(leaving);
+
+/**
+ * Twee tellingen die vroeger vaste tekst waren. "This is the only one of our Eurostat
+ * sources that is" klopte zolang alleen working-life een onafgebroken reeks had; met
+ * de OECD-reeks erbij zijn het er twee, en met een derde zou de zin drie keer onwaar
+ * zijn. En het aantal uitgevers stond als "two statistical agencies" in de tekst.
+ */
+const unbroken = METHODOLOGY.filter((set) => set.comparability.kind === 'unbroken');
+const definitions = METHODOLOGY.filter((set) => set.definition);
+const publishers = [...new Set(METHODOLOGY.map((set) => set.publisher))];
 
 const title = 'How We Get These Numbers | HumanAverage';
 const description =
@@ -76,8 +88,9 @@ const description =
         <p class="eyebrow mono">Sources</p>
         <h2 id="source-title">Where the data comes from</h2>
         <p>
-          Two statistical agencies, both publishing openly, both recorded per dataset in the
-          repository with their code, coverage, licence and the date we fetched them.
+          {count(publishers.length, 'statistical agency', 'statistical agencies')}, all publishing
+          openly, each recorded per dataset in the repository with its code, coverage, licence and
+          the date we fetched it.
         </p>
       </header>
 
@@ -108,6 +121,19 @@ const description =
 
         <div class="tile">
           <div>
+            <h3>OECD</h3>
+            <p>
+              <b class="code">{exitAge.source.measure}</b> — {exitAge.source.label}, from the{' '}
+              {exitAge.source.name} database. The widest reach of anything here: {exitAge.countries.length}{' '}
+              countries, {exitAge.years[0]} to {exitAge.years[exitAge.years.length - 1]}, and the only
+              series that goes beyond Europe.
+            </p>
+          </div>
+          <span class="meta mono">men and women, never a total</span>
+        </div>
+
+        <div class="tile">
+          <div>
             <h3>Natural Earth</h3>
             <p>
               The country outlines on the maps. Public domain, pinned to one package version and
@@ -133,9 +159,9 @@ const description =
         <p>
           Where a publisher writes its own definition, that definition is quoted rather than
           summarised, because the gap between a dataset's title and its definition is where this
-          site has been wrong before. Eurostat returns one for {METHODOLOGY.filter((set) => set.definition).length}{' '}
-          of these {METHODOLOGY.length} datasets and nothing for the rest, so the row is absent where
-          the words would have had to be ours.
+          site has been wrong before. {definitions.length} of these {METHODOLOGY.length} datasets come
+          with one and the rest do not, so the row is absent where the words would have had to be
+          ours.
         </p>
         <p>
           The row about comparing across time is the one that costs the most to get wrong.
@@ -204,11 +230,20 @@ const description =
                         left to measure change over. The ranking holds; a trend would not.
                       </>
                     )}
+                    {set.comparability.kind === 'single-year' && (
+                      <>
+                        {set.publisher} publishes this table for {set.comparability.year} alone. Nothing
+                        can break in a single year, and nothing can be compared across one either — so
+                        the page carries a ranking and no trend.
+                      </>
+                    )}
                     {set.comparability.kind === 'unbroken' && (
                       <>
                         {set.publisher} flags no break in this series, so the whole run
                         {set.comparability.from && <> from {set.comparability.from}</>} is comparable.
-                        This is the only one of our Eurostat sources that is.
+                        {unbroken.length === 1
+                          ? ' It is the only one of our sources you can read end to end.'
+                          : ` ${unbroken.length} of our ${METHODOLOGY.length} sources can be read end to end; most cannot.`}
                       </>
                     )}
                     {set.comparability.kind === 'none' && (
