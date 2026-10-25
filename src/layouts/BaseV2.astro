@@ -22,6 +22,7 @@
  */
 import { hueStyle } from '../lib/hue.js';
 import { CATALOGUE } from '../lib/catalogue.js';
+import { NOTES } from '../lib/notes.js';
 
 interface Props {
   title: string;
@@ -143,7 +144,8 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
       </nav>
 
       <div id="metrics-menu" class="catalogue" popover data-on-metric={onMetric ? 'yes' : 'no'}>
-        <nav class="cat-grid" aria-label="All metrics">
+        <nav aria-label="All metrics">
+            <div class="cat-grid">
           {
             CATALOGUE.map((metric, i) => (
               <a
@@ -182,7 +184,26 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
               </svg>
             </span>
           </a>
-        </nav>
+        </div>
+
+            {
+              NOTES.length > 0 && (
+                <div class="cat-notes">
+                  {NOTES.map((note) => (
+                    <a class="cat-note" href={note.path} data-note-card>
+                      <span class="cue">Note</span>
+                      <span class="name">{note.card}</span>
+                      <span class="go" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M5 12h13M12 5l7 7-7 7"></path>
+                        </svg>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              )
+            }
+          </nav>
       </div>
     </header>
 
@@ -213,6 +234,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
               <a href="/about/">About</a>
               <a href="/contact/">Contact</a>
               <a href="/privacy/">Privacy</a>
+              {NOTES.map((note) => <a href={note.path}>{note.title}</a>)}
             </div>
           </div>
         </div>
