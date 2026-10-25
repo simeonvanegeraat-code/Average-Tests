@@ -16,7 +16,14 @@ const SITE = 'https://www.humanaverage.com';
 const DIST = new URL('../dist/', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 
 /** Pagina's die wel bereikbaar moeten zijn maar niet in de index horen. */
-const EXCLUDE = [/^404\.html$/, /^_astro\//];
+const EXCLUDE = [
+  /^404\.html$/,
+  /^_astro\//,
+  // De Nederlandse testtools: 110 tot 244 woorden rond een widget. AdSense merkte de
+  // site aan als "content van weinig waarde", en dit waren de dunste pagina's die we
+  // aanmeldden. Ze dragen nu zelf een noindex en blijven gewoon bereikbaar.
+  /^tools\//,
+];
 
 async function walk(dir, found = []) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
