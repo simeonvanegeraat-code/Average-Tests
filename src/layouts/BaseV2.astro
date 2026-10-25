@@ -191,7 +191,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
             {
               NOTES.length > 0 && (
                 <div class="cat-notes">
-                  {NOTES.map((note) => (
+                  {NOTES.slice(0, 1).map((note) => (
                     <a class="cat-note" href={note.path} data-note-card>
                       <span class="cue">Note</span>
                       <span class="name">{note.card}</span>
@@ -236,7 +236,8 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
               <a href="/about/">About</a>
               <a href="/contact/">Contact</a>
               <a href="/privacy/">Privacy</a>
-              {NOTES.map((note) => <a href={note.path}>{note.title}</a>)}
+              {NOTES.slice(0, 3).map((note) => <a href={note.path}>{note.title}</a>)}
+              {NOTES.length > 3 && <a href="/notes/">All notes</a>}
             </div>
           </div>
         </div>
