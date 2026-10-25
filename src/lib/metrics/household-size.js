@@ -23,8 +23,6 @@ const householdSize = {
   unit: 'people',
   unitOne: 'person',
 
-  euCode: 'EU',
-
   /** Stappen van 0,25 rond het Europese cijfer van 2,3; de uitersten zijn 1,8 en 3,1. */
   bands: [
     { until: 2.0, label: 'under 2.0' },

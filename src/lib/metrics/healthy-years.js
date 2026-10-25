@@ -26,8 +26,6 @@ const healthyYears = {
   unit: 'years',
   unitOne: 'year',
 
-  euCode: 'EU',
-
   /** Stappen van vier jaar rond het Europese cijfer van 65,2; uitersten 52,5 en 73,4. */
   bands: [
     { until: 57, label: 'under 57' },

@@ -21,7 +21,6 @@ Live sinds 24 oktober 2026 op `https://www.humanaverage.com`:
 | `/` | Het Engelse product, `lang="en"` |
 | `/leaving-home/` | De eerste metriekpagina in de nieuwe vormtaal: op welke leeftijd de helft van de jongeren het huis uit is, 34 landen |
 | `/wealth/` + `/wealth/<land>/` | Huishoudvermogen in Europa, ECB-data, 22 pagina's |
-| `/nl/` en `/tools/`, `/articles/` | Het bevroren Nederlandse cluster. Niet uitbreiden, niet vertalen, alleen aanraken als er iets structureel breekt |
 
 De vorm is overgenomen van EUDebtMap, Simeons andere site: landen-aggregaat uit een
 publieke bron, kaart, pagina per land, verkeer uit organische search. Dat werkt daar, en
@@ -60,8 +59,8 @@ npm run geo:build            # Europakaart uit Natural Earth
 Elke bron heeft drie losse stappen (`:fetch`, `:build`, `:validate`) als je er één apart
 wilt draaien. `npm run build` draait de validatie **niet** mee; dat doe je zelf.
 
-Astro's dev-server serveert geen directory-index voor mappen in `public/`, dus `/nl/`,
-`/tools/` en `/articles/` geven daar 404. Op Vercel werken ze wel. Debug daar niet op.
+`public/` bevat nu alleen nog statische bestanden: `css/ha.css`, de lettertypen, het
+favicon, `robots.txt` en `ads.txt`. Elke pagina komt uit `src/pages/`.
 
 ## Dataregels
 
@@ -145,14 +144,11 @@ sites niet staan. Het onderzoek daarachter staat in `research/metric-shortlist.m
 
 - `public/css/ha.css` + `src/layouts/BaseV2.astro` — de vormtaal van 2026. Nu op `/`,
   `/leaving-home/` en `/method/`. **Hier gaat alles naartoe** (besloten 24 oktober).
-- `public/css/style.css` + `src/layouts/Base.astro` — de oude vormgeving. Nog op elf
-  pagina's, en op het bevroren Nederlandse cluster.
 
-**De scheiding is `html[lang="en"]`.** Alle 29 Nederlandse pagina's in `public/` staan op
-`lang="nl"`, alle Astro-pagina's renderen `lang="en"`. Een token dat je onder
-`html[lang="en"]` herdefinieert wint van `:root` en laat het Nederlandse cluster
-ongemoeid. **Raak `:root` in `style.css` niet aan** — dat restylet elke NL-pagina zonder
-dat iemand ernaar kijkt.
+**Er is nog maar één vormtaal.** `public/css/ha.css` plus `src/layouts/BaseV2.astro`,
+en elke pagina gebruikt die. De oude `style.css`, `Base.astro` en het Nederlandse
+cluster zijn op 25 oktober 2026 verwijderd; de selector `html[lang="en"]` die beide
+uit elkaar hield staat er nog en mag blijven, maar scheidt niets meer.
 
 Semantische HTML, toetsenbord werkt, skip-link en `aria-*` blijven. Vanilla JS, klein en
 leesbaar. Onderdelen praten via gebeurtenissen op `document` (`ha:country`, `ha:age`,
@@ -200,7 +196,6 @@ eronder, en let op layout shift.
   sleutel (`humanaverage:profile`: land, leeftijd, thema), verlaat de browser niet, en de
   grens ligt daar hard.
 - Een CMS, een nieuwsbrief, e-mailverzameling.
-- Het Nederlandse cluster vertalen of uitbreiden.
 - Een percentiel op de bestaande reactietijd-, typ- en geheugentests: daar bestaat geen
   representatieve dataset van.
 - Advertentiecode en cookiebanner, tot de stap hierboven.

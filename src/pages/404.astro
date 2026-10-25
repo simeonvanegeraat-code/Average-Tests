@@ -1,0 +1,78 @@
+---
+import BaseV2 from '../layouts/BaseV2.astro';
+import { CATALOGUE } from '../lib/catalogue.js';
+
+/**
+ * De 404 van het Engelse cluster.
+ *
+ * Tot 25 oktober 2026 was `public/404.html` de enige, en die was Nederlands en ging
+ * over de browsertests. Met het Nederlandse cluster verdween die pagina, dus deze
+ * komt ervoor in de plaats.
+ *
+ * Astro bouwt dit naar `dist/404.html`; Vercel serveert dat vanzelf bij een
+ * onbekend pad. Geen `noindex` nodig — een 404-status houdt hem al uit de index —
+ * maar hij staat wel in de EXCLUDE van de sitemapbouwer.
+ */
+
+const title = 'Page Not Found | HumanAverage';
+const description =
+  'That page does not exist. Every metric on the site is one click away from here.';
+---
+
+<BaseV2 title={title} description={description} canonical="/404" noindex>
+  <section class="hero" aria-labelledby="nf-title">
+    <div class="wrap">
+      <p class="eyebrow mono">404</p>
+      <h1 id="nf-title">That page is not here</h1>
+      <p class="lead">
+        Either it never existed, or it was one of the Dutch test pages that were removed in
+        October 2026. Everything this site publishes now is a European comparison, and all of it
+        is one click away.
+      </p>
+      <div class="hero-cta">
+        <a class="btn" href="/">
+          Back to the start
+          <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="all-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Every metric</p>
+        <h2 id="all-title">Perhaps you were looking for one of these</h2>
+      </header>
+
+      <div class="cat-grid" data-reveal>
+        {
+          CATALOGUE.map((metric, i) => (
+            <a
+              class="cat-card hued"
+              href={metric.path}
+              style={`--i:${i};--h:${metric.hue}${metric.at === null ? '' : `;--at:${metric.at.toFixed(1)}%`}`}
+            >
+              <span class="name">{metric.label}</span>
+              {metric.value && (
+                <span class="val">
+                  {metric.value}
+                  <small>{metric.unit}</small>
+                </span>
+              )}
+              {metric.at !== null && (
+                <span class="bar">
+                  <span class="track"><i /></span>
+                  <span class="ends">
+                    <span>{metric.low}</span>
+                    <span>{metric.high}</span>
+                  </span>
+                </span>
+              )}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseV2>
