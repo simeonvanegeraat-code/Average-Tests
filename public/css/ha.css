@@ -248,6 +248,23 @@
   .cat-card .bar .track { display: block; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
   .cat-card .bar i { display: block; height: 100%; width: var(--at); border-radius: 99px; background: var(--data); }
   .cat-card .ends { display: flex; justify-content: space-between; gap: 8px; margin-top: 9px; font: 400 .66rem/1.3 var(--font-mono); color: var(--text-2); }
+  /* ---------- het overzicht op /notes/ ---------- */
+  /* Een overzichtspagina hoort zijn overzicht te tonen: minder lucht onder de kop,
+     zodat het eerste artikel op een laptop boven de vouw staat. */
+  .hero--list { padding-bottom: clamp(32px, 4vw, 56px); }
+  .hero--list .lead { margin-bottom: 36px; }
+  .notelist { display: grid; gap: 14px; }
+  .noteitem { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "when go" "kop go" "tekst go"; gap: 6px 28px; align-items: start; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); color: var(--text); text-decoration: none; transition: transform .3s var(--ease), border-color .3s, box-shadow .3s; }
+  .noteitem:hover { transform: translateY(-3px); border-color: color-mix(in oklab, var(--glow) 55%, var(--line)); box-shadow: 0 26px 50px -30px color-mix(in oklab, var(--glow) 70%, transparent); text-decoration: none; }
+  .noteitem .when { grid-area: when; font: 500 .7rem/1.2 var(--font-mono); letter-spacing: .07em; text-transform: uppercase; color: var(--text-2); }
+  .noteitem h3 { grid-area: kop; margin-top: 6px; font: 650 clamp(1.3rem, 1.05rem + .8vw, 1.75rem)/1.14 var(--font-display); letter-spacing: -.03em; color: var(--data); }
+  .noteitem .teaser { grid-area: tekst; margin-top: 8px; max-width: 64ch; color: var(--text-2); font-size: .98rem; line-height: 1.6; }
+  .noteitem .go { grid-area: go; align-self: center; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: var(--on-ink); transition: transform .3s var(--ease); }
+  .noteitem:hover .go { transform: translateX(4px) rotate(-8deg); }
+  @media (max-width: 560px) {
+    .noteitem { grid-template-columns: 1fr; grid-template-areas: "when" "kop" "tekst" "go"; padding: 20px; }
+    .noteitem .go { justify-self: start; margin-top: 16px; width: 36px; height: 36px; }
+  }
   /* Eén brede balk per artikel, onder het raster. Als kaart stond er één alleen
      op een derde rij met drie lege plekken naast zich. */
   .cat-notes { display: grid; gap: 10px; margin-top: 12px; }
