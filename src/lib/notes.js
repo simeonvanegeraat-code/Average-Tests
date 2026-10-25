@@ -20,3 +20,13 @@ export const NOTES = [
     published: '2026-10-25',
   },
 ];
+
+/**
+ * Waar "Notes" in de balk heen wijst.
+ *
+ * Bij één artikel rechtstreeks naar dat artikel: een overzichtspagina met één
+ * regel erop is de dunne pagina die dit project niet wil, en AdSense wees de site
+ * net af op "content van weinig waarde". Vanaf het tweede artikel wijst hij naar
+ * /notes/, en dan is die index het bouwen waard.
+ */
+export const NOTES_LINK = NOTES.length === 1 ? NOTES[0].path : '/notes/';
