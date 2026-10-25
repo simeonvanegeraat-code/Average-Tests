@@ -18,9 +18,13 @@ Live sinds 24 oktober 2026 op `https://www.humanaverage.com`:
 
 | | |
 |---|---|
-| `/` | Het Engelse product, `lang="en"` |
-| `/leaving-home/` | De eerste metriekpagina in de nieuwe vormtaal: op welke leeftijd de helft van de jongeren het huis uit is, 34 landen |
-| `/wealth/` + `/wealth/<land>/` | Huishoudvermogen in Europa, ECB-data, 22 pagina's |
+| `/` | De voordeur: wat de site doet en waarom een gemiddelde bijna niemand beschrijft |
+| `/leaving-home/` | Op welke leeftijd de helft van de jongeren het huis uit is, 31 landen |
+| `/household-size/` · `/working-life/` · `/working-hours/` · `/healthy-years/` · `/first-child/` | De andere vijf Eurostat-metrieken, zelfde opbouw |
+| `/wealth/` + `/wealth/<land>/` | Huishoudvermogen uit de ECB, met 21 landpagina's |
+| `/method/` | Een blok per dataset: code, definitie van de uitgever, dekking, verversing |
+| `/notes/<slug>/` | Artikelen. Er is er één; een index komt bij de derde |
+| `/about/` · `/contact/` · `/privacy/` · 404 | De rest |
 
 De vorm is overgenomen van EUDebtMap, Simeons andere site: landen-aggregaat uit een
 publieke bron, kaart, pagina per land, verkeer uit organische search. Dat werkt daar, en
@@ -140,11 +144,6 @@ sites niet staan. Het onderzoek daarachter staat in `research/metric-shortlist.m
 
 ## Vormgeving
 
-**Twee systemen vandaag, één is de bestemming.**
-
-- `public/css/ha.css` + `src/layouts/BaseV2.astro` — de vormtaal van 2026. Nu op `/`,
-  `/leaving-home/` en `/method/`. **Hier gaat alles naartoe** (besloten 24 oktober).
-
 **Er is nog maar één vormtaal.** `public/css/ha.css` plus `src/layouts/BaseV2.astro`,
 en elke pagina gebruikt die. De oude `style.css`, `Base.astro` en het Nederlandse
 cluster zijn op 25 oktober 2026 verwijderd; de selector `html[lang="en"]` die beide
@@ -212,11 +211,20 @@ Uit het interview. Wat hier staat is beslist; wat nog niet gedaan is, staat erbi
 | De site is Europese landenvergelijkingen | Gedaan, live |
 | Geen doelbedrag, geen ijkpunt | Genoteerd |
 | **De Amerikaanse pagina's gaan eraf**: `/height/`, `/weight/`, `/play/`, plus de NHANES-pipeline, data en libs | Gedaan. De site ging van 48 naar 28 pagina's, de sitemap van 76 naar 56 URL's |
-| Alle pagina's gaan naar de v2-vormtaal | `/`, `/leaving-home/` en `/method/` zijn om. `/wealth/`, `/about/`, `/contact/` en `/privacy/` nog niet |
-| Landpagina's per metriek mogen, mits elke pagina eigen inhoud uit de data draagt | Nog niet gebouwd |
+| Alle pagina's gaan naar de v2-vormtaal | Gedaan op 25 oktober. `Base.astro` en `style.css` bestaan niet meer |
+| Landpagina's per metriek mogen, mits elke pagina eigen inhoud uit de data draagt | Gedaan voor vermogen: 21 pagina's die per land uit `composition` en `status` lezen |
 | Plan vooraf alleen bij grote dingen | Vanaf nu |
 | Eén sessie is eigenaar van een bestand | Vanaf nu |
 | Geld-categorie naar de later-lijst | Genoteerd |
 
-Volgende metriek volgens `research/metric-shortlist.md`: huishoudgrootte, Eurostat
-`ilc_lvph01`.
+De shortlist in `research/metric-shortlist.md` houdt nog 25 kandidaten over; de zes
+bovenste zijn gebouwd.
+
+## Besloten op 25 oktober 2026
+
+| Besluit | Status |
+|---|---|
+| Het mega menu vervangt de rij links in de balk | Gedaan. Eén ingang, een kaart per metriek met het kopcijfer |
+| Het Nederlandse cluster gaat eraf, niet op noindex | Gedaan. 29 pagina's weg, 28 URL's geven nu 404 |
+| Artikelen komen op `/notes/`, want `/articles/` was bezet | De eerste staat er; een index pas bij de derde |
+| Geen advertentiecode of cookiepagina vóór de CMP | Blijft staan. AdSense wees af op "content van weinig waarde" |
