@@ -36,6 +36,19 @@ const rows = [...(index.countries as any[])].sort((a, b) => a.total - b.total);
 const behind = rows.filter((row) => row.year !== latestYear).length;
 const withBreak = rows.filter((row) => row.breaks.includes(index.lastBreak)).length;
 
+/**
+ * De voetnoot onder de tabel paste maar op één dataset.
+ *
+ * Hij beloofde "de gap is mannen min vrouwen" onder twee lege kolommen, schreef elke
+ * breuk toe aan de Labour Force Survey (terwijl huishoudgrootte uit EU-SILC komt), en
+ * bij een dataset zonder breuk werd het "in  the EU Labour Force Survey was
+ * reorganized". Drie beweringen, drie keer onwaar op minstens één pagina. Nu zegt hij
+ * alleen wat voor déze dataset geldt.
+ */
+const hasSexes = rows.some((row) => row.men !== null && row.women !== null);
+const oneYear = (index.years as string[]).length === 1;
+const publisher = index.source?.publisher ?? 'The publisher';
+
 const gapOf = (row: any) => (row.men !== null && row.women !== null ? row.men - row.women : null);
 
 const line = (row: any) => {
@@ -122,10 +135,13 @@ const caption = `Age by which half of young people have left the parental home. 
 </div>
 
 <p class="brk-foot">
-  The gap is men minus women, so a positive number means women reach the midpoint earlier.
-  {behind > 0 && <> A year next to a country means Eurostat has no {latestYear} figure for it, and the row shows that year instead.</>}
-  Trend lines are not drawn across series breaks (the small notches): in {index.lastBreak} the EU Labour Force Survey was
-  reorganized, and {withBreak} of {rows.length} countries carry a break there.
+  {hasSexes && <>The gap is men minus women, so a positive number means the figure is higher for men. </>}
+  {behind > 0 && <>A year next to a country means {publisher} has no {latestYear} figure for it, and the row shows that year instead. </>}
+  {oneYear
+    ? <>{publisher} publishes this table for {latestYear} alone, so there is no line to draw and no past to compare with.</>
+    : index.lastBreak
+      ? <>Trend lines are not drawn across series breaks (the small notches): {withBreak} of {rows.length} countries {withBreak === 1 ? 'carries' : 'carry'} one in {index.lastBreak}.</>
+      : <>{publisher} flags no series break here, so every line runs from {index.years[0]} to {latestYear} without a notch.</>}
 </p>
 
 <script>
