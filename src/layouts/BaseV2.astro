@@ -22,7 +22,7 @@
  */
 import { hueStyle } from '../lib/hue.js';
 import { CATALOGUE } from '../lib/catalogue.js';
-import { NOTES } from '../lib/notes.js';
+import { NOTES, NOTES_LINK } from '../lib/notes.js';
 
 interface Props {
   title: string;
@@ -128,6 +128,8 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
             <path d="M6 9l6 6 6-6"></path>
           </svg>
         </button>
+
+        <a class="nav-method" href={NOTES_LINK} aria-current={here.startsWith('/notes/') ? 'page' : undefined}>Notes</a>
 
         <a class="nav-method" href="/method/" aria-current={isCurrent('/method/') ? 'page' : undefined}>Method</a>
 
