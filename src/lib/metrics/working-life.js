@@ -43,6 +43,10 @@ const workingLife = {
   ],
 
   words: {
+
+    /** De titel boven de legenda van de kaart, in de eenheid van deze metriek. */
+
+    legend: "Expected years in the labour market",
     low: 'Shortest',
     high: 'Longest',
     comparative: 'shortest',

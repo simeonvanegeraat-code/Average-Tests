@@ -196,7 +196,13 @@ export async function buildMetric(spec) {
   return index;
 }
 
-/** Leeftijden, jaren en huishoudgroottes liggen allemaal ruim binnen deze grenzen. */
+/**
+ * De vangrail tegen schaalfouten, voor metrieken in jaren of personen: leeftijden,
+ * jaren en huishoudgroottes liggen daar allemaal ruim binnen.
+ *
+ * Een metriek in een andere eenheid zet zijn eigen band met  in de spec.
+ * Woninggrootte in m² liep hier tegenaan: Cyprus staat op 149,4 en dat is geen fout.
+ */
 const ABSURD = { min: 0, max: 120 };
 
 /**
@@ -231,12 +237,13 @@ export async function validateMetric(spec) {
   check(data.label === index.source.label, 'Het label van de bron wijkt af van het gebouwde bestand.');
   check(data.updated === index.source.eurostatUpdated, 'De updatestempel is veranderd. Draai de build opnieuw.');
 
+  const grens = spec.absurd ?? ABSURD;
   for (const country of index.countries) {
     const where = `${country.code} (${country.name})`;
     check(!AGGREGATES.has(country.code), `${country.code} is een aggregaat maar staat bij de landen.`);
     check(typeof country.total === 'number', `${where} heeft geen totaal.`);
     check(
-      typeof country.total === 'number' && country.total > ABSURD.min && country.total < ABSURD.max,
+      typeof country.total === 'number' && country.total > grens.min && country.total < grens.max,
       `${where} heeft een onmogelijke waarde: ${country.total}.`,
     );
     check(index.years.includes(country.year), `${where} staat op jaar ${country.year}, buiten de reeks.`);

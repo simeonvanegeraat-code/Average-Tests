@@ -18,15 +18,20 @@ import leavingHome from './metrics/leaving-home.js';
 import workingLife from './metrics/working-life.js';
 import workingHours from './metrics/working-hours.js';
 import householdSize from './metrics/household-size.js';
+import dwellingSize from './metrics/dwelling-size.js';
 import healthyYears from './metrics/healthy-years.js';
 import firstChild from './metrics/first-child.js';
+import pensionAge from './metrics/pension-age.js';
 
 import leavingHomeData from '../../data/leaving-home/index.json';
 import workingLifeData from '../../data/working-life/index.json';
 import workingHoursData from '../../data/working-hours/index.json';
 import householdSizeData from '../../data/household-size/index.json';
+import dwellingSizeData from '../../data/dwelling-size/index.json';
 import healthyYearsData from '../../data/healthy-years/index.json';
 import firstChildData from '../../data/first-child/index.json';
+import pensionAgeData from '../../data/pension-age/index.json';
+import exitAgeData from '../../data/exit-age/index.json';
 import wealthData from '../../data/wealth/index.json';
 import wealthCheck from '../../data/wealth-validation.json';
 
@@ -84,16 +89,22 @@ function eurostat(metric, index) {
     firstYear: index.years?.[0] ?? null,
     lastYear: index.years?.[index.years.length - 1] ?? null,
     /**
-     * Drie werkelijk verschillende gevallen, en ze vragen drie verschillende zinnen.
+     * Vier werkelijk verschillende gevallen, en ze vragen vier verschillende zinnen.
      * Eén sjabloon eroverheen leverde "0 of 32 countries carry a break flag in "
      * voor een reeks zonder breuk, en "no series break is published" voor een reeks
      * waar de breuk in het laatste jaar valt. Allebei onwaar.
+     *
+     * `single-year` is het vierde geval, en het moest apart: woninggrootte en
+     * pensioenleeftijd hebben één jaargang. Die hebben geen breuk, maar "de hele
+     * reeks vanaf 2023 is vergelijkbaar" zeggen over één jaar is een lege belofte.
      */
-    comparability: !index.lastBreak
-      ? { kind: 'unbroken', from: index.comparableSince ?? index.years?.[0] ?? null }
-      : index.comparableSince
-        ? { kind: 'since', since: index.comparableSince, year: index.lastBreak, broken: broken.length }
-        : { kind: 'break-at-end', year: index.lastBreak, broken: broken.length },
+    comparability: index.years?.length === 1
+      ? { kind: 'single-year', year: index.years[0] }
+      : !index.lastBreak
+        ? { kind: 'unbroken', from: index.comparableSince ?? index.years?.[0] ?? null }
+        : index.comparableSince
+          ? { kind: 'since', since: index.comparableSince, year: index.lastBreak, broken: broken.length }
+          : { kind: 'break-at-end', year: index.lastBreak, broken: broken.length },
 
     stale: stale.map((country) => ({ name: country.name, year: country.year })),
 
@@ -147,12 +158,63 @@ function wealth() {
   };
 }
 
+/**
+ * De OECD-reeks onder /pension-age/. Geen eigen pagina, wel een eigen dataset: hij
+ * heeft een eigen bron, een eigen poort en een eigen bronvermelding, dus hij hoort
+ * hier te staan en niet verstopt onder de Eurostat-regel erboven.
+ *
+ * Deze bron heeft geen totaal, alleen mannen en vrouwen — dat staat bij "wat we per
+ * land lezen", zodat het niet alleen op de pagina zelf te vinden is.
+ */
+function oecd() {
+  const source = exitAgeData.source ?? {};
+  const years = exitAgeData.years ?? [];
+
+  return {
+    key: 'exit-age',
+    label: 'Exit age',
+    path: '/pension-age/#exit-age',
+    hue: pensionAge.hue,
+
+    publisher: source.publisher ?? 'OECD',
+    dataset: source.dataset ?? null,
+    doi: null,
+    metadata: source.terms ?? null,
+    api: source.url ?? null,
+
+    sourceLabel: source.name ?? null,
+    definition: plain(source.description),
+
+    unit: 'years',
+    decimals: 1,
+    /** Geen "Everyone": de OECD publiceert geen totaal. */
+    lenses: ['Men', 'Women'],
+
+    countries: exitAgeData.countriesAtLatestYear,
+    year: exitAgeData.latestYear,
+    firstYear: years[0] ?? null,
+    lastYear: years[years.length - 1] ?? null,
+    /** Geen enkele waarneming is gevlagd; validate-oecd.mjs valt om zodra dat verandert. */
+    comparability: { kind: 'unbroken', from: years[0] ?? null },
+
+    stale: (exitAgeData.countries ?? [])
+      .filter((country) => country.year !== exitAgeData.latestYear)
+      .map((country) => ({ name: country.name, year: country.year })),
+
+    published: null,
+    fetched: day(source.fetchedOn),
+  };
+}
+
 /** Dezelfde volgorde als het paneel in de header. */
 export const METHODOLOGY = [
   eurostat(leavingHome, leavingHomeData),
   eurostat(householdSize, householdSizeData),
+  eurostat(dwellingSize, dwellingSizeData),
   eurostat(workingLife, workingLifeData),
   eurostat(workingHours, workingHoursData),
+  eurostat(pensionAge, pensionAgeData),
+  oecd(),
   eurostat(healthyYears, healthyYearsData),
   eurostat(firstChild, firstChildData),
   wealth(),

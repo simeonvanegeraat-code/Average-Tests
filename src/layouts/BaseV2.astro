@@ -349,7 +349,16 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
               observer.unobserve(entry.target);
             }
           },
-          { threshold: 0.15, rootMargin: '0px 0px -6% 0px' },
+          /**
+           * Drempel 0, niet 0,15. Een blok dat hoger is dan het venster gedeeld door
+           * de drempel kan die drempel nooit halen: op een telefoon van 740px is dat
+           * alles boven ~4.900px, en zo'n blok bleef dus voor altijd onzichtbaar. De
+           * OECD-sectie op /pension-age/ is op mobiel ruim 8.000px hoog en viel daar
+           * precies in. De marge onderaan doet nu het werk dat de drempel deed: een
+           * blok verschijnt zodra zijn bovenrand de onderste 12% van het venster in
+           * komt, ongeacht hoe hoog het is.
+           */
+          { threshold: 0, rootMargin: '0px 0px -12% 0px' },
         );
         for (const element of reveals) observer.observe(element);
       } else {

@@ -22,15 +22,19 @@ import leavingHome from './metrics/leaving-home.js';
 import workingLife from './metrics/working-life.js';
 import workingHours from './metrics/working-hours.js';
 import householdSize from './metrics/household-size.js';
+import dwellingSize from './metrics/dwelling-size.js';
 import healthyYears from './metrics/healthy-years.js';
 import firstChild from './metrics/first-child.js';
+import pensionAge from './metrics/pension-age.js';
 
 import leavingHomeData from '../../data/leaving-home/index.json';
 import workingLifeData from '../../data/working-life/index.json';
 import workingHoursData from '../../data/working-hours/index.json';
 import householdSizeData from '../../data/household-size/index.json';
+import dwellingSizeData from '../../data/dwelling-size/index.json';
 import healthyYearsData from '../../data/healthy-years/index.json';
 import firstChildData from '../../data/first-child/index.json';
+import pensionAgeData from '../../data/pension-age/index.json';
 import wealthData from '../../data/wealth/index.json';
 
 /** Eén kaart uit een Eurostat-metriek, via de motor in metric.js. */
@@ -81,12 +85,20 @@ function wealthEntry() {
   };
 }
 
-/** De volgorde van de levenslijn: thuis, werk, gezondheid, gezin, geld. */
+/**
+ * De volgorde van de levenslijn: thuis, wonen, werk, pensioen, gezondheid, gezin, geld.
+ *
+ * Woninggrootte staat naast huishoudgrootte omdat ze samen één vraag beantwoorden
+ * (hoeveel ruimte per persoon, zie src/lib/space-per-person.js), en pensioen staat
+ * achter werk omdat het daar eindigt.
+ */
 export const CATALOGUE = [
   entry(leavingHome, leavingHomeData),
   entry(householdSize, householdSizeData),
+  entry(dwellingSize, dwellingSizeData),
   entry(workingLife, workingLifeData),
   entry(workingHours, workingHoursData),
+  entry(pensionAge, pensionAgeData),
   entry(healthyYears, healthyYearsData),
   entry(firstChild, firstChildData),
   wealthEntry(),

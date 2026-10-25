@@ -43,6 +43,10 @@ const healthyYears = {
   ],
 
   words: {
+
+    /** De titel boven de legenda van de kaart, in de eenheid van deze metriek. */
+
+    legend: "Years of life without a limiting health problem",
     low: 'Fewest',
     high: 'Most',
     comparative: 'fewest',

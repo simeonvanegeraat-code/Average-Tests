@@ -37,6 +37,10 @@ const householdSize = {
   lenses: [{ key: 'total', label: 'Everyone', who: 'households' }],
 
   words: {
+
+    /** De titel boven de legenda van de kaart, in de eenheid van deze metriek. */
+
+    legend: "People per household",
     low: 'Smallest',
     high: 'Largest',
     comparative: 'smallest',

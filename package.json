@@ -15,7 +15,11 @@
     "metrics:fetch": "node scripts/fetch-metrics.mjs",
     "metrics:build": "node scripts/build-metrics.mjs",
     "metrics:validate": "node scripts/validate-metrics.mjs",
-    "metrics": "npm run metrics:fetch && npm run metrics:build && npm run metrics:validate"
+    "metrics": "npm run metrics:fetch && npm run metrics:build && npm run metrics:validate",
+    "oecd:fetch": "node scripts/fetch-oecd.mjs",
+    "oecd:build": "node scripts/build-oecd.mjs",
+    "oecd:validate": "node scripts/validate-oecd.mjs",
+    "oecd": "npm run oecd:fetch && npm run oecd:build && npm run oecd:validate"
   },
   "devDependencies": {
     "astro": "^5.14.1"
