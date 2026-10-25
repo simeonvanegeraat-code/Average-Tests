@@ -278,15 +278,15 @@ jaar meedraagt, en dat het vergelijkbare venster werkelijk breukvrij is.
 
 ---
 
-## Eurostat — de vijf metrieken naast leaving-home
+## Eurostat — de zeven metrieken naast leaving-home
 
 **Uitgever** Eurostat
 **Licentie** zie de Eurostat-sectie hierboven; dezelfde voorwaarden, inclusief de
 uitsluiting van landen buiten EU, EFTA en de kandidaat-landen
-**Opgehaald** 2026-10-24
+**Opgehaald** 2026-10-25 (alle acht datasets opnieuw, bij het toevoegen van de laatste twee)
 **Gebruikt voor** de metriekpagina's buiten `/leaving-home/`
 
-Alle vijf komen door dezelfde pipeline: `npm run metrics` haalt op, bouwt en
+Alle zeven komen door dezelfde pipeline: `npm run metrics` haalt op, bouwt en
 valideert ze met `scripts/lib/metric-build.mjs`. De regels die bij leaving-home geld
 hebben gekost staan daar één keer en gelden dus overal: aggregaten buiten de
 landenlijst, elk land draagt zijn eigen jaar, en nooit rekenen over een reeksbreuk heen.
@@ -294,23 +294,39 @@ landenlijst, elk land draagt zijn eigen jaar, en nooit rekenen over een reeksbre
 | Code | Pagina | Reeks | Laatste | Landen | Breukjaren | Vergelijkbaar venster | Naar geslacht |
 |---|---|---|---|---|---|---|---|
 | `lfsi_dwl_a` | /working-life/ | 2000–2025 | 2025 | 32 | 0 | 2000–2025 | ja |
-| `ilc_lvph01` | /household-size/ | 2003–2025 | 2025 | 31 | 11 | **geen** | nee |
+| `ilc_lvph01` | /household-size/ | 2003–2025 | 2025 | 31 | 9 | **geen** | nee |
+| `ilc_lvho32` | /dwelling-size/ | 2023 | 2023 | 33 | 0 | **één jaar** | nee |
 | `hlth_hlye` | /healthy-years/ | 2004–2024 | 2024 | 28 | 16 | **geen** | ja |
 | `lfsa_ewhuis` | /working-hours/ | 1983–2025 | 2025 | 34 | 27 | **geen** | ja |
+| `lfso_23pens03` | /pension-age/ | 2023 | 2023 | 30 | 0 | **één jaar** | ja |
 | `demo_find` | /first-child/ | 1960–2024 | 2024 | 37 | 13 | **geen** | nee |
 
 ### Wat dit betekent voor de pagina's
 
-**Alleen `lfsi_dwl_a` heeft een breukvrije reeks.** Vierentwintig jaar over 32 landen,
-ononderbroken. Daarom draagt `/working-life/` als enige een verhaal over verandering,
-en tonen de andere vier bewust geen trendsectie: hun laatste breuk ligt in of vlak vóór
-het laatste jaar, en dan bestaat er geen venster om iets in te vergelijken. Een grafiek
-met een voetnoot zou daar erger zijn dan geen grafiek.
+**Alleen `lfsi_dwl_a` draagt een verhaal over verandering.** Vierentwintig jaar over 32
+landen, ononderbroken. De andere zes tonen bewust geen trendsectie, om twee verschillende
+redenen die niet door elkaar mogen lopen:
 
-**Twee datasets hebben geen uitsplitsing naar geslacht** — huishoudgrootte heeft er geen
-(een huishouden heeft geen geslacht) en `demo_find` publiceert alleen de leeftijd van de
-moeder. Hun kolommen voor mannen en vrouwen zijn leeg in plaats van een kopie van het
-totaal; de kaart heeft daar één lens in plaats van drie.
+- **Vier hebben een breuk in of vlak vóór het laatste jaar** (`ilc_lvph01`, `hlth_hlye`,
+  `lfsa_ewhuis`, `demo_find`). Er is dan geen venster om iets in te vergelijken, en een
+  grafiek met een voetnoot zou erger zijn dan geen grafiek.
+- **Twee hebben één jaargang** (`ilc_lvho32`, `lfso_23pens03`). Die hebben nul breuken —
+  in één jaar kan niets breken — maar ook niets om tegen te vergelijken. Op `/method/`
+  staat dat als een eigen geval (`single-year`), omdat "geen breuk" daar anders klinkt
+  als "de hele reeks is vergelijkbaar".
+
+**Drie datasets hebben geen uitsplitsing naar geslacht** — huishoudgrootte en
+woninggrootte hebben er geen (een huishouden en een woning hebben geen geslacht) en
+`demo_find` publiceert alleen de leeftijd van de moeder. Hun kolommen voor mannen en
+vrouwen zijn leeg in plaats van een kopie van het totaal; de kaart heeft daar één lens in
+plaats van drie.
+
+**`lfso_23pens03` is geen gewone jaarreeks.** Het komt uit de ad-hocmodule van de
+arbeidskrachtenenquête van 2023 en komt dus niet volgend jaar opnieuw. De pagina zegt
+bovendien wat er het makkelijkst mis te lezen is: dit is de leeftijd waarop mensen
+feitelijk een ouderdomspensioen zijn gaan ontvangen, **niet de wettelijke
+pensioenleeftijd**. De 24 leeftijdsbanden in de dataset bleken geen keuze: `Y_GE15`,
+`Y50-74` en `Y_GE50` geven per land identieke waarden, dus de breedste.
 
 ### Twee fouten die de poort ving
 
@@ -365,6 +381,11 @@ statistiek zijn, dus de bouwer weigert een metriek zonder totaal. **Kamers per p
 (`ilc_lvho04`) heeft dimensies voor armoederisico en huishoudsamenstelling waarvan de
 juiste doorsnede eerst een redactionele keuze vraagt.
 
+Dat tweede geldt uitdrukkelijk **niet** voor `ilc_lvho32` (woninggrootte in m²), dat er
+sinds 25 oktober 2026 wel op staat: die dataset splitst naar inkomenskwintiel en
+eigendomsvorm, en die hebben allebei een `TOTAL`. Daarmee is er geen doorsnede te kiezen
+— TOTAL × TOTAL ís het kopcijfer.
+
 ### Toelichtingen van Eurostat
 
 - `lfsi_dwl_a` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/lfsi_dwl_a_esms.htm)
@@ -372,6 +393,127 @@ juiste doorsnede eerst een redactionele keuze vraagt.
 - `hlth_hlye` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/hlth_hlye_esms.htm)
 - `lfsa_ewhuis` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/lfsa_esms.htm)
 - `demo_find` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/demo_fer_esms.htm)
+- `ilc_lvho32` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/ilc_sieusilc.htm) (dezelfde EU-SILC-toelichting als `ilc_lvph01`)
+- `lfso_23pens03` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/lfso_23_esms.htm)
+
+---
+
+## OECD — feitelijke uittreedleeftijd
+
+**Uitgever** OECD (Organisation for Economic Co-operation and Development)
+**Licentie** Hergebruik toegestaan, ook commercieel, met een **voorgeschreven**
+bronvermelding. **Gelezen bij de bron op 25 oktober 2026**:
+https://www.oecd.org/en/about/terms-conditions.html, sectie 3 (Data), "Permitted Use".
+
+> "Except where additional restrictions apply as stated above, you can extract from,
+> download, copy, adapt, print, distribute, share and embed Data for any purpose, even
+> for commercial use. You must give appropriate credit to the OECD by using the citation
+> associated with the relevant Data, or, if no specific citation is available, you must
+> cite the source information using the following format: OECD (year), (dataset name),
+> (data source) DOI or URL (accessed on (date))."
+
+Die vorm staat daarom **op de pagina zelf**, niet alleen hier: `citation()` in
+`src/lib/exit-age.js` bouwt hem op uit het source-blok, zodat hij meeverandert met de
+ophaaldatum in plaats van te verouderen. Dit is het verschil met Eurostat en de ECB, die
+alleen "bronvermelding" vragen zonder vaste vorm.
+
+**Eén voorbehoud dat de OECD zelf maakt**: dezelfde sectie zegt dat data gedeeltelijk van
+derden kan zijn en dat het aan de gebruiker is om dat na te gaan. Voor deze maat is dat
+niet te sluiten op de API alleen; wat wél vaststaat is dat de OECD de reeks zelf afleidt
+uit arbeidsdeelname. Komt er advertentiecode op de site, dan hoort dit opnieuw bekeken te
+worden — net als de uitgesloten landen bij Eurostat.
+
+**Opgehaald** 2026-10-25, via de publieke SDMX-API van de OECD (geen sleutel nodig)
+**Gebruikt voor** de tweede sectie van `/pension-age/`: de leeftijd waarop mensen de
+arbeidsmarkt verlaten
+
+### Dataset
+
+| | |
+|---|---|
+| Dataflow | `OECD.ELS.SPD,DSD_PAG@DF_PAG,1.0` |
+| Titel | Pensions at a glance |
+| Maat | `ELMEA` — Effective labour market exit age |
+| Data Explorer | https://data-explorer.oecd.org/vis?df[ds]=dsDisseminateFinalDMZ&df[id]=DSD_PAG%40DF_PAG |
+| Dimensies | REF_AREA (54) × FREQ (A) × MEASURE (ELMEA) × UNIT_MEASURE (Y) × SEX (M/F) × AGE × OPTIONALITY × TIME_PERIOD (1970–2024) |
+| Waarnemingen | 5.143 |
+| Vlaggen | alle 5.143 op `OBS_STATUS = A` ("normal value") |
+
+### Twee vragen, en ze mogen niet van elkaar worden afgetrokken
+
+`/pension-age/` draagt twee cijfers van twee uitgevers, en dat is de reden dat die pagina
+een eigen blok heeft over wat ze niet zijn:
+
+| | Eurostat `lfso_23pens03` | OECD `ELMEA` |
+|---|---|---|
+| De vraag | wanneer begon je ouderdomspensioen? | op welke leeftijd verlaten mensen de arbeidsmarkt? |
+| Hoe gemeten | gevraagd aan wie nu een pensioen ontvangt | afgeleid uit arbeidsdeelname per leeftijdsgroep |
+| Waar het over gaat | beslissingen van decennia terug | de arbeidsmarkt van dít jaar |
+| Reeks | 2023 | 1970–2024 |
+| Landen | 30 | 51 |
+
+Het verschil tussen de twee is dus geen "mensen werken door naast hun pensioen". Het zijn
+twee grootheden met een andere basis en een andere referentieperiode, en de site rekent er
+geen verschil van uit.
+
+### Geen totaal, en wat dat kost
+
+De OECD publiceert `ELMEA` **alleen voor mannen en voor vrouwen**; in de dimensie `SEX`
+bestaat geen `T` of `_T`. Zelf middelen zou een verzonnen statistiek zijn — hetzelfde
+bezwaar waarop trouwleeftijd (`tps00014`) is afgevallen — dus de sectie zet de twee naast
+elkaar en zegt op de pagina waarom er geen enkel getal staat. Het verschil is gemiddeld
+1,4 jaar en loopt op tot 11,7 (Saoedi-Arabië), dus een gemiddelde zou geen detail zijn.
+
+De poort weigert daarom een gebouwd bestand met een veld `total`, `avg`, `average`,
+`both` of `mean`, én hij valt om als de OECD ooit wél een totaal gaat publiceren. Dan
+moet de pagina herzien worden in plaats van stil hetzelfde te blijven zeggen.
+
+### Bewerkingen
+
+`npm run oecd` haalt op (`scripts/fetch-oecd.mjs`), bouwt (`scripts/build-oecd.mjs`) en
+valideert (`scripts/validate-oecd.mjs`). Het ruwe antwoord gaat ongewijzigd naar
+`data/raw/oecd/exit-age.json`, zodat de poort erop kan terugrekenen.
+
+- **Aggregaten buiten de landenlijst.** `EU27`, `EU28` en `OECD_REP` staan in dezelfde
+  dimensie als landen. `EU27` en `OECD_REP` komen apart in het bestand; `EU28` valt eruit
+  omdat er geen jaargang is waarin beide geslachten staan.
+- **Eén jaar per land, voor beide geslachten.** Elk land draagt zijn eigen laatste jaar,
+  maar binnen een land komen mannen en vrouwen altijd uit **dezelfde** jaargang. Argentinië
+  maakte dat concreet: vrouwen lopen door tot 2024, mannen stoppen in 2023. Een verschil
+  over twee jaargangen is geen verschil, dus Argentinië staat op 2023.
+- **De hele reeks gaat mee**, niet alleen het laatste jaar: 1970–2024 is wat deze bron
+  toevoegt aan het Eurostat-cijfer erboven. Dat mag hier omdat geen enkele waarneming
+  gevlagd is — bij Eurostat kan het niet en weigert `trend()` te rekenen.
+
+### Validatie
+
+`node scripts/validate-oecd.mjs` legt zelf een tabel aan van elke waarneming in het ruwe
+antwoord en controleert daartegen. Op 25 oktober 2026: **5.112 cijfers teruggerekend**, 51
+landen, 46 op 2024, nul problemen. Wat hij controleert:
+
+| Controle | Waarom |
+|---|---|
+| Elk cijfer én elk jaar in de reeks tegen het ruwe antwoord | het gebouwde bestand bewijst niets over zichzelf |
+| Geen latere jaargang met beide geslachten | anders is het gekozen jaar niet het laatste volledige |
+| `OBS_STATUS` overal `A` | de pagina praat over 1970 en 2024 in één zin |
+| `SEX` is precies `F/M` | komt er een totaal bij, dan moet de pagina herzien worden |
+| Geen veld dat de twee samenvat | zie "Geen totaal" hierboven |
+| Elke waarde tussen 45 en 80 | vangrail tegen schaalfouten |
+| Geen aggregaat bij de landen, geen dubbele codes, minstens 25 landen | dezelfde regels als bij Eurostat |
+
+### Eén onopgelost punt
+
+Het antwoord draagt de annotatie `NonProductionDataflow = true`. Wat de OECD daarmee
+bedoelt is niet uit de API of uit de voorwaarden op te maken, en de dataflow staat wél in
+de publieke catalogus van `OECD.ELS.SPD`. **Het is dus niet uitgezocht**, en het staat
+hier zodat het niet als opgelost telt. Wat er niet van afhangt: de cijfers zelf, want die
+rekent de poort terug naar hetzelfde antwoord.
+
+### Bronvermelding op de site
+
+`/pension-age/` noemt de dataflow, de maat, de reeks, de ophaaldatum en de voorgeschreven
+OECD-vermelding, met een link naar de Data Explorer en naar de voorwaarden. `/method/`
+heeft een eigen blok voor deze dataset (`#ds-exit-age`), los van de Eurostat-regel erboven.
 
 ---
 
