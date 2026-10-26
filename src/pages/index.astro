@@ -1,5 +1,6 @@
 ---
 import BaseV2 from '../layouts/BaseV2.astro';
+import Globe from '../components/Globe.astro';
 import leaving from '../../data/leaving-home/index.json';
 import { headline, age } from '../lib/leaving-home.js';
 import { CATALOGUE } from '../lib/catalogue.js';
@@ -80,16 +81,18 @@ const description =
         <p class="lead">
           In {h.earliest.name} half of young people have left home by {age(h.earliest.total)}. In {
             h.latest.name
-          } that point does not arrive until {age(h.latest.total)}. One European figure hides both.
+          } that point does not arrive until {age(h.latest.total)} — {h.gap.toFixed(1)} years apart, on
+          the same question. One European figure hides both.
         </p>
       </div>
 
-      <div class="hero-figure">
-        <span class="giant num">{h.gap.toFixed(1)}</span>
-        <p class="unit mono">
-          years between the earliest and the latest country — <b>same question</b>, {h.year}
-        </p>
-      </div>
+      {/*
+        Hier stond het kopcijfer 10,2: de kloof bij leaving-home. Eén metriek die voor
+        de hele site stond — dezelfde fout in het klein als de "Two questions so far"
+        die hierboven weg is. De bol toont alle negen, en de kloof zelf staat nog in de
+        lead ernaast.
+      */}
+      <Globe />
     </div>
 
     <div class="wrap">
@@ -313,19 +316,7 @@ const description =
     /* De hero draagt onderaan tot 168px lucht; hier mag dat minder, want eronder
        staat geen tekst maar de ingang tot de site. */
     .hero { padding-bottom: clamp(36px, 5vw, 64px); }
-    .hero-figure .giant { margin-top: 0; }
-    .hero-figure .unit { max-width: 42ch; }
-    @media (max-width: 1040px) { .hero-figure { margin-top: 28px; } }
-
-    /* Boven 1040px staat het kopcijfer in een smalle kolom. De maat uit ha.css loopt
-       op tot 14,5rem en maakt "10.2" dan 653px breed, terwijl de kolom er 479 heeft —
-       dat duwde de hele pagina horizontaal open. De maat hangt hier daarom aan de
-       kolom (cqw) en niet aan het venster, want de wrap stopt met groeien bij 1160px
-       en een vw-maat doet dat niet. */
-    @media (min-width: 1041px) {
-      .hero-figure { container-type: inline-size; }
-      .hero-figure .giant { font-size: 27cqw; }
-    }
+    @media (max-width: 1040px) { .globe { margin-top: 28px; } }
 
     .pick { margin-top: 34px; max-width: 42rem; }
     .pick-label { display: block; margin-bottom: 10px; font: 500 0.72rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
