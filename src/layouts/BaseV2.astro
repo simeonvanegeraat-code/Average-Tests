@@ -76,7 +76,17 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafd" />
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#050815" />
 
+    {/*
+      Vier verwijzingen voor één icoon, en dat is nodig. De SVG is wat een browser
+      in het tabblad zet; **Google haalt daarnaast /favicon.ico op** en die bestond
+      niet, waardoor er in de zoekresultaten de terugval van Google stond in plaats
+      van ons logo. De PNG's zijn er voor Android en iOS. Alle vier komen uit
+      dezelfde SVG via scripts/build-icons.mjs.
+    */}
     <link rel="icon" href="/favicon-ha.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/fonts/bricolage-grotesque-variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-variable.woff2" as="font" type="font/woff2" crossorigin />
 
