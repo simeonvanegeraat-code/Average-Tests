@@ -202,6 +202,23 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
                       </span>
                     </a>
                   ))}
+
+                  {/*
+                    De weg naar het overzicht hoort in het paneel, niet alleen in de
+                    balk. Onder 560px verbergt de balk zijn losse links (.nav-method)
+                    en dan was /notes/ nergens meer vanaf de kop te bereiken: de
+                    strip hierboven wijst naar het nieuwste artikel, niet naar de
+                    lijst. Op een telefoon bestond het overzicht dus niet.
+                  */}
+                  <a class="cat-note cat-note--all" href={NOTES_LINK} data-note-card>
+                    <span class="cue">All</span>
+                    <span class="name">{NOTES.length === 1 ? 'Every note' : `All ${NOTES.length} notes`}</span>
+                    <span class="go" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h13M12 5l7 7-7 7"></path>
+                      </svg>
+                    </span>
+                  </a>
                 </div>
               )
             }
