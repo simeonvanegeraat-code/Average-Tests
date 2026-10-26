@@ -1,0 +1,421 @@
+---
+/**
+ * De bol op de voordeur: Europa op een draaiende aardbol, elk land gekleurd met het
+ * cijfer dat ervoor bestaat.
+ *
+ * Wat hier **niet** gebeurt, en waarom:
+ *
+ * - **Er wordt niets uitgerekend.** De kleur van een land komt uit `at` in het blok
+ *   `#country-data` dat de voordeur al meestuurt (src/lib/home-countries.js): waar dat
+ *   land ligt tussen het laagste en het hoogste cijfer van die metriek, 0 tot 100. Een
+ *   tweede rekenpad is een pad dat van het eerste kan afwijken.
+ * - **De geometrie wordt opgehaald, niet meegestuurd.** `public/geo/globe.json` is
+ *   31 kB gezipt, tegen 7,8 kB voor de hele voordeur. Meesturen zou de pagina waar
+ *   straks advertenties bij komen viermaal zo zwaar maken. De bol verschijnt dus een
+ *   moment later dan de tekst, en dat is de bedoeling: de LCP blijft de kop.
+ * - **Zonder JavaScript staat hier niets.** Dat mag: elk cijfer dat de bol toont staat
+ *   ook in de negen kaarten eronder. De plek is wel gereserveerd, zodat er niets
+ *   verspringt als hij binnenkomt.
+ *
+ * Luistert naar `ha:country` en draait dan naar dat land, net zoals StageMap dat doet.
+ */
+import { CATALOGUE } from '../lib/catalogue.js';
+
+/** Alleen wat de tekenaar nodig heeft: sleutel, naam en tint. */
+const metrics = CATALOGUE.map((metric) => ({ key: metric.key, label: metric.label, hue: metric.hue }));
+const first = metrics[0];
+---
+
+<figure class="globe" data-globe>
+  <canvas
+    class="globe-canvas"
+    data-globe-canvas
+    width="640"
+    height="640"
+    tabindex="0"
+    role="img"
+    aria-label={`A globe of Europe. Each country is shaded by one of the ${metrics.length} figures on this site.`}
+  ></canvas>
+
+  <figcaption class="globe-key">
+    <span class="dot" data-globe-dot style={`--h:${first.hue}`} aria-hidden="true"></span>
+    <span data-globe-label>{first.label}</span>
+    <span class="sep" aria-hidden="true">·</span>
+    <span class="muted">darker is higher</span>
+  </figcaption>
+</figure>
+
+<script type="application/json" data-globe-metrics set:html={JSON.stringify(metrics)} />
+
+<script>
+  import { readProfile } from '../lib/profile.js';
+
+  /**
+   * De tekenaar. Orthografische projectie met de hand: lengte en breedte naar een punt
+   * op een bol, draaien, en wat naar ons toe wijst plat slaan. Dat is wat een
+   * kaartbibliotheek ook doet; het is hier veertig regels en scheelt een dependency.
+   */
+  const root = document.querySelector<HTMLElement>('[data-globe]');
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-globe-canvas]');
+  const label = document.querySelector<HTMLElement>('[data-globe-label]');
+  const dot = document.querySelector<HTMLElement>('[data-globe-dot]');
+  const metricHolder = document.querySelector('[data-globe-metrics]');
+  const countryHolder = document.getElementById('country-data');
+
+  if (root && canvas && label && dot && metricHolder && countryHolder) {
+    const ctx = canvas.getContext('2d');
+    const metrics = JSON.parse(metricHolder.textContent ?? '[]');
+    const countries = JSON.parse(countryHolder.textContent ?? '{}');
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const RAD = Math.PI / 180;
+    /** Europa in beeld: 12 graden west draaien, 38 graden kantelen. */
+    let spin = -12;
+    let tilt = 38;
+    let wanted: { spin: number; tilt: number } | null = null;
+    let shapes: any[] = [];
+    let metric = metrics[0];
+    let picked: string | null = null;
+    let dragging = false;
+    let last: [number, number] | null = null;
+    let visible = true;
+    let frame = 0;
+
+    let size = 320;
+    let radius = 150;
+    let centre = 160;
+
+    function measure() {
+      const box = canvas!.getBoundingClientRect();
+      if (!box.width) return;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      size = Math.round(box.width);
+      canvas!.width = Math.round(size * dpr);
+      canvas!.height = Math.round(size * dpr);
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      radius = size / 2 - 4;
+      centre = size / 2;
+    }
+
+    /** Graden naar een punt op de eenheidsbol, al gedraaid. z > 0 wijst naar ons toe. */
+    function spherical(lon: number, lat: number) {
+      const l = (lon + spin) * RAD;
+      const p = lat * RAD;
+      const r = tilt * RAD;
+      const cosP = Math.cos(p);
+      const sinP = Math.sin(p);
+      return {
+        x: cosP * Math.sin(l),
+        y: Math.cos(r) * sinP - Math.sin(r) * cosP * Math.cos(l),
+        z: Math.sin(r) * sinP + Math.cos(r) * cosP * Math.cos(l),
+      };
+    }
+
+    /**
+     * Het punt waar de lijn a–b achter de bol verdwijnt, op de rand gelegd. Zonder dit
+     * krijgt een land dat half om de bol loopt een rechte snijlijn dwars door zichzelf.
+     */
+    function onLimb(a: any, b: any) {
+      const t = a.z / (a.z - b.z);
+      const x = a.x + (b.x - a.x) * t;
+      const y = a.y + (b.y - a.y) * t;
+      const len = Math.hypot(x, y) || 1;
+      return { x: x / len, y: y / len, z: 0 };
+    }
+
+    /** De zichtbare helft van een ring, in pixels. */
+    function visiblePath(ring: number[][]) {
+      const points: Array<[number, number]> = [];
+      let previous = spherical(ring[ring.length - 1][0], ring[ring.length - 1][1]);
+
+      for (const [lon, lat] of ring) {
+        const here = spherical(lon, lat);
+        if (here.z > 0 !== previous.z > 0) {
+          const edge = previous.z > 0 ? onLimb(previous, here) : onLimb(here, previous);
+          points.push([centre + edge.x * radius, centre - edge.y * radius]);
+        }
+        if (here.z > 0) points.push([centre + here.x * radius, centre - here.y * radius]);
+        previous = here;
+      }
+      return points;
+    }
+
+    /** De kleur van een land: lichter laag, donkerder hoog. `at` komt uit de pagina. */
+    function shade(at: number | null) {
+      const t = at === null ? 0.5 : Math.min(1, Math.max(0, at / 100));
+      return `oklch(${(0.88 - 0.43 * t).toFixed(3)} ${(0.07 + 0.11 * t).toFixed(3)} ${metric.hue})`;
+    }
+
+    function paint() {
+      if (!ctx) return;
+      const style = getComputedStyle(root!);
+      const ocean = style.getPropertyValue('--globe-ocean').trim();
+      const land = style.getPropertyValue('--globe-land').trim();
+      const line = style.getPropertyValue('--globe-line').trim();
+      const mark = style.getPropertyValue('--globe-mark').trim();
+
+      ctx.clearRect(0, 0, size, size);
+      ctx.beginPath();
+      ctx.arc(centre, centre, radius, 0, Math.PI * 2);
+      ctx.fillStyle = ocean;
+      ctx.fill();
+
+      for (const country of shapes) {
+        const cell = country.c ? countries[country.c]?.m?.[metric.key] : undefined;
+        const has = Boolean(cell);
+        ctx.fillStyle = has ? shade(cell.at) : land;
+        ctx.strokeStyle = line;
+        ctx.lineWidth = has ? 0.6 : 0.35;
+
+        for (const ring of country.r) {
+          const path = visiblePath(ring);
+          if (path.length < 3) continue;
+          ctx.beginPath();
+          ctx.moveTo(path[0][0], path[0][1]);
+          for (let i = 1; i < path.length; i += 1) ctx.lineTo(path[i][0], path[i][1]);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          if (picked && country.c === picked) {
+            ctx.save();
+            ctx.strokeStyle = mark;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+      }
+
+      ctx.beginPath();
+      ctx.arc(centre, centre, radius, 0, Math.PI * 2);
+      ctx.strokeStyle = line;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    /** Het midden van een land, om naartoe te kunnen draaien. */
+    function middle(country: any) {
+      const ring = country.r.reduce((a: number[][], b: number[][]) => (b.length > a.length ? b : a), country.r[0]);
+      let lon = 0;
+      let lat = 0;
+      for (const [x, y] of ring) {
+        lon += x;
+        lat += y;
+      }
+      return { lon: lon / ring.length, lat: lat / ring.length };
+    }
+
+    function showMetric(next: any) {
+      metric = next;
+      label!.textContent = metric.label;
+      dot!.style.setProperty('--h', String(metric.hue));
+    }
+
+    let since = 0;
+    function tick(now: number) {
+      frame = requestAnimationFrame(tick);
+      if (!visible) return;
+
+      if (!dragging && !still) spin = (spin + 0.09) % 360;
+
+      // Naar een gekozen land toe draaien in plaats van er hard heen te springen.
+      if (wanted) {
+        spin += (wanted.spin - spin) * 0.08;
+        tilt += (wanted.tilt - tilt) * 0.08;
+        if (Math.abs(wanted.spin - spin) < 0.4 && Math.abs(wanted.tilt - tilt) < 0.4) wanted = null;
+      }
+
+      // Elke acht seconden de volgende metriek, zodat de kleuren betekenis houden.
+      if (!still && now - since > 8000) {
+        since = now;
+        showMetric(metrics[(metrics.indexOf(metric) + 1) % metrics.length]);
+      }
+
+      paint();
+    }
+
+    function pick(code: string | null) {
+      picked = code;
+      const country = code ? shapes.find((s) => s.c === code) : null;
+      if (!country) return;
+      const { lon, lat } = middle(country);
+      wanted = { spin: -lon, tilt: Math.max(10, Math.min(70, lat)) };
+      if (still) {
+        spin = wanted.spin;
+        tilt = wanted.tilt;
+        wanted = null;
+        paint();
+      }
+    }
+
+    document.addEventListener('ha:country', (event) => {
+      const { code } = (event as CustomEvent<any>).detail ?? {};
+      pick(typeof code === 'string' && code ? code : null);
+      if (still) paint();
+    });
+
+    const at = (event: PointerEvent): [number, number] => {
+      const box = canvas.getBoundingClientRect();
+      return [event.clientX - box.left, event.clientY - box.top];
+    };
+
+    canvas.addEventListener('pointerdown', (event) => {
+      dragging = true;
+      wanted = null;
+      last = at(event);
+      canvas.setPointerCapture(event.pointerId);
+    });
+
+    canvas.addEventListener('pointermove', (event) => {
+      if (!dragging || !last) return;
+      const [x, y] = at(event);
+      spin += (x - last[0]) * 0.3;
+      tilt = Math.max(-80, Math.min(80, tilt + (y - last[1]) * 0.2));
+      last = [x, y];
+      if (still) paint();
+    });
+
+    const release = () => {
+      dragging = false;
+      last = null;
+    };
+    canvas.addEventListener('pointerup', release);
+    canvas.addEventListener('pointercancel', release);
+
+    canvas.addEventListener('keydown', (event) => {
+      const step = { ArrowLeft: [-6, 0], ArrowRight: [6, 0], ArrowUp: [0, 4], ArrowDown: [0, -4] }[event.key];
+      if (!step) return;
+      event.preventDefault();
+      wanted = null;
+      spin += step[0];
+      tilt = Math.max(-80, Math.min(80, tilt + step[1]));
+      if (still) paint();
+    });
+
+    window.addEventListener('resize', () => {
+      measure();
+      paint();
+    });
+
+    // Buiten beeld niet tekenen: anders draait hij de hele pagina door mee.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        (entries) => {
+          visible = entries.some((entry) => entry.isIntersecting);
+        },
+        { threshold: 0 },
+      ).observe(root);
+    }
+
+    fetch('/geo/globe.json')
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
+      .then((data) => {
+        shapes = data.countries ?? [];
+        measure();
+        root.dataset.ready = '';
+
+        const saved = readProfile();
+        if (typeof saved.country === 'string' && saved.country) pick(saved.country);
+
+        paint();
+        if (!still) frame = requestAnimationFrame(tick);
+      })
+      .catch(() => {
+        // Geen bol dan. Elk cijfer dat hij toont staat ook in de kaarten eronder.
+        root.remove();
+      });
+  }
+</script>
+
+<style>
+  .globe {
+    /* De plek staat vast voordat de geometrie binnen is, zodat er niets verspringt. */
+    margin: 0;
+    display: grid;
+    gap: 14px;
+    justify-items: center;
+
+    --globe-ocean: #eef1f8;
+    --globe-land: #d6dbe8;
+    --globe-line: #c3c9da;
+    --globe-mark: #0e1018;
+  }
+
+  :global(html[data-theme='dark']) .globe,
+  :global(html:not([data-theme='light'])) .globe {
+    --globe-ocean: #0d1020;
+    --globe-land: #1d2235;
+    --globe-line: #272d44;
+    --globe-mark: #f2f4fa;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :global(html:not([data-theme='dark'])) .globe {
+      --globe-ocean: #eef1f8;
+      --globe-land: #d6dbe8;
+      --globe-line: #c3c9da;
+      --globe-mark: #0e1018;
+    }
+  }
+
+  .globe-canvas {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    cursor: grab;
+    touch-action: pan-y;
+    opacity: 0;
+    transition: opacity 0.6s var(--ease, ease);
+  }
+
+  .globe[data-ready] .globe-canvas,
+  .globe[data-ready] .globe-key {
+    opacity: 1;
+  }
+
+  .globe-canvas:active {
+    cursor: grabbing;
+  }
+
+  .globe-canvas:focus-visible {
+    outline: 2px solid var(--data);
+    outline-offset: 6px;
+  }
+
+  /* Het bijschrift zegt wat de kleuren betekenen. Zonder bol betekent het niets, en
+     zonder JavaScript komt die bol er niet — dan hoort dit er ook niet te staan. */
+  .globe-key {
+    opacity: 0;
+    transition: opacity 0.6s var(--ease, ease);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font: 500 0.74rem/1 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .globe-key .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: oklch(0.62 0.16 var(--h));
+  }
+
+  .globe-key .muted {
+    color: var(--text-3, var(--text-2));
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .globe-canvas {
+      cursor: default;
+      transition: none;
+    }
+  }
+</style>

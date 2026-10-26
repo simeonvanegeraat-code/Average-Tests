@@ -439,3 +439,80 @@ const data = Object.values(countries).filter((c) => !c.ctx).length;
 console.log(`  viewBox ${VIEWBOX_WIDTH} x ${VIEWBOX_HEIGHT}`);
 console.log(`  ${Object.keys(countries).length} landen (${data} met Eurostat-data, ${Object.keys(countries).length - data} achtergrond)`);
 console.log(`  data/geo/europe.json, ${json.length.toLocaleString('en-US')} bytes`);
+
+// ---------------------------------------------------------------------------
+// 7. Dezelfde bron, maar in graden: de bol op de voordeur.
+//
+// De kaart hierboven is voorgeprojecteerd naar 2D en daarmee plat. Een bol draait,
+// dus die heeft lengte en breedte nodig en projecteert in de browser. Het is bewust
+// een tweede bestand en geen tweede veld: de kaart staat op elke metriekpagina en
+// hoeft deze punten nooit te laden.
+//
+// Het gaat naar public/ en niet naar data/, omdat de browser het ophaalt in plaats
+// van dat Astro het meebouwt. Meesturen zou de HTML van de voordeur viermaal zo
+// zwaar maken (21,7 kB gzip tegen 7,8 kB voor de hele pagina), en juist daar komen
+// advertenties bij.
+// ---------------------------------------------------------------------------
+
+/**
+ * Vereenvoudiging in graden, fijner voor de 34 datalanden dan voor de achtergrond —
+ * dezelfde splitsing als EPS_DATA tegen EPS_CONTEXT op de platte kaart. Bij 0,45 werd
+ * Cyprus een vierhoek; de achtergrond mag dat wel zijn, want daar kijkt niemand naar.
+ */
+const GLOBE_EPS_DATA = 0.2;
+const GLOBE_EPS_CONTEXT = 0.45;
+/** Een achtergrondvorm die op die schaal geen pixel haalt kost alleen bytes. */
+const GLOBE_MIN_SPAN = 1.2;
+/** Voor een dataland alleen de echte splinters; Malta is 0,22 graad en moet blijven. */
+const GLOBE_MIN_DATA_SPAN = 0.12;
+
+const GLOBE_DIR = new URL('../public/geo/', import.meta.url);
+
+const globe = [];
+let globePoints = 0;
+
+for (const geometry of topo.objects.countries.geometries) {
+  const name = geometry.properties?.name;
+  const code = NAME_TO_CODE[name] ?? null;
+  const isData = code !== null && DATA_CODES.has(code);
+
+  const rings = [];
+
+  for (const polygon of polygonsOf(geometry)) {
+    const raw = ringPoints(polygon[0], arcsLonLat);
+    const lons = raw.map((p) => p[0]);
+    const lats = raw.map((p) => p[1]);
+    const span = Math.max(Math.max(...lons) - Math.min(...lons), Math.max(...lats) - Math.min(...lats));
+
+    // Achtergrondland mag wegvallen als het te klein is om te zien; een dataland niet.
+    if (!isData && span < GLOBE_MIN_SPAN) continue;
+    if (isData && span < GLOBE_MIN_DATA_SPAN) continue;
+
+    // Een vorm die kleiner is dan de tolerantie overleeft het vereenvoudigen niet:
+    // Malta is 0,22 graad en werd er een lijn van twee punten van. Voor een dataland
+    // houden we dan de ruwe vorm (Malta: acht punten). Voor achtergrond niet - dat zijn
+    // duizenden eilandjes wereldwijd, en die terugval verdubbelde het bestand.
+    const thin = simplify(raw, isData ? GLOBE_EPS_DATA : GLOBE_EPS_CONTEXT);
+    const ring = (thin.length >= 4 || !isData ? thin : raw)
+      .map(([lon, lat]) => [Math.round(lon * 100) / 100, Math.round(lat * 100) / 100]);
+    if (ring.length < 4) continue;
+
+    // Overzeese departementen horen niet mee te kleuren. Natural Earth geeft Frankrijk
+    // als één vorm inclusief Frans-Guyana; op de platte kaart valt dat buiten het kader,
+    // op een bol zweeft er dan een gekleurde vlek bij Zuid-Amerika.
+    if (isData && !ring.some(inWindow)) continue;
+
+    rings.push(ring);
+    globePoints += ring.length;
+  }
+
+  if (rings.length) globe.push({ n: name, c: isData ? code : null, r: rings });
+}
+
+await mkdir(GLOBE_DIR, { recursive: true });
+const globeJson = JSON.stringify({ generated: new Date().toISOString().slice(0, 10), countries: globe }) + '\n';
+await writeFile(new URL('globe.json', GLOBE_DIR), globeJson);
+
+const globeData = globe.filter((c) => c.c).length;
+console.log(`  public/geo/globe.json, ${globeJson.length.toLocaleString('en-US')} bytes`);
+console.log(`  ${globe.length} landen in graden (${globeData} met data), ${globePoints.toLocaleString('en-US')} punten`);
