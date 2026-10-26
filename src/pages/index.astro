@@ -1,35 +1,45 @@
 ---
 import BaseV2 from '../layouts/BaseV2.astro';
 import leaving from '../../data/leaving-home/index.json';
-import wealth from '../../data/wealth/index.json';
 import { headline, age } from '../lib/leaving-home.js';
-import { euro, formatPeriod } from '../lib/wealth.js';
+import { CATALOGUE } from '../lib/catalogue.js';
+import { HOME_COUNTRIES, COUNTRY_DATA, METRIC_COUNT } from '../lib/home-countries.js';
+import { NOTES, NOTES_LINK, noteDate } from '../lib/notes.js';
 
 /**
  * De Engelse homepage. De voordeur.
  *
- * Herschreven op 24 oktober 2026. De vorige versie verkocht het percentielproduct op
- * Amerikaanse microdata: de kop was "You never wanted the average", de twee knoppen
- * wezen naar /height/ en /weight/, en zelfs het logo linkte daarheen. Die pagina's
- * zijn eraf, dus die voordeur wees naar niets.
+ * Herbouwd op 26 oktober 2026. De versie daarvoor was op 24 oktober geschreven voor
+ * een site van twee metrieken en meegroeien deed hij niet: de kop van de tweede
+ * sectie zei "Two questions so far" terwijl er negen stonden, en van de negen
+ * pagina's werden er twee genoemd. Het mega menu was daarmee de enige echte ingang.
  *
- * Elk getal hieronder komt uit de gebouwde databestanden. Type hier nooit een getal
- * met de hand in: dan wijkt de voordeur ooit stilletjes af van de pagina erachter.
+ * Twee dingen zorgen dat dat niet nog eens gebeurt:
+ *
+ * 1. **De negen kaarten komen uit `CATALOGUE`**, hetzelfde bestand dat het paneel in
+ *    de balk vult. Een tiende metriek verschijnt hier dus vanzelf, en de voordeur kan
+ *    niet afwijken van het menu.
+ * 2. **De kiezer komt uit `HOME_COUNTRIES`**, dat de landen uit de databestanden
+ *    haalt. Geen handmatige lijst die veroudert.
+ *
+ * Elk getal komt uit een lib. Type hier nooit een getal met de hand in.
  */
 
 const h = headline(leaving);
-const euroArea = wealth.euroArea;
 
-const medians = wealth.countries.map((country: { median: number }) => country.median).sort((a, b) => a - b);
-const poorest = medians[0];
-const richest = medians[medians.length - 1];
+const clientJson = JSON.stringify(COUNTRY_DATA).replace(/</g, '\\u003c');
+
+/** Alleen --h: de rest van de tintvariabelen leidt ha.css zelf af op .hued. */
+const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
+  [`--i:${i}`, `--h:${metric.hue}`, metric.at === null ? '' : `--at:${metric.at.toFixed(1)}%`]
+    .filter(Boolean)
+    .join(';');
 
 const title = 'HumanAverage — European Figures, and Where You Fall';
 const description =
-  `One question per page, answered for every European country. Half of young Europeans have ` +
-  `left home by age ${age(h.eu.total)}; the median euro-area household is worth ` +
-  `${euro(euroArea.median)}. Published figures from Eurostat and the ECB, with a map, every ` +
-  `country, and your own place in it.`;
+  `${METRIC_COUNT} questions about how Europeans live, each answered for every country ` +
+  `from figures published by Eurostat, the OECD and the ECB. Pick your country and see ` +
+  `all ${METRIC_COUNT} at once, on a map, with every country listed.`;
 ---
 
 <BaseV2 title={title} description={description} canonical="/">
@@ -44,7 +54,7 @@ const description =
         url: 'https://www.humanaverage.com/',
         inLanguage: 'en-US',
         description:
-          'Country-by-country comparisons of how Europeans live, built from figures published by Eurostat and the European Central Bank.',
+          'Country-by-country comparisons of how Europeans live, built from figures published by Eurostat, the OECD and the European Central Bank.',
         publisher: {
           '@type': 'Organization',
           name: 'HumanAverage',
@@ -54,127 +64,291 @@ const description =
     />
   </Fragment>
 
+  {/*
+    Twee kolommen, want in één kolom stond de kiezer op 810px en begonnen de kaarten
+    621px onder de vouw — gemeten op 1280x900. Dan is de voordeur weer een pagina
+    waar je langs moet scrollen voordat je iets kunt. `.hero-grid` bestaat al in
+    ha.css (StatHero gebruikt hem) en valt onder 1040px vanzelf terug naar één kolom.
+  */}
   <section class="hero">
-    <div class="wrap">
-      <p class="eyebrow mono">Eurostat · ECB · {h.countries} countries</p>
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow mono">Eurostat · OECD · ECB · {METRIC_COUNT} questions</p>
 
-      <h1 data-reveal>A European average describes almost nobody.</h1>
+        <h1 data-reveal>A European average describes almost nobody.</h1>
 
-      <span class="giant num">{h.gap.toFixed(1)}</span>
-      <p class="unit mono">
-        years between the earliest and the latest country — <b>same question</b>, {h.year}
-      </p>
-
-      <p class="lead">
-        In {h.earliest.name} half of young people have left home by {age(h.earliest.total)}. In {
-          h.latest.name
-        } that point does not arrive until {age(h.latest.total)}. One European figure hides both.
-      </p>
-
-      <div class="hero-cta">
-        <a class="btn" href="/leaving-home/">
-          Start with leaving home <span class="arr" aria-hidden="true">→</span>
-        </a>
-        <a class="btn btn--ghost" href="/wealth/">Or household wealth</a>
-        <span class="hint">No sign-up. Nothing you type leaves your browser.</span>
+        <p class="lead">
+          In {h.earliest.name} half of young people have left home by {age(h.earliest.total)}. In {
+            h.latest.name
+          } that point does not arrive until {age(h.latest.total)}. One European figure hides both.
+        </p>
       </div>
 
-      <p class="hero-note">
-        Every page takes one figure that <em>Eurostat</em>, the <em>OECD</em> or the <em>ECB</em>
-        publishes, puts all of Europe on a map, lists every country, and then lets you put
-        yourself next to it. Nothing here is estimated on top of what those sources publish.
-      </p>
+      <div class="hero-figure">
+        <span class="giant num">{h.gap.toFixed(1)}</span>
+        <p class="unit mono">
+          years between the earliest and the latest country — <b>same question</b>, {h.year}
+        </p>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <form class="pick" data-pick autocomplete="off">
+        <label class="pick-label" for="pick-country">Start with your country</label>
+        <div class="pick-row">
+          <select id="pick-country" name="country" data-pick-country>
+            <option value="">Europe</option>
+            {HOME_COUNTRIES.map((country) => <option value={country.code}>{country.name}</option>)}
+          </select>
+          <button class="btn" type="submit">
+            Show me <span class="arr" aria-hidden="true">→</span>
+          </button>
+        </div>
+        <p class="hint" data-pick-note>
+          Every figure below switches to your country. Nothing you pick leaves your browser.
+        </p>
+      </form>
     </div>
   </section>
 
-  <section class="block" aria-labelledby="what-title">
+  <section class="block" aria-labelledby="metrics-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
         <p class="eyebrow mono">What is here</p>
-        <h2 id="what-title">Two questions so far, answered for every country</h2>
+        <h2 id="metrics-title">
+          <span data-pick-heading>{METRIC_COUNT} questions, answered for every country</span>
+        </h2>
         <p>
           Each one is a map, a sortable table of every country, and a comparison with whatever
-          you enter about yourself. More are coming; these two are finished.
+          you enter about yourself. The bar under each figure shows where it sits between the
+          lowest and the highest country.
         </p>
       </header>
 
-      <div class="bento" data-reveal>
-        <a class="tile" href="/leaving-home/">
-          <div>
-            <b>{age(h.eu.total)}</b>
-            <p>
-              The age by which half of young Europeans no longer live with their parents.
-              {h.countries} countries, {h.year}, from the EU Labour Force Survey.
-            </p>
-          </div>
-          <span class="arr">Leaving home <span aria-hidden="true">→</span></span>
-        </a>
+      <div class="cat-grid" data-reveal data-pick-grid>
+        {
+          CATALOGUE.map((metric, i) => (
+            <a class="cat-card hued" href={metric.path} style={cardStyle(metric, i)} data-metric={metric.key}>
+              <span class="name">{metric.label}</span>
+              {metric.value && (
+                <span class="val">
+                  <span data-count>{metric.value}</span>
+                  <small>{metric.unit}</small>
+                </span>
+              )}
+              {metric.at !== null && (
+                <span class="bar">
+                  <span class="track"><i /></span>
+                  <span class="ends">
+                    <span>{metric.low}</span>
+                    <span>{metric.high}</span>
+                  </span>
+                </span>
+              )}
+            </a>
+          ))
+        }
 
-        <a class="tile" href="/wealth/">
-          <div>
-            <b>{euro(euroArea.median, { compact: true })}</b>
-            <p>
-              What the middle household in the euro area is worth, {formatPeriod(euroArea.period)}.
-              Across {wealth.countries.length} countries the median runs from {
-                euro(poorest, { compact: true })
-              } to {euro(richest, { compact: true })}.
-            </p>
-          </div>
-          <span class="arr">Household wealth <span aria-hidden="true">→</span></span>
-        </a>
-
-        <a class="tile dark" href="/method/">
-          <div>
-            <h3>How these numbers are checked</h3>
-            <p>
-              Which dataset each figure comes from, what it does and does not say, and the gate
-              every number passes before it appears here.
-            </p>
-          </div>
-          <span class="arr">The method <span aria-hidden="true">→</span></span>
+        <a class="cat-card cat-method" href="/method/" style={`--i:${CATALOGUE.length}`}>
+          <span class="cue">How we read it</span>
+          <span class="name">Sources, and the breaks we refuse to cross</span>
+          <span class="go" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h13M12 5l7 7-7 7"></path>
+            </svg>
+          </span>
         </a>
       </div>
     </div>
   </section>
+
+  {
+    NOTES.length > 0 && (
+      <section class="block" aria-labelledby="latest-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">Latest</p>
+            <h2 id="latest-title">What we worked out along the way</h2>
+            <p>
+              Where a dataset turned out to say something other than its title, we write it
+              down rather than quietly work around it.
+            </p>
+          </header>
+
+          <div class="notelist" data-reveal>
+            {NOTES.slice(0, 3).map((note) => (
+              <a class="noteitem hued" href={note.path} style={`--h:${note.hue}`}>
+                <p class="eyebrow mono">{noteDate(note.published)}</p>
+                <h3>{note.title}</h3>
+                <p>{note.teaser}</p>
+                <span class="arr">Read it <span aria-hidden="true">→</span></span>
+              </a>
+            ))}
+          </div>
+
+          {NOTES.length > 3 && (
+            <p class="more"><a href={NOTES_LINK}>All {NOTES.length} notes <span aria-hidden="true">→</span></a></p>
+          )}
+        </div>
+      </section>
+    )
+  }
 
   <section class="block" aria-labelledby="honest-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
         <p class="eyebrow mono">What this is not</p>
         <h2 id="honest-title">An average is a bad answer to a personal question</h2>
+        <p>
+          Where a source publishes one figure per country — which is almost always — a page
+          tells you which side of it you are on, and says so plainly instead of dressing it up
+          as a percentile. <a href="/method/">The method page</a> has the whole argument, per
+          dataset.
+        </p>
       </header>
-
-      <div class="prose" data-reveal>
-        <p>
-          That is the point of the site, and also its limit. Where a source publishes the whole
-          distribution, a page will tell you your exact position in it. Where a source publishes
-          one figure per country — which is most of the time — a page tells you which side of
-          that figure you are on, and says so plainly instead of dressing it up as a percentile.
-        </p>
-        <p>
-          The difference matters enough that each page carries it in its own words. The wealth
-          pages cannot give you a percentile because the ECB publishes the average of each
-          group and not where the groups begin. The leaving-home page cannot either, because
-          Eurostat publishes a midpoint and not a distribution. Saying so is cheaper than being
-          wrong.
-        </p>
-      </div>
     </div>
   </section>
+
+  <script type="application/json" id="country-data" set:html={clientJson} />
+
+  <script>
+    import { readCounter, animate } from '../lib/countup.js';
+    import { readProfile, mergeProfile } from '../lib/profile.js';
+
+    /**
+     * De landenkiezer. Zonder JavaScript staat hier een werkende pagina met de
+     * Europese cijfers en een keuzelijst die niets doet; dit script maakt hem levend.
+     *
+     * Het rekent niets uit. Alle cijfers staan al opgemaakt in het JSON-blok
+     * (src/lib/home-countries.js); hier wordt alleen tekst verzet en een balkje
+     * verschoven. Een tweede rekenpad zou van het eerste kunnen afwijken.
+     */
+    const holder = document.getElementById('country-data');
+    const form = document.querySelector<HTMLFormElement>('[data-pick]');
+    const select = document.querySelector<HTMLSelectElement>('[data-pick-country]');
+    const grid = document.querySelector<HTMLElement>('[data-pick-grid]');
+    const heading = document.querySelector<HTMLElement>('[data-pick-heading]');
+    const note = document.querySelector<HTMLElement>('[data-pick-note]');
+
+    if (holder && form && select && grid && heading && note) {
+      const data = JSON.parse(holder.textContent ?? '{}');
+      const cards = [...grid.querySelectorAll<HTMLElement>('[data-metric]')];
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /** Wat de server schreef: het Europese beeld, om naar terug te kunnen. */
+      const europe = cards.map((card) => ({
+        card,
+        metric: card.dataset.metric ?? '',
+        value: card.querySelector<HTMLElement>('[data-count]')?.textContent ?? '',
+        at: card.style.getPropertyValue('--at'),
+        href: card.getAttribute('href') ?? '',
+      }));
+      const headingEurope = heading.textContent ?? '';
+      const noteEurope = note.textContent ?? '';
+
+      function show(code: string) {
+        const country = code ? data[code] : null;
+        const counters = [];
+
+        for (const base of europe) {
+          const cell = country?.m?.[base.metric];
+          const slot = base.card.querySelector<HTMLElement>('[data-count]');
+
+          // Een land zonder cijfer houdt zijn kaart; hij zegt alleen dat hij leeg is.
+          base.card.toggleAttribute('data-empty', Boolean(country) && !cell);
+          base.card.setAttribute('href', cell?.p ?? base.href);
+
+          if (!slot) continue;
+          if (country && !cell) {
+            slot.textContent = '—';
+            base.card.style.removeProperty('--at');
+            continue;
+          }
+
+          const value = cell ? cell.v : base.value;
+          const at = cell ? (cell.at === null ? '' : `${cell.at}%`) : base.at;
+          slot.textContent = value;
+          if (at) base.card.style.setProperty('--at', at);
+          else base.card.style.removeProperty('--at');
+
+          const counter = readCounter(slot);
+          if (counter) counters.push(counter);
+        }
+
+        if (country) {
+          heading.textContent = `${country.have} of the ${europe.length} figures cover ${country.n}`;
+          note.textContent =
+            country.have === europe.length
+              ? `Every figure below is ${country.n}. Pick Europe to switch back.`
+              : `The cards without a figure are the ones no source publishes for ${country.n}.`;
+        } else {
+          heading.textContent = headingEurope;
+          note.textContent = noteEurope;
+        }
+
+        if (!still && counters.length) animate(counters);
+      }
+
+      select.addEventListener('change', () => {
+        show(select.value);
+        if (select.value) mergeProfile({ country: select.value });
+        document.dispatchEvent(new CustomEvent('ha:country', { detail: { code: select.value } }));
+      });
+
+      // De knop is er voor wie hem verwacht; de lijst doet het werk al.
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        show(select.value);
+      });
+
+      const saved = readProfile();
+      if (typeof saved.country === 'string' && data[saved.country]) {
+        select.value = saved.country;
+        show(saved.country);
+      }
+    }
+  </script>
+
+  <style>
+    /* De hero draagt onderaan tot 168px lucht; hier mag dat minder, want eronder
+       staat geen tekst maar de ingang tot de site. */
+    .hero { padding-bottom: clamp(36px, 5vw, 64px); }
+    .hero-figure .giant { margin-top: 0; }
+    .hero-figure .unit { max-width: 42ch; }
+    @media (max-width: 1040px) { .hero-figure { margin-top: 28px; } }
+
+    /* Boven 1040px staat het kopcijfer in een smalle kolom. De maat uit ha.css loopt
+       op tot 14,5rem en maakt "10.2" dan 653px breed, terwijl de kolom er 479 heeft —
+       dat duwde de hele pagina horizontaal open. De maat hangt hier daarom aan de
+       kolom (cqw) en niet aan het venster, want de wrap stopt met groeien bij 1160px
+       en een vw-maat doet dat niet. */
+    @media (min-width: 1041px) {
+      .hero-figure { container-type: inline-size; }
+      .hero-figure .giant { font-size: 27cqw; }
+    }
+
+    .pick { margin-top: 34px; max-width: 42rem; }
+    .pick-label { display: block; margin-bottom: 10px; font: 500 0.72rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
+    .pick-row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .pick-row select {
+      flex: 1 1 14rem; min-width: 0; padding: 13px 16px; border: 1px solid var(--line-strong);
+      border-radius: 999px; background: var(--surface); color: var(--text);
+      font: 600 1rem/1.2 var(--font-sans); cursor: pointer;
+    }
+    .pick-row select:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; }
+    .pick .hint { margin-top: 12px; }
+
+    /* Een kaart zonder cijfer voor dit land: gedempt, maar hij blijft staan zodat de
+       rij niet verspringt en zodat zichtbaar is wát er ontbreekt. */
+    .cat-card[data-empty] { opacity: 0.45; }
+    .cat-card[data-empty] .bar { visibility: hidden; }
+
+    .notelist { display: grid; gap: 12px; }
+    .noteitem { display: block; padding: 22px 24px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); color: var(--text); text-decoration: none; transition: border-color .3s, transform .3s var(--ease); }
+    .noteitem:hover { border-color: color-mix(in oklab, var(--glow) 55%, var(--line)); transform: translateY(-3px); text-decoration: none; }
+    .noteitem h3 { margin: 8px 0 10px; font-size: 1.3rem; letter-spacing: -.03em; }
+    .noteitem p { max-width: 70ch; color: var(--text-2); line-height: 1.65; }
+    .noteitem .arr { display: inline-block; margin-top: 14px; font-weight: 600; color: var(--data); }
+    .more { margin-top: 16px; }
+  </style>
 </BaseV2>
-
-<style>
-  .tile h3 {
-    margin: 0 0 10px;
-    font-size: 1.15rem;
-  }
-
-  .tile .arr {
-    font-weight: 600;
-  }
-
-  .prose .note {
-    margin-top: 1.6em;
-    font-size: 0.92rem;
-  }
-</style>
