@@ -1,5 +1,6 @@
 ---
 import BaseV2 from '../../layouts/BaseV2.astro';
+import Related from '../../components/Related.astro';
 import StageMap from '../../components/StageMap.astro';
 import CompareForm from '../../components/CompareForm.astro';
 import RankTable from '../../components/RankTable.astro';
@@ -247,6 +248,8 @@ const description =
       </div>
     </div>
   </section>
+
+  <Related metric="working-life" />
 
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">

@@ -1,5 +1,6 @@
 ---
 import BaseV2 from '../../layouts/BaseV2.astro';
+import Related from '../../components/Related.astro';
 import StageMap from '../../components/StageMap.astro';
 import CompareForm from '../../components/CompareForm.astro';
 import RankTable from '../../components/RankTable.astro';
@@ -135,6 +136,8 @@ const description = `A newborn in ${withArticle(h.latest.name)} can expect ${fmt
       </div>
     </div>
   </section>
+
+  <Related metric="healthy-years" />
 
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">

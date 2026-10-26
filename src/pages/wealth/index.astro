@@ -1,5 +1,6 @@
 ---
 import BaseV2 from '../../layouts/BaseV2.astro';
+import Related from '../../components/Related.astro';
 import index from '../../../data/wealth/index.json';
 import validation from '../../../data/wealth-validation.json';
 import { euro, multiple, formatPeriod } from '../../lib/wealth.js';
@@ -229,6 +230,8 @@ const description =
       </div>
     </div>
   </section>
+
+  <Related metric="wealth" />
 
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">
