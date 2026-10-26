@@ -265,11 +265,14 @@ const description =
           </div>
 
           <div class="prose" data-reveal>
+            {/*
+              Eén regel, geen regelafbrekingen tussen de stukken. Afgebroken stond er
+              "…assets  at €308,192 , followed by…": de afbreking na </strong> werd een
+              spatie bovenop de {' '}, en de afbreking vóór het tweede stuk werd een
+              spatie vóór de komma. Op alle 21 landpagina's tegelijk.
+            */}
             <p>
-              For this household the largest holding is <strong>{biggest.label.toLowerCase()}</strong>
-              {' '}at {euro(biggest.value)}
-              {secondBiggest && <>, followed by {secondBiggest.label.toLowerCase()} at {euro(secondBiggest.value)}</>}.
-              {totalDebt > 0 && <> Against that sits {euro(totalDebt)} of debt.</>}
+              For this household the largest holding is <strong>{biggest.label.toLowerCase()}</strong> at {euro(biggest.value)}{secondBiggest && <>, followed by {secondBiggest.label.toLowerCase()} at {euro(secondBiggest.value)}</>}.{totalDebt > 0 && <> Against that sits {euro(totalDebt)} of debt.</>}
             </p>
           </div>
         </div>
