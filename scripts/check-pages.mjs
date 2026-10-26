@@ -212,14 +212,28 @@ const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 const MEASURE = `(() => {
   const width = document.documentElement.clientWidth;
 
+  const naam = (element) =>
+    element.tagName.toLowerCase() +
+    (typeof element.className === 'string' && element.className ? '.' + element.className.trim().split(/\\s+/)[0] : '');
+
   const overflow = [];
+  /**
+   * Wie de pagina daadwerkelijk breder maakt. Dit kijkt zonder uitzonderingen, want
+   * als de pagina schuift helpt "een tabel mag uitsteken" niet meer: dan is er iets
+   * dat niet geklemd wordt. Zonder deze regel zei de melding alleen dát hij schoof.
+   */
+  let widest = null;
+
   for (const element of document.querySelectorAll('body *')) {
     const box = element.getBoundingClientRect();
     if (box.width === 0 || (box.right <= width + 1 && box.left >= -1)) continue;
+
+    if (!widest || box.right > widest.right) widest = { naam: naam(element), right: Math.round(box.right), w: Math.round(box.width) };
+
     // Een tabel die breder is dan het venster is goed zolang hij in een scrollbaar
     // gebied zit; de kaart is een vaste viewBox en steekt per ontwerp uit.
     if (element.closest('.tablewrap, [role="region"][tabindex]') || element.closest('svg, .stage')) continue;
-    overflow.push(element.tagName.toLowerCase() + (typeof element.className === 'string' && element.className ? '.' + element.className.split(' ')[0] : ''));
+    overflow.push(naam(element));
   }
 
   const hidden = [...document.querySelectorAll('[data-reveal]')]
@@ -237,7 +251,23 @@ const MEASURE = `(() => {
 
   return {
     overflow: [...new Set(overflow)].slice(0, 8),
-    scrolls: document.documentElement.scrollWidth > width + 1,
+    /**
+     * Kan een bezoeker de pagina echt opzij schuiven? Dat is de vraag, en
+     * scrollWidth beantwoordt hem niet: op /working-hours/ meldde die 611 in een
+     * venster van 390 terwijl er niets te schuiven viel en een losse meting 390 gaf.
+     * Dus doen we het gewoon: naar rechts duwen en kijken waar we uitkomen. De
+     * positie gaat daarna terug, zodat de volgende meting niet scheef staat.
+     */
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: width,
+    scrolls: (() => {
+      const was = window.scrollX;
+      window.scrollTo(width * 2, window.scrollY);
+      const kon = window.scrollX;
+      window.scrollTo(was, window.scrollY);
+      return kon > 1;
+    })(),
+    widest,
     hidden,
     rot: [...new Set(rot)].slice(0, 8),
     title: document.title,
@@ -332,7 +362,7 @@ async function main() {
 
       if (seen.hidden.length) problems.push(`${where}: ${seen.hidden.length} blok(ken) blijven onzichtbaar — ${seen.hidden.join(', ')}`);
       if (seen.overflow.length) problems.push(`${where}: steekt buiten het venster — ${seen.overflow.join(', ')}`);
-      if (seen.scrolls) problems.push(`${where}: de pagina zelf schuift horizontaal`);
+      if (seen.scrolls) problems.push(`${where}: de pagina zelf schuift horizontaal (${seen.scrollWidth} in een venster van ${seen.clientWidth})${seen.widest ? ` — breedste: ${seen.widest.naam} tot ${seen.widest.right}` : ''}`);
       if (seen.rot.length) problems.push(`${where}: rommel in de tekst — ${seen.rot.join(', ')}`);
       if (!seen.h1) problems.push(`${where}: geen h1`);
       for (const line of noise) problems.push(`${where}: console — ${line}`);
