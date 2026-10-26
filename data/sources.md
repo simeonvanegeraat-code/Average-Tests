@@ -541,8 +541,30 @@ geen bijwerking. `scripts/build-geo.mjs` weigert te draaien als de checksum afwi
 
 ### Bewerking
 
-`node scripts/build-geo.mjs` schrijft `data/geo/europe.json` (55.907 bytes, 54
-landvormen: 34 met Eurostat-data, 20 als achtergrond).
+`node scripts/build-geo.mjs` schrijft **twee** bestanden uit dezelfde bron:
+
+1. `data/geo/europe.json` (55.907 bytes, 54 landvormen: 34 met Eurostat-data, 20 als
+   achtergrond) — de platte kaart op elke metriekpagina, voorgeprojecteerd.
+2. `public/geo/globe.json` (90 kB, 31,5 kB gezipt; 172 landvormen, 34 met data) — dezelfde
+   vormen in graden, voor de draaiende bol op de voordeur.
+
+Waarom twee. De kaart is voorgeprojecteerd omdat hij plat is en nooit draait; de bol moet
+wél draaien en projecteert dus in de browser, en heeft daarvoor lengte en breedte nodig.
+En waarom het tweede bestand in `public/` staat en niet in `data/`: de browser haalt het
+op nadat de pagina staat. Meesturen zou de HTML van de voordeur viermaal zo zwaar maken
+(31,5 kB gezipt tegen 8,4 kB voor de hele pagina), en juist daar komen advertenties bij.
+
+Twee keuzes in de bol die de platte kaart niet hoeft te maken:
+
+- **Overzeese departementen vallen af.** Natural Earth geeft Frankrijk als één vorm
+  inclusief Frans-Guyana. Op de platte kaart valt dat buiten het kader; op een bol zweeft
+  er anders een gekleurde vlek bij Zuid-Amerika. Elke ring van een dataland die volledig
+  buiten het Europa-venster valt, gaat eruit.
+- **Een vorm kleiner dan de tolerantie wordt niet vereenvoudigd.** Malta is 0,22 graad en
+  werd door het vereenvoudigen een lijn van twee punten; Luxemburg en Cyprus verdwenen
+  bijna. Voor datalanden valt het script dan terug op de ruwe vorm, die bij zulke landen
+  toch maar een handvol punten telt. Voor achtergrondland gebeurt dat niet: dat zijn
+  duizenden eilandjes wereldwijd en die terugval verdubbelde het bestand.
 
 | | |
 |---|---|
