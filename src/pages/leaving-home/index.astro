@@ -7,6 +7,7 @@ import ResultPanel from '../../components/ResultPanel.astro';
 import FactsBento from '../../components/FactsBento.astro';
 import RankTable from '../../components/RankTable.astro';
 import MethodBlock from '../../components/MethodBlock.astro';
+import Related from '../../components/Related.astro';
 import geo from '../../../data/geo/europe.json';
 import index from '../../../data/leaving-home/index.json';
 import { STAGES } from '../../lib/hue.js';
@@ -151,6 +152,8 @@ const description =
       </div>
     </div>
   </section>
+
+  <Related metric="leaving-home" />
 
   <MethodBlock index={index} />
 

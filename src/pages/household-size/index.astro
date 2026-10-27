@@ -1,5 +1,6 @@
 ---
 import BaseV2 from '../../layouts/BaseV2.astro';
+import Related from '../../components/Related.astro';
 import StageMap from '../../components/StageMap.astro';
 import CompareForm from '../../components/CompareForm.astro';
 import RankTable from '../../components/RankTable.astro';
@@ -137,6 +138,8 @@ const description = `The average European household holds ${euValue} people — 
       </div>
     </div>
   </section>
+
+  <Related metric="household-size" />
 
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">

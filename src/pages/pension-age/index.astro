@@ -1,5 +1,6 @@
 ---
 import BaseV2 from '../../layouts/BaseV2.astro';
+import Related from '../../components/Related.astro';
 import StageMap from '../../components/StageMap.astro';
 import CompareForm from '../../components/CompareForm.astro';
 import RankTable from '../../components/RankTable.astro';
@@ -313,6 +314,8 @@ const description = `Across the European Union people started drawing an old-age
       </div>
     </div>
   </section>
+
+  <Related metric="pension-age" />
 
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">

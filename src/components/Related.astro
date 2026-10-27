@@ -1,0 +1,111 @@
+---
+/**
+ * "Waar dit cijfer aan vastzit": twee buurmetrieken en, waar hij van toepassing is,
+ * het artikel over de reeksbreuk.
+ *
+ * Dit is geen sjabloonblok met andere namen erin. Elke zin komt uit src/lib/related.js
+ * en bevat gepubliceerde cijfers van landen met naam, uit de twee datasets samen — te
+ * controleren in de tabel op beide pagina's. Dat is dezelfde lat als voor de pagina's
+ * zelf: een berekening die nergens anders staat.
+ */
+import { related, breakNote } from '../lib/related.js';
+
+interface Props {
+  /** De sleutel van de huidige metriek, zoals in src/lib/metrics/. */
+  metric: string;
+}
+
+const { metric } = Astro.props;
+const neighbours = related(metric);
+const note = breakNote(metric);
+---
+
+{
+  neighbours.length > 0 && (
+    <section class="block" aria-labelledby="related-title">
+      <div class="wrap">
+        <header class="sec-head" data-reveal>
+          <p class="eyebrow mono">Next question</p>
+          <h2 id="related-title">What this figure sits next to</h2>
+        </header>
+
+        <div class="nextlist" data-reveal>
+          {neighbours.map((neighbour) => (
+            <a class="nextitem" href={neighbour.path}>
+              <span class="k mono">{neighbour.label}</span>
+              <p>{neighbour.line}</p>
+              <span class="arr">Open it <span aria-hidden="true">→</span></span>
+            </a>
+          ))}
+
+          {note && (
+            <a class="nextitem nextitem--note" href={note.path}>
+              <span class="k mono">The note</span>
+              <p>
+                {note.of === note.countries
+                  ? `Every one of the ${note.countries} countries here carries a break flag in ${note.year}`
+                  : `${note.of} of the ${note.countries} countries here ${note.of === 1 ? 'carries' : 'carry'} a break flag in ${note.year}`}, and a
+                line drawn through it means nothing. Why Eurostat's 2021 revision breaks almost every
+                series, and what we do about it.
+              </p>
+              <span class="arr">Read it <span aria-hidden="true">→</span></span>
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .nextlist {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  }
+
+  .nextitem {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 22px 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.3s, transform 0.3s var(--ease);
+  }
+
+  .nextitem:hover {
+    border-color: color-mix(in oklab, var(--glow) 55%, var(--line));
+    transform: translateY(-3px);
+    text-decoration: none;
+  }
+
+  .nextitem .k {
+    font-size: 0.7rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .nextitem p {
+    margin: 0;
+    flex: 1 1 auto;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  .nextitem .arr {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--data);
+  }
+
+  /* Het artikel is een ander soort bestemming dan een metriek: gestippeld, zoals de
+     methodekaart in het paneel. */
+  .nextitem--note {
+    border-style: dashed;
+  }
+</style>
