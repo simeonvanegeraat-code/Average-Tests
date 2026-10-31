@@ -186,6 +186,100 @@ onzichtbaar op de pagina zelf.
 
 ---
 
+## ECB — vermogen naar leeftijd (HFCS)
+
+**Uitgever** European Central Bank
+**Bron** Household Finance and Consumption Survey, golf 2023, statistische tabellen
+(bijgewerkt 15 oktober 2026)
+**Opgehaald** 31 oktober 2026
+**Licentie** zie de ECB-sectie hierboven
+**Gebruikt voor** `/wealth/by-age/`, de leeftijdssectie op de 21 landpagina's en het
+tweede paneel in het formulier op `/wealth/`
+
+Dezelfde uitgever als de sectie hierboven, en toch een aparte bron — dat is het
+belangrijkste wat hier staat.
+
+### De reden dat deze bron erbij moest
+
+De vraag was: iemand van 30 vergelijken met de landmediaan is onzinnig, want die
+mediaan bevat mensen die veertig jaar langer hebben opgebouwd. Vier bronnen nagelopen
+op 31 oktober 2026:
+
+| Bron | Leeftijd? | |
+|---|---|---|
+| ECB DWA | **nee** | 29 groepen in `CL_DWA_GRP`: decielen, kwintielen, top 5/10%, woonsituatie, werkstatus. Geen leeftijd |
+| Eurostat ICW | **nee** | 59 tabellen; leeftijd zit in spaarquote, consumptie, btw en dissparen — nooit bij netto vermogen. Alles 2020 |
+| OECD Wealth Distribution Database | **nee** | Dimensies: land, maat, eenheid, statistiek, drempel. Geen leeftijd |
+| ECB HFCS | **ja** | Zes groepen, mediaan én gemiddelde, met standaardfouten, 22 landen |
+
+De HFCS staat niet op de ECB-data-API (van de 106 stromen is er geen HFCS). De tabellen
+komen als zip met één xlsx erin; `scripts/lib/xlsx.mjs` leest die met alleen
+`node:zlib`, zonder dependency.
+
+### De twee ECB-bronnen meten niet hetzelfde
+
+**Publieke en bedrijfspensioenen tellen in de HFCS niet mee, in DWA wel.** Dat is geen
+voetnoot maar het hele verschil:
+
+| | DWA (2026-Q1) | HFCS (golf 2023) | |
+|---|---|---|---|
+| Ierland | €437k | €258k | 1,69x |
+| Nederland | €232k | €144k | 1,62x |
+| Hongarije | €105k | €76k | 1,39x |
+| *midden van de 21* | | | *1,09x* |
+| Portugal | €106k | €143k | 0,74x |
+| Litouwen | €43k | €72k | 0,59x |
+| Kroatië | €59k | €117k | 0,51x |
+
+Niet alleen de hoogte verschilt maar ook de richting, en dat sluit elke correctiefactor
+uit. De site zet daarom nooit een cijfer uit de ene bron naast een cijfer uit de andere:
+de leeftijdslaag draagt haar eigen totaalmediaan uit de enquête zelf. Op `/wealth/` staan
+het daarom twee panelen met een eigen bronregel, niet één paneel met een extra regel.
+
+### Elk land draagt zijn eigen veldwerkperiode
+
+"Golf 2023" is een etiket, geen jaartal. Het veldwerk loopt van **oktober 2022**
+(Spanje) tot **juli 2025** (Griekenland); Nederland is mei–juni 2023, Litouwen september
+2024 tot maart 2025. Dezelfde regel als bij de Eurostat-metrieken: één jaartal boven alle
+landen zou onwaar zijn, dus elk land toont het zijne en `/wealth/by-age/` zet ze alle 21
+onder elkaar.
+
+### Wat de poort controleert
+
+`npm run hfcs:validate` leest de ruwe zip opnieuw en rekent **572 cijfers** terug naar
+het tabblad. Daarnaast:
+
+- de SHA-256 van de zip klopt met het ophaallog, en het gebouwde bestand draagt dezelfde
+- A3 (medianen) en A4 (gemiddelden) hebben dezelfde kolomvolgorde — anders horen de
+  gemiddelden bij de verkeerde landen
+- geen enkele leeftijdsgroep zonder mediaan én gemiddelde (132 groepen)
+- het gemiddelde ligt overal boven de mediaan, want vermogen is scheef naar boven
+- de totaalmediaan ligt tussen de laagste en hoogste groepsmediaan; dat is rekenkundig
+  verplicht en daarom een goede test op een kolomverschuiving
+- elk land heeft een veldwerkperiode die ook zo in het tabblad staat
+
+Die derde en vijfde controle staan er niet voor niets: de fout die tijdens het bouwen
+werkelijk optrad was een verschuiving van één kolom, doordat zelfsluitende cellen
+(`<c r="A5" s="8"/>`) een regex braken die altijd een sluittag verwachtte. Dat geeft geen
+foutmelding, alleen de cijfers van België bij Tsjechië.
+
+### Niet gebouwd
+
+**Tsjechië** staat wel in de tabellen maar niet op de site: DWA dekt alleen de eurozone,
+dus er is geen actueel cijfer om de leeftijdsgroepen naast te zetten. De code weigert het
+land expliciet (`NOT_BUILT` in `scripts/lib/hfcs.mjs`) in plaats van het stil weg te laten.
+
+**Een schatting naar vandaag** is er niet. Je zou elke leeftijdsgroep kunnen schalen met
+hoeveel de landmediaan in DWA sinds het veldwerk bewoog, maar dat rust op de aanname dat
+alle leeftijden meebewogen met het land, en zo'n opgehoogd getal wordt geciteerd zonder
+de voetnoot. Wat er staat is wat de ECB publiceert.
+
+### Bronvermelding op de site
+
+> European Central Bank, Household Finance and Consumption Survey, wave 2023.
+
+---
+
 ## Eurostat — jongeren die het ouderlijk huis verlaten
 
 **Uitgever** Eurostat (Statistical Office of the European Union)

@@ -1,0 +1,403 @@
+---
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import ageIndex from '../../../../data/wealth-age/index.json';
+import validation from '../../../../data/wealth-age-validation.json';
+import { euro, multiple, withArticle } from '../../../lib/wealth.js';
+import { bySteepness, curveOf, fieldworkLabel, peaksByBand } from '../../../lib/wealth-age.js';
+import { periodLabel } from '../../../lib/period.js';
+import { STAGES } from '../../../lib/hue.js';
+
+/**
+ * Vermogen per leeftijdsgroep, alle landen naast elkaar.
+ *
+ * Deze pagina staat volledig op de ECB-enquête en raakt de kwartaalrekeningen van
+ * /wealth/ nergens aan. Dat is geen voorzichtigheid maar noodzaak: de enquête telt
+ * publieke en bedrijfspensioenen niet mee, dus haar cijfers liggen op een ander
+ * niveau. Eén tabel met beide erin zou een vergelijking suggereren die niet bestaat.
+ *
+ * Wat deze pagina beantwoordt en geen andere: hoe sterk leeftijd het vermogen van een
+ * huishouden verschuift, en hoe verschillend dat per land is. Op /wealth/ staat de
+ * vergelijking tussen landen op één moment; hier staat de vergelijking binnen een land
+ * over een leven.
+ */
+
+const countries = [...ageIndex.countries].sort((a, b) => a.name.localeCompare(b.name));
+const bands = ageIndex.bands;
+const euroArea = ageIndex.euroArea;
+const euroCurve = curveOf(euroArea);
+
+const steep = bySteepness(ageIndex.countries);
+const steepest = steep[0];
+const flattest = steep[steep.length - 1];
+const steepestCurve = curveOf(steepest);
+const flattestCurve = curveOf(flattest);
+
+const peaks = peaksByBand(ageIndex.countries, bands).sort((a, b) => b.countries.length - a.countries.length);
+
+/** Wie al over de top heen is in de oudste groep, en wie daar nog altijd klimt. */
+const oldestBand = bands[bands.length - 1].code;
+const stillClimbing = ageIndex.countries.filter((c) => c.peak === oldestBand);
+const turnedDown = ageIndex.countries.length - stillClimbing.length;
+
+/** De vroegste en laatste veldwerkmaand over alle landen: het venster van deze golf. */
+const alleMaanden = countries.flatMap((c) => [c.fieldwork.from, c.fieldwork.to]).sort();
+const venster = `${periodLabel(alleMaanden[0])} to ${periodLabel(alleMaanden[alleMaanden.length - 1])}`;
+
+/**
+ * Alleen wat de browser nodig heeft om tussen middelpunt en gemiddelde te wisselen.
+ * De eurozonerij hoort erbij: die staat als laatste rij in dezelfde tabel, en bleef
+ * zonder deze regel op de medianen staan terwijl de rest omschakelde.
+ */
+const clientJson = JSON.stringify({
+  bands: bands.map((b) => b.code),
+  rows: [...countries, euroArea].map((c) => ({
+    area: c.area,
+    median: c.bands.map((b) => b.median),
+    mean: c.bands.map((b) => b.mean),
+  })),
+}).replace(/</g, '\\u003c');
+
+const title = 'Net Wealth by Age in Europe, Country by Country';
+const description =
+  `In the euro area the middle household climbs from ${euro(euroCurve.youngest.median)} under 35 to ` +
+  `${euro(euroCurve.peak.median)} at ${euroCurve.peak.label}. Every country, six age groups, ` +
+  "median and average, from the ECB's household survey.";
+---
+
+<BaseV2 title={title} description={description} canonical="/wealth/by-age/" hue={STAGES.money}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">
+        ECB survey · {countries.length} countries · wave {ageIndex.source.wave}
+      </p>
+
+      <h1 data-reveal>
+        The middle household is worth {multiple(euroCurve.climb)} as much at {euroCurve.peak.label}
+        as it is under 35.
+      </h1>
+
+      {/* Het kopcijfer is de klim zelf en niet het bedrag: dat is wat deze pagina
+          beantwoordt, en een bedrag als "€208k" loopt op een telefoon buiten het
+          scherm — `.giant` erft buiten een h1 het bredere bodylettertype. */}
+      <span class="giant num">{multiple(euroCurve.climb)}</span>
+      <p class="unit mono">
+        from {euroCurve.youngest.label} to {euroCurve.peak.label} · <b>euro area</b> · wave
+        {' '}{ageIndex.source.wave}
+      </p>
+
+      <p class="lead">
+        Half of euro-area households with a reference person under 35 are worth less than
+        {' '}{euro(euroCurve.youngest.median)}. At {euroCurve.peak.label} that middle is
+        {' '}{euro(euroCurve.peak.median)}, and by {euroCurve.oldest.label} it has fallen back to
+        {' '}{euro(euroCurve.oldest.median)}. Comparing a household with a national figure without
+        knowing which of those it belongs to tells you very little.
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn" href="/wealth/#compare">
+          Put your own figure in <span class="arr" aria-hidden="true">→</span>
+        </a>
+        <span class="hint">Nothing you type leaves your browser.</span>
+      </div>
+
+      <p class="hero-note">
+        This is the ECB's household survey, and it measures something narrower than the quarterly
+        accounts on <a href="/wealth/">the main wealth page</a>: the value of public and
+        occupational pension plans is left out. The two sets of figures are not comparable with
+        each other, so nothing on this page is placed next to them.
+      </p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Every country</p>
+        <h2 id="table-title">All {countries.length} countries, six age groups</h2>
+        <p>
+          The age is that of the household's reference person. Switch between the middle household
+          and the average — they are far apart, and the gap is widest among the young.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <div class="seg" role="group" aria-label="Which figure to show">
+          <button type="button" data-lens="median" aria-pressed="true">Median</button>
+          <button type="button" data-lens="mean" aria-pressed="false">Average</button>
+        </div>
+
+        <div class="tablewrap" tabindex="0" role="region" aria-label="Net wealth by age and country" data-reveal>
+          <table data-age-table>
+            <caption class="vh">
+              Household net wealth by age of the reference person, {countries.length} countries,
+              ECB survey wave {ageIndex.source.wave}.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Country</th>
+                {bands.map((band) => <th scope="col" class="n">{band.code}</th>)}
+                <th scope="col">Peaks at</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                countries.map((country) => (
+                  <tr data-area={country.area}>
+                    <th scope="row">{country.name}</th>
+                    {country.bands.map((band) => (
+                      <td class:list={['n', { strong: band.code === country.peak }]} data-cell>
+                        {euro(band.median, { compact: true })}
+                      </td>
+                    ))}
+                    <td class="peak mono">{country.peak}</td>
+                  </tr>
+                ))
+              }
+              <tr class="aggregate" data-area={euroArea.area}>
+                <th scope="row">{euroArea.name}</th>
+                {euroArea.bands.map((band) => (
+                  <td class:list={['n', { strong: band.code === euroArea.peak }]} data-cell>
+                    {euro(band.median, { compact: true })}
+                  </td>
+                ))}
+                <td class="peak mono">{euroArea.peak}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="brk-foot">
+          Figures in thousands of euro, rounded. The bold cell is each country's highest group.
+          Fieldwork ran between {venster}, and each country carries its own months — the method
+          section below lists them.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="shape-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">What the numbers say</p>
+        <h2 id="shape-title">The same curve, in wildly different sizes</h2>
+      </header>
+
+      <div data-reveal>
+        <div class="bento">
+          <div class="tile s4">
+            <div>
+              <b>{multiple(steepestCurve.climb)}</b>
+              <p>
+                in {withArticle(steepest.name)}, the steepest here: {euro(steepestCurve.youngest.median)}
+                {' '}for the {steepestCurve.youngest.label} group against
+                {' '}{euro(steepestCurve.peak.median)} at {steepestCurve.peak.label}.
+              </p>
+            </div>
+            <span class="meta mono">steepest climb</span>
+          </div>
+
+          <div class="tile">
+            <div>
+              <b>{multiple(flattestCurve.climb)}</b>
+              <p>
+                in {withArticle(flattest.name)}, the flattest. Age tells you little there.
+              </p>
+            </div>
+            <span class="meta mono">flattest</span>
+          </div>
+        </div>
+
+        <div class="bento" style="margin-top:14px">
+          {
+            peaks.map((group) => (
+              <div class="tile">
+                <div>
+                  <b>{group.countries.length}</b>
+                  <p>
+                    {group.countries.length === 1 ? 'country peaks' : 'countries peak'} at
+                    {' '}{group.band.label}: {group.countries.map((c) => c.name).join(', ')}.
+                  </p>
+                </div>
+                <span class="meta mono">{group.band.code}</span>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="prose">
+          <p>
+            The shape is not the same everywhere, and that is the point. In {turnedDown} of these
+            {' '}{ageIndex.countries.length} countries the middle has already turned down by the
+            oldest group;
+            {stillClimbing.length > 0 && (
+              <> in {stillClimbing.map((c) => c.name).join(' and ')} it is still highest at
+              {' '}{bands[bands.length - 1].label.toLowerCase()}.</>
+            )}
+            {' '}The age it peaks and the size of the climb differ enough that one European sentence
+            about "wealth at 30" would be wrong in most of them. That is the argument for asking your
+            age before answering — and it is why this page puts no European average on top of the
+            table: the euro-area row is a figure the ECB publishes in its own right, not a summary
+            of the rows above it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">Method</p>
+        <h2 id="method-title">How this is measured</h2>
+        <p>Published by the European Central Bank. Nothing here is estimated on top of it.</p>
+      </header>
+
+      <div data-reveal>
+        <dl>
+          <div>
+            <dt>What the figure is</dt>
+            <dd>{ageIndex.source.definition}</dd>
+          </div>
+          <div>
+            <dt>What it is not</dt>
+            <dd>
+              It is not the figure on <a href="/wealth/">the main wealth page</a>. That one comes
+              from the ECB's quarterly accounts, which do include pension entitlements and carry no
+              age split at all. It is not a percentile either: the survey publishes a middle and an
+              average per group, not a distribution, so no position among individuals can be built
+              from it.
+            </dd>
+          </div>
+          <div>
+            <dt>Whose age</dt>
+            <dd>
+              The household's reference person, as the survey defines it — not an average of
+              everyone in the household. A household of two 30-year-olds and a household of a
+              30-year-old living with a parent are counted in different groups.
+            </dd>
+          </div>
+          <div>
+            <dt>When it was collected</dt>
+            <dd>
+              Fieldwork for this wave ran between {venster}, and each country has its own window.
+              A single year above all of them would be wrong, so each is listed here:
+              <ul class="fieldwork">
+                {
+                  countries.map((country) => (
+                    <li>
+                      <span>{country.name}</span>
+                      <span class="mono">{fieldworkLabel(country.fieldwork)}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </dd>
+          </div>
+          <div>
+            <dt>Coverage</dt>
+            <dd>
+              {countries.length} countries and the euro area, six age groups each, with a median and
+              an average for every one — {validation.figuresChecked} figures in all, each recomputed
+              from the published tables before this page was built.
+              {
+                ageIndex.notBuilt.length > 0 && (
+                  <>
+                    {' '}The survey also covers {ageIndex.notBuilt.join(' and ')}, which {ageIndex.notBuilt.length === 1 ? 'is' : 'are'}{' '}
+                    not shown here: the quarterly accounts behind the rest of this site cover the
+                    euro area only, so there would be no present-day figure to set these age groups
+                    against.
+                  </>
+                )
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>Source</strong> {ageIndex.source.publisher}, {ageIndex.source.survey}</li>
+          <li><strong>Wave</strong> {ageIndex.source.wave}</li>
+          <li><strong>Tables</strong> <a href={ageIndex.source.url} data-method-link>{ageIndex.source.tables}</a></li>
+          <li><strong>Retrieved</strong> {ageIndex.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>Last checked</strong> {validation.checkedOn}</li>
+        </ul>
+
+        <p class="source-note">
+          How we handle data is on <a href="/method/">the method page</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="age-table-data" set:html={clientJson} />
+
+  <script>
+    import { track, EVENTS } from '../../../lib/analytics.js';
+
+    /**
+     * Wisselen tussen middelpunt en gemiddelde. De tabel staat volledig in de HTML met
+     * de medianen erin; dit script vervangt alleen de getallen. Zonder JavaScript mis
+     * je de knop en niets anders.
+     */
+    const holder = document.getElementById('age-table-data');
+    const table = document.querySelector('[data-age-table]');
+
+    if (holder && table) {
+      const data = JSON.parse(holder.textContent ?? '{}');
+      const byArea = Object.fromEntries(data.rows.map((r: any) => [r.area, r]));
+
+      const compact = (value: number | null) =>
+        value === null ? '—' : `€${Math.round(Math.abs(value) / 1000).toLocaleString('en-US')}k`;
+
+      for (const button of document.querySelectorAll<HTMLButtonElement>('[data-lens]')) {
+        button.addEventListener('click', () => {
+          const lens = button.dataset.lens === 'mean' ? 'mean' : 'median';
+          for (const other of document.querySelectorAll('[data-lens]')) {
+            other.setAttribute('aria-pressed', String(other === button));
+          }
+          for (const row of table.querySelectorAll<HTMLTableRowElement>('tbody tr')) {
+            const figures = byArea[row.dataset.area ?? '']?.[lens];
+            if (!figures) continue;
+            row.querySelectorAll<HTMLTableCellElement>('[data-cell]').forEach((cell, i) => {
+              cell.textContent = compact(figures[i]);
+            });
+          }
+          track(EVENTS.secondMetricOpened, { metric: 'wealth-by-age', lens });
+        });
+      }
+    }
+
+    for (const link of document.querySelectorAll('[data-method-link]')) {
+      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'wealth-by-age' }));
+    }
+  </script>
+
+  <style>
+    .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .tile .meta { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-2); }
+
+    .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+    .prose p { margin: 0; line-height: 1.7; }
+
+    .seg { margin-bottom: 16px; }
+
+    td.peak { color: var(--text-2); font-size: .82rem; }
+    tr.aggregate { border-top: 2px solid var(--line-strong); }
+    tr.aggregate th { font-style: italic; }
+
+    /* Eén kolom. Twee kolommen pasten op een breed scherm niet: "September 2024 to
+       March 2025" naast een landnaam is breder dan de helft van deze kolom, en dan
+       steekt de lijst buiten het blok. */
+    .fieldwork { list-style: none; margin: 12px 0 0; padding: 0; }
+    .fieldwork li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 14px; padding: .32rem 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
+    .fieldwork li span:last-child { color: var(--text-2); }
+
+    /* De bestandsnaam van de tabellen is één woord van vijftig tekens
+       ("HFCS_Statistical_Tables_Wave_2023_October_2026.xlsx") en duwde op een telefoon
+       de hele methodekolom breder dan het scherm. Hij mag breken. */
+    .source-list { list-style: none; padding: 0; overflow-wrap: anywhere; }
+    .source-list li { padding: .35rem 0; border-bottom: 1px solid var(--line); font-size: .92rem; }
+    .source-list li:last-child { border-bottom: 0; }
+    .source-list strong { display: inline-block; min-width: 12rem; color: var(--text-2); font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    @media (max-width: 540px) { .source-list strong { display: block; min-width: 0; } }
+  </style>
+</BaseV2>

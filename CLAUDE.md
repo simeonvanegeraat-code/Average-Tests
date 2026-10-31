@@ -22,6 +22,7 @@ Live sinds 24 oktober 2026 op `https://www.humanaverage.com`:
 | `/leaving-home/` | Op welke leeftijd de helft van de jongeren het huis uit is, 31 landen |
 | `/household-size/` · `/working-life/` · `/working-hours/` · `/healthy-years/` · `/first-child/` | De andere vijf Eurostat-metrieken, zelfde opbouw |
 | `/wealth/` + `/wealth/<land>/` | Huishoudvermogen uit de ECB, met 21 landpagina's |
+| `/wealth/by-age/` | Vermogen per leeftijdsgroep, uit de ECB-enquête — **een andere bron dan de rest van /wealth/**, zie hieronder |
 | `/method/` | Een blok per dataset: code, definitie van de uitgever, dekking, verversing |
 | `/notes/<slug>/` | Artikelen. Er is er één; een index komt bij de derde |
 | `/about/` · `/contact/` · `/privacy/` · 404 | De rest |
@@ -57,6 +58,7 @@ npm run preview              # build lokaal serveren
 
 npm run leaving              # fetch + build + validate voor leaving-home
 npm run wealth               # idem voor de ECB-vermogensdata
+npm run hfcs                 # idem voor vermogen naar leeftijd (ECB-enquête)
 npm run geo:build            # Europakaart uit Natural Earth
 ```
 
@@ -97,9 +99,10 @@ als echt op een website stond.
   regel staat hier klaar voor als er ooit weer een microdata-bron komt, niet omdat er nu
   iets onder valt.
 
-### Vier lessen die geld hebben gekost
+### Vijf lessen die geld hebben gekost
 
-Allemaal uit de Eurostat-pagina, allemaal breder geldig:
+De eerste vier uit de Eurostat-pagina, de vijfde uit de vermogenspagina. Allemaal
+breder geldig dan de bron waar ze vandaan komen:
 
 1. **Lees de definitie van een dataset, niet de titel.** `yth_demo_030` heet "estimated
    average age" en is volgens zijn eigen beschrijving de leeftijd waarop 50% niet meer
@@ -114,6 +117,13 @@ Allemaal uit de Eurostat-pagina, allemaal breder geldig:
    dimensie als landen en zijn geen land.
 4. **Laat elk land zijn eigen jaar dragen.** Het VK stopt in 2019, Montenegro in 2020,
    Türkiye in 2024. Eén ranglijst over verschillende jaren is geen ranglijst.
+5. **Dezelfde uitgever is niet dezelfde meting.** De ECB publiceert huishoudvermogen
+   twee keer: in de kwartaalrekeningen (DWA, wat op `/wealth/` staat) mét
+   pensioenaanspraken, en in de enquête (HFCS, waar de leeftijdscijfers vandaan komen)
+   **zonder** publieke en bedrijfspensioenen. De medianen verschillen daardoor 1,62x
+   voor Nederland en 0,51x voor Kroatië — niet alleen in hoogte maar ook in richting,
+   dus er is geen correctiefactor. De site zet ze daarom in gescheiden panelen, elk met
+   zijn eigen bronregel, en geen enkele zin bevat een cijfer uit beide.
 
 ### De poort
 

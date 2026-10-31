@@ -368,6 +368,32 @@
   .panel-foot .chip { background: oklch(1 0 0 / .06); border-color: var(--stage-line); color: var(--text-2); }
   .panel-foot .chip b { color: oklch(0.97 0.006 265); }
 
+  /* Een tweede paneel dat uit een ándere bron komt. De gestippelde rand is dezelfde
+     taal als het artikelkaartje in "Next question": dit hoort erbij maar is niet
+     hetzelfde soort ding. Op /wealth/ staat daar de enquête in, naast de
+     kwartaalrekeningen erboven, en die twee cijfers mogen niet als één reeks lezen. */
+  .panel--survey { margin-top: 18px; border-style: dashed; }
+  .panel-source { margin: 20px 0 0; padding-top: 14px; border-top: 1px solid var(--stage-line); color: var(--text-2); font-size: .8rem; line-height: 1.5; }
+  /* Dezelfde regel op een lichte sectie, waar --stage-line niet bestaat. */
+  .panel-source--light { border-top-color: var(--line); max-width: 70ch; }
+
+  /* De leeftijdscurve van één land: zes balken, geschaald op het hoogste middelpunt.
+     Geen SVG en geen script — het is een lijstje met breedtes, en dat leest een
+     schermlezer als de tabel die het is. */
+  .agebars { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .agebars li { display: grid; grid-template-columns: 4.2rem 1fr auto auto; align-items: center; gap: 12px; }
+  .agebars .k { font-size: .76rem; color: var(--text-2); letter-spacing: .04em; }
+  .agebars .bar { height: 14px; border-radius: 3px; background: color-mix(in oklab, var(--text) 7%, transparent); overflow: hidden; }
+  .agebars .bar i { display: block; height: 100%; border-radius: 3px; background: color-mix(in oklab, var(--data) 45%, transparent); }
+  .agebars .v { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 4.5rem; text-align: right; }
+  .agebars .avg { font-size: .74rem; color: var(--text-2); min-width: 5.5rem; text-align: right; }
+  .agebars .is-peak .bar i { background: var(--data); }
+  .agebars .is-peak .v { color: var(--data-on-tint, var(--text)); }
+  @media (max-width: 560px) {
+    .agebars li { grid-template-columns: 3.6rem 1fr auto; }
+    .agebars .avg { grid-column: 2 / -1; text-align: left; }
+  }
+
   /* ---------- podium met de kaart ---------- */
   .stage-sec { color-scheme: dark; position: relative; margin-top: -56px; padding: clamp(56px, 8vw, 104px) 0 clamp(48px, 7vw, 88px); background: var(--stage); color: oklch(0.97 0.006 265); border-radius: var(--radius-xl) var(--radius-xl) 0 0; border-top: 1px solid var(--stage-line); }
   .stage-sec::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(70% 50% at 50% 0%, oklch(0.4 0.14 var(--h) / .28), transparent 72%); }
@@ -651,6 +677,9 @@
   .madlib .euro { display: inline-flex; align-items: center; gap: .18em; }
   .madlib .euro i { font-style: normal; color: var(--text-2); }
   .madlib .euro input { width: 6.4em; text-align: right; padding-right: .5em; }
+  .madlib .years { display: inline-flex; align-items: center; gap: .35em; }
+  .madlib .years i { font-style: normal; color: var(--text-2); }
+  .madlib .years input { width: 3.4em; text-align: right; padding-right: .5em; }
 
   .result-head { margin: 16px 0 0; font: 800 clamp(1.7rem, 1.1rem + 2.2vw, 2.7rem)/1.05 var(--font-display); letter-spacing: -.045em; }
   .result-lead { margin-top: 10px; max-width: 48ch; color: var(--text-2); font-size: 1.04rem; line-height: 1.55; }
