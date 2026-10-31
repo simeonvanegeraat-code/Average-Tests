@@ -37,6 +37,8 @@ const DATA_DIR = new URL('../../data/', import.meta.url);
  */
 const EXCLUDED = new Map([
   ['UK', 'Verenigd Koninkrijk: geen EU, geen EFTA, geen kandidaat-land sinds de brexit'],
+  ['US', 'Verenigde Staten: Eurostat levert ze mee in une_rt_m als vergelijking, maar ze vallen buiten EU, EFTA en de kandidaat-landen'],
+  ['JP', 'Japan: zelfde reden als de VS, en om dezelfde dataset'],
   ['AM', 'Armenie: buiten EU, EFTA en de kandidaat-landen'],
   ['AZ', 'Azerbeidzjan: buiten EU, EFTA en de kandidaat-landen'],
   ['BY', 'Belarus: buiten EU, EFTA en de kandidaat-landen'],
@@ -154,6 +156,41 @@ export async function buildMetric(spec) {
   if (dropped.length) spec.dropped = dropped;
 
   if (countries.length === 0) throw new Error(`${spec.code} leverde geen enkel land op.`);
+
+  /**
+   * De periode waarop de kaart en de ranglijst staan.
+   *
+   * Bij een jaarreeks is dat gewoon de hoogste die enig land draagt: iedereen
+   * publiceert op hetzelfde ritme. Bij een maandreeks niet. In `une_rt_m` had
+   * september 2026 **4 van de 38 gebieden** en augustus 34 — zonder ondergrens zou de
+   * kaart vier landen tonen.
+   *
+   * `minCoverage` in de spec zet die ondergrens. De telling gaat over de reeksen en
+   * niet over de laatste waarneming per land, want anders zouden juist de vier landen
+   * die al wél september hebben buiten het anker vallen en als achterlopend gelden.
+   * Na de keuze wijst elk land dat een waarde op het anker heeft daarnaartoe; wie
+   * verder achterloopt houdt zijn eigen laatste periode en wordt gearceerd.
+   */
+  if (spec.minCoverage) {
+    const anchor = [...years]
+      .reverse()
+      .find((time) => countries.filter((c) => c.series[time] !== undefined).length >= spec.minCoverage);
+
+    if (!anchor) {
+      throw new Error(
+        `${spec.code}: geen enkele periode haalt ${spec.minCoverage} landen.\n` +
+          'Verlaag minCoverage of vraag een langer venster op.',
+      );
+    }
+
+    for (const country of countries.concat(aggregates)) {
+      if (country.series[anchor] === undefined) continue;
+      country.year = anchor;
+      country.total = country.series[anchor];
+      country.men = split ? (at(country.code, anchor, 'men') ?? null) : null;
+      country.women = split ? (at(country.code, anchor, 'women') ?? null) : null;
+    }
+  }
 
   const latestYear = countries.reduce((max, c) => (c.year > max ? c.year : max), '0');
   const current = countries.filter((c) => c.year === latestYear);

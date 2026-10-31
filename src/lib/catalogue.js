@@ -26,6 +26,7 @@ import dwellingSize from './metrics/dwelling-size.js';
 import healthyYears from './metrics/healthy-years.js';
 import firstChild from './metrics/first-child.js';
 import pensionAge from './metrics/pension-age.js';
+import unemployment from './metrics/unemployment.js';
 
 import leavingHomeData from '../../data/leaving-home/index.json';
 import workingLifeData from '../../data/working-life/index.json';
@@ -35,6 +36,7 @@ import dwellingSizeData from '../../data/dwelling-size/index.json';
 import healthyYearsData from '../../data/healthy-years/index.json';
 import firstChildData from '../../data/first-child/index.json';
 import pensionAgeData from '../../data/pension-age/index.json';
+import unemploymentData from '../../data/unemployment/index.json';
 import wealthData from '../../data/wealth/index.json';
 
 /** Eén kaart uit een Eurostat-metriek, via de motor in metric.js. */
@@ -48,7 +50,12 @@ function entry(metric, index) {
     label: metric.label,
     hue: metric.hue,
     value: eu ? formatValue(eu.total, metric) : null,
-    unit: metric.unit,
+    /**
+     * De kaart toont een niveau ("6.1 %"), terwijl `metric.unit` de eenheid van een
+     * vérschil is. Bij jaren en uren is dat hetzelfde woord, bij werkloosheid niet:
+     * procent tegenover procentpunt. Vandaar `unitShort` waar die bestaat.
+     */
+    unit: metric.unitShort ?? metric.unit,
     low: range ? `${range.low.name} ${formatValue(range.low.total, metric)}` : null,
     high: range ? `${range.high.name} ${formatValue(range.high.total, metric)}` : null,
     at: range ? range.at : null,
@@ -98,6 +105,7 @@ export const CATALOGUE = [
   entry(dwellingSize, dwellingSizeData),
   entry(workingLife, workingLifeData),
   entry(workingHours, workingHoursData),
+  entry(unemployment, unemploymentData),
   entry(pensionAge, pensionAgeData),
   entry(healthyYears, healthyYearsData),
   entry(firstChild, firstChildData),
