@@ -372,7 +372,9 @@
      taal als het artikelkaartje in "Next question": dit hoort erbij maar is niet
      hetzelfde soort ding. Op /wealth/ staat daar de enquête in, naast de
      kwartaalrekeningen erboven, en die twee cijfers mogen niet als één reeks lezen. */
-  .panel--survey { margin-top: 18px; border-style: dashed; }
+  /* Twee panelen onder elkaar hebben lucht nodig, welke van de twee ook bovenaan staat. */
+  .panel + .panel { margin-top: 18px; }
+  .panel--survey { border-style: dashed; }
   .panel-source { margin: 20px 0 0; padding-top: 14px; border-top: 1px solid var(--stage-line); color: var(--text-2); font-size: .8rem; line-height: 1.5; }
   /* Dezelfde regel op een lichte sectie, waar --stage-line niet bestaat. */
   .panel-source--light { border-top-color: var(--line); max-width: 70ch; }
@@ -487,6 +489,11 @@
   .field-hint { margin-top: 18px; max-width: 60ch; color: var(--text-2); font-size: .92rem; line-height: 1.5; }
   .field-error { margin-top: 14px; max-width: 60ch; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid color-mix(in oklab, oklch(0.8 0.15 80) 60%, transparent); background: color-mix(in oklab, oklch(0.8 0.15 80) 14%, transparent); font-size: .92rem; }
   .field-error[hidden], .result[hidden] { display: none; }
+  /* Een knop die als een zin leest. De plaatshouder in het bedragveld zag eruit als een
+     ingevuld voorbeeld maar deed niets; dit doet wat die leek te beloven. */
+  .field-hint .linkbtn { border: 0; padding: 0; background: none; font: inherit; color: var(--text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .field-hint .linkbtn:hover { color: var(--data-on-tint, var(--text)); text-decoration-thickness: 2px; }
+  .field-hint .linkbtn[hidden] { display: none; }
   .result { margin-top: clamp(28px, 4vw, 44px); }
   .result .closest { margin-top: 10px; color: var(--text-2); max-width: 44ch; }
   .result .tag { color: var(--text-2); }

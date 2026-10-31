@@ -175,10 +175,49 @@ const description =
         </form>
         <p class="field-error" id="form-error" role="alert" hidden></p>
         <p class="field-hint" id="age-hint">
-          Your figure is never sent anywhere. Everything is calculated in your browser. Age is
-          optional — leave it blank and you get the country comparison on its own.
+          Your figure is never sent anywhere. Everything is calculated in your browser — which is
+          why your country and age come back next time but the amount never does. Age is optional:
+          leave it blank and you get the country comparison on its own.
+          {' '}<button type="button" class="linkbtn" id="try-example" hidden></button>
         </p>
 
+
+        {/*
+          Twee panelen, en het leeftijdspaneel staat boven.
+          Wie zijn leeftijd invult, vraagt in de eerste plaats of hij er goed voor staat,
+          en daar is de leeftijdsgroep het eerlijke antwoord op; het landcijfer is de
+          context daarna. Zonder leeftijd blijft dit paneel verborgen en begint de
+          bezoeker gewoon bij het landcijfer.
+
+          Dat het er twee zijn en geen paneel met een extra regel is geen opmaakkeuze:
+          hier staat de enquête, hieronder de kwartaalrekeningen, en die meten niet
+          hetzelfde — publieke en bedrijfspensioenen tellen hierboven niet mee. Eén
+          paneel met beide cijfers erin zou dat verschil onzichtbaar maken.
+        */}
+        <figure class="panel hued panel--survey" id="age-result" hidden aria-labelledby="age-label">
+          <div class="panel-head mono">
+            <span id="age-label">Compared with people your age</span>
+            <span class="delta num" id="age-gap"></span>
+          </div>
+
+          <p class="result-head" id="age-headline"></p>
+          <p class="result-lead" id="age-lead"></p>
+
+          <div class="panel-foot">
+            <span class="chip"><b id="age-you"></b> your household</span>
+            <span class="chip"><b id="age-median"></b> median, your age</span>
+            <span class="chip"><b id="age-mean"></b> average, your age</span>
+          </div>
+
+          <p class="bracket" id="age-curve"></p>
+
+          <figure class="chart-figure">
+            <svg id="age-chart" viewBox="0 0 640 220" role="img" aria-labelledby="age-chart-title"></svg>
+            <figcaption id="age-caption"></figcaption>
+          </figure>
+
+          <p class="panel-source" id="age-source"></p>
+        </figure>
         <figure class="panel hued" id="result" hidden aria-labelledby="result-label">
           <div class="panel-head mono">
             <span id="result-label">Compared with your country</span>
@@ -207,37 +246,14 @@ const description =
               <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
             </a>
           </div>
-        </figure>
 
-        {/*
-          Het tweede paneel, en bewust een tweede en geen extra regel in het eerste.
-          Hierboven staan de kwartaalrekeningen, hieronder de enquête, en die meten niet
-          hetzelfde: publieke en bedrijfspensioenen tellen hier niet mee. Eén paneel met
-          beide cijfers erin zou het verschil onzichtbaar maken.
-        */}
-        <figure class="panel hued panel--survey" id="age-result" hidden aria-labelledby="age-label">
-          <div class="panel-head mono">
-            <span id="age-label">Compared with people your age</span>
-            <span class="delta num" id="age-gap"></span>
-          </div>
-
-          <p class="result-head" id="age-headline"></p>
-          <p class="result-lead" id="age-lead"></p>
-
-          <div class="panel-foot">
-            <span class="chip"><b id="age-you"></b> your household</span>
-            <span class="chip"><b id="age-median"></b> median, your age</span>
-            <span class="chip"><b id="age-mean"></b> average, your age</span>
-          </div>
-
-          <p class="bracket" id="age-curve"></p>
-
-          <figure class="chart-figure">
-            <svg id="age-chart" viewBox="0 0 640 220" role="img" aria-labelledby="age-chart-title"></svg>
-            <figcaption id="age-caption"></figcaption>
-          </figure>
-
-          <p class="panel-source" id="age-source"></p>
+          {/* Nu het leeftijdspaneel erboven staat met een eigen bronregel, hoort dit
+              paneel die ook te hebben. Anders leest de bovenste bronregel als de bron
+              van allebei, en dat is precies de verwarring die we willen voorkomen. */}
+          <p class="panel-source">
+            {index.source}, {formatPeriod(index.latestPeriod)}. These are quarterly national
+            accounts, and they do include pension entitlements — which the survey above does not.
+          </p>
         </figure>
 
         <div class="limits">
@@ -466,6 +482,10 @@ const description =
     const byArea = Object.fromEntries(index.countries.map((c) => [c.area, c]));
     const ageByArea = Object.fromEntries(ageIndex.countries.map((c) => [c.area, c]));
 
+    /** Een verschil met zijn teken, maar nul krijgt er geen: "+€0" leest als een afrondingsfout. */
+    const signedEuro = (value) =>
+      value === 0 ? euro(0) : `${value > 0 ? '+' : '−'}${euro(Math.abs(value))}`;
+
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       errorNote.hidden = true;
@@ -491,6 +511,11 @@ const description =
       renderAge(area, amount, age);
       mergeProfile(age === null ? { country: area } : { country: area, age });
       track(EVENTS.valueSubmitted, { metric: 'wealth', country: area });
+
+      // Naar het bovenste paneel dat werkelijk zichtbaar is. Zonder leeftijd is dat het
+      // landcijfer, met leeftijd het leeftijdscijfer — en dat staat sinds deze wissel boven.
+      const eerste = [ageResult, result].find((paneel) => !paneel.hidden);
+      eerste?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
     function fail(message) {
@@ -505,16 +530,23 @@ const description =
       const placed = placeAmount(country, amount);
       const ranked = rankAcrossCountries(index.countries, amount);
 
-      el('headline').textContent = placed.aboveMedian
-        ? `Above the median household in ${country.name}`
-        : `Below the median household in ${country.name}`;
+      /**
+       * Drie gevallen en niet twee. `aboveMedian` is `>=`, dus een bedrag dat precies op
+       * de mediaan ligt las als "boven" met een verschil van €0 — en sinds de
+       * voorbeeldknop die mediaan invult is dat één klik ver.
+       */
+      el('headline').textContent =
+        placed.differenceFromMedian === 0
+          ? `Exactly the median household in ${withArticle(country.name)}`
+          : placed.aboveMedian
+            ? `Above the median household in ${withArticle(country.name)}`
+            : `Below the median household in ${withArticle(country.name)}`;
 
       el('lead-line').textContent = leadSentence(placed, ranked);
 
       el('stat-you').textContent = euro(amount);
       el('stat-median').textContent = euro(placed.median);
-      el('stat-gap').textContent =
-        `${placed.differenceFromMedian >= 0 ? '+' : '−'}${euro(Math.abs(placed.differenceFromMedian))}`;
+      el('stat-gap').textContent = signedEuro(placed.differenceFromMedian);
 
       el('bracket').textContent = bracketSentence(placed, country);
       el('see-country').setAttribute('href', `/wealth/${area.toLowerCase()}/`);
@@ -524,7 +556,6 @@ const description =
 
       drawChart(ranked, amount);
       result.hidden = false;
-      result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     /**
@@ -548,7 +579,7 @@ const description =
     /** Alleen uitspraken die de data draagt: tussen welke twee groepsgemiddelden val je. */
     function bracketSentence(placed, country) {
       if (placed.beyondLadder && placed.below) {
-        return `Your amount is above the average of the top 20% of households in ${country.name} (${euro(placed.below.netWealth)}). Beyond that point the published groups stop telling us anything useful — the top fifth stretches a very long way.`;
+        return `Your amount is above the average of the top 20% of households in ${withArticle(country.name)} (${euro(placed.below.netWealth)}). Beyond that point the published groups stop telling us anything useful — the top fifth stretches a very long way.`;
       }
       if (placed.below && placed.above) {
         return `It sits between what the ${placed.below.label.toLowerCase()} of households own on average (${euro(placed.below.netWealth)}) and what the ${placed.above.label.toLowerCase()} own (${euro(placed.above.netWealth)}).`;
@@ -624,8 +655,7 @@ const description =
       el('age-you').textContent = euro(amount);
       el('age-median').textContent = euro(slot.median);
       el('age-mean').textContent = euro(slot.mean);
-      el('age-gap').textContent =
-        `${placed.differenceFromMedian >= 0 ? '+' : '−'}${euro(Math.abs(placed.differenceFromMedian))}`;
+      el('age-gap').textContent = signedEuro(placed.differenceFromMedian);
 
       el('age-curve').textContent = ageCurve(country, curve);
       el('age-caption').textContent =
@@ -733,6 +763,37 @@ const description =
       if (Number.isFinite(saved.age)) el('age').value = String(saved.age);
     })();
 
+    /**
+     * De plaatshouder in het bedragveld ("250000") zag eruit als een ingevuld voorbeeld
+     * en deed niets. Dat viel pas op toen land en leeftijd wél uit het profiel
+     * terugkwamen: twee velden gevuld, het derde grijs, en "Show me" gaf een foutmelding.
+     * Het bedrag bewaren we bewust niet — het hoort nergens heen te gaan, ook niet naar
+     * localStorage — dus doet deze knop wat die plaatshouder leek te beloven, met een
+     * cijfer uit de data in plaats van een verzonnen rond bedrag.
+     */
+    const tryButton = el('try-example');
+
+    function refreshExample() {
+      const country = byArea[el('country').value];
+      if (!country || !Number.isFinite(country.median)) {
+        tryButton.hidden = true;
+        return;
+      }
+      tryButton.textContent =
+        `Try the median household in ${withArticle(country.name)} (${euro(country.median)}).`;
+      tryButton.hidden = false;
+    }
+
+    tryButton.addEventListener('click', () => {
+      const country = byArea[el('country').value];
+      if (!country) return;
+      el('amount').value = String(Math.round(country.median));
+      form.requestSubmit();
+    });
+
+    el('country').addEventListener('change', refreshExample);
+    refreshExample();
+
     el('share').addEventListener('click', async () => {
       const area = el('country').value;
       const amount = Number(el('amount').value);
@@ -740,7 +801,7 @@ const description =
       const country = byArea[area];
       const text = [
         `My household would sit above the median in ${ranked.aboveIn} of ${ranked.total} European countries.`,
-        `In ${country.name} the median household is worth ${euro(country.median)}.`,
+        `In ${withArticle(country.name)} the median household is worth ${euro(country.median)}.`,
         'humanaverage.com/wealth',
       ].join('\n');
       try {
