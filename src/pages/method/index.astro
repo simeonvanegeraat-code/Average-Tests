@@ -5,6 +5,7 @@ import wealth from '../../../data/wealth/index.json';
 import wealthCheck from '../../../data/wealth-validation.json';
 import exitAge from '../../../data/exit-age/index.json';
 import { headline, staleCountries } from '../../lib/leaving-home.js';
+import { periodLabel } from '../../lib/period.js';
 import { formatPeriod } from '../../lib/wealth.js';
 import { METHODOLOGY } from '../../lib/methodology.js';
 import { count } from '../../lib/metric.js';
@@ -258,6 +259,17 @@ const description =
                     )}
                     {set.comparability.kind === 'none' && (
                       <>These accounts carry no series breaks; the ECB revises the whole run instead.</>
+                    )}
+                    {/* Een enquêtegolf is geen reeks: er valt niets te breken, en er valt ook
+                        niets mee te vergelijken. Het veldwerk per land loopt bovendien uiteen. */}
+                    {set.comparability.kind === 'survey-wave' && (
+                      <>
+                        One survey wave, not a series. Fieldwork across the
+                        {' '}{set.comparability.countries} countries ran between
+                        {' '}{periodLabel(set.comparability.from)} and {periodLabel(set.comparability.to)},
+                        and each country carries its own window, so no single year describes them
+                        all. Comparing waves is possible in principle but is not done here.
+                      </>
                     )}
                   </dd>
                 </div>
