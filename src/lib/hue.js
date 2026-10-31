@@ -66,7 +66,14 @@ export function oklchHex(L, C, hue) {
  * vrijhouden voor iets onmogelijks kostte wél de beste vrije tint, dus woninggrootte
  * krijgt hem — op afstand 85 de ruimste die er nog was.
  */
-export const STAGES = { leave: 262, child: 50, retire: 145, healthy: 205, household: 25, hours: 310, money: 110, pension: 280, dwelling: 350 };
+/**
+ * Werkloosheid krijgt 175, de ruimste plek die er nog was: 30 graden van zowel retire
+ * (145) als healthy (205). Dat is ruim boven de werkelijke vloer, want die staat niet
+ * meer op 62 — pension (280) en leave (262) liggen 18 uit elkaar, en dat is sinds de
+ * pensioenpagina de kleinste afstand in deze lijst. Met tien tinten op de cirkel is
+ * 175 de laatste grote opening; een elfde metriek zal onder de 30 moeten.
+ */
+export const STAGES = { leave: 262, child: 50, retire: 145, healthy: 205, household: 25, hours: 310, money: 110, pension: 280, dwelling: 350, jobless: 175 };
 
 /** Zes klassen, zelfde helderheids- en chromastappen voor elke tint, hue schuift licht mee. */
 const RAMP = {

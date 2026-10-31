@@ -221,6 +221,16 @@ const description =
                           : `${set.comparability.broken} of the ${set.countries} countries ${set.comparability.broken === 1 ? 'carries' : 'carry'}`}{' '}
                         a break flag in {set.comparability.year}, and <code>trend()</code> refuses to
                         measure across it.
+                        {/* Werkloosheid breekt per land in plaats van voor iedereen tegelijk, en dan
+                            vertelt een telling op de laatste breuk maar de helft. */}
+                        {set.comparability.others > 0 && (
+                          <>
+                            {' '}
+                            {set.comparability.others} other{set.comparability.others === 1 ? '' : 's'} carry
+                            one at a different date ({set.comparability.otherYears}), which is why the
+                            comparable window starts after the latest of them.
+                          </>
+                        )}
                       </>
                     )}
                     {set.comparability.kind === 'break-at-end' && (

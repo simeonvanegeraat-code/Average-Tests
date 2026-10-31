@@ -16,6 +16,7 @@
  * labelrijen van `tierOf`) gaat over tekengrootte, niet over statistiek.
  */
 import { bandOf, formatAmount, formatValue, ordinal, signed, withArticle } from './metric.js';
+import { periodLabel, periodNumber } from './period.js';
 
 /** De code waarmee het detailpaneel het Europese cijfer aanwijst. Geen landcode van Eurostat, dus geen botsing. */
 export const EU_CODE = 'EU';
@@ -81,7 +82,7 @@ export function mapSummary(rows, latestYear, lens, cfg) {
   const low = current[0];
   const high = current[current.length - 1];
   return (
-    `Map of Europe: ${subject}, ${latestYear}. ` +
+    `Map of Europe: ${subject}, ${periodLabel(latestYear)}. ` +
     `It ranges from ${formatValue(valueFor(low, lens), cfg)} in ${withArticle(low.name)} ` +
     `to ${formatValue(valueFor(high, lens), cfg)} in ${withArticle(high.name)}. ` +
     'Every figure is also in the table below the map.'
@@ -132,17 +133,24 @@ export function inspectFacts(data, code, lens = 'total', cfg) {
 
   let note = [rankText, euText].filter(Boolean).join(' · ');
   if (isEu) note = words.euNote;
-  else if (behind) note = `No ${latestYear} figure. This is the latest, from ${behind}, and it is not ranked.`;
+  else if (behind) note = `No ${periodLabel(latestYear)} figure. This is the latest, from ${periodLabel(behind)}, and it is not ranked.`;
   else if (value === null) note = 'No figure for this group.';
 
-  const seriesYears = Object.keys(row.series ?? {}).map(Number);
-  const breaks = (row.breaks ?? []).map(Number).filter((year) => year > Math.min(...seriesYears));
+  /**
+   * De breuken die het lijntje in het paneel werkelijk afbreken: alles ná de eerste
+   * waarneming. De perioden blijven tekst, want `sparkline()` zoekt ze op in de reeks;
+   * op een maandreeks gaf `Number('2025-01')` een NaN die door de filter viel, en dan
+   * liep de lijn van Malta dwars door zijn eigen breuk.
+   */
+  const periods = Object.keys(row.series ?? {}).sort((a, b) => periodNumber(a) - periodNumber(b));
+  const first = periods.length ? periodNumber(periods[0]) : Infinity;
+  const breaks = (row.breaks ?? []).filter((period) => periodNumber(period) > first);
 
   return {
     code,
     name: isEu ? 'European Union' : row.name,
     isEu,
-    meta: `${row.year} · ${label}`,
+    meta: `${periodLabel(row.year)} · ${label}`,
     value,
     valueText: formatValue(value, cfg),
     rank,
@@ -153,13 +161,15 @@ export function inspectFacts(data, code, lens = 'total', cfg) {
     gapText: gap === null ? '—' : signed(gap, cfg),
     series: row.series ?? {},
     breaks,
-    span: seriesYears.length ? [Math.min(...seriesYears), Math.max(...seriesYears)] : null,
+    span: periods.length ? [periods[0], periods[periods.length - 1]] : null,
     /** De toelichting bij het trendlijntje: waarvoor het staat, en waar de lijn afbreekt en waarom. */
     sparkNote: [
-      seriesYears.length > 1 ? `${cfg.lenses[0].label}, ${Math.min(...seriesYears)}–${Math.max(...seriesYears)}.` : '',
+      periods.length > 1
+        ? `${cfg.lenses[0].label}, ${periodLabel(periods[0])}–${periodLabel(periods[periods.length - 1])}.`
+        : '',
       breaks.length === 0
         ? ''
-        : `Notches mark ${cfg.sourceName} series breaks (${breaks.join(', ')}). The line is not drawn across them.`,
+        : `Notches mark ${cfg.sourceName} series breaks (${breaks.map(periodLabel).join(', ')}). The line is not drawn across them.`,
     ]
       .filter(Boolean)
       .join(' '),

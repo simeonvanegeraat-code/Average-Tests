@@ -22,6 +22,8 @@
  * Dit stond eerder in zowel leaving-home.js als wealth.js, met de notitie dat het
  * bij een derde gebruiker tijd werd voor één gedeelde lijst. Dat moment is dit.
  */
+import { periodNumber } from './period.js';
+
 const NEEDS_ARTICLE = new Set(['Netherlands', 'United Kingdom']);
 
 export function withArticle(name, { capitalise = false } = {}) {
@@ -150,6 +152,15 @@ export function genderGap(index) {
   const gapOf = (country) => country.men - country.women;
   const womenLower = withBoth.filter((country) => gapOf(country) > 0);
   const exceptions = withBoth.filter((country) => gapOf(country) <= 0);
+
+  /**
+   * `exceptions` gooit "vrouwen hoger" en "precies gelijk" op één hoop. Bij de
+   * jaarreeksen viel dat niet op, want een gelijkspel op twee decimalen komt daar bijna
+   * niet voor. Werkloosheid heeft er twee (Nederland en IJsland staan op de tiende
+   * gelijk), en dan is "in 18 landen ligt het hoger voor vrouwen" onwaar.
+   */
+  const tied = withBoth.filter((country) => gapOf(country) === 0);
+  const womenAbove = [...withBoth].filter((country) => gapOf(country) < 0).sort((a, b) => gapOf(a) - gapOf(b));
   const mean = withBoth.reduce((sum, country) => sum + gapOf(country), 0) / withBoth.length;
   const widest = [...withBoth].sort((a, b) => gapOf(b) - gapOf(a))[0];
 
@@ -159,9 +170,14 @@ export function genderGap(index) {
     /** Oude naam uit de leaving-home-pagina; dezelfde telling. */
     womenEarlier: womenLower.length,
     exceptions,
+    /** Alleen de landen waar het cijfer voor vrouwen écht hoger ligt, van breed naar smal. */
+    womenAbove,
+    tied: tied.length,
     mean,
     widest,
     widestGap: gapOf(widest),
+    /** De breedste kloof de andere kant op, als die bestaat. */
+    widestOther: womenAbove[0] ?? null,
   };
 }
 
@@ -213,6 +229,80 @@ export function trend(index, { minimumMove = 0.5 } = {}) {
     earlier: moved.filter((country) => country.change <= -minimumMove),
     later: moved.filter((country) => country.change >= minimumMove).reverse(),
     stable: moved.filter((country) => Math.abs(country.change) < minimumMove).length,
+    /**
+     * Alle landen met hun verschuiving, van de grootste daling naar de grootste stijging.
+     * `earlier` en `later` laten de middenmoot weg, en wie wil weten hoe de landen zich
+     * tot het Europese cijfer verhouden heeft juist die nodig.
+     */
+    moved,
+    minimumMove,
+  };
+}
+
+/**
+ * De volle reeks, maar alleen voor de landen die er zelf ononderbroken door lopen.
+ *
+ * `trend()` hierboven knipt het venster af bij de laatste breuk die érgens voorkomt,
+ * want dat is het venster waarin alle landen onderling vergelijkbaar zijn. Bij
+ * werkloosheid kost dat vier van de vijf jaar: twee van de dertig landen dragen een
+ * breuk (Malta januari 2025, Denemarken oktober 2023) en de andere achtentwintig niet.
+ * Dat is de juiste strengheid voor een spreiding tussen landen, en te streng voor de
+ * vraag wat er ín een land gebeurd is.
+ *
+ * Daarvoor hoeft alleen díe ene reeks heel te zijn. Deze functie rekent dus per land
+ * over het hele venster, laat de landen met een breuk erin weg, en geeft ze apart terug
+ * zodat de pagina kan opschrijven wie er niet in zit. Wat hier níet uit komt is een
+ * vergelijking tussen de landen: de spreiding hoort bij `trend()`, hier staat alleen de
+ * beweging per land.
+ */
+export function unbrokenRun(index, { minimumMove = 0.5 } = {}) {
+  const from = index.years[0];
+  const until = index.latestYear;
+  if (!from || from === until) return null;
+
+  const current = currentCountries(index);
+  const broken = (country) =>
+    country.series[from] === undefined ||
+    country.breaks.some((period) => periodNumber(period) > periodNumber(from));
+
+  /**
+   * Onder de helft heeft het geen zin meer. Bij huishoudgrootte lopen 2 van de 31 landen
+   * heel door het venster; "2 landen daalden" is dan waar en nutteloos, en het soort zin
+   * dat als bevinding op een pagina belandt. Liever niets.
+   */
+  const whole = current.filter((country) => !broken(country));
+  if (whole.length < 2 || whole.length * 2 < current.length) return null;
+
+  const moved = whole
+    .map((country) => ({
+      ...country,
+      began: country.series[from],
+      change: country.total - country.series[from],
+    }))
+    .sort((a, b) => a.change - b.change);
+
+  const eu = euAggregate(index);
+  const euThen = eu?.series[from] ?? null;
+
+  return {
+    from,
+    until,
+    countries: whole.length,
+    excluded: current.filter(broken),
+    fell: moved.filter((country) => country.change <= -minimumMove),
+    rose: moved.filter((country) => country.change >= minimumMove).reverse(),
+    down: moved.filter((country) => country.change < 0).length,
+    up: moved.filter((country) => country.change > 0).length,
+    euThen,
+    euNow: eu?.total ?? null,
+    /**
+     * Wie van richting veranderde ten opzichte van het Europese cijfer waar hij begon.
+     * Daalden vooral de hoge landen en stegen vooral de lage, dan kruipen ze naar elkaar
+     * toe — en dat is precies hoe een Europees gemiddelde stil kan staan terwijl er
+     * onder water veel beweegt. Null als de bron geen aggregaat publiceert.
+     */
+    fellFromAbove: euThen === null ? null : moved.filter((c) => c.change < 0 && c.began > euThen).length,
+    roseFromBelow: euThen === null ? null : moved.filter((c) => c.change > 0 && c.began < euThen).length,
     minimumMove,
   };
 }

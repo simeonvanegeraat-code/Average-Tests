@@ -12,6 +12,8 @@
  * gekozen land), en dan hoort er één definitie te zijn.
  */
 
+import { periodNumber } from './period.js';
+
 const round = (n) => Math.round(n * 10) / 10;
 
 /** De twee maten waarin het lijntje getekend wordt: in het detailpaneel van de kaart en in een tabelrij. */
@@ -21,37 +23,40 @@ export const SPARK_SIZES = {
 };
 
 /**
- * @param series  `{ "2000": 23.1, … }`, het totaal per jaar
- * @param breaks  jaren (tekst of getal) waarin de reeks breekt
+ * De perioden blijven hier tekst en worden alleen voor de tijdas een getal
+ * (src/lib/period.js). Dat moest toen werkloosheid erbij kwam: die reeks loopt per
+ * maand, en `Number('2026-08')` is NaN. Een lijntje dat op jaartallen rekende gaf dan
+ * geen fout maar een leeg vak, en dat is het soort stilte waar niemand overheen valt.
+ *
+ * @param series  `{ "2000": 23.1, … }` of `{ "2026-08": 6.1, … }`, het totaal per periode
+ * @param breaks  perioden waarin de reeks breekt, in dezelfde vorm als de sleutels
  * @param options `width`, `height`, `pad` in viewBox-eenheden; `yearMin`/`yearMax` zetten
  *                alle lijntjes op dezelfde tijdas, zodat een korte reeks rechts uitgelijnd staat
- * @returns `{ d, lone, notches, last, width, height }` of null bij minder dan twee jaren
+ * @returns `{ d, lone, notches, last, width, height }` of null bij minder dan twee perioden
  */
 export function sparkline(series, breaks = [], { width = 120, height = 26, pad = 4, yearMin, yearMax } = {}) {
-  const years = Object.keys(series)
-    .map(Number)
-    .sort((a, b) => a - b);
-  if (years.length < 2) return null;
+  const periods = Object.keys(series).sort((a, b) => periodNumber(a) - periodNumber(b));
+  if (periods.length < 2) return null;
 
-  const values = years.map((year) => series[year]);
+  const values = periods.map((period) => series[period]);
   const low = Math.min(...values) - 0.4;
   const high = Math.max(...values) + 0.4;
-  const from = yearMin ?? years[0];
-  const to = yearMax ?? years[years.length - 1];
+  const from = periodNumber(yearMin ?? periods[0]);
+  const to = periodNumber(yearMax ?? periods[periods.length - 1]);
 
-  const x = (year) => pad + ((year - from) / (to - from || 1)) * (width - 2 * pad);
+  const x = (period) => pad + ((periodNumber(period) - from) / (to - from || 1)) * (width - 2 * pad);
   const y = (value) => height - pad - ((value - low) / (high - low || 1)) * (height - 2 * pad);
-  const point = (year) => ({ x: round(x(year)), y: round(y(series[year])) });
+  const point = (period) => ({ x: round(x(period)), y: round(y(series[period])) });
 
-  const broken = new Set(breaks.map(Number));
+  const broken = new Set(breaks.map(String));
   const segments = [];
   let current = [];
-  years.forEach((year, i) => {
-    if (i > 0 && broken.has(year)) {
+  periods.forEach((period, i) => {
+    if (i > 0 && broken.has(period)) {
       segments.push(current);
       current = [];
     }
-    current.push(year);
+    current.push(period);
   });
   segments.push(current);
 
@@ -59,8 +64,8 @@ export function sparkline(series, breaks = [], { width = 120, height = 26, pad =
     .filter((segment) => segment.length > 1)
     .map((segment) =>
       segment
-        .map((year, i) => {
-          const p = point(year);
+        .map((period, i) => {
+          const p = point(period);
           return `${i ? 'L' : 'M'}${p.x} ${p.y}`;
         })
         .join(''),
@@ -70,10 +75,16 @@ export function sparkline(series, breaks = [], { width = 120, height = 26, pad =
   return {
     d,
     /** Stukken van één waarneming krijgen een punt, anders is er niets te zien. */
-    lone: segments.filter((segment) => segment.length === 1).map(([year]) => point(year)),
-    /** Waar de reeks breekt: halverwege tussen het jaar ervoor en het breukjaar. */
-    notches: years.filter((year, i) => i > 0 && broken.has(year)).map((year) => round(x(year - 0.5))),
-    last: point(years[years.length - 1]),
+    lone: segments.filter((segment) => segment.length === 1).map(([period]) => point(period)),
+    /**
+     * Waar de reeks breekt: halverwege tussen de waarneming ervoor en de breukperiode.
+     * Berekend uit de twee plekken zelf en niet uit "een half jaar terug", want bij
+     * maanden is een half jaar zes vakjes.
+     */
+    notches: periods
+      .map((period, i) => (i > 0 && broken.has(period) ? round((x(periods[i - 1]) + x(period)) / 2) : null))
+      .filter((at) => at !== null),
+    last: point(periods[periods.length - 1]),
     width,
     height,
   };

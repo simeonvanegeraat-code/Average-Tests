@@ -25,6 +25,7 @@ import dwellingSize from './metrics/dwelling-size.js';
 import workingLife from './metrics/working-life.js';
 import workingHours from './metrics/working-hours.js';
 import pensionAge from './metrics/pension-age.js';
+import unemployment from './metrics/unemployment.js';
 import healthyYears from './metrics/healthy-years.js';
 import firstChild from './metrics/first-child.js';
 
@@ -34,6 +35,7 @@ import dwellingSizeData from '../../data/dwelling-size/index.json';
 import workingLifeData from '../../data/working-life/index.json';
 import workingHoursData from '../../data/working-hours/index.json';
 import pensionAgeData from '../../data/pension-age/index.json';
+import unemploymentData from '../../data/unemployment/index.json';
 import healthyYearsData from '../../data/healthy-years/index.json';
 import firstChildData from '../../data/first-child/index.json';
 import wealthData from '../../data/wealth/index.json';
@@ -45,6 +47,7 @@ const METRICS = {
   'working-life': { metric: workingLife, index: workingLifeData },
   'working-hours': { metric: workingHours, index: workingHoursData },
   'pension-age': { metric: pensionAge, index: pensionAgeData },
+  unemployment: { metric: unemployment, index: unemploymentData },
   'healthy-years': { metric: healthyYears, index: healthyYearsData },
   'first-child': { metric: firstChild, index: firstChildData },
 };
@@ -182,6 +185,54 @@ const NEIGHBOURS = {
       `${show('working-hours', e.high.from)} hours and ${show('leaving-home', e.high.to)}.`],
   ],
 
+  /**
+   * Werkloosheid is de eerste metriek waar de correlatie géén paar aanwijst. Tegen alle
+   * acht andere is het verband nul: het sterkste is −0,27 (huishoudgrootte) en de rest
+   * ligt tussen −0,18 en 0,12. Tegen thuis wonen, waar iedereen een verband verwacht,
+   * is het −0,05 over 29 landen.
+   *
+   * Deze twee buren staan er dus om wat ze inhoudelijk met werkloosheid te maken hebben,
+   * en de zin zegt in beide gevallen dat er geen patroon is in plaats van er een te
+   * suggereren. Dat is geen zwakke link maar de meest bruikbare die deze data toelaat.
+   */
+  unemployment: [
+    // r = −0,05 over 29 landen: de verwachting is sterk, het verband bestaat niet.
+    ['leaving-home', (pair, cross) => {
+      const byAge = [...cross.rows].sort((a, b) => a.b - b.b);
+      const early = byAge[0];
+      const late = byAge[byAge.length - 1];
+      return (
+        `A hard job market is supposed to keep young people at home, and across these ${cross.of} ` +
+        `countries it does not show up at all. ${withArticle(early.name, { capitalise: true })} has the ` +
+        `earliest departure in Europe, ${show('leaving-home', early.b)}, with ` +
+        `${show('unemployment', early.a)}% unemployment; ${late.name} has the latest, ` +
+        `${show('leaving-home', late.b)}, with ${show('unemployment', late.a)}%.`
+      );
+    }],
+    // r = −0,13 over 29 landen. Dit paar staat er om de definitie, niet om een patroon.
+    ['working-life', (pair, cross) => {
+      /**
+       * Niet de uitersten van werkloosheid, want die zouden hier een patroon suggereren
+       * dat er niet is. Wel het scherpste tegenvoorbeeld, met een regel die altijd een
+       * waar geval oplevert: van de landen met bovengemiddelde werkloosheid degene met
+       * de langste verwachte loopbaan. Beide cijfers staan er; de vergelijking maakt de
+       * lezer zelf, zodat de zin niet onwaar kan worden als de orde verschuift.
+       */
+      const byRate = [...cross.rows].sort((a, b) => a.a - b.a);
+      const middle = byRate[Math.floor(byRate.length / 2)].a;
+      const above = byRate.filter((row) => row.a >= middle);
+      const counter = above.reduce((top, row) => (row.b > top.b ? row : top), above[0]);
+      const lowest = byRate[0];
+      return (
+        `Looking for work still counts as being in the labour force, so a high rate here takes ` +
+        `nothing off the working life behind it. ${withArticle(counter.name, { capitalise: true })} expects ` +
+        `${show('working-life', counter.b)} years in the labour market at ${show('unemployment', counter.a)}% ` +
+        `unemployment; ${withArticle(lowest.name)}, with the lowest rate here at ` +
+        `${show('unemployment', lowest.a)}%, expects ${show('working-life', lowest.b)}.`
+      );
+    }],
+  ],
+
   'pension-age': [
     ['healthy-years', () => {
       // Expliciet deze kant op: hoe vaak liggen de gezonde jaren ónder de pensioenleeftijd.
@@ -262,6 +313,16 @@ export function related(key) {
 export function breakNote(key) {
   const index = METRICS[key]?.index;
   if (!index?.lastBreak) return null;
+
+  /**
+   * Niet op /unemployment/. Het artikel gaat over de herziening van de Labour Force
+   * Survey in 2021, een gebeurtenis die vrijwel elke jaarreeks tegelijk brak. De breuken
+   * in de maandreeks zijn iets anders: Malta in januari 2025 en Denemarken in oktober
+   * 2023, elk op zichzelf. Een kaartje dat "lees waarom 2021 bijna elke reeks breekt"
+   * belooft naast een vlag uit 2025 stuurt de lezer de verkeerde kant op, en die pagina
+   * legt zijn eigen breuken al in de methodesectie uit.
+   */
+  if (key === 'unemployment') return null;
   return {
     path: '/notes/eurostat-2021-series-break/',
     year: index.lastBreak,

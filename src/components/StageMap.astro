@@ -35,6 +35,7 @@
  */
 import { euAggregate, formatValue } from '../lib/metric.js';
 import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
+import { periodLabel, periodUnit } from '../lib/period.js';
 import { band, EU_CODE, legendTicks, tierOf, mapSummary, inspectFacts } from '../lib/metric-map.js';
 
 interface Shape {
@@ -81,7 +82,10 @@ const pick = (row: any) => ({
   series: row.series,
 });
 // `cfg` reist mee zodat het script hieronder met dezelfde beschrijving rekent.
-const data = { latestYear, yearMin: Number(index.years[0]), eu: eu ? pick(eu) : null, rows: index.countries.map(pick), cfg: metric };
+const data = { latestYear, yearMin: index.years[0], eu: eu ? pick(eu) : null, rows: index.countries.map(pick), cfg: metric };
+
+/** 'year' bij de jaarreeksen, 'month' bij werkloosheid: alleen de woorden hangen ervan af. */
+const grain = periodUnit(latestYear);
 const json = JSON.stringify(data).replace(/</g, '\\u003c');
 
 /** Contextlanden: vorm wel, data niet. Zonder die vormen is Europa een eiland. */
@@ -103,7 +107,7 @@ const summary = mapSummary(data.rows, latestYear, 'total', metric);
 
 const start = eu ? inspectFacts({ latestYear, eu: data.eu, rows: data.rows }, EU_CODE, 'total', metric) : null;
 const startSpark = start
-  ? sparkline(start.series, start.breaks, { ...SPARK_SIZES.card, yearMin: data.yearMin, yearMax: Number(latestYear) })
+  ? sparkline(start.series, start.breaks, { ...SPARK_SIZES.card, yearMin: data.yearMin, yearMax: latestYear })
   : null;
 const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCompare(b.name));
 ---
@@ -176,7 +180,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
           {
             stale.length > 0 && (
               <span class="legend-nodata">
-                <i class="legend-stale"></i>Latest figure is older than {latestYear}
+                <i class="legend-stale"></i>Latest figure is older than {periodLabel(latestYear)}
               </span>
             )
           }
@@ -195,8 +199,11 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
         </div>
 
         <figcaption class="brk-foot">
-          The age by which half of young people have left the parental home, {latestYear}.
-          {stale.length > 0 && <> Hatched countries have no figure for {latestYear}; the map shows their most recent year instead, and the table below names that year.</>}
+          {/* Stond hier als vaste zin over het ouderlijk huis, dus op acht van de negen
+              pagina's onwaar — en zichtbaar, niet alleen voor een schermlezer. Nu uit de
+              beschrijving van de metriek, net als de titel boven de legenda. */}
+          {metric.words?.legend ?? metric.label}, {periodLabel(latestYear)}.
+          {stale.length > 0 && <> Hatched countries have no figure for {periodLabel(latestYear)}; the map shows their most recent {grain} instead, and the table below names it.</>}
           Every figure is also in that table.
         </figcaption>
       </figure>
@@ -221,7 +228,11 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
               </div>
               <div class="big">
                 <span data-f="value">{start.valueText}</span>
-                <small>years</small>
+                {/* Stond hier als "years". Dat is op vier van de negen pagina's onwaar:
+                    werkuren zijn geen jaren, huishoudgrootte is personen, woninggrootte m²
+                    en werkloosheid een percentage. De eenheid hoort bij de metriek, en dit
+                    is een niveau, dus `unitShort` waar die bestaat. */}
+                <small>{metric.unitShort ?? metric.unit}</small>
               </div>
               <p class="rk" data-f="note">{start.note}</p>
               <dl>
@@ -347,7 +358,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
       const line = sparkline(facts.series, facts.breaks, {
         ...SPARK_SIZES.card,
         yearMin: data.yearMin,
-        yearMax: Number(data.latestYear),
+        yearMax: data.latestYear,
       });
       if (dot) dot.style.display = line ? '' : 'none';
       if (!line) return;
@@ -416,7 +427,8 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
       if (!facts || !tip) return;
       window.clearTimeout(tipTimer);
       tip.querySelector('[data-tip-name]')!.textContent = facts.name;
-      tip.querySelector('[data-tip-value]')!.textContent = facts.value === null ? 'No figure' : `${facts.valueText} years`;
+      tip.querySelector('[data-tip-value]')!.textContent =
+        facts.value === null ? 'No figure' : `${facts.valueText} ${cfg.unitShort ?? cfg.unit}`;
       tip.querySelector('[data-tip-note]')!.textContent = facts.note;
       tip.classList.add('on');
       place(clientX, clientY);

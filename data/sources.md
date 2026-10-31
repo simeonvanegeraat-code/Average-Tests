@@ -278,15 +278,16 @@ jaar meedraagt, en dat het vergelijkbare venster werkelijk breukvrij is.
 
 ---
 
-## Eurostat — de zeven metrieken naast leaving-home
+## Eurostat — de acht metrieken naast leaving-home
 
 **Uitgever** Eurostat
 **Licentie** zie de Eurostat-sectie hierboven; dezelfde voorwaarden, inclusief de
 uitsluiting van landen buiten EU, EFTA en de kandidaat-landen
-**Opgehaald** 2026-10-25 (alle acht datasets opnieuw, bij het toevoegen van de laatste twee)
+**Opgehaald** 2026-10-25 (alle acht datasets opnieuw, bij het toevoegen van de laatste twee);
+`une_rt_m` op 2026-10-27
 **Gebruikt voor** de metriekpagina's buiten `/leaving-home/`
 
-Alle zeven komen door dezelfde pipeline: `npm run metrics` haalt op, bouwt en
+Alle acht komen door dezelfde pipeline: `npm run metrics` haalt op, bouwt en
 valideert ze met `scripts/lib/metric-build.mjs`. De regels die bij leaving-home geld
 hebben gekost staan daar één keer en gelden dus overal: aggregaten buiten de
 landenlijst, elk land draagt zijn eigen jaar, en nooit rekenen over een reeksbreuk heen.
@@ -300,12 +301,56 @@ landenlijst, elk land draagt zijn eigen jaar, en nooit rekenen over een reeksbre
 | `lfsa_ewhuis` | /working-hours/ | 1983–2025 | 2025 | 34 | 27 | **geen** | ja |
 | `lfso_23pens03` | /pension-age/ | 2023 | 2023 | 30 | 0 | **één jaar** | ja |
 | `demo_find` | /first-child/ | 1960–2024 | 2024 | 37 | 13 | **geen** | nee |
+| `une_rt_m` | /unemployment/ | 2021-10–2026-09 | 2026-08 | 30 | 2 | 2025-02–2026-08 | ja |
+
+### `une_rt_m` is de eerste maandreeks, en dat verandert vier dingen
+
+**Opgehaald** 2026-10-27 · **Doorsnede** `s_adj=SA`, `age=TOTAL`, `unit=PC_ACT` ·
+**Venster** `lastTimePeriod=60`
+
+De andere acht zijn jaarenquêtes. Werkloosheid komt per maand, en Eurostat publiceert een
+maand volgens zijn eigen toelichting ongeveer 31 dagen na het einde ervan. Daarmee is dit
+de enige bron op de site die binnen het jaar actueel blijft — en de enige die vier dingen
+raakte die eerder nooit aan de orde waren.
+
+1. **De nieuwste periode is bijna leeg.** Op het moment van ophalen had 2026-09 vier van
+   de 38 gebieden en 2026-08 dertig. De bouwer koos tot nu toe het hoogste jaar dat enig
+   land draagt; hier zou dat een kaart met vier landen geven. De spec heeft daarom
+   `minCoverage: 25`, en de bouwer kiest de nieuwste periode die eraan voldoet. Landen die
+   verder achterlopen (Zwitserland 2026-06, Turkije en Bosnië 2026-07) dragen hun eigen
+   maand, gearceerd op de kaart.
+2. **Een tijdas kon niet meer op jaartallen rekenen.** `Number('2026-08')` is `NaN`, en dat
+   gaf geen fout maar een leeg trendlijntje en een breukvlag die stil door de filter viel.
+   Het omrekenen van periode naar plek staat nu in `src/lib/period.js`.
+3. **Twee landen dragen een breuk, en niet dezelfde.** Malta in 2025-01, Denemarken in
+   2023-10. Bij de jaarreeksen brak Eurostat alles tegelijk (de herziening van 2021), dus
+   tellen op "de laatste breuk" was goed genoeg; hier was dat "1 van de 30" onder een tabel
+   met twee kerfjes. Het gevolg voor de pagina is groter: omdat een vergelijking tussen
+   landen voor élk land moet gelden, is het gezamenlijke venster maar 2025-02 tot 2026-08.
+   De vijf jaar worden daarom alleen per land gebruikt, voor de 28 landen met een
+   ononderbroken reeks (`unbrokenRun()` in `src/lib/metric.js`).
+4. **Procent en procentpunt zijn niet hetzelfde.** Een niveau is een percentage van de
+   beroepsbevolking, een verschil is in procentpunten. De beschrijving heeft daarom twee
+   eenheden: `unit` voor verschillen, `unitShort` voor de twee plekken die een niveau
+   tonen.
+
+**Wat het cijfer is**, in de woorden van de uitgever samengevat: het aandeel van de
+beroepsbevolking van 15 tot 74 jaar dat in de referentieweek geen werk had, in de vier
+weken ervoor actief gezocht heeft en binnen twee weken kan beginnen. De noemer is de
+beroepsbevolking (werkenden plus werklozen), niet de bevolking.
+
+**Wat het níet is**: geregistreerde werkloosheid. Eurostat zegt daar zelf over dat de twee
+indicatoren niet vergelijkbaar zijn, omdat registratieregels per land verschillen en niet
+de ILO-definitie volgen. Een nationaal cijfer dat afwijkt is dus geen fout in een van de
+twee.
 
 ### Wat dit betekent voor de pagina's
 
-**Alleen `lfsi_dwl_a` draagt een verhaal over verandering.** Vierentwintig jaar over 32
-landen, ononderbroken. De andere zes tonen bewust geen trendsectie, om twee verschillende
-redenen die niet door elkaar mogen lopen:
+**Twee datasets dragen een verhaal over verandering.** `lfsi_dwl_a` met vierentwintig jaar
+over 32 landen ononderbroken, en sinds 27 oktober 2026 `une_rt_m`, dat achttien maanden
+over dertig landen haalt — minder lang, maar met een maandpunt in plaats van een jaarpunt.
+De andere zes tonen bewust geen trendsectie, om twee verschillende redenen die niet door
+elkaar mogen lopen:
 
 - **Vier hebben een breuk in of vlak vóór het laatste jaar** (`ilc_lvph01`, `hlth_hlye`,
   `lfsa_ewhuis`, `demo_find`). Er is dan geen venster om iets in te vergelijken, en een
@@ -340,12 +385,14 @@ pensioenleeftijd**. De 24 leeftijdsbanden in de dataset bleken geen keuze: `Y_GE
 
 ### Uitgesloten landen
 
-Zeven landcodes komen niet op de site. De reden staat per stuk in `EXCLUDED` in
+Negen landcodes komen niet op de site. De reden staat per stuk in `EXCLUDED` in
 `scripts/lib/metric-build.mjs`.
 
 | Code | Land | Reden |
 |---|---|---|
 | `UK` | Verenigd Koninkrijk | Sinds de brexit geen EU, geen EFTA, geen kandidaat-land |
+| `US` | Verenigde Staten | Idem — staat in `une_rt_m`, viel daarmee voor het eerst op |
+| `JP` | Japan | Idem |
 | `AM` | Armenië | Buiten EU, EFTA en de kandidaat-landen |
 | `AZ` | Azerbeidzjan | Idem |
 | `BY` | Belarus | Idem |
@@ -395,6 +442,7 @@ eigendomsvorm, en die hebben allebei een `TOTAL`. Daarmee is er geen doorsnede t
 - `demo_find` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/demo_fer_esms.htm)
 - `ilc_lvho32` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/ilc_sieusilc.htm) (dezelfde EU-SILC-toelichting als `ilc_lvph01`)
 - `lfso_23pens03` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/lfso_23_esms.htm)
+- `une_rt_m` — [toelichting](https://ec.europa.eu/eurostat/cache/metadata/en/une_rt_m_esms.htm)
 
 ---
 

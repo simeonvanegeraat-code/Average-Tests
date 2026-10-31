@@ -11,7 +11,7 @@
  * tweede rekenpad is een pad dat van het eerste kan afwijken. De browser verzet hier
  * alleen tekst.
  *
- * Alleen op de server: dit importeert negen JSON-bestanden.
+ * Alleen op de server: dit importeert tien JSON-bestanden.
  *
  * Drie dingen die onderweg bleken, en waarom de code eruitziet zoals hij eruitziet:
  *
@@ -37,6 +37,7 @@ import dwellingSize from './metrics/dwelling-size.js';
 import workingLife from './metrics/working-life.js';
 import workingHours from './metrics/working-hours.js';
 import pensionAge from './metrics/pension-age.js';
+import unemployment from './metrics/unemployment.js';
 import healthyYears from './metrics/healthy-years.js';
 import firstChild from './metrics/first-child.js';
 
@@ -46,6 +47,7 @@ import dwellingSizeData from '../../data/dwelling-size/index.json';
 import workingLifeData from '../../data/working-life/index.json';
 import workingHoursData from '../../data/working-hours/index.json';
 import pensionAgeData from '../../data/pension-age/index.json';
+import unemploymentData from '../../data/unemployment/index.json';
 import healthyYearsData from '../../data/healthy-years/index.json';
 import firstChildData from '../../data/first-child/index.json';
 import wealthData from '../../data/wealth/index.json';
@@ -57,6 +59,7 @@ const EUROSTAT = [
   [dwellingSize, dwellingSizeData],
   [workingLife, workingLifeData],
   [workingHours, workingHoursData],
+  [unemployment, unemploymentData],
   [pensionAge, pensionAgeData],
   [healthyYears, healthyYearsData],
   [firstChild, firstChildData],

@@ -90,6 +90,29 @@ export const METRICS = [
     plausible: { min: 30, max: 220 },
   },
   {
+    key: 'unemployment',
+    code: 'une_rt_m',
+    /**
+     * De eerste maandreeks op de site. `lastTimePeriod` houdt het venster op vijf jaar;
+     * de hele reeks loopt terug tot 1983 en dat zijn 525 punten per land die niemand
+     * leest. Seizoengecorrigeerd, want zonder correctie vergelijk je augustus in het
+     * ene land met augustus in het andere en zie je vooral het toerisme.
+     */
+    params: { s_adj: 'SA', age: 'TOTAL', unit: 'PC_ACT', lastTimePeriod: 60 },
+    fixed: { s_adj: 'SA', age: 'TOTAL', unit: 'PC_ACT' },
+    split: SEX,
+    expect: 'Unemployment by sex and age',
+    /**
+     * De nieuwste maand heeft bijna niemand: september 2026 telde 4 van de 38 gebieden,
+     * augustus 34. Hieronder zakt het anker niet.
+     */
+    minCoverage: 25,
+    // Een percentage van de beroepsbevolking, geen leeftijd; de globale band van 0-120
+    // zou hier niets vangen.
+    absurd: { min: 0, max: 60 },
+    plausible: { min: 1, max: 30 },
+  },
+  {
     key: 'pension-age',
     code: 'lfso_23pens03',
     // De leeftijd waarop mensen daadwerkelijk een ouderdomspensioen gingen ontvangen,
