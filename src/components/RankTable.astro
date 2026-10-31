@@ -18,6 +18,7 @@
  * (van vroeg naar laat) in de HTML. Zonder JavaScript mis je alleen het sorteren.
  */
 import { formatAmount, formatValue } from '../lib/metric.js';
+import { periodLabel, periodNumber, periodShort, periodUnit } from '../lib/period.js';
 import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
 
 interface Props {
@@ -29,12 +30,31 @@ interface Props {
 
 const { index, metric } = Astro.props;
 const latestYear: string = index.latestYear;
-const yearMin = Number(index.years[0]);
-const yearMax = Number(latestYear);
+const yearMin: string = index.years[0];
+const yearMax: string = latestYear;
+
+/** 'year' bij de jaarreeksen, 'month' bij werkloosheid. Bepaalt de woorden, niet de opmaak. */
+const grain = periodUnit(latestYear);
 
 const rows = [...(index.countries as any[])].sort((a, b) => a.total - b.total);
 const behind = rows.filter((row) => row.year !== latestYear).length;
-const withBreak = rows.filter((row) => row.breaks.includes(index.lastBreak)).length;
+
+/** De perioden waar het lijntje van een rij werkelijk een kerfje krijgt: alles ná de eerste waarneming. */
+const notchedIn = (row: any) => {
+  const first = Math.min(...Object.keys(row.series).map(periodNumber));
+  return (row.breaks as string[]).filter((period) => periodNumber(period) > first);
+};
+
+/**
+ * Tellen op `index.lastBreak` was goed genoeg zolang elke dataset op één moment brak:
+ * Eurostat herzag in 2021 de hele Labour Force Survey, dus vrijwel elk land had dezelfde
+ * vlag. Werkloosheid breekt per land — Malta in januari 2025, Denemarken in oktober 2023 —
+ * en dan zei deze voetnoot "1 van de 30" onder een tabel met twee kerfjes.
+ */
+const broken = rows.filter((row) => notchedIn(row).length > 0).length;
+const breakPeriods = [...new Set(rows.flatMap(notchedIn))].sort(
+  (a, b) => periodNumber(a) - periodNumber(b),
+);
 
 /**
  * De voetnoot onder de tabel paste maar op één dataset.
@@ -51,17 +71,32 @@ const publisher = index.source?.publisher ?? 'The publisher';
 
 const gapOf = (row: any) => (row.men !== null && row.women !== null ? row.men - row.women : null);
 
+/** "A", "A and B", "A, B and C". */
+const list = (items: string[]) =>
+  items.length < 3 ? items.join(' and ') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
+
 const line = (row: any) => {
   const spark = sparkline(row.series, row.breaks, { ...SPARK_SIZES.row, yearMin, yearMax });
-  const first = Math.min(...Object.keys(row.series).map(Number));
-  const breaks = (row.breaks as string[]).map(Number).filter((year) => year > first);
+  const periods = Object.keys(row.series).sort((a, b) => periodNumber(a) - periodNumber(b));
+  const breaks = notchedIn(row);
   return {
     spark,
-    note: `Trend ${first} to ${Math.max(...Object.keys(row.series).map(Number))}.${breaks.length ? ` Series breaks in ${breaks.join(', ')}.` : ''}`,
+    note:
+      `Trend ${periodLabel(periods[0])} to ${periodLabel(periods[periods.length - 1])}.` +
+      (breaks.length ? ` Series breaks in ${breaks.map(periodLabel).join(', ')}.` : ''),
   };
 };
 
-const caption = `Age by which half of young people have left the parental home. ${rows.length - behind} countries at ${latestYear}; ${behind} shown at their most recent year instead.`;
+/**
+ * De tabeltitel voor een schermlezer en voor een zoekmachine.
+ *
+ * Hier stond één vaste zin over de leeftijd waarop jongeren het huis uit gaan — op alle
+ * negen metriekpagina's, dus op acht ervan onwaar. Dezelfde fout als de legenda van de
+ * kaart eerder, en dezelfde oplossing: de zin komt uit de beschrijving van de metriek.
+ */
+const caption =
+  `${metric.words.legend}. ${rows.length - behind} countries at ${periodLabel(latestYear)}` +
+  (behind > 0 ? `; ${behind} shown at their most recent ${grain} instead.` : '.');
 ---
 
 <div class="tablewrap" tabindex="0" role="region" aria-label="Every country, sortable table" data-reveal>
@@ -84,7 +119,7 @@ const caption = `Age by which half of young people have left the parental home. 
         <th scope="col" class="n sortable" aria-sort="none">
           <button type="button" data-sort="gap" data-type="number">Gap<span class="vh"> between men and women</span></button>
         </th>
-        <th scope="col">Trend {yearMin}–{yearMax}, with breaks</th>
+        <th scope="col">Trend {periodShort(yearMin)}–{periodShort(yearMax)}, with breaks</th>
       </tr>
     </thead>
     <tbody>
@@ -96,7 +131,7 @@ const caption = `Age by which half of young people have left the parental home. 
             <tr data-name={row.name} data-total={row.total} data-men={row.men ?? ''} data-women={row.women ?? ''} data-gap={gap ?? ''}>
               <th scope="row">
                 {row.name}
-                {row.year !== latestYear && <span class="stale-year">{row.year}</span>}
+                {row.year !== latestYear && <span class="stale-year">{periodShort(row.year)}</span>}
               </th>
               <td class="n strong">{formatValue(row.total, metric)}</td>
               <td class="n">{formatValue(row.men, metric)}</td>
@@ -136,12 +171,12 @@ const caption = `Age by which half of young people have left the parental home. 
 
 <p class="brk-foot">
   {hasSexes && <>The gap is men minus women, so a positive number means the figure is higher for men. </>}
-  {behind > 0 && <>A year next to a country means {publisher} has no {latestYear} figure for it, and the row shows that year instead. </>}
+  {behind > 0 && <>A {grain} next to a country means {publisher} has no {periodLabel(latestYear)} figure for it, and the row shows that {grain} instead. </>}
   {oneYear
-    ? <>{publisher} publishes this table for {latestYear} alone, so there is no line to draw and no past to compare with.</>
-    : index.lastBreak
-      ? <>Trend lines are not drawn across series breaks (the small notches): {withBreak} of {rows.length} countries {withBreak === 1 ? 'carries' : 'carry'} one in {index.lastBreak}.</>
-      : <>{publisher} flags no series break here, so every line runs from {index.years[0]} to {latestYear} without a notch.</>}
+    ? <>{publisher} publishes this table for {periodLabel(latestYear)} alone, so there is no line to draw and no past to compare with.</>
+    : breakPeriods.length > 0
+      ? <>Trend lines are not drawn across series breaks (the small notches): {broken} of {rows.length} countries {broken === 1 ? 'carries' : 'carry'} one, in {list(breakPeriods.map(periodLabel))}.</>
+      : <>{publisher} flags no series break here, so every line runs from {periodLabel(index.years[0])} to {periodLabel(latestYear)} without a notch.</>}
 </p>
 
 <script>

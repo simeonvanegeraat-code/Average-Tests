@@ -11,6 +11,7 @@
  * Alleen op de server: dit importeert zeven JSON-bestanden.
  */
 import { headline, staleCountries, currentCountries } from './metric.js';
+import { periodLabel } from './period.js';
 import { formatPeriod } from './wealth.js';
 import { STAGES } from './hue.js';
 
@@ -22,6 +23,7 @@ import dwellingSize from './metrics/dwelling-size.js';
 import healthyYears from './metrics/healthy-years.js';
 import firstChild from './metrics/first-child.js';
 import pensionAge from './metrics/pension-age.js';
+import unemployment from './metrics/unemployment.js';
 
 import leavingHomeData from '../../data/leaving-home/index.json';
 import workingLifeData from '../../data/working-life/index.json';
@@ -31,6 +33,7 @@ import dwellingSizeData from '../../data/dwelling-size/index.json';
 import healthyYearsData from '../../data/healthy-years/index.json';
 import firstChildData from '../../data/first-child/index.json';
 import pensionAgeData from '../../data/pension-age/index.json';
+import unemploymentData from '../../data/unemployment/index.json';
 import exitAgeData from '../../data/exit-age/index.json';
 import wealthData from '../../data/wealth/index.json';
 import wealthCheck from '../../data/wealth-validation.json';
@@ -64,6 +67,16 @@ function eurostat(metric, index) {
    */
   const broken = currentCountries(index).filter((country) => country.breaks?.includes(index.lastBreak));
 
+  /**
+   * Landen met een breuk op een ánder moment dan de laatste. Bij de jaarreeksen is dat
+   * er geen: Eurostat herzag in 2021 alles tegelijk. Werkloosheid breekt per land, en
+   * zonder dit getal zou hier "1 van de 30 landen draagt een vlag" staan terwijl het er
+   * twee zijn met twee verschillende data.
+   */
+  const alsoBroken = currentCountries(index).filter(
+    (country) => (country.breaks?.length ?? 0) > 0 && !country.breaks.includes(index.lastBreak),
+  );
+
   return {
     key: metric.key,
     label: metric.label,
@@ -85,9 +98,14 @@ function eurostat(metric, index) {
     lenses: (metric.lenses ?? []).map((lens) => lens.label),
 
     countries,
-    year,
-    firstYear: index.years?.[0] ?? null,
-    lastYear: index.years?.[index.years.length - 1] ?? null,
+    /**
+     * Als leesbare naam en niet als code: werkloosheid staat op "2026-08", en dat hoort
+     * "August 2026" te zijn zodra het in een zin belandt. Bij de jaarreeksen verandert
+     * `periodLabel()` niets. Vermogen doet dit al met `formatPeriod()` hieronder.
+     */
+    year: periodLabel(year),
+    firstYear: index.years?.length ? periodLabel(index.years[0]) : null,
+    lastYear: index.years?.length ? periodLabel(index.years[index.years.length - 1]) : null,
     /**
      * Vier werkelijk verschillende gevallen, en ze vragen vier verschillende zinnen.
      * Eén sjabloon eroverheen leverde "0 of 32 countries carry a break flag in "
@@ -99,14 +117,23 @@ function eurostat(metric, index) {
      * reeks vanaf 2023 is vergelijkbaar" zeggen over één jaar is een lege belofte.
      */
     comparability: index.years?.length === 1
-      ? { kind: 'single-year', year: index.years[0] }
+      ? { kind: 'single-year', year: periodLabel(index.years[0]) }
       : !index.lastBreak
-        ? { kind: 'unbroken', from: index.comparableSince ?? index.years?.[0] ?? null }
+        ? { kind: 'unbroken', from: periodLabel(index.comparableSince ?? index.years?.[0] ?? null) }
         : index.comparableSince
-          ? { kind: 'since', since: index.comparableSince, year: index.lastBreak, broken: broken.length }
-          : { kind: 'break-at-end', year: index.lastBreak, broken: broken.length },
+          ? {
+              kind: 'since',
+              since: periodLabel(index.comparableSince),
+              year: periodLabel(index.lastBreak),
+              broken: broken.length,
+              others: alsoBroken.length,
+              otherYears: [...new Set(alsoBroken.flatMap((country) => country.breaks))]
+                .map(periodLabel)
+                .join(', '),
+            }
+          : { kind: 'break-at-end', year: periodLabel(index.lastBreak), broken: broken.length },
 
-    stale: stale.map((country) => ({ name: country.name, year: country.year })),
+    stale: stale.map((country) => ({ name: country.name, year: periodLabel(country.year) })),
 
     published: day(source.eurostatUpdated),
     fetched: day(source.fetchedOn),
@@ -213,6 +240,7 @@ export const METHODOLOGY = [
   eurostat(dwellingSize, dwellingSizeData),
   eurostat(workingLife, workingLifeData),
   eurostat(workingHours, workingHoursData),
+  eurostat(unemployment, unemploymentData),
   eurostat(pensionAge, pensionAgeData),
   oecd(),
   eurostat(healthyYears, healthyYearsData),
