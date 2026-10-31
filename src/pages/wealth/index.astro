@@ -2,8 +2,10 @@
 import BaseV2 from '../../layouts/BaseV2.astro';
 import Related from '../../components/Related.astro';
 import index from '../../../data/wealth/index.json';
+import ageIndex from '../../../data/wealth-age/index.json';
 import validation from '../../../data/wealth-validation.json';
 import { euro, multiple, formatPeriod } from '../../lib/wealth.js';
+import { bySteepness, curveOf, peaksByBand } from '../../lib/wealth-age.js';
 import { STAGES } from '../../lib/hue.js';
 
 /**
@@ -33,15 +35,60 @@ const gaps = countries
 const widestGap = gaps[0];
 const concentrated = countries.filter((c) => c.mean && c.mean > c.median * 2).length;
 
+/**
+ * De leeftijdslaag komt uit een andere bron dan de rest van deze pagina, en dat moet
+ * zichtbaar zijn in plaats van weggemoffeld. Hoe ver de twee uiteenlopen wordt hier
+ * uitgerekend uit beide bestanden, zodat de waarschuwing in het formulier echte
+ * cijfers draagt en niet een vage "ze verschillen".
+ */
+const sourceGap = (() => {
+  const pairs = index.countries
+    .map((c) => {
+      const survey = ageIndex.countries.find((a) => a.area === c.area);
+      return survey?.total.median ? { name: c.name, ratio: c.median / survey.total.median } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.ratio - b.ratio);
+  return {
+    of: pairs.length,
+    lowest: pairs[0],
+    highest: pairs[pairs.length - 1],
+    middle: pairs[Math.floor(pairs.length / 2)],
+  };
+})();
+
+/**
+ * Het blok over leeftijd. Alles erin komt uit de enquête, óók de spreiding tussen
+ * landen: die wordt hier opnieuw uit `ageIndex` gerekend in plaats van de `spread`
+ * hierboven te lenen, want dat cijfer komt uit de kwartaalrekeningen en zou de twee
+ * bronnen in één vergelijking zetten.
+ */
+const steep = bySteepness(ageIndex.countries);
+const steepest = steep[0];
+const flattest = steep[steep.length - 1];
+const steepestCurve = curveOf(steepest);
+const flattestCurve = curveOf(flattest);
+
+const surveyMedians = [...ageIndex.countries].sort((a, b) => a.total.median - b.total.median);
+const surveySpread = surveyMedians[surveyMedians.length - 1].total.median / surveyMedians[0].total.median;
+const climbs = ageIndex.countries.map((c) => c.climb).filter(Number.isFinite).sort((a, b) => a - b);
+const middleClimb = climbs[Math.floor(climbs.length / 2)];
+/** Landen waar leeftijd het cijfer verder verschuift dan heel Europa doorkruisen. */
+const steeperThanEurope = ageIndex.countries.filter((c) => c.climb > surveySpread);
+const peaks = peaksByBand(ageIndex.countries, ageIndex.bands).sort((a, b) => b.countries.length - a.countries.length);
+
 const title = 'Where Does Your Household Stand? — European Wealth';
 const description =
-  'Enter what your household is worth and see where it sits among households in 21 European ' +
-  'countries. Official ECB figures, updated every quarter.';
+  'Enter what your household is worth, your age, and see where it sits among households in 21 ' +
+  'European countries. Official ECB figures.';
 ---
 
 <BaseV2 title={title} description={description} canonical="/wealth/" hue={STAGES.money}>
   <Fragment slot="head">
     <script type="application/json" id="wealth-index" set:html={JSON.stringify(index)} is:inline />
+    {/* Een eigen blok, niet samengevoegd met het blok hierboven: de twee bronnen mogen
+        in de browser net zo min door elkaar lopen als op de pagina. */}
+    <script type="application/json" id="wealth-age" set:html={JSON.stringify(ageIndex)} is:inline />
   </Fragment>
 
   <section class="hero" aria-labelledby="hero-title">
@@ -92,6 +139,21 @@ const description =
               ))}
             </select>
           </span>
+          <label for="age">, I am</label>
+          <span class="years">
+            <input
+              id="age"
+              type="number"
+              name="age"
+              inputmode="numeric"
+              min="16"
+              max="110"
+              step="1"
+              placeholder="38"
+              aria-describedby="age-hint"
+            />
+            <i aria-hidden="true">years old</i>
+          </span>
           <label for="amount">and my household is worth about</label>
           <span class="euro">
             <i aria-hidden="true">€</i>
@@ -112,8 +174,9 @@ const description =
           </button>
         </form>
         <p class="field-error" id="form-error" role="alert" hidden></p>
-        <p class="field-hint">
-          Your figure is never sent anywhere. Everything is calculated in your browser.
+        <p class="field-hint" id="age-hint">
+          Your figure is never sent anywhere. Everything is calculated in your browser. Age is
+          optional — leave it blank and you get the country comparison on its own.
         </p>
 
         <figure class="panel hued" id="result" hidden aria-labelledby="result-label">
@@ -146,6 +209,37 @@ const description =
           </div>
         </figure>
 
+        {/*
+          Het tweede paneel, en bewust een tweede en geen extra regel in het eerste.
+          Hierboven staan de kwartaalrekeningen, hieronder de enquête, en die meten niet
+          hetzelfde: publieke en bedrijfspensioenen tellen hier niet mee. Eén paneel met
+          beide cijfers erin zou het verschil onzichtbaar maken.
+        */}
+        <figure class="panel hued panel--survey" id="age-result" hidden aria-labelledby="age-label">
+          <div class="panel-head mono">
+            <span id="age-label">Compared with people your age</span>
+            <span class="delta num" id="age-gap"></span>
+          </div>
+
+          <p class="result-head" id="age-headline"></p>
+          <p class="result-lead" id="age-lead"></p>
+
+          <div class="panel-foot">
+            <span class="chip"><b id="age-you"></b> your household</span>
+            <span class="chip"><b id="age-median"></b> median, your age</span>
+            <span class="chip"><b id="age-mean"></b> average, your age</span>
+          </div>
+
+          <p class="bracket" id="age-curve"></p>
+
+          <figure class="chart-figure">
+            <svg id="age-chart" viewBox="0 0 640 220" role="img" aria-labelledby="age-chart-title"></svg>
+            <figcaption id="age-caption"></figcaption>
+          </figure>
+
+          <p class="panel-source" id="age-source"></p>
+        </figure>
+
         <div class="limits">
           <b>One thing we deliberately do not tell you</b>
           <p>
@@ -154,6 +248,21 @@ const description =
             that figure is published — and which two group averages your amount falls between. We
             cannot tell you that you are "in the 63rd percentile", because that number does not
             exist in the data. Sites that give it to you are estimating and not saying so.
+          </p>
+        </div>
+
+        <div class="limits">
+          <b>Why the two answers above use different numbers</b>
+          <p>
+            Age comes from a different ECB source, and it has to. The quarterly accounts behind
+            the first panel carry no age split at all. The survey behind the second one does, but
+            it leaves out the value of public and occupational pension plans — so its national
+            median is not the same figure. Across the {sourceGap.of} countries here the two differ
+            by {multiple(sourceGap.middle.ratio)} in the middle case, from{' '}
+            {multiple(sourceGap.lowest.ratio)} in {sourceGap.lowest.name} to{' '}
+            {multiple(sourceGap.highest.ratio)} in {sourceGap.highest.name}. That is why each panel
+            compares you only with figures from its own source, and why no sentence on this page
+            puts one next to the other.
           </p>
         </div>
       </div>
@@ -191,6 +300,57 @@ const description =
           </p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="age-facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Age</p>
+        <h2 id="age-facts-title">Which country you live in matters. When you were born matters more.</h2>
+        <p>
+          These figures come from the ECB's household survey, not from the quarterly accounts
+          above, and they are not comparable with them: the survey leaves out public and
+          occupational pensions. Everything in this section is measured inside the survey alone.
+        </p>
+      </header>
+
+      <div class="bento" data-reveal>
+        <div class="tile">
+          <b>{multiple(middleClimb)}</b>
+          <p>
+            between the youngest age group and the peak, in the middle country. The same survey's
+            national medians differ by {multiple(surveySpread)} from one end of Europe to the other
+            — and in {steeperThanEurope.length} of these countries
+            ({steeperThanEurope.map((c) => c.name).join(', ')}) age moves the figure further than
+            crossing the whole continent does.
+          </p>
+        </div>
+        <div class="tile">
+          <b>{multiple(steepestCurve.climb)}</b>
+          <p>
+            in {steepest.name}, the steepest climb here: {euro(steepestCurve.youngest.median)} for the
+            {' '}{steepestCurve.youngest.label} group against {euro(steepestCurve.peak.median)} at
+            {' '}{steepestCurve.peak.label}. In {flattest.name} the same step is
+            {' '}{multiple(flattestCurve.climb)}.
+          </p>
+        </div>
+        <div class="tile">
+          <b>{peaks[0].countries.length} of {ageIndex.countries.length}</b>
+          <p>
+            countries reach their highest point at {peaks[0].band.label}. The rest do not:
+            {' '}{peaks.slice(1).map((p) => `${p.countries.length} at ${p.band.label}`).join(', ')}.
+            Where wealth peaks is itself a difference between countries.
+          </p>
+        </div>
+      </div>
+
+      <p class="more" data-reveal>
+        <a class="btn btn--ghost" href="/wealth/by-age/">
+          Every country, every age group
+          <span class="arr" aria-hidden="true">→</span>
+        </a>
+      </p>
     </div>
   </section>
 
@@ -289,16 +449,22 @@ const description =
   </section>
 
   <script>
-    import { placeAmount, rankAcrossCountries, euro, multiple, formatPeriod } from '../../lib/wealth.js';
+    import { placeAmount, rankAcrossCountries, euro, multiple, formatPeriod, withArticle } from '../../lib/wealth.js';
+    import { bandForAge, curveOf, fieldworkLabel, placeInBand } from '../../lib/wealth-age.js';
+    import { readProfile, mergeProfile } from '../../lib/profile.js';
     import { track, EVENTS } from '../../lib/analytics.js';
 
     const el = (id) => document.getElementById(id);
     const index = JSON.parse(el('wealth-index').textContent);
+    /** Twee bestanden, twee variabelen. Nergens worden ze samengevoegd; zie de panelen. */
+    const ageIndex = JSON.parse(el('wealth-age').textContent);
     const form = el('wealth-form');
     const result = el('result');
+    const ageResult = el('age-result');
     const errorNote = el('form-error');
 
     const byArea = Object.fromEntries(index.countries.map((c) => [c.area, c]));
+    const ageByArea = Object.fromEntries(ageIndex.countries.map((c) => [c.area, c]));
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -306,6 +472,8 @@ const description =
 
       const area = el('country').value;
       const amount = Number(el('amount').value);
+      const typed = el('age').value.trim();
+      const age = typed === '' ? null : Number(typed);
 
       if (!Number.isFinite(amount) || el('amount').value.trim() === '') {
         return fail('Enter a figure for what your household is worth.');
@@ -313,8 +481,15 @@ const description =
       if (amount < -5_000_000 || amount > 100_000_000) {
         return fail('Enter an amount between −€5 million and €100 million.');
       }
+      // Leeftijd is optioneel, maar een ingevulde leeftijd moet kloppen: de enquête
+      // begint bij 16, en een tikfout van 380 hoort niet stil in de oudste groep te vallen.
+      if (age !== null && (!Number.isInteger(age) || age < 16 || age > 110)) {
+        return fail('Enter an age between 16 and 110, or leave that field empty.');
+      }
 
       render(area, amount);
+      renderAge(area, amount, age);
+      mergeProfile(age === null ? { country: area } : { country: area, age });
       track(EVENTS.valueSubmitted, { metric: 'wealth', country: area });
     });
 
@@ -322,6 +497,7 @@ const description =
       errorNote.textContent = message;
       errorNote.hidden = false;
       result.hidden = true;
+      ageResult.hidden = true;
     }
 
     function render(area, amount) {
@@ -418,6 +594,144 @@ const description =
               font-weight="700" fill="var(--glow)">you · ${euro(amount, { compact: true })}</text>`;
       svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
     }
+
+    /**
+     * Het tweede paneel: jouw bedrag tegenover je eigen leeftijdsgroep.
+     *
+     * Elke waarde hier komt uit `ageIndex` en geen enkele uit `index`. Dat is geen
+     * netheid maar noodzaak: de enquête telt publieke en bedrijfspensioenen niet mee,
+     * dus haar middelpunt ligt op een ander niveau dan dat van het paneel erboven.
+     */
+    function renderAge(area, amount, age) {
+      const country = ageByArea[area];
+      const band = age === null ? null : bandForAge(age, ageIndex.bands);
+      const slot = band && country ? country.bands.find((b) => b.code === band.code) : null;
+
+      if (!slot || slot.median === null) {
+        ageResult.hidden = true;
+        return;
+      }
+
+      const placed = placeInBand(slot, amount);
+      const curve = curveOf(country);
+
+      el('age-label').textContent = `Compared with ${slot.label.replace(' and over', '+')} in ${withArticle(country.name)}`;
+      el('age-headline').textContent = placed.aboveMedian
+        ? `Above the middle for your age group`
+        : `Below the middle for your age group`;
+      el('age-lead').textContent = ageLead(placed, slot, country);
+
+      el('age-you').textContent = euro(amount);
+      el('age-median').textContent = euro(slot.median);
+      el('age-mean').textContent = euro(slot.mean);
+      el('age-gap').textContent =
+        `${placed.differenceFromMedian >= 0 ? '+' : '−'}${euro(Math.abs(placed.differenceFromMedian))}`;
+
+      el('age-curve').textContent = ageCurve(country, curve);
+      el('age-caption').textContent =
+        `Net wealth by age of the reference person in ${withArticle(country.name)}: the middle (bar) and the average (line). ` +
+        'Your amount is the marked line.';
+      el('age-source').textContent = ageSource(country);
+
+      drawAgeChart(country, amount, slot);
+      ageResult.hidden = false;
+    }
+
+    /** Wat de enquête over jouw groep zegt: het middelpunt, en het gemiddelde erboven. */
+    function ageLead(placed, slot, country) {
+      const half =
+        `Half of households in ${withArticle(country.name)} whose reference person is ${slot.label} ` +
+        `are worth less than ${euro(slot.median)}, half more.`;
+      const where = placed.timesMedian === null
+        ? ''
+        : ` Your amount is ${multiple(placed.timesMedian)} that middle.`;
+      const mean = placed.aboveMean
+        ? ` It is above the average for the group too (${euro(slot.mean)}) — a higher bar, because a handful of large fortunes pull every average up.`
+        : ` It is still below the average for that group (${euro(slot.mean)}), which sits well above the middle because a handful of large fortunes pull it up.`;
+      const margin = placed.margin
+        ? ` The survey puts the middle at ${euro(slot.median)} give or take ${euro(placed.margin)}.`
+        : '';
+      return half + where + mean + margin;
+    }
+
+    /** De vorm van de curve in dit land, en of er wel een curve is om over te schrijven. */
+    function ageCurve(country, curve) {
+      if (!curve) return '';
+      if (curve.flat) {
+        return (
+          `Age barely moves this figure in ${withArticle(country.name)}: the highest group ` +
+          `(${curve.peak.label}) sits at ${euro(curve.peak.median)}, only ${multiple(curve.climb)} the ` +
+          `${curve.youngest.label} group. In most countries here that step is much larger.`
+        );
+      }
+      const climb =
+        `In ${withArticle(country.name)} the middle climbs from ${euro(curve.youngest.median)} at ` +
+        `${curve.youngest.label} to ${euro(curve.peak.median)} at ${curve.peak.label} — ${multiple(curve.climb)} as much.`;
+      const after = curve.fall === null
+        ? ' It is still climbing in the oldest group, which is unusual: in most countries here it has already turned down.'
+        : ` After that it falls back to ${euro(curve.oldest.median)} by ${curve.oldest.label}.`;
+      return climb + after;
+    }
+
+    /** Waar dit vandaan komt, en waarom het niet naast het paneel erboven gelegd mag worden. */
+    function ageSource(country) {
+      return (
+        `ECB Household Finance and Consumption Survey, wave ${ageIndex.source.wave}. Fieldwork in ` +
+        `${withArticle(country.name)} ran ${fieldworkLabel(country.fieldwork)}. The survey does not count ` +
+        'the value of public or occupational pension plans, so these figures sit at a different level ' +
+        'from the quarterly accounts in the panel above — the two are not comparable with each other.'
+      );
+    }
+
+    function drawAgeChart(country, amount, slot) {
+      const svg = el('age-chart');
+      const rows = country.bands.filter((b) => b.median !== null);
+      const W = 640, rowH = 30, padTop = 10, padLeft = 86, padRight = 84;
+      const H = padTop + rows.length * rowH + 28;
+      const max = Math.max(...rows.map((r) => Math.max(r.median, r.mean ?? 0)), amount) * 1.05;
+      const x = (v) => padLeft + (Math.max(v, 0) / max) * (W - padLeft - padRight);
+
+      const bars = rows.map((r, i) => {
+        const y = padTop + i * rowH;
+        const mine = r.code === slot.code;
+        const width = Math.max(x(r.median) - padLeft, 1);
+        const meanX = r.mean === null ? null : x(r.mean).toFixed(1);
+        return `
+          <text x="${padLeft - 8}" y="${y + 17}" text-anchor="end" font-size="11"
+                font-weight="${mine ? 700 : 400}"
+                fill="${mine ? 'currentColor' : 'var(--text-2)'}">${r.code}</text>
+          <rect x="${padLeft}" y="${y + 5}" width="${width.toFixed(1)}" height="${rowH - 13}" rx="2"
+                fill="${mine ? 'var(--data)' : 'oklch(1 0 0 / .14)'}" />
+          ${meanX === null ? '' : `<line x1="${meanX}" y1="${y + 2}" x2="${meanX}" y2="${y + rowH - 6}"
+                stroke="var(--text-2)" stroke-width="2" stroke-dasharray="2 2" />`}
+          <text x="${(x(r.median) + 6).toFixed(1)}" y="${y + 17}" font-size="10"
+                fill="var(--text-2)">${euro(r.median, { compact: true })}</text>`;
+      }).join('');
+
+      const markerX = x(amount).toFixed(1);
+      svg.innerHTML = `
+        <title id="age-chart-title">Net wealth by age of the reference person, with your amount marked</title>
+        ${bars}
+        <line x1="${markerX}" y1="${padTop - 2}" x2="${markerX}" y2="${padTop + rows.length * rowH + 2}"
+              stroke="#fff" stroke-width="2" />
+        <text x="${markerX}" y="${H - 8}" text-anchor="middle" font-size="11"
+              font-weight="700" fill="var(--glow)">you · ${euro(amount, { compact: true })}</text>`;
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    }
+
+    /**
+     * Land en leeftijd uit het profiel, als de bezoeker die elders op de site al heeft
+     * ingevuld. Het bedrag staat er bewust niet in: dat blijft in dit formulier en gaat
+     * nergens heen, ook niet naar localStorage.
+     */
+    (function restore() {
+      const saved = readProfile();
+      const select = el('country');
+      if (typeof saved.country === 'string' && [...select.options].some((o) => o.value === saved.country)) {
+        select.value = saved.country;
+      }
+      if (Number.isFinite(saved.age)) el('age').value = String(saved.age);
+    })();
 
     el('share').addEventListener('click', async () => {
       const area = el('country').value;

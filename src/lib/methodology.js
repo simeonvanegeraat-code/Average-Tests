@@ -37,6 +37,8 @@ import unemploymentData from '../../data/unemployment/index.json';
 import exitAgeData from '../../data/exit-age/index.json';
 import wealthData from '../../data/wealth/index.json';
 import wealthCheck from '../../data/wealth-validation.json';
+import wealthAgeData from '../../data/wealth-age/index.json';
+import wealthAgeCheck from '../../data/wealth-age-validation.json';
 
 /** Eurostat levert zijn definitie als HTML. Hier wordt het gewone tekst. */
 function plain(html) {
@@ -186,6 +188,61 @@ function wealth() {
 }
 
 /**
+ * De ECB-enquête onder /wealth/by-age/. Dezelfde uitgever als de rekeningen hierboven
+ * en toch een eigen regel, want het is een andere meting: **publieke en
+ * bedrijfspensioenen tellen er niet in mee**. Dat verschil is op de site de reden dat
+ * de leeftijdscijfers in een eigen paneel staan, en het hoort dus ook hier te staan en
+ * niet als voetnoot bij vermogen.
+ */
+function wealthAge() {
+  const maanden = wealthAgeData.countries.flatMap((c) => [c.fieldwork.from, c.fieldwork.to]).sort();
+
+  return {
+    key: 'wealth-age',
+    label: 'Wealth by age',
+    path: '/wealth/by-age/',
+    hue: STAGES.money,
+
+    publisher: wealthAgeData.source.publisher,
+    dataset: `${wealthAgeData.source.survey}, wave ${wealthAgeData.source.wave}`,
+    doi: null,
+    metadata: 'https://www.ecb.europa.eu/stats/ecb_surveys/hfcs/html/index.en.html',
+    api: null,
+
+    sourceLabel: wealthAgeData.source.tables,
+    /** Woordelijk de definitie van de uitgever, want juist die wijkt af van de reeks erboven. */
+    definition: wealthAgeData.source.definition,
+
+    unit: 'euro',
+    decimals: 0,
+    lenses: ['Median', 'Average'],
+
+    countries: wealthAgeData.countries.length,
+    year: `wave ${wealthAgeData.source.wave}`,
+    firstYear: null,
+    lastYear: null,
+    /**
+     * Geen tijdreeks maar één golf, en het veldwerk loopt per land uiteen. Een eigen
+     * geval, omdat "geen breuk" hier zou klinken als "de hele reeks is vergelijkbaar"
+     * terwijl er geen reeks is.
+     */
+    comparability: {
+      kind: 'survey-wave',
+      wave: wealthAgeData.source.wave,
+      from: maanden[0],
+      to: maanden[maanden.length - 1],
+      countries: wealthAgeData.countries.length,
+    },
+    stale: [],
+
+    published: null,
+    fetched: day(wealthAgeData.source.fetchedOn),
+    checked: wealthAgeCheck.checkedOn,
+    figuresChecked: wealthAgeCheck.figuresChecked,
+  };
+}
+
+/**
  * De OECD-reeks onder /pension-age/. Geen eigen pagina, wel een eigen dataset: hij
  * heeft een eigen bron, een eigen poort en een eigen bronvermelding, dus hij hoort
  * hier te staan en niet verstopt onder de Eurostat-regel erboven.
@@ -246,4 +303,5 @@ export const METHODOLOGY = [
   eurostat(healthyYears, healthyYearsData),
   eurostat(firstChild, firstChildData),
   wealth(),
+  wealthAge(),
 ];

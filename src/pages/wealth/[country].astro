@@ -1,7 +1,9 @@
 ---
 import BaseV2 from '../../layouts/BaseV2.astro';
 import index from '../../../data/wealth/index.json';
+import ageIndex from '../../../data/wealth-age/index.json';
 import { euro, multiple, formatPeriod, percentChange, withArticle } from '../../lib/wealth.js';
+import { curveOf, fieldworkLabel } from '../../lib/wealth-age.js';
 import { STAGES } from '../../lib/hue.js';
 
 /**
@@ -58,6 +60,25 @@ const negativeBottom = bottomQuintile && bottomQuintile.netWealth < 0;
 
 const where = withArticle(c.name);
 const Where = withArticle(c.name, { capitalise: true });
+
+/**
+ * De leeftijdscurve van dit land, uit de ECB-enquête.
+ *
+ * Een tweede bron op dezelfde pagina, en dat vraagt om strengheid: de enquête telt
+ * publieke en bedrijfspensioenen niet mee, dus haar middelpunt ligt op een ander
+ * niveau dan het cijfer bovenaan deze pagina. Geen zin hieronder zet de twee naast
+ * elkaar, en de sectie zegt zelf waar ze vandaan komt.
+ *
+ * Dit is ook wat deze landpagina's van elkaar onderscheidt: de piek ligt niet overal
+ * bij dezelfde groep en de klim ernaartoe verschilt van 1,6x tot 31,6x.
+ */
+const survey = ageIndex.countries.find((a) => a.area === c.area) ?? null;
+const curve = survey ? curveOf(survey) : null;
+/** Hoeveel andere landen hun hoogtepunt bij dezelfde groep hebben. */
+const sharePeak = survey ? ageIndex.countries.filter((a) => a.peak === survey.peak).length : 0;
+const steeperThan = survey
+  ? ageIndex.countries.filter((a) => Number.isFinite(a.climb) && a.climb < survey.climb).length
+  : 0;
 
 const rank =
   position === 1
@@ -280,6 +301,88 @@ const description =
     )
   }
 
+  {
+    survey && curve && (
+      <section class="block" aria-labelledby="age-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">Age</p>
+            <h2 id="age-title">
+              {curve.flat
+                ? `In ${where}, age barely moves this`
+                : `In ${where}, wealth peaks at ${curve.peak.label}`}
+            </h2>
+            <p>
+              Every figure in this section comes from the ECB's household survey, which is a
+              different measure from the rest of this page: it leaves the value of public and
+              occupational pension plans out. The two cannot be read against each other, so this
+              section compares only within itself.
+            </p>
+          </header>
+
+          <div data-reveal>
+            <ul class="agebars">
+              {curve.bands.map((band) => (
+                <li class:list={[{ 'is-peak': band.code === survey.peak }]}>
+                  <span class="k mono">{band.code}</span>
+                  <span class="bar">
+                    <i style={`width:${((band.median / curve.peak.median) * 100).toFixed(1)}%`} />
+                  </span>
+                  <span class="v num">{euro(band.median, { compact: true })}</span>
+                  <span class="avg mono">avg {euro(band.mean, { compact: true })}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class="prose">
+              <p>
+                {curve.flat ? (
+                  <>
+                    The middle household in {where} is worth {euro(curve.youngest.median)} in the
+                    {' '}{curve.youngest.label} group and {euro(curve.peak.median)} at its highest,
+                    {' '}{curve.peak.label} — only {multiple(curve.climb)} as much. That is one of the
+                    flattest curves in this survey, and it means a national figure here describes a
+                    30-year-old almost as well as a 60-year-old. In most countries it does not.
+                  </>
+                ) : (
+                  <>
+                    The middle household climbs from {euro(curve.youngest.median)} in the
+                    {' '}{curve.youngest.label} group to {euro(curve.peak.median)} at
+                    {' '}{curve.peak.label}, {multiple(curve.climb)} as much — steeper than
+                    {steeperThan === ageIndex.countries.length - 1
+                      ? ' in every other country here'
+                      : ` in ${steeperThan} of the other ${ageIndex.countries.length - 1}`}.
+                    {curve.fall === null ? (
+                      <> It never turns back down: the oldest group is the highest one.</>
+                    ) : (
+                      <> After the peak it falls back to {euro(curve.oldest.median)} by
+                      {' '}{curve.oldest.label}.</>
+                    )}
+                  </>
+                )}
+              </p>
+              <p>
+                {sharePeak === 1
+                  ? `${Where} is the only country in this survey whose highest group is ${curve.peak.label}.`
+                  : `${sharePeak} of the ${ageIndex.countries.length} countries here peak at ${curve.peak.label}.`}
+                {' '}The average for each group sits above the middle everywhere — in the
+                {' '}{curve.youngest.label} group it is {multiple(curve.youngest.mean / curve.youngest.median)} the
+                middle, because a small number of large fortunes pull it up.
+                {' '}<a href="/wealth/by-age/">All {ageIndex.countries.length} countries side by side</a>.
+              </p>
+            </div>
+
+            <p class="panel-source panel-source--light" style="margin-top:22px">
+              {ageIndex.source.publisher}, {ageIndex.source.survey}, wave {ageIndex.source.wave}.
+              Fieldwork in {where} ran {fieldworkLabel(survey.fieldwork)}. Age is that of the
+              household's reference person.
+            </p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">
       <header class="sec-head" data-reveal style="margin: 0">
@@ -319,6 +422,16 @@ const description =
               Distributional Wealth Accounts, {formatPeriod(c.period)}
             </span>
           </li>
+          {survey && (
+            <li>
+              <strong>Age section only</strong>
+              <span>
+                <a href={ageIndex.source.url} data-method-link>{ageIndex.source.survey}</a>, wave
+                {' '}{ageIndex.source.wave}, fieldwork {fieldworkLabel(survey.fieldwork)}. A separate
+                measure: public and occupational pensions are not counted in it.
+              </span>
+            </li>
+          )}
         </ul>
       </div>
     </div>
