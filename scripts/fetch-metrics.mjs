@@ -37,7 +37,8 @@ for (const spec of todo) {
   const time = data.categories('time');
   console.log(`${spec.key.padEnd(16)} ${spec.code.padEnd(14)} ${data.categories('geo').length} gebieden, ${time[0]}–${time[time.length - 1]}`);
 
-  await writeFile(new URL(`${spec.code}.json`, RAW_DIR), JSON.stringify(json));
+  // Op de spec-sleutel: drie specs delen `une_rt_m` en zouden elkaars bestand overschrijven.
+  await writeFile(new URL(`${spec.key}.json`, RAW_DIR), JSON.stringify(json));
   log.push({
     key: spec.key,
     code: spec.code,

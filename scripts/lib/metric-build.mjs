@@ -56,9 +56,17 @@ const EXCLUDED = new Map([
   ],
 ]);
 
-/** Leest het ruwe antwoord dat fetch-eurostat.mjs heeft weggeschreven. */
+/**
+ * Leest het ruwe antwoord dat fetch-metrics.mjs heeft weggeschreven.
+ *
+ * Op de spec-sleutel en niet op de datasetcode. Dat was hetzelfde zolang elke metriek
+ * zijn eigen dataset had, maar `une_rt_m` draagt er sinds de leeftijdsuitsplitsing drie:
+ * het totaal, onder 25 en 25-74. Alle drie schreven ze `une_rt_m.json`, dus de laatste
+ * won en de andere twee vonden geen enkel land meer — met een nette foutmelding, maar
+ * pas in de bouwstap.
+ */
 export async function readRaw(spec) {
-  const json = JSON.parse(await readFile(new URL(`${spec.code}.json`, RAW_DIR), 'utf8'));
+  const json = JSON.parse(await readFile(new URL(`${spec.key}.json`, RAW_DIR), 'utf8'));
   const log = JSON.parse(await readFile(new URL('fetch-log.json', RAW_DIR), 'utf8'));
   return { json, log };
 }
