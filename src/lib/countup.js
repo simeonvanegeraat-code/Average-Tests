@@ -15,8 +15,33 @@
  *    heb je het gemist. Vandaar `countWhenVisible` in plaats van bij het laden.
  */
 
-/** "26.3", maar ook "€167k": wat ervoor en erna staat blijft staan. */
-const SHAPE = /^(\D*)([\d.]+)(\D*)$/;
+import { decimal, localeOfNumber } from './format.js';
+
+/**
+ * De taalgrens de andere kant op: dit script LEEST een getal terug uit de tekst die
+ * de server schreef.
+ *
+ * Hier stond `[\d.]+` — cijfers en een punt — en dat is de Engelse notatie als vaste
+ * regel. In het Nederlands schrijft de server `24,6`, en dan past het patroon niet
+ * meer: de animatie valt stil uit. Erger bij een bedrag: `1.053` zou als 1,053 gaan
+ * tellen, dus een kopcijfer dat 820 milliseconden iets heel anders zegt dan het
+ * cijfer dat erna blijft staan.
+ *
+ * Het decimaalteken komt daarom uit `Intl` zelf in plaats van uit een aanname. Wat
+ * het patroon WEL en NIET accepteert blijft gelijk: cijfers en het decimaalteken van
+ * de taal, geen duizendscheiding. Dat laatste is geen omissie. Een getal mét
+ * duizendscheiding viel ook vóór deze wijziging buiten het patroon en telde dus niet
+ * mee; dat hier oprekken zou animaties aanzetten die er nooit waren, en dat is een
+ * zichtbare wijziging die niemand heeft gevraagd.
+ */
+function shapeFor(locale) {
+  const point =
+    new Intl.NumberFormat(locale, { minimumFractionDigits: 1 })
+      .formatToParts(1.5)
+      .find((part) => part.type === 'decimal')?.value ?? '.';
+  const escaped = point.replace(/[.*+?^${}()|[\]\\]/g, (hit) => `\\${hit}`);
+  return { re: new RegExp(`^(\\D*)([\\d${escaped}]+)(\\D*)$`), point };
+}
 
 /**
  * Leest de waarde uit de tekst van een element. Geeft null als er geen getal in
@@ -24,19 +49,22 @@ const SHAPE = /^(\D*)([\d.]+)(\D*)$/;
  */
 export function readCounter(node) {
   const final = node.textContent ?? '';
-  const parts = SHAPE.exec(final.trim());
+  const locale = localeOfNumber();
+  const { re, point } = shapeFor(locale);
+  const parts = re.exec(final.trim());
   if (!parts) return null;
 
-  const target = Number(parts[2]);
+  const target = Number(parts[2].replace(point, '.'));
   if (!Number.isFinite(target)) return null;
 
   return {
     node,
     final,
+    locale,
     prefix: parts[1],
     suffix: parts[3],
     target,
-    decimals: (parts[2].split('.')[1] ?? '').length,
+    decimals: (parts[2].split(point)[1] ?? '').length,
   };
 }
 
@@ -68,7 +96,9 @@ export function animate(counters, duration = 820) {
 
     for (const counter of counters) {
       counter.node.textContent =
-        counter.prefix + (counter.target * eased).toFixed(counter.decimals) + counter.suffix;
+        counter.prefix +
+        decimal(counter.target * eased, counter.decimals, { locale: counter.locale }) +
+        counter.suffix;
     }
 
     if (part < 1) frame = requestAnimationFrame(tick);

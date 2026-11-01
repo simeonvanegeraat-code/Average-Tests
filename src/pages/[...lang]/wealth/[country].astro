@@ -4,6 +4,7 @@ import BaseV2 from '../../../layouts/BaseV2.astro';
 import index from '../../../../data/wealth/index.json';
 import ageIndex from '../../../../data/wealth-age/index.json';
 import { euro, multiple, formatPeriod, percentChange, withArticle } from '../../../lib/wealth.js';
+import { decimal } from '../../../lib/format.js';
 import { curveOf, fieldworkLabel } from '../../../lib/wealth-age.js';
 import { STAGES } from '../../../lib/hue.js';
 
@@ -147,7 +148,7 @@ const description =
             <b>{euro(c.median)}</b>
             {yearChange != null && (
               <span class="d">
-                {yearChange >= 0 ? '▲' : '▼'} {Math.abs(yearChange).toFixed(1)}% over the year
+                {yearChange >= 0 ? '▲' : '▼'} {decimal(Math.abs(yearChange), 1)}% over the year
               </span>
             )}
           </div>

@@ -14,6 +14,8 @@
  *   2. tussen welke twee groepsgemiddelden valt je bedrag
  */
 
+import { decimal, grouped } from './format.js';
+
 /** Kwintielen vormen een volledige verdeling van alle huishoudens; decielen alleen de bovenhelft. */
 const LADDER = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'];
 
@@ -59,21 +61,39 @@ export function rankAcrossCountries(countries, amount) {
 
 /* --- opmaak ---------------------------------------------------------------- */
 
-export function euro(value, { compact = false } = {}) {
+/**
+ * Hier stond `toLocaleString('en-US')`, drie keer. Dat die taal er expliciet stond,
+ * is goed gedaan: zonder argument volgt de opmaak de taal van de machine die bouwt,
+ * en Vercel bouwt niet op dezelfde machine als wij. Dan schrijft dezelfde code hier
+ * €1.053.910 en daar €1,053,910 — en geen enkele poort merkt dat, want de data is
+ * goed en alleen de notatie verschuift.
+ *
+ * Nu komt de taal van de pagina in plaats van een vaste taal. Het euroteken blijft
+ * ervoor staan in plaats van via `style: 'currency'` te gaan: dat zou in het Engels
+ * €1,053,910 houden maar er in het Nederlands 1.053.910 € van maken, en de plaats
+ * van het teken is een ontwerpkeuze van deze site, geen taalkwestie.
+ */
+export function euro(value, { compact = false, locale } = {}) {
   if (value == null || !Number.isFinite(value)) return '—';
   const rounded = Math.round(value);
   if (compact && Math.abs(rounded) >= 1000) {
     const thousands = Math.round(Math.abs(rounded) / 1000);
-    return `${rounded < 0 ? '−' : ''}€${thousands.toLocaleString('en-US')}k`;
+    return `${rounded < 0 ? '−' : ''}€${grouped(thousands, { locale })}k`;
   }
-  const formatted = Math.abs(rounded).toLocaleString('en-US');
-  return `${rounded < 0 ? '−' : ''}€${formatted}`;
+  return `${rounded < 0 ? '−' : ''}€${grouped(Math.abs(rounded), { locale })}`;
 }
 
-export function multiple(value) {
+/**
+ * Boven de tien geen decimaal, eronder één: "12×", "1.6×".
+ *
+ * Zonder duizendscheiding, ook boven de duizend. Dit getal komt uit een bedrag dat
+ * een bezoeker zelf intypt, dus het kan groot worden, en "1,500×" zou een wijziging
+ * zijn die geen enkele build laat zien — dit draait in de browser.
+ */
+export function multiple(value, { locale } = {}) {
   if (value == null || !Number.isFinite(value)) return '—';
-  if (value >= 10) return `${Math.round(value)}×`;
-  return `${value.toFixed(1)}×`;
+  if (value >= 10) return `${decimal(value, 0, { locale })}×`;
+  return `${decimal(value, 1, { locale })}×`;
 }
 
 export function percentChange(from, to) {

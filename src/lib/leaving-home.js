@@ -32,19 +32,32 @@ import {
   trend,
   withArticle,
 } from './metric.js';
+import { decimal } from './format.js';
 
 export { count, currentCountries, euAggregate, genderGap, headline, ranked, staleCountries, trend, withArticle };
 
-/** Eén decimaal, want zo publiceert Eurostat het ook. */
-export function age(value) {
-  return value === null || value === undefined ? '—' : value.toFixed(1);
+/**
+ * Eén decimaal, want zo publiceert Eurostat het ook.
+ *
+ * Dit zijn de twee formatteerfuncties van de eerste pagina, van vóór metric.js. Ze
+ * staan er nog omdat veertien bestanden ze importeren, en ze gaan nu door dezelfde
+ * grens als de rest — anders schrijft deze pagina straks `24.6` terwijl de pagina
+ * ernaast `24,6` schrijft.
+ */
+export function age(value, { locale } = {}) {
+  return decimal(value, 1, { locale }) ?? '—';
 }
 
-export function years(value, { sign = false } = {}) {
-  const rounded = Math.abs(value).toFixed(1);
-  const unit = rounded === '1.0' ? 'year' : 'years';
+export function years(value, { sign = false, locale } = {}) {
+  /**
+   * Het woord komt uit het gétal, niet uit de opgemaakte tekst. Hier stond
+   * `rounded === '1.0'`, een vergelijking met Engelse notatie: in het Nederlands is
+   * dat `'1,0'` en zou er altijd een meervoud staan.
+   */
+  const magnitude = Math.abs(value);
+  const unit = Number(magnitude.toFixed(1)) === 1 ? 'year' : 'years';
   const prefix = sign && value > 0 ? '+' : sign && value < 0 ? '−' : '';
-  return `${prefix}${rounded} ${unit}`;
+  return `${prefix}${decimal(magnitude, 1, { locale })} ${unit}`;
 }
 
 /**
