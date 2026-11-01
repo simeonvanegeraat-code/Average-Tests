@@ -198,10 +198,7 @@ const ALLOWED = new Map([
   ['src/pages/404.astro', 'CSS custom property --at'],
   ['src/pages/[...lang]/index.astro', 'CSS custom property --at'],
   ['src/pages/[...lang]/wealth/index.astro', 'SVG-coördinaten en -breedtes'],
-  [
-    'src/pages/[...lang]/wealth/[country].astro',
-    'regel 337 is een SVG-breedte en hoort zo. Regel 150 is WEL tekst ("1.4% over the year") en moet nog door de grens — dat bestand is op 1 november 2026 in gebruik bij een andere sessie, en één sessie is eigenaar van een bestand',
-  ],
+  ['src/pages/[...lang]/wealth/[country].astro', 'SVG-breedte, net als wealth/index.astro'],
   ['src/lib/threshold-explorer.js', 'dode code: nul importeurs (nagekeken 1 november 2026)'],
   ['src/lib/leaving-home-map.js', 'dode code: nul importeurs (nagekeken 1 november 2026)'],
 ]);
