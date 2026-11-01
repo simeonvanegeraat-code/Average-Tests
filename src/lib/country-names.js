@@ -31,12 +31,19 @@ import { DEFAULT_LOCALE } from './locales.js';
  * testen voordat de tweede taal er staat, test niemand.
  */
 import en from '../locales/en/countries.json' with { type: 'json' };
+import nl from '../locales/nl/countries.json' with { type: 'json' };
 
 /**
  * Eén woordenbestand per taal. Een taal erbij is een regel hier en een bestand
  * ernaast; verder verandert er niets.
  */
-const NAMES = { en };
+/**
+ * Een taal erbij zetten is twee regels: de import hierboven en een sleutel hier. De
+ * proefrit van 1 november liet zien waarom die tweede regel niet vergeten mag worden —
+ * een taal met een compleet woordenbestand kreeg alsnog de Engelse namen, en zwijgend.
+ * `validate-i18n.mjs` vergelijkt daarom LOCALES met deze sleutels.
+ */
+const NAMES = { en, nl };
 
 export function countryNames(lang) {
   return NAMES[lang] ?? NAMES[DEFAULT_LOCALE];
