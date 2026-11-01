@@ -17,6 +17,7 @@
  */
 
 import { periodNumber } from './period.js';
+import { decimal } from './format.js';
 
 /**
  * Lidwoord, meervoud en rangtelwoord staan in grammar.js: die hangen van de taal af,
@@ -36,24 +37,43 @@ export { withArticle, count, ordinal } from './grammar.js';
  *
  * leaving-home: `{ decimals: 1, unit: 'years', unitOne: 'year' }`
  * huishoudgrootte: `{ decimals: 2, unit: 'people', unitOne: 'person' }`
+ *
+ * Diezelfde configuratie draagt sinds de taalgrens ook `locale`, en om dezelfde
+ * reden: een taal die als gegeven meereist, bereikt alle aanroepen én de browser.
+ * Hoe de taal bepaald wordt als hij er niet in staat, legt format.js uit.
  */
-export function formatValue(value, { decimals = 1 } = {}) {
-  return value === null || value === undefined ? '—' : value.toFixed(decimals);
+export function formatValue(value, { decimals = 1, locale } = {}) {
+  return decimal(value, decimals, { locale }) ?? '—';
 }
 
 /** Een hoeveelheid mét eenheid: "10.2 years", "0.4 people", met optioneel teken. */
-export function formatAmount(value, { decimals = 1, unit = '', unitOne = unit } = {}, { sign = false } = {}) {
+export function formatAmount(value, { decimals = 1, unit = '', unitOne = unit, locale } = {}, { sign = false } = {}) {
   if (value === null || value === undefined) return '—';
-  const rounded = Math.abs(value).toFixed(decimals);
-  const word = Number(rounded) === 1 ? unitOne : unit;
+  const magnitude = decimal(Math.abs(value), decimals, { locale });
+  if (magnitude === null) return '—';
+  /**
+   * Enkelvoud of meervoud komt uit het gétal, niet uit de opgemaakte tekst. Hier
+   * stond `Number(rounded) === 1` op de uitkomst van `toFixed`, en dat werkt zolang
+   * die tekst Engels is: `Number('1,0')` is NaN, en dan staat er in het Nederlands
+   * voor altijd een meervoud. Dezelfde afronding, nu op de waarde zelf.
+   */
+  const word = Number(Math.abs(value).toFixed(decimals)) === 1 ? unitOne : unit;
   const prefix = sign && value > 0 ? '+' : sign && value < 0 ? '−' : '';
-  return word ? `${prefix}${rounded} ${word}` : `${prefix}${rounded}`;
+  return word ? `${prefix}${magnitude} ${word}` : `${prefix}${magnitude}`;
 }
 
-/** Ondertekend getal zonder eenheid: "+1.4", "−0.6", "0.0". */
-export function signed(value, { decimals = 1 } = {}) {
+/**
+ * Ondertekend getal zonder eenheid: "+1.4", "−0.6", "0.0".
+ *
+ * Het teken blijft een echt minteken (U+2212) en komt niet uit `Intl`, die een
+ * koppelteken schrijft. Daarom gaat de absolute waarde door de grens en zet deze
+ * functie het teken er zelf voor.
+ */
+export function signed(value, { decimals = 1, locale } = {}) {
   if (value === null || value === undefined) return '—';
-  return `${value > 0 ? '+' : value < 0 ? '−' : ''}${Math.abs(value).toFixed(decimals)}`;
+  const magnitude = decimal(Math.abs(value), decimals, { locale });
+  if (magnitude === null) return '—';
+  return `${value > 0 ? '+' : value < 0 ? '−' : ''}${magnitude}`;
 }
 
 /** Alleen de landen die écht op het laatste jaar staan. */

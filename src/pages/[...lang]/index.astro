@@ -1,5 +1,6 @@
 ---
 import { localePaths } from '../../lib/locales.js';
+import { decimal } from '../../lib/format.js';
 import BaseV2 from '../../layouts/BaseV2.astro';
 import Globe from '../../components/Globe.astro';
 import leaving from '../../../data/leaving-home/index.json';
@@ -87,7 +88,7 @@ export function getStaticPaths() {
         <p class="lead">
           In {h.earliest.name} half of young people have left home by {age(h.earliest.total)}. In {
             h.latest.name
-          } that point does not arrive until {age(h.latest.total)} — {h.gap.toFixed(1)} years apart, on
+          } that point does not arrive until {age(h.latest.total)} — {decimal(h.gap, 1)} years apart, on
           the same question. One European figure hides both.
         </p>
       </div>

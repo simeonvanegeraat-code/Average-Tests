@@ -1,5 +1,6 @@
 ---
 import { localePaths } from '../../../lib/locales.js';
+import { decimal } from '../../../lib/format.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import Related from '../../../components/Related.astro';
 import StageMap from '../../../components/StageMap.astro';
@@ -46,7 +47,7 @@ const amt = (value: number, options = {}) => formatAmount(value, metric, options
 const people = (value: number) => formatAmount(value, householdMetric);
 
 const euValue = h.eu ? fmt(h.eu.total) : fmt(order[Math.floor(order.length / 2)].total);
-const ratio = (h.latest.total / h.earliest.total).toFixed(2);
+const ratio = decimal(h.latest.total / h.earliest.total, 2);
 const names = (list: any[]) => list.map((country) => country.name).join(', ');
 const small5 = names(order.slice(0, 5));
 const large5 = names(order.slice(-5).reverse());

@@ -1,5 +1,6 @@
 ---
 import { localePaths } from '../../../../lib/locales.js';
+import { grouped } from '../../../../lib/format.js';
 import BaseV2 from '../../../../layouts/BaseV2.astro';
 import ageIndex from '../../../../../data/wealth-age/index.json';
 import validation from '../../../../../data/wealth-age-validation.json';
@@ -352,7 +353,7 @@ export function getStaticPaths() {
       const byArea = Object.fromEntries(data.rows.map((r: any) => [r.area, r]));
 
       const compact = (value: number | null) =>
-        value === null ? '—' : `€${Math.round(Math.abs(value) / 1000).toLocaleString('en-US')}k`;
+        value === null ? '—' : `€${grouped(Math.abs(value) / 1000)}k`;
 
       for (const button of document.querySelectorAll<HTMLButtonElement>('[data-lens]')) {
         button.addEventListener('click', () => {
