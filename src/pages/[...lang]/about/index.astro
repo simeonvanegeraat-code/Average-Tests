@@ -1,5 +1,5 @@
 ---
-import { localePaths } from '../../../lib/locales.js';
+import { localePaths, localeOf, prefixOf } from '../../../lib/locales.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 
 const title = 'About HumanAverage';
@@ -11,9 +11,62 @@ export function getStaticPaths() {
   return localePaths();
 }
 
+/**
+ * De taal en de URL van deze pagina, op dezelfde manier uitgerekend als BaseV2 dat doet:
+ * localeOf() leest de taal uit het pad, prefixOf() zet het voorvoegsel ervoor. BaseV2
+ * houdt die twee voor zichzelf en geeft ze niet aan de pagina door, dus een pagina die
+ * ze in zijn structured data nodig heeft rekent ze zelf uit.
+ *
+ * Hier mag 'en' dus niet ingetypt staan. Zodra er een tweede taal bij komt, zou
+ * /nl/about/ anders in zijn JSON-LD beweren dat hij Engels is terwijl <html lang> nl
+ * zegt — precies de fout die eudebtmap.com op zijn Nederlandse pagina's heeft.
+ */
+const lang = localeOf(Astro.url.pathname);
+const pageUrl = new URL(`${prefixOf(lang)}/about/`, Astro.site).href;
+const siteUrl = new URL(`${prefixOf(lang)}/`, Astro.site).href;
+
 ---
 
 <BaseV2 title={title} description={description} canonical="/about/">
+  {/*
+    Wie deze site maakt, in machineleesbare vorm. De pagina zegt het in de eerste
+    persoon ("Hi, I'm Simeon") en zegt uitdrukkelijk dat er geen team achter zit;
+    dit blok zegt hetzelfde en niets meer.
+
+    Wat er bewust NIET in staat: een achternaam, want die staat nergens op deze site
+    en structured data is geen plek om persoonsgegevens te publiceren die de pagina
+    zelf niet geeft. Ook geen foundingDate: Google verwacht dat structured data de
+    zichtbare inhoud beschrijft, en de pagina noemt geen datum.
+  */}
+  <Fragment slot="head">
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        '@id': pageUrl,
+        url: pageUrl,
+        name: title,
+        description,
+        inLanguage: lang,
+        isPartOf: { '@type': 'WebSite', name: 'HumanAverage', url: siteUrl },
+        mainEntity: {
+          '@type': 'Organization',
+          name: 'HumanAverage',
+          url: siteUrl,
+          email: 'firenature23@gmail.com',
+          founder: {
+            '@type': 'Person',
+            name: 'Simeon',
+            url: pageUrl,
+            description: 'Built HumanAverage alone, and checks every figure that goes on it.',
+          },
+        },
+      })}
+    />
+  </Fragment>
+
   <section class="hero">
     <div class="wrap">
       <p class="eyebrow mono">About</p>
