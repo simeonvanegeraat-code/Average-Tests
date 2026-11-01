@@ -1,5 +1,6 @@
 ---
 import { localePaths } from '../../../../lib/locales.js';
+import { decimal } from '../../../../lib/format.js';
 import BaseV2 from '../../../../layouts/BaseV2.astro';
 import StageMap from '../../../../components/StageMap.astro';
 import geo from '../../../../../data/geo/europe.json';
@@ -42,7 +43,7 @@ const behind = matched.filter((row) => row.period !== anchor);
 
 const fmt = (value: number | null) => formatValue(value, metric);
 const amt = (value: number, options = {}) => formatAmount(value, metric, options);
-const times = (value: number | null) => (value === null ? '—' : `${value.toFixed(1)}×`);
+const times = (value: number | null) => (value === null ? '—' : `${decimal(value, 1)}×`);
 
 /**
  * "A, B, and C" met de komma vóór de laatste. Die komma is hier geen stijlkeuze: een van

@@ -1,5 +1,6 @@
 ---
 import { localePaths } from '../../../lib/locales.js';
+import { decimal } from '../../../lib/format.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import { STAGES } from '../../../lib/hue.js';
 import { METHODOLOGY } from '../../../lib/methodology.js';
@@ -44,7 +45,7 @@ const unbroken = METHODOLOGY.filter((set) => set.comparability.kind === 'unbroke
 const title = 'Why You Cannot Compare Eurostat Figures Across 2021';
 const description =
   `In ${years.before} Eurostat put half of young Swedes out of the parental home by ` +
-  `${sharpest.before.toFixed(1)}. In ${years.break} it said ${sharpest.after.toFixed(1)}. Nothing happened to Swedish ` +
+  `${decimal(sharpest.before, 1)}. In ${years.break} it said ${decimal(sharpest.after, 1)}. Nothing happened to Swedish ` +
   `teenagers that year — the survey changed. What the ${years.break} series break is, how far it ` +
   `reaches, and why a footnote is not enough.`;
 
@@ -91,7 +92,7 @@ export function getStaticPaths() {
       </p>
       <p class="lead" data-reveal>
         In {years.before} Eurostat said half of young Swedes had left the parental home by
-        {' '}<b>{sharpest.before.toFixed(1)}</b>. In {years.break} it said <b>{sharpest.after.toFixed(1)}</b>. That is a
+        {' '}<b>{decimal(sharpest.before, 1)}</b>. In {years.break} it said <b>{decimal(sharpest.after, 1)}</b>. That is a
         jump of {Math.abs(sharpest.shift)} years in twelve months, and it is not a thing that can
         happen to a country.
       </p>
@@ -229,10 +230,10 @@ export function getStaticPaths() {
             {jumps.map((row) => (
               <tr>
                 <th scope="row">{row.name}</th>
-                <td class="n">{row.before.toFixed(1)}</td>
-                <td class="n">{row.after.toFixed(1)}</td>
+                <td class="n">{decimal(row.before, 1)}</td>
+                <td class="n">{decimal(row.after, 1)}</td>
                 <td class:list={['n', Math.abs(row.shift) >= 1 && 'strong']}>
-                  {row.shift > 0 ? '+' : row.shift < 0 ? '−' : ''}{Math.abs(row.shift).toFixed(1)}
+                  {row.shift > 0 ? '+' : row.shift < 0 ? '−' : ''}{decimal(Math.abs(row.shift), 1)}
                 </td>
               </tr>
             ))}

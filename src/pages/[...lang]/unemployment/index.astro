@@ -1,5 +1,6 @@
 ---
 import { localePaths } from '../../../lib/locales.js';
+import { decimal } from '../../../lib/format.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import Related from '../../../components/Related.astro';
 import StageMap from '../../../components/StageMap.astro';
@@ -380,7 +381,7 @@ export function getStaticPaths() {
             <div class="bento">
               <div class="tile s4">
                 <div>
-                  <b>{agePair.ratio.toFixed(1)}×</b>
+                  <b>{decimal(agePair.ratio, 1)}×</b>
                   <p>
                     as high under 25 as from 25 to 74, across the European Union.
                     {ageWider && ageWider.countries.length > 0 && (

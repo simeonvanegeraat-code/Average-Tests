@@ -10,6 +10,7 @@
  * De sectiekop hoort bij de pagina; dit onderdeel levert alleen de tegels en de voetnoot.
  */
 import { age, years, count, withArticle, genderGap, trend, headline } from '../lib/leaving-home.js';
+import { decimal } from '../lib/format.js';
 
 interface Props {
   index: any;
@@ -55,7 +56,9 @@ const tiles = [
     },
   biggest && {
     className: 'tile',
-    value: `${sign(biggest.change)}${Math.abs(biggest.change).toFixed(1)}`,
+    // Het teken blijft van `sign` hierboven: die schrijft − bij nul, waar signed() in
+    // metric.js niets schrijft. Alleen het getal gaat door de taalgrens.
+    value: `${sign(biggest.change)}${decimal(Math.abs(biggest.change), 1)}`,
     text: `years: the biggest move since ${movement!.since}, in ${withArticle(biggest.name)} (${age(biggest.series[movement!.since])} to ${age(biggest.series[movement!.until])}).`,
   },
   gender && {

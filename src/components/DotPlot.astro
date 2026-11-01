@@ -100,6 +100,7 @@ const axis = ticks(range);
 
 <script>
   import { formatValue } from '../lib/metric.js';
+  import { decimal } from '../lib/format.js';
   import { xOf, labelX, PAD } from '../lib/dotplot.js';
 
   const plots = [...document.querySelectorAll<HTMLElement>('[data-dotplot]')];
@@ -146,7 +147,8 @@ const axis = ticks(range);
     const x = Math.min(Math.max(xOf(value, range), PAD), 100 - PAD);
     const decimals = Number(plot.dataset.decimals ?? 1);
     // Een heel getal schrijven we zonder decimalen: "you · 21", niet "you · 21.0".
-    const own = Number.isInteger(value) ? String(value) : value.toFixed(decimals);
+    // Via de taalgrens, want dit staat als tekst op de kaart: "21,5" in het Nederlands.
+    const own = decimal(value, Number.isInteger(value) ? 0 : decimals) ?? '—';
     const text = `${offScale ? (value < range.lo ? '← ' : '') : ''}you · ${own}${offScale && value > range.hi ? ' →' : ''}`;
     const line = add(plot, 'i', 'dp-line dp-line--age', `--x:${x};--crow:0`);
     const label = add(plot, 'span', 'dp-label dp-label--age', `--x:${labelX(x, text)};--crow:0`, text);

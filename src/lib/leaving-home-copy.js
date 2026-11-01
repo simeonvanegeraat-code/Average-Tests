@@ -12,6 +12,7 @@
  * voor nadruk. De browser maakt er elementen van met textContent, nooit met innerHTML.
  */
 import { age, years, withArticle, currentCountries, euAggregate, comparison } from './leaving-home.js';
+import { decimal } from './format.js';
 
 /** Grenzen van het invoerveld, gelijk aan wat de pagina nu al controleert. */
 export const AGE_MIN = 10;
@@ -45,8 +46,14 @@ export function euChange(index) {
 const strong = (text) => ({ strong: text });
 const em = (text) => ({ em: text });
 
-/** Eigen leeftijd zoals ingevoerd: hele jaren zonder decimaal, halve jaren met één. */
-export const ownAge = (value) => (Number.isInteger(value) ? String(value) : value.toFixed(1));
+/**
+ * Eigen leeftijd zoals ingevoerd: hele jaren zonder decimaal, halve jaren met één.
+ *
+ * Via de grens, want dit getal staat in een zin: `21,5` in het Nederlands en `21.5`
+ * in het Engels. Een niet-getal werd hier `"NaN"` en wordt nu een streepje.
+ */
+export const ownAge = (value, { locale } = {}) =>
+  decimal(value, Number.isInteger(value) ? 0 : 1, { locale }) ?? '—';
 
 /**
  * De zin onder de landkiezer in de kop: waar het gekozen land staat ten opzichte van
