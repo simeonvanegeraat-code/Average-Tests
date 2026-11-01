@@ -155,12 +155,30 @@ Het artikel op `/notes/eurostat-2021-series-break/` is lange lopende tekst en va
 buiten de eerste Nederlandse versie. Dat mag: je laat de `hreflang`-alternatief voor die
 pagina simpelweg weg. Een taalversie hoeft niet compleet te zijn.
 
-## Drie beslissingen voor Simeon
+## Drie beslissingen voor Simeon (de eerste is genomen)
 
-### 1. Wat doet de methodesectie met de definitie van de uitgever?
+### 1. De definitie van de uitgever — besloten op 1 november 2026
 
-Dit is het lastigste punt van het hele plan, en het is een inhoudelijke keuze, geen
-technische.
+**Besloten: optie (a). Het citaat blijft het citaat.** Op een Nederlandse pagina staat
+de definitie van de uitgever in de taal waarin die is uitgegeven, zichtbaar gemarkeerd,
+met daarnaast onze eigen Nederlandse uitleg. Er wordt geen definitie vertaald en daarna
+als die van de uitgever gepresenteerd.
+
+Wat daar concreet uit volgt, en wat de bouw dus moet kunnen:
+
+1. **Een definitie draagt zijn eigen taal**, los van de taal van de pagina. Voor
+   Nederlands is dat Engels; voor Duits geeft Eurostat met `lang=de` een echte Duitse
+   definitie, dus daar staat hij in de taal van de pagina. Het blok moet dat verschil
+   kennen in plaats van aannemen.
+2. **Het element krijgt een `lang`-attribuut** dat zegt in welke taal het citaat staat.
+   Zonder dat leest een schermlezer Engelse tekst met Nederlandse klanken voor — exact
+   de fout van eudebtmap.com, dan niet op de pagina maar in één element.
+3. **De markering is tekst, geen aanname.** Er staat bij dát het de uitgever is en in
+   welke taal, want een Engelse alinea tussen Nederlandse zonder uitleg leest als een
+   vergeten stuk vertaling.
+4. **De belofte op `/method/` blijft ongewijzigd.** Dat was de reden voor deze keuze.
+
+De afweging die eraan voorafging staat hieronder, voor wie later vraagt waarom.
 
 Eurostat publiceert labels en definities in **Engels, Frans en Duits**. Nagekeken op
 1 november: `lang=nl` geeft HTTP 400, *"Invalid value for 'wsLanguage' parameter."* Er
@@ -179,8 +197,8 @@ schrijven maakt die belofte onwaar.
 Drie opties:
 
 - **(a)** De Engelse definitie blijft staan, gemarkeerd als citaat in de taal van de
-  uitgever, met daarnaast onze eigen Nederlandse uitleg. **Dit is mijn advies.** Het
-  citaat blijft een citaat, en de bezoeker krijgt alsnog Nederlands.
+  uitgever, met daarnaast onze eigen Nederlandse uitleg. **Gekozen.** Het citaat blijft
+  een citaat, en de bezoeker krijgt alsnog Nederlands.
 - **(b)** Geen definitieblok op de Nederlandse pagina's. Dit botst met regel 4 uit
   CLAUDE.md: elke metriekpagina heeft een zichtbare methodesectie.
 - **(c)** Wel vertalen, en de belofte op `/method/` aanpassen. Daarmee verdwijnt de
@@ -211,16 +229,24 @@ en die faalt als:
 
 1. Een sleutel in één taal bestaat en in een andere actieve taal niet (beide kanten op).
 2. Een gebouwde `/nl/`-pagina nog Engelse tekst bevat — te controleren door de gebouwde
-   HTML te vergelijken met de Engelse woordenbestanden.
+   HTML te vergelijken met de Engelse woordenbestanden. **Met één uitzondering, en die
+   moet de poort kennen:** de geciteerde definitie van de uitgever is op een Nederlandse
+   pagina met opzet Engels (besluit 1). Zonder die uitzondering faalt de poort op precies
+   de tekst die er hoort te staan — en een poort die onterecht afgaat wordt uitgezet.
 3. Het `lang`-attribuut niet overeenkomt met het URL-voorvoegsel. Dit is letterlijk de
    bug van EUDebtMap, en een poort is de enige reden dat hij hier niet ook een jaar
    blijft staan.
 4. De `hreflang`-verzameling op een pagina incompleet of niet wederkerig is, of
    `x-default` ontbreekt of dubbel staat.
 5. Een getal op een Nederlandse pagina een punt als decimaalteken heeft.
+6. Een geciteerde definitie géén `lang`-attribuut draagt, of een `lang` die niet zegt in
+   welke taal het citaat werkelijk staat. Dit is de bug van eudebtmap.com op
+   elementniveau, en hij volgt rechtstreeks uit besluit 1.
 
-Punt 2 en 5 zijn de twee die een half afgemaakte vertaling tegenhouden. Dat is het hele
-doel van de poort.
+Punt 2, 5 en 6 houden een half afgemaakte vertaling tegen. Dat is het hele doel van de
+poort. Punt 2 laat ook zien dat besluit 1 niet alleen een redactionele keuze is: een
+poort die niet weet welke tekst met opzet anderstalig is, blokkeert het werk in plaats
+van het te beschermen.
 
 ## Bouwvolgorde
 
