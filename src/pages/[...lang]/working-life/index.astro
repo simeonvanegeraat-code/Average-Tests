@@ -1,0 +1,494 @@
+---
+import { localePaths } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import Related from '../../../components/Related.astro';
+import StageMap from '../../../components/StageMap.astro';
+import CompareForm from '../../../components/CompareForm.astro';
+import RankTable from '../../../components/RankTable.astro';
+import geo from '../../../../data/geo/europe.json';
+import index from '../../../../data/working-life/index.json';
+import metric from '../../../lib/metrics/working-life.js';
+import {
+  currentCountries,
+  formatAmount,
+  formatValue,
+  genderGap,
+  headline,
+  ranked,
+  staleCountries,
+  trend,
+  withArticle,
+} from '../../../lib/metric.js';
+
+/**
+ * Metriekpagina twee: hoeveel jaar iemand naar verwachting op de arbeidsmarkt is.
+ *
+ * De kaart, de tabel en het formulier zijn gedeelde componenten; kop, bevindingen
+ * en methode schrijft deze pagina zelf. Dat is bewust: die drie zijn de redactie
+ * van een pagina, en een gedeeld sjabloon met een woordenlijstje zou ze allemaal
+ * hetzelfde laten klinken — precies wat Google "data-aggregatie zonder synthese"
+ * noemt. De vorm is gedeeld, de tekst niet.
+ *
+ * Geen cijfer staat hier met de hand ingetypt; alles komt uit het databestand.
+ */
+
+const h = headline(index);
+const gender = genderGap(index);
+const movement = trend(index);
+const stale = staleCountries(index);
+const order = ranked(index);
+const current = currentCountries(index);
+
+const fmt = (value: number | null) => formatValue(value, metric);
+const amt = (value: number, options = {}) => formatAmount(value, metric, options);
+
+const euValue = h.eu ? fmt(h.eu.total) : fmt(order[Math.floor(order.length / 2)].total);
+
+/** De drie landen waar vrouwen juist lánger werken dan mannen. */
+const exceptions = gender?.exceptions ?? [];
+
+/** Alleen wat de browser nodig heeft voor de vergelijking. */
+const clientJson = JSON.stringify({
+  latestYear: index.latestYear,
+  decimals: metric.decimals,
+  unit: metric.unit,
+  unitOne: metric.unitOne,
+  eu: h.eu ? h.eu.total : null,
+  countries: current.map(({ code, name, year, total }) => ({ code, name, year, total })),
+}).replace(/</g, '\\u003c');
+
+const title = `How Many Years Europeans Work, by Country (${h.year})`;
+const description =
+  `A working life lasts ${euValue} years in the European Union — ${fmt(h.latest.total)} in ` +
+  `${h.latest.name} and ${fmt(h.earliest.total)} in ${h.earliest.name}. Compare all ` +
+  `${h.countries} countries on a map and see how your own years so far compare.`;
+/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
+export function getStaticPaths() {
+  return localePaths();
+}
+
+---
+
+<BaseV2 title={title} description={description} canonical="/working-life/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Eurostat · {h.countries} countries · {h.year}</p>
+
+      <h1 data-reveal>A working life is {amt(h.gap)} longer in some countries than others.</h1>
+
+      <span class="giant num">{euValue}</span>
+      <p class="unit mono">
+        years in the labour market · <b>European Union</b> · {h.year}
+      </p>
+
+      <p class="lead">
+        Someone turning 15 in {withArticle(h.latest.name)} can expect {fmt(h.latest.total)} years of
+        working life. In {withArticle(h.earliest.name)} it is {fmt(h.earliest.total)}. Same question,
+        {' '}{amt(h.gap)} apart.
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn" href="#compare">
+          How do your years compare? <span class="arr" aria-hidden="true">→</span>
+        </a>
+        <span class="hint">Nothing you type leaves your browser.</span>
+      </div>
+
+      <p class="hero-note">
+        This is an <em>expectation</em>, not a look back at finished careers. Eurostat works it out
+        from how many people of each age are in the labour market right now, the same way life
+        expectancy is built from current death rates. Nobody has to have retired for the figure to
+        exist.
+      </p>
+    </div>
+  </section>
+
+  <StageMap
+    geo={geo}
+    index={index}
+    metric={metric}
+    eyebrow="The map"
+    title="Where working lives are longest"
+    lede="Tap a country, or switch between everyone, men and women."
+  />
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Your turn</p>
+        <h2 id="compare-title">How many years have you worked?</h2>
+        <p>
+          Count the years you have been in work or looking for it. We will place that against what
+          a full working life is expected to be in each country.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <CompareForm index={index} metric={metric} />
+        <output class="result" data-wl-result role="status" hidden></output>
+
+        <div class="limits">
+          <b>What this comparison is not</b>
+          <p>
+            Your own years are a count of what has happened. The country figure is an expectation
+            for someone starting out today. Comparing them tells you how far along you are against
+            a full working life as it currently looks — not whether you are ahead or behind
+            anybody, and not what your own total will be.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Every country</p>
+        <h2 id="table-title">All {index.countries.length} countries, shortest to longest</h2>
+        <p>
+          Sort by any column. The gap column is men minus women, so a positive number means men
+          are expected to work longer.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <RankTable index={index} metric={metric} />
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">What the numbers say</p>
+        <h2 id="facts-title">Working lives got longer almost everywhere</h2>
+      </header>
+
+      <div data-reveal>
+        {
+          movement && (
+            <div class="bento">
+              <div class="tile s4">
+                <div>
+                  <b>{movement.later.length}</b>
+                  <p>
+                    of {movement.countries} countries added at least {amt(movement.minimumMove)} to
+                    their working life between {movement.since} and {movement.until}. The largest
+                    gains were in{' '}
+                    {movement.later
+                      .slice(0, 3)
+                      .map((country: any) => `${country.name} (${amt(country.change, { sign: true })})`)
+                      .join(', ')}
+                    .
+                  </p>
+                </div>
+                <span class="meta mono">{movement.since}–{movement.until}, no series break</span>
+              </div>
+
+              <div class="tile">
+                <div>
+                  <b>{movement.earlier.length}</b>
+                  <p>
+                    {movement.earlier.length === 1
+                      ? `country went the other way: ${movement.earlier[0].name}, down ${amt(Math.abs(movement.earlier[0].change))}.`
+                      : 'countries went the other way.'}
+                  </p>
+                </div>
+                <span class="meta mono">the exception</span>
+              </div>
+            </div>
+          )
+        }
+
+        {
+          gender && (
+            <div class="bento" style="margin-top:14px">
+              <div class="tile">
+                <div>
+                  <b>{gender.womenLower}</b>
+                  <p>
+                    of {gender.of} countries expect a shorter working life for women than for men,
+                    by {amt(gender.mean)} on average.
+                  </p>
+                </div>
+                <span class="meta mono">{h.year}</span>
+              </div>
+
+              <div class="tile s4 dark">
+                <div>
+                  <h3>
+                    {exceptions.length === 0
+                      ? 'No country reverses the pattern'
+                      : `${exceptions.map((c: any) => c.name).join(', ')} reverse it`}
+                  </h3>
+                  <p>
+                    {
+                      exceptions.length === 0
+                        ? 'Men are expected to work longer than women everywhere in the dataset.'
+                        : `In ${exceptions.length === 3 ? 'all three' : 'these'} countries women are expected to spend longer in the labour market than men. ` +
+                          `Everywhere else the gap runs the other way, widest in ${withArticle(gender.widest.name)} at ${amt(gender.widestGap)}.`
+                    }
+                  </p>
+                </div>
+                <span class="meta mono">the exception to the rule</span>
+              </div>
+            </div>
+          )
+        }
+
+        {
+          movement && (
+            <div class="prose">
+              <p>
+                The spread between the shortest and the longest working life narrowed from{' '}
+                {amt(movement.spreadThen)} to {amt(movement.spreadNow)} over those {
+                  Number(movement.until) - Number(movement.since)
+                } years. Countries are not converging on a shared number so much as the slowest
+                ones are catching up: {movement.stable === 0
+                  ? 'not one country stayed within half a year of where it started'
+                  : `${movement.stable} stayed within ${amt(movement.minimumMove)} of where they started`}.
+              </p>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <Related metric="working-life" />
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">Method</p>
+        <h2 id="method-title">How this is measured</h2>
+        <p>Published by Eurostat. Nothing here is estimated on top of what they publish.</p>
+      </header>
+
+      <div data-reveal>
+        <dl>
+          <div>
+            <dt>What the figure is</dt>
+            <dd>
+              The number of years a 15-year-old can expect to spend in the labour market — working
+              or looking for work — if today's participation rates by age stay as they are. It is
+              built the way life expectancy is: from current rates, not from finished lives.
+            </dd>
+          </div>
+          <div>
+            <dt>What it is not</dt>
+            <dd>
+              It is not a record of how long people actually worked, and not a retirement age. It
+              is not a distribution either, so no percentile can be calculated from it: Eurostat
+              publishes one number per country, and we will not dress that up as a position among
+              individuals.
+            </dd>
+          </div>
+          <div>
+            <dt>Coverage</dt>
+            <dd>
+              {h.countries} countries have a figure for {h.year}.
+              {
+                stale.length > 0 && (
+                  <>
+                    {' '}
+                    {stale.map((country: any) => `${country.name} (${country.year})`).join(', ')} stopped
+                    reporting earlier and are shown at their most recent year, hatched on the map
+                    and labelled in the table.
+                  </>
+                )
+              }{' '}
+              The United States, Canada and Australia are not in this dataset.
+            </dd>
+          </div>
+          <div>
+            <dt>Series breaks</dt>
+            <dd>
+              {
+                movement
+                  ? `None. This is the only Eurostat series behind this site with an unbroken run — ${index.years[0]} to ${index.latestYear} — which is why this page can show how things changed and the others cannot.`
+                  : `Eurostat flags a break in ${index.lastBreak}, so figures before ${index.comparableSince} are not comparable with today and no change over time is shown.`
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>Series</strong> {index.years[0]} to {index.years[index.years.length - 1]}</li>
+          <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li>
+            <strong>DOI</strong>
+            <a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a>
+          </li>
+          {
+            index.source.metadata && (
+              <li>
+                <strong>Eurostat metadata</strong>
+                <a href={index.source.metadata} data-method-link>explanatory texts</a>
+              </li>
+            )
+          }
+        </ul>
+
+        <p class="source-note">
+          Licence: Eurostat data may be reused, including commercially, with attribution. How we
+          handle data is on <a href="/method/">the method page</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="working-life-data" set:html={clientJson} />
+
+  <script>
+    import { readProfile, mergeProfile } from '../../../lib/profile.js';
+    import { formatAmount, formatValue, withArticle } from '../../../lib/metric.js';
+    import { track, EVENTS } from '../../../lib/analytics.js';
+
+    /**
+     * De persoonlijke laag van deze pagina.
+     *
+     * De zinnen staan hier en niet in een gedeeld component: ze gaan over gewerkte
+     * jaren tegen een verwachting, en dat is een andere vergelijking dan op de
+     * andere metriekpagina's. De bedrading eromheen (profiel samenvoegen, een
+     * teruggezette keuze niet als invoer tellen) is wel dezelfde.
+     */
+    const holder = document.getElementById('working-life-data');
+    const result = document.querySelector<HTMLElement>('[data-wl-result]');
+
+    if (holder && result) {
+      const data = JSON.parse(holder.textContent ?? '{}');
+      const cfg = { decimals: data.decimals, unit: data.unit, unitOne: data.unitOne };
+      const send = (name: string, detail: object) => document.dispatchEvent(new CustomEvent(name, { detail }));
+
+      function render(code: string, own: number) {
+        const home = data.countries.find((country: any) => country.code === code);
+        const shorter = data.countries.filter((country: any) => own < country.total).length;
+        const of = data.countries.length;
+
+        const lines = [];
+        if (home) {
+          const left = home.total - own;
+          lines.push(
+            left > 0
+              ? `You have worked ${formatValue(own, cfg)} years. A full working life in ${withArticle(home.name)} is expected to be ${formatValue(home.total, cfg)}, so you are ${formatAmount(left, cfg)} short of it.`
+              : `You have worked ${formatValue(own, cfg)} years — ${formatAmount(Math.abs(left), cfg)} past what a full working life in ${withArticle(home.name)} is expected to be (${formatValue(home.total, cfg)}).`,
+          );
+        }
+        lines.push(
+          shorter === of
+            ? `That is less than a full working life in every one of the ${of} countries here.`
+            : shorter === 0
+              ? `That is more than a full working life in all ${of} countries here.`
+              : `It is less than the expected working life in ${shorter} of ${of} countries, and more in ${of - shorter}.`,
+        );
+
+        result.textContent = lines.join(' ');
+        result.hidden = false;
+      }
+
+      document.addEventListener('ha:country', (event) => {
+        const { code, source } = (event as CustomEvent<any>).detail ?? {};
+        if (!code || source === 'restore') return;
+        mergeProfile({ country: code });
+      });
+
+      document.addEventListener('ha:submit', (event) => {
+        const { code, age, source } = (event as CustomEvent<any>).detail ?? {};
+        if (!code || !Number.isFinite(age)) return;
+        render(code, age);
+        if (source === 'restore') return;
+        mergeProfile({ country: code, workedYears: age });
+        track(EVENTS.valueSubmitted, { metric: 'working-life', country: code });
+      });
+
+      function restore() {
+        const saved = readProfile();
+        const code = typeof saved.country === 'string' ? saved.country : null;
+        if (!code) return;
+        send('ha:country', { code, source: 'restore' });
+        const own = Number(saved.workedYears);
+        if (Number.isFinite(own)) send('ha:submit', { code, age: own, source: 'restore' });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', restore, { once: true });
+      } else {
+        restore();
+      }
+    }
+
+    for (const link of document.querySelectorAll('[data-method-link]')) {
+      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'working-life' }));
+    }
+  </script>
+
+  <style>
+    .tile h3 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    .tile .meta {
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-2);
+    }
+
+    .prose {
+      margin-top: 28px;
+      max-width: 70ch;
+      color: var(--text-2);
+    }
+
+    .prose p {
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    .result {
+      display: block;
+      margin-top: 18px;
+      padding: 18px 22px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line-strong);
+      font-size: 1.04rem;
+      line-height: 1.6;
+    }
+
+    .source-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .source-list li {
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.92rem;
+    }
+
+    .source-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .source-list strong {
+      display: inline-block;
+      min-width: 12rem;
+      color: var(--text-2);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 540px) {
+      .source-list strong {
+        display: block;
+        min-width: 0;
+      }
+    }
+  </style>
+</BaseV2>

@@ -82,20 +82,11 @@ export function percentChange(from, to) {
 }
 
 /**
- * Landen die in het Engels een lidwoord krijgen. Zonder dit staat er "in
- * Netherlands", en dat leest als een vertaalfout — wat het ook is.
+ * Lidwoord en bezitsvorm staan in grammar.js, samen met die van metric.js. Hier
+ * stond een eigen `NEEDS_ARTICLE` met alleen Nederland erin: twee lijsten die van
+ * elkaar konden afwijken, en dat deden ze ook.
  */
-const NEEDS_ARTICLE = new Set(['Netherlands']);
-
-export function withArticle(name, { capitalise = false } = {}) {
-  if (!NEEDS_ARTICLE.has(name)) return name;
-  return `${capitalise ? 'The' : 'the'} ${name}`;
-}
-
-/** "half of the Netherlands" leest raar; "half of Dutch households" niet. */
-export function possessive(name) {
-  return NEEDS_ARTICLE.has(name) ? `the ${name}'s` : `${name}'s`;
-}
+export { withArticle, possessive } from './grammar.js';
 
 /** "2025-Q4" -> "Q4 2025" */
 export function formatPeriod(period) {

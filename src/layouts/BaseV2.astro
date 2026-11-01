@@ -21,6 +21,7 @@
  * samenvoeging van wat er al staat, nooit als vervanging.
  */
 import { hueStyle } from '../lib/hue.js';
+import { localeOf, prefixOf, alternatesOf } from '../lib/locales.js';
 import { CATALOGUE } from '../lib/catalogue.js';
 import { NOTES, NOTES_LINK } from '../lib/notes.js';
 
@@ -36,9 +37,26 @@ interface Props {
 }
 
 const { title, description, canonical, noindex = false, hue = 262, ogImage } = Astro.props;
-const canonicalUrl = new URL(canonical, Astro.site).href;
+/**
+ * De taal komt uit het pad, niet uit een prop. Zo hoeft geen van de twintig pagina's
+ * ervan te weten: die geven hun canonieke pad zonder voorvoegsel door ("/wealth/") en
+ * deze layout zet het voorvoegsel van de taal ervoor. Zolang Engels de enige taal is,
+ * is dat voorvoegsel leeg en verandert er niets aan de uitvoer.
+ */
+const lang = localeOf(Astro.url.pathname);
+const canonicalUrl = new URL(`${prefixOf(lang)}${canonical}`, Astro.site).href;
+
+/** Leeg zolang er één taal is; zie alternatesOf() in src/lib/locales.js. */
+const alternates = alternatesOf(canonical);
+
 const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : null;
-const here = Astro.url.pathname;
+
+/**
+ * Zonder taalvoorvoegsel, want de navigatie vergelijkt dit met paden als "/wealth/"
+ * uit de catalogus. Zonder deze regel zou het menu op een Nederlandse pagina niets
+ * meer markeren — en dat zou pas opvallen als de tweede taal er al stond.
+ */
+const here = Astro.url.pathname.slice(prefixOf(lang).length) || '/';
 
 const isCurrent = (href: string) => here === href || here.startsWith(href);
 
@@ -57,13 +75,29 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
 ---
 
 <!doctype html>
-<html lang="en" style={hueStyle(hue)}>
+<html lang={lang} style={hueStyle(hue)}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+
+    {/*
+      Elke taalversie van deze pagina, en een x-default naar de Engelse. Dit blok is
+      leeg zolang LOCALES één taal bevat, zodat deze fase de HTML niet verandert.
+
+      Let op bij het uitbreiden: `lang` hierboven en deze hreflang moeten het altijd
+      met elkaar eens zijn. Op eudebtmap.com staat <html lang="en"> óók op /de, /nl en
+      /fr — de hreflang zegt daar Duits en het lang-attribuut Engels. De poort uit
+      research/i18n-plan.md hoort daar precies op te controleren.
+    */}
+    {alternates.map(({ lang: alt, path }) => (
+      <link rel="alternate" hreflang={alt} href={new URL(path, Astro.site).href} />
+    ))}
+    {alternates.length > 0 && (
+      <link rel="alternate" hreflang="x-default" href={new URL(canonical, Astro.site).href} />
+    )}
     {noindex && <meta name="robots" content="noindex, follow" />}
 
     <meta property="og:type" content="website" />
