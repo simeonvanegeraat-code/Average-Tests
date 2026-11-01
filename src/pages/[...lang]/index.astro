@@ -1,13 +1,15 @@
 ---
-import { localePaths } from '../../lib/locales.js';
+import { localeOf, localePaths } from '../../lib/locales.js';
+import { localise } from '../../lib/country-names.js';
 import { decimal } from '../../lib/format.js';
 import BaseV2 from '../../layouts/BaseV2.astro';
 import Globe from '../../components/Globe.astro';
-import leaving from '../../../data/leaving-home/index.json';
+import rawLeaving from '../../../data/leaving-home/index.json';
 import { headline, age } from '../../lib/leaving-home.js';
-import { CATALOGUE } from '../../lib/catalogue.js';
-import { HOME_COUNTRIES, COUNTRY_DATA, METRIC_COUNT } from '../../lib/home-countries.js';
+import { catalogue } from '../../lib/catalogue.js';
+import { homeCountries } from '../../lib/home-countries.js';
 import { NOTES, NOTES_LINK, noteDate } from '../../lib/notes.js';
+
 
 /**
  * De Engelse homepage. De voordeur.
@@ -27,6 +29,21 @@ import { NOTES, NOTES_LINK, noteDate } from '../../lib/notes.js';
  *
  * Elk getal komt uit een lib. Type hier nooit een getal met de hand in.
  */
+
+const lang = localeOf(Astro.url.pathname);
+const leaving = localise(rawLeaving, lang);
+
+/**
+ * Beide waren imports van constanten en zijn nu functies van de taal. De namen
+ * blijven staan zodat de rest van dit bestand ongewijzigd blijft — wat hier
+ * verandert is waar ze vandaan komen, niet wat ze betekenen.
+ */
+const CATALOGUE = catalogue(lang);
+const {
+  countries: HOME_COUNTRIES,
+  countryData: COUNTRY_DATA,
+  metricCount: METRIC_COUNT,
+} = homeCountries(lang);
 
 const h = headline(leaving);
 

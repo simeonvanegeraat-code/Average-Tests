@@ -22,7 +22,7 @@
  */
 import { hueStyle } from '../lib/hue.js';
 import { localeOf, prefixOf, alternatesOf } from '../lib/locales.js';
-import { CATALOGUE } from '../lib/catalogue.js';
+import { catalogue } from '../lib/catalogue.js';
 import { NOTES, NOTES_LINK } from '../lib/notes.js';
 
 interface Props {
@@ -45,6 +45,12 @@ const { title, description, canonical, noindex = false, hue = 262, ogImage } = A
  */
 const lang = localeOf(Astro.url.pathname);
 const canonicalUrl = new URL(`${prefixOf(lang)}${canonical}`, Astro.site).href;
+
+/**
+ * De catalogus in de taal van deze pagina. Dit was een import van een constante, en
+ * een constante kan geen taal kennen: zie de kop van catalogue().
+ */
+const CATALOGUE = catalogue(lang);
 
 /** Leeg zolang er één taal is; zie alternatesOf() in src/lib/locales.js. */
 const alternates = alternatesOf(canonical);

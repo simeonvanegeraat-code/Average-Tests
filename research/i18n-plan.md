@@ -373,3 +373,84 @@ Buiten de opdracht, dus alleen gemeld:
   niet te gebruiken — die reden bestaat niet meer, de aanpak is nog wel prima.
 - Het einde van `build-sitemap.mjs` leest het bestand terug dat het er net zelf heeft
   geschreven, en meldt dan `'geschreven'` of `'fout'`. Die controle kan niet falen.
+
+## Wat fase 3 tot nu toe heeft opgeleverd (1 november 2026)
+
+De machinerie staat en is gemeten. De tekstlaag niet; die is hieronder uitgesplitst.
+
+**De taal bereikt nu de server.** Dat was het blokkerende punt uit de proefrit van fase
+2 — "de grens kiest de notatie, maar iets moet hem zeggen wélke". Twintig
+paginabestanden doen nu `localeOf(Astro.url.pathname)` en halen daarna 26 datasets door
+`localise()` en 10 metriekbeschrijvingen met `locale` erin.
+
+**Twee modules die op moduleniveau rekenden zijn functies geworden.** `CATALOGUE` en de
+drie exports van `home-countries.js` werden berekend bij het importeren, en een waarde
+die bij import ontstaat kan per definitie geen taal kennen. Nu `catalogue(lang)` en
+`homeCountries(lang)`, met een cache per taal. De landenlijst sorteert ook met
+`localeCompare(..., lang)`, want IJsland en Oostenrijk staan in het Nederlands elders
+dan Iceland en Austria.
+
+**De Nederlandse landnamen worden afgeleid, niet getypt.** Het plan hierboven schreef
+dat ze uit de Interinstitutionele schrijfwijzer zouden komen. Dat bleek niet nodig: Node
+draagt de volledige CLDR-tabel mee, en `Intl.DisplayNames(['nl'], { type: 'region' })`
+geeft Nederland, Tsjechië, Noord-Macedonië, IJsland. 103 namen, nul die hun Engelse naam
+moest houden. Twee soorten codes kent CLDR niet en die staan uitgeschreven: de
+drieletterige OESO-codes plus Eurostats `EL` (tabel `ALIAS`, getoetst — voor 49 van de 52
+geeft CLDR in het Engels exact de naam die al in de data staat), en de aggregaten
+(`AGGREGATES`, per taal). `npm run locales:validate` draait de generator met `--check`,
+dus een naam met de hand aanpassen houdt geen stand.
+
+### De proefrit, nu met echte Nederlandse namen
+
+Nederlands aangezet, 81 pagina's gebouwd, gemeten, weer uit:
+
+| | |
+|---|---|
+| Landnamen | Nederlands. "Nederland" staat er, "Netherlands" komt niet voor |
+| Getallen in zichtbare tekst | **3583 met een komma, 405 nog met een punt** (40 pagina's) |
+| `lang`, `hreflang`, `x-default`, `canonical` | Kloppen met twee talen |
+| De poort | Vindt 36 pagina's met een punt-decimaal en noemt de getallen |
+
+Bij de proefrit van fase 2 stond dat op 240 met een punt en nul met een komma. De 405 die
+overblijven zijn geen tweede soort fout — het is één soort, op 166 aanroepen.
+
+### Wat er nog moet, en waarom het niet nu is gedaan
+
+Er zijn **166 aanroepen van een formatteerfunctie die geen taal meekrijgen**, in 19
+bestanden. De verdeling is het punt:
+
+| Bestand | Aanroepen |
+|---|---|
+| `wealth/index.astro` | 50 |
+| `wealth/[country].astro` | 31 |
+| `wealth/by-age/index.astro` | 14 |
+| `FactsBento.astro` | 13 |
+| `StatHero.astro` | 12 |
+| `leaving-home/index.astro` | 11 |
+| `notes/eurostat-2021-series-break.astro` | 7 |
+| `leaving-home-map.js` (dode code) | 5 |
+| zes andere pagina's | 11 |
+| `related.js`, `DotPlot` (clienthelft) | 4 |
+
+**Vrijwel al die aanroepen staan ín een Engelse zin.** Ze patchen met `{ locale }` erbij
+is dubbel werk: zodra er een Nederlandse zinsbouwer komt, krijgt de aanroep zijn taal via
+die bouwer en moet de pleister er weer af. Dat is precies de verspilling waar
+"De grammaticalaag" hierboven voor waarschuwt bij de lidwoordhelper. Dus: de tekstlaag
+en deze aanroepen horen in één stap, per bestand.
+
+Eén uitzondering is wel gedaan: `DotPlot.astro` maakt labels en geen zinnen ("FI 21,3"),
+dus die heeft zijn taal gekregen. De clienthelft had hem niet nodig — `format.js` leest
+daar `<html lang>`, nagemeten op de live site.
+
+### Twee bevindingen die blijven staan
+
+1. **`localise()` raakt losse gebieden opzettelijk niet aan.** Ik heb dat eerst wél
+   gedaan en het was fout: `/wealth/by-age/` ging van "Euro area" naar "Euro area
+   (EA11-1999, …, EA21-2026)". Code `EA` draagt twee gepubliceerde namen — Eurostat
+   schrijft dat lange label in `data/household-size/`, de ECB schrijft "Euro area" in
+   `data/wealth-age/`. Voor landen is één naam per code waar; voor aggregaten hangt de
+   naam van de uitgever af, en een woordenbestand op code kan dat niet uitdrukken. Zo'n
+   gebiedsnaam is dan ook geen landnaam maar een woord van de pagina, en daar hoort hij.
+2. **`euroArea.name: "I9"` in `data/wealth/index.json` staat er nog**, en is een fout in
+   `build-wealth.mjs`. Repareren betekent `npm run wealth` draaien en dus data in de repo
+   veranderen; dat ligt bij Simeon en is op 1 november aan hem voorgelegd.

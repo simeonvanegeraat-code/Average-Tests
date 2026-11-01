@@ -22,6 +22,7 @@
  * zodat er niets verspringt als een land gekozen wordt.
  */
 import { formatValue } from '../lib/metric.js';
+import { localeOf } from '../lib/locales.js';
 import { axisRange, xOf, ticks, stackDots, placeLabels } from '../lib/dotplot.js';
 
 interface Row {
@@ -45,6 +46,14 @@ interface Props {
 
 const { rows, eu = null, mode = 'hero', label, decimals = 1 } = Astro.props;
 
+/**
+ * Dit onderdeel krijgt rijen en een aantal decimalen, geen metriekbeschrijving, dus
+ * komt de taal uit het pad — net zoals BaseV2 hem daar haalt. De clienthelft heeft
+ * dit niet nodig: format.js leest daar <html lang>, en dat is op 1 november 2026 op
+ * de live site nagemeten ("NL 23,4" wordt in de browser aangemaakt).
+ */
+const locale = localeOf(Astro.url.pathname);
+
 const range = axisRange(rows.map((row) => row.total));
 const dots = stackDots(rows, range);
 const first = dots[0];
@@ -53,11 +62,11 @@ const last = dots[dots.length - 1];
 const fixed = [
   ...(mode === 'hero'
     ? [
-        { x: first.x, text: `${first.code} ${formatValue(first.total, { decimals })}`, kind: 'ext', trow: first.row, code: first.code },
-        { x: last.x, text: `${last.code} ${formatValue(last.total, { decimals })}`, kind: 'ext', trow: last.row, code: last.code },
+        { x: first.x, text: `${first.code} ${formatValue(first.total, { decimals, locale })}`, kind: 'ext', trow: first.row, code: first.code },
+        { x: last.x, text: `${last.code} ${formatValue(last.total, { decimals, locale })}`, kind: 'ext', trow: last.row, code: last.code },
       ]
     : []),
-  ...(eu === null ? [] : [{ x: xOf(eu, range), text: `EU ${formatValue(eu, { decimals })}`, kind: 'eu', trow: 0 }]),
+  ...(eu === null ? [] : [{ x: xOf(eu, range), text: `EU ${formatValue(eu, { decimals, locale })}`, kind: 'eu', trow: 0 }]),
 ];
 
 const placed = placeLabels(fixed);
@@ -85,7 +94,7 @@ const axis = ticks(range);
           class="dp-dot"
           data-code={dot.code}
           data-total={dot.total}
-          title={`${dot.name} ${formatValue(dot.total, { decimals })}`}
+          title={`${dot.name} ${formatValue(dot.total, { decimals, locale })}`}
           style={`--x:${dot.x};--row:${dot.row};--i:${i}`}
         />
       ))

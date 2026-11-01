@@ -780,3 +780,35 @@ Het bestand draagt per land de Natural Earth-naam mee, en die wijkt op drie plek
 van Eurostat: `CY` staat er als "N. Cyprus", `MK` als "Macedonia", `TR` als "Turkey".
 **De site gebruikt die namen niet.** Elke naam op de pagina komt uit de Eurostat-data;
 de geometrie levert alleen vormen.
+
+## Landnamen per taal
+
+| | |
+|---|---|
+| Bron | CLDR, via de ICU-tabel die Node meedraagt (`Intl.DisplayNames`) |
+| Versie | ICU 78.3, Node 24.19.0 — gecontroleerd op 1 november 2026 |
+| Licentie | Unicode License v3 (CLDR); vrij te gebruiken met bronvermelding |
+| Opgehaald | Niet opgehaald: de tabel zit in Node zelf, dus er is geen netwerkstap |
+| Bestand | `src/locales/<taal>/countries.json`, gegenereerd door `scripts/build-locale-names.mjs` |
+
+Het Engelse bestand komt **niet** hiervandaan: dat is een kopie van de namen die de
+uitgevers zelf in de data schrijven, zodat de pagina nooit iets anders zegt dan de
+tabel ernaast. De andere talen komen uit CLDR.
+
+Twee soorten codes kent CLDR niet, en die staan in het script uitgeschreven:
+
+- **Drieletterige codes** uit de OESO-pijplijn (`NLD`) en Eurostats `EL` voor
+  Griekenland. De tabel `ALIAS` wijst ze naar hun ISO 3166-1 alpha-2. Het script
+  toetst die tabel: voor 49 van de 52 geeft CLDR in het Engels exact de naam die al in
+  de data staat. De drie afwijkingen zijn de spelling van de uitgever, niet een
+  verkeerde koppeling — de OESO schrijft "Korea", "Slovak Republic" en "China
+  (People's Republic of)" waar CLDR "South Korea", "Slovakia" en "China" zegt.
+- **Aggregaten.** De EU, de eurozone en het OESO-gemiddelde zijn geen landen. Die
+  namen staan in `AGGREGATES`, per taal. De jaartallen en reeksen blijven exact staan
+  zoals de uitgever ze schrijft; alleen het woord ervoor is vertaald. Een label is een
+  naam en geen definitie — een definitie van een uitgever blijft onvertaald, zie
+  besluit 1 in `research/i18n-plan.md`.
+
+`npm run locales:validate` draait de generator met `--check` en faalt als een
+woordenbestand afwijkt van wat hij zou schrijven. Een naam met de hand aanpassen
+houdt dus geen stand, en dat is de bedoeling.
