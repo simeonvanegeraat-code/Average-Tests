@@ -264,6 +264,95 @@ Elke fase is een eigen PR, en fase 1 tot 3 veranderen niets wat een bezoeker zie
 Het zwaartepunt zit in fase 2 en 3. Fase 5 hoort een fractie te kosten van fase 3 — en
 als dat niet zo blijkt, is de machinerie uit fase 1 en 2 niet goed genoeg gebouwd.
 
+## Wat fase 2 heeft opgeleverd (1 november 2026)
+
+Eén PR, vier commits, en geen zichtbare wijziging: 41 pagina's bit voor bit gelijk aan
+`main`, 40 URL's ongewijzigd.
+
+**De opmaakgrens staat en is dicht.** `src/lib/format.js` bepaalt hoe een getal eruitziet,
+en élke formatteerfunctie in de repo gaat erdoorheen — `formatValue`, `formatAmount`,
+`signed`, `euro`, `multiple`, `age`, `years`, `ownAge`, plus dertien plekken in pagina's
+die hun eigen `toFixed` deden. `scripts/validate-i18n.mjs` faalt op een nieuwe bypass.
+
+**De landnamengrens staat, maar wordt nog niet aangeroepen.** `localise(index, lang)` in
+`src/lib/country-names.js` werkt en is getest; `src/locales/en/countries.json` is
+gegenereerd uit de data (103 codes, nul naamconflicten) en de poort let op drift.
+
+### Drie dingen die de proefrit heeft uitgewezen
+
+Nederlands een half uur aangezet met `[nl] Finland` als namen, gebouwd, en weer uit. Dat
+leverde meer op dan de code zelf:
+
+1. **Routing, `lang`, `hreflang`, `x-default` en `canonical` kloppen met twee talen.**
+   80 URL's, 41 Nederlandse pagina's, wederkerige alternates. De bug van eudebtmap.com
+   staat hier niet open.
+2. **De server geeft de taalgrens zijn taal nog niet mee.** Op een Nederlandse pagina
+   stonden 240 getallen met een punt en nul met een komma. De grens kiest de notatie,
+   maar iets moet hem zeggen wélke — en in de browser doet `<html lang>` dat, op de
+   server nog niets. Dit is de eerste stap van fase 3, en de poort houdt hem nu tegen:
+   een Nederlandse pagina met een punt als decimaalteken laat `validate-i18n.mjs` niet
+   door.
+3. **Een woordenbestand erbij zetten is niet genoeg.** `NAMES` in `country-names.js` is
+   een expliciete lijst, dus een taal met een compleet woordenbestand kreeg alsnog de
+   Engelse namen. Dat was precies een stille fout, en is nu een harde: de poort vergelijkt
+   `LOCALES` met `NAMES`.
+
+Punt 2 en 3 zijn gevonden doordat de proefrit bestond. Zonder die rit waren ze pas
+opgevallen als er Nederlandse tekst op de site had gestaan, en dan als "de cijfers zien
+er raar uit".
+
+### Fase 3 begint hier
+
+De taal moet op 21 plekken de pagina binnenkomen — elk bestand dat een dataset
+importeert. Twee regels per bestand: `localeOf(Astro.url.pathname)`, en die taal in de
+metriekconfiguratie (`{ ...metric, locale }`) plus in `localise(index, lang)`.
+
+| Bestand | Importnamen |
+|---|---|
+| `[...lang]/index.astro` | `leaving` |
+| `[...lang]/leaving-home/index.astro` | `index` |
+| `[...lang]/household-size/index.astro` | `index` |
+| `[...lang]/dwelling-size/index.astro` | `index`, `householdData` |
+| `[...lang]/working-life/index.astro` | `index` |
+| `[...lang]/working-hours/index.astro` | `index` |
+| `[...lang]/unemployment/index.astro` | `index` |
+| `[...lang]/unemployment/by-age/index.astro` | `totalIndex` |
+| `[...lang]/pension-age/index.astro` | `index`, `exitIndex` |
+| `[...lang]/healthy-years/index.astro` | `index` |
+| `[...lang]/first-child/index.astro` | `index` |
+| `[...lang]/wealth/index.astro` | `index`, `ageIndex` |
+| `[...lang]/wealth/by-age/index.astro` | `ageIndex` |
+| `[...lang]/wealth/[country].astro` | `index`, `ageIndex` |
+| `[...lang]/method/index.astro` | `leaving`, `wealth`, `exitAge` |
+
+Daarnaast, en dit zijn geen pagina's:
+
+- **`src/lib/catalogue.js` en `src/lib/home-countries.js` rekenen op moduleniveau.**
+  `export const CATALOGUE = [...]` wordt één keer bij import berekend en kan dus per
+  definitie geen taal kennen. Die twee moeten functies worden (`catalogue(lang)`), en
+  `BaseV2.astro` roept ze dan per pagina aan. Zonder dat blijft het megamenu Engels op
+  een Nederlandse pagina.
+- **De eenheidswoorden zitten in de metriekbeschrijvingen** (`unit: 'years'`,
+  `unitOne: 'year'`, `unitShort`) en de kwintiellabels in de data zelf
+  (`"label": "Bottom 20%"` in `data/wealth/index.json`). Dat is de woordenlaag, niet de
+  opmaaklaag.
+- **`data/wealth/index.json` heeft `euroArea.name: "I9"`** — de ECB-gebiedscode in een
+  naamveld. Nu onzichtbaar, want geen pagina toont dat veld uit dít bestand;
+  `/wealth/by-age/` toont wél `euroArea.name` maar uit `data/wealth-age/`, waar "Euro
+  area" staat. Dat is een fout in `build-wealth.mjs` en hij hoort daar gerepareerd te
+  worden, niet verstopt achter een woordenbestand. Voor een Nederlandse vermogenspagina
+  moet dit eerst recht.
+- **`src/pages/[...lang]/wealth/[country].astro:150`** doet nog zijn eigen opmaak in
+  tekst (`{Math.abs(yearChange).toFixed(1)}% over the year`). Dat bestand was op
+  1 november in gebruik bij een andere sessie; de poort noemt die regel bij naam zodat
+  hij niet blijft liggen.
+
+### Twee dode bestanden, gemeld en niet aangeraakt
+
+`src/lib/threshold-explorer.js` en `src/lib/leaving-home-map.js` hebben nul importeurs.
+De tabel in "De grammaticalaag" hierboven noemt `leaving-home-map.js` als bestand dat
+een zinsbouwer nodig heeft — dat klopt dus niet: er is niets dat die zinnen nog leest.
+
 ## Wat dit plan niet doet
 
 - **Geen redirect op IP.** Google waarschuwt daar expliciet tegen, en EUDebtMap doet het
