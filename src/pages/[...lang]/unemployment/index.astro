@@ -105,10 +105,21 @@ const flaggedNames = flagged.map((country) => country.name).join(' and ');
 
 /**
  * De zin over die breuken als één string, niet als opmaak met expressies ertussen.
- * Astro laat een losse spatie tússen twee expressies vallen: er stond "Malta and
- * Denmarkcarry". Precies de fout die op de 21 vermogenspagina's een dubbele spatie gaf,
- * nu de andere kant op. Een zin die uit meerdere waarden bestaat hoort hier opgebouwd te
- * worden en niet in de HTML.
+ *
+ * Hier stond dat Astro een losse spatie tussen twee expressies laat vallen, met "Malta
+ * and Denmarkcarry" als bewijs. **Dat is niet waar**, nagemeten op 1 november 2026 en op
+ * twee manieren bevestigd: byte voor byte op een gebouwde pagina, en rechtstreeks uit
+ * @astrojs/compiler over negen patronen. De compiler bewaart de bronwitruimte letterlijk,
+ * regeleinde en inspringing incluis, en de HTML-compressie maakt daar één spatie van —
+ * nooit nul. Een regeleinde tussen twee expressies kost dus géén spatie.
+ *
+ * De echte oorzaak van "Denmarkcarry" was `{names}{verb}` met in de bron helemaal geen
+ * witruimte ertussen. Een eigen ontbrekende spatie dus, geen eigenaardigheid van het
+ * framework. `{' '}` is om dezelfde reden bijna nooit nodig.
+ *
+ * De keuze blijft wel staan, alleen om een andere reden: een zin die uit meerdere waarden
+ * bestaat hoort in de frontmatter opgebouwd te worden en niet in de HTML, want daar is hij
+ * te lezen als zin in plaats van als een rij fragmenten.
  */
 const breakClause =
   flagged.length === 0
