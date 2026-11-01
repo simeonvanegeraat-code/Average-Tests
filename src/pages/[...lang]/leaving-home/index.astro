@@ -1,5 +1,6 @@
 ---
-import { localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import StatHero from '../../../components/StatHero.astro';
 import StageMap from '../../../components/StageMap.astro';
@@ -10,11 +11,21 @@ import RankTable from '../../../components/RankTable.astro';
 import MethodBlock from '../../../components/MethodBlock.astro';
 import Related from '../../../components/Related.astro';
 import geo from '../../../../data/geo/europe.json';
-import index from '../../../../data/leaving-home/index.json';
+import rawIndex from '../../../../data/leaving-home/index.json';
 import { STAGES } from '../../../lib/hue.js';
 import { clientData } from '../../../lib/leaving-home-copy.js';
-import metric from '../../../lib/metrics/leaving-home.js';
+import baseMetric from '../../../lib/metrics/leaving-home.js';
 import { age, years, headline, trend } from '../../../lib/leaving-home.js';
+
+/**
+ * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
+ * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
+ * taal in voordat enig onderdeel de index ziet, en `locale` in de
+ * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ */
+const lang = localeOf(Astro.url.pathname);
+const index = localise(rawIndex, lang);
+const metric = { ...baseMetric, locale: lang };
 
 /**
  * Pagina 1 van het Europese cluster, in de vormtaal van 2026.

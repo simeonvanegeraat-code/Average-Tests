@@ -1,16 +1,29 @@
 ---
-import { localePaths } from '../../../../lib/locales.js';
+import { localeOf, localePaths } from '../../../../lib/locales.js';
+import { localise } from '../../../../lib/country-names.js';
 import { decimal } from '../../../../lib/format.js';
 import BaseV2 from '../../../../layouts/BaseV2.astro';
 import StageMap from '../../../../components/StageMap.astro';
 import geo from '../../../../../data/geo/europe.json';
-import youthIndex from '../../../../../data/unemployment-under25/index.json';
-import olderIndex from '../../../../../data/unemployment-25to74/index.json';
-import totalIndex from '../../../../../data/unemployment/index.json';
-import metric from '../../../../lib/metrics/unemployment-under25.js';
+import rawYouthIndex from '../../../../../data/unemployment-under25/index.json';
+import rawOlderIndex from '../../../../../data/unemployment-25to74/index.json';
+import rawTotalIndex from '../../../../../data/unemployment/index.json';
+import baseMetric from '../../../../lib/metrics/unemployment-under25.js';
 import { periodLabel, periodShort } from '../../../../lib/period.js';
 import { aggregatePair, gapRange, pairs, rankShift, sexGap, widerThanSpread } from '../../../../lib/unemployment-age.js';
 import { formatAmount, formatValue, withArticle } from '../../../../lib/metric.js';
+
+/**
+ * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
+ * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
+ * taal in voordat enig onderdeel de index ziet, en `locale` in de
+ * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ */
+const lang = localeOf(Astro.url.pathname);
+const youthIndex = localise(rawYouthIndex, lang);
+const olderIndex = localise(rawOlderIndex, lang);
+const totalIndex = localise(rawTotalIndex, lang);
+const metric = { ...baseMetric, locale: lang };
 
 /**
  * Werkloosheid onder de 25 naast werkloosheid van 25 tot 74.

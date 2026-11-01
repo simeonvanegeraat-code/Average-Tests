@@ -67,5 +67,26 @@ export function localise(index, lang = DEFAULT_LOCALE) {
   for (const group of ['countries', 'aggregates']) {
     if (Array.isArray(index[group])) localised[group] = index[group].map(rename);
   }
+
+  /**
+   * **Losse gebieden gaan hier opzettelijk niet door.** De ECB zet de eurozone niet in
+   * `aggregates` maar als eigen sleutel (`euroArea`, in data/wealth/ en data/wealth-age/
+   * beide), en de verleiding is om die net zo te hernoemen. Op 1 november 2026 heb ik dat
+   * gedaan en het was fout: `/wealth/by-age/` ging van "Euro area" naar "Euro area
+   * (EA11-1999, EA12-2001, …, EA21-2026)".
+   *
+   * De oorzaak zit in het woordenbestand, niet in de lus. Dat bestand is één naam per
+   * code, en code `EA` draagt twee gepubliceerde namen: Eurostat schrijft in
+   * data/household-size/ dat lange historische label, de ECB in data/wealth-age/
+   * schrijft "Euro area". Voor landen is één naam per code waar; voor aggregaten
+   * hangt de naam van de uitgever af. Dat conflict blijft onzichtbaar zolang de twee
+   * in verschillende vormen staan — de een in een array, de ander als losse sleutel —
+   * en build-locale-names.mjs leest alleen de arrays.
+   *
+   * Zo'n gebiedsnaam is dan ook geen landnaam. Het is een woord van de pagina
+   * ("Eurozone", "EU27"), en die horen in het woordenbestand van de tekst, waar één
+   * pagina zijn eigen label kiest. Daar gaat fase 3 ze neerzetten; hier niet.
+   */
+
   return localised;
 }

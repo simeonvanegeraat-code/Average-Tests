@@ -1,13 +1,15 @@
 ---
 import { localeOf, localePaths } from '../../lib/locales.js';
+import { localise } from '../../lib/country-names.js';
 import { decimal } from '../../lib/format.js';
 import BaseV2 from '../../layouts/BaseV2.astro';
 import Globe from '../../components/Globe.astro';
-import leaving from '../../../data/leaving-home/index.json';
+import rawLeaving from '../../../data/leaving-home/index.json';
 import { headline, age } from '../../lib/leaving-home.js';
 import { catalogue } from '../../lib/catalogue.js';
 import { homeCountries } from '../../lib/home-countries.js';
 import { NOTES, NOTES_LINK, noteDate } from '../../lib/notes.js';
+
 
 /**
  * De Engelse homepage. De voordeur.
@@ -29,6 +31,7 @@ import { NOTES, NOTES_LINK, noteDate } from '../../lib/notes.js';
  */
 
 const lang = localeOf(Astro.url.pathname);
+const leaving = localise(rawLeaving, lang);
 
 /**
  * Beide waren imports van constanten en zijn nu functies van de taal. De namen
