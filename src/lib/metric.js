@@ -16,24 +16,14 @@
  * pagina en zou bij de tweede tot kopiëren hebben geleid.
  */
 
-/**
- * "half of Netherlands" leest als een vertaalfout, want dat is het ook.
- *
- * Dit stond eerder in zowel leaving-home.js als wealth.js, met de notitie dat het
- * bij een derde gebruiker tijd werd voor één gedeelde lijst. Dat moment is dit.
- */
 import { periodNumber } from './period.js';
 
-const NEEDS_ARTICLE = new Set(['Netherlands', 'United Kingdom']);
-
-export function withArticle(name, { capitalise = false } = {}) {
-  if (!NEEDS_ARTICLE.has(name)) return name;
-  return `${capitalise ? 'The' : 'the'} ${name}`;
-}
-
-export function count(n, singular, plural = `${singular}s`) {
-  return `${n} ${n === 1 ? singular : plural}`;
-}
+/**
+ * Lidwoord, meervoud en rangtelwoord staan in grammar.js: die hangen van de taal af,
+ * niet van de metriek. Ze worden hier doorgegeven, zodat elk bestand dat ze uit
+ * metric.js importeert ongewijzigd blijft.
+ */
+export { withArticle, count, ordinal } from './grammar.js';
 
 /**
  * Formattering als gegevens, niet als code.
@@ -64,13 +54,6 @@ export function formatAmount(value, { decimals = 1, unit = '', unitOne = unit } 
 export function signed(value, { decimals = 1 } = {}) {
   if (value === null || value === undefined) return '—';
   return `${value > 0 ? '+' : value < 0 ? '−' : ''}${Math.abs(value).toFixed(decimals)}`;
-}
-
-/** 1st, 2nd, 3rd, 4th, 11th, 12th, 13th, 21st. */
-export function ordinal(n) {
-  const lastTwo = n % 100;
-  if (lastTwo >= 11 && lastTwo <= 13) return `${n}th`;
-  return `${n}${{ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] ?? 'th'}`;
 }
 
 /** Alleen de landen die écht op het laatste jaar staan. */
