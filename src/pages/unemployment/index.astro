@@ -5,7 +5,10 @@ import StageMap from '../../components/StageMap.astro';
 import RankTable from '../../components/RankTable.astro';
 import geo from '../../../data/geo/europe.json';
 import index from '../../../data/unemployment/index.json';
+import youthIndex from '../../../data/unemployment-under25/index.json';
+import olderIndex from '../../../data/unemployment-25to74/index.json';
 import metric from '../../lib/metrics/unemployment.js';
+import { aggregatePair, pairs, rankShift, widerThanSpread } from '../../lib/unemployment-age.js';
 import { periodLabel, periodNumber } from '../../lib/period.js';
 import {
   currentCountries,
@@ -128,6 +131,16 @@ const breakDetail =
  * kiest daarom de nieuwste maand die genoeg landen heeft, en de methodesectie legt uit
  * welke maand daarmee buiten de pagina valt en met hoeveel landen.
  */
+/**
+ * De leeftijdssectie, uit dezelfde dataset met een andere doorsnede. Dat is hier geen
+ * tweede bron zoals bij vermogen: zelfde definitie, zelfde maand, alleen `age` anders.
+ * Het verschil is daarom wél in één zin te zetten, en dat is precies wat deze sectie doet.
+ */
+const agePair = aggregatePair(youthIndex, olderIndex);
+const agePairs = pairs(youthIndex, olderIndex).matched;
+const ageRank = rankShift(agePairs, index);
+const ageWider = widerThanSpread(agePairs, index);
+
 const newestPeriod = index.years[index.years.length - 1];
 const newestCount = index.countries.filter((country: any) => country.series[newestPeriod] !== undefined).length;
 
@@ -338,6 +351,66 @@ const description =
     )
   }
 
+  {
+    agePair && (
+      <section class="block" aria-labelledby="age-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">Age</p>
+            <h2 id="age-title">
+              Everything above counts a 22-year-old and a 52-year-old as one country
+            </h2>
+            <p>
+              The same dataset splits by age, and the split is the largest on this site:
+              {' '}{fmt(agePair.youth)}% of under-25s in the European labour force are unemployed
+              against {fmt(agePair.older)}% of everyone from 25 to 74.
+            </p>
+          </header>
+
+          <div data-reveal>
+            <div class="bento">
+              <div class="tile s4">
+                <div>
+                  <b>{agePair.ratio.toFixed(1)}×</b>
+                  <p>
+                    as high under 25 as from 25 to 74, across the European Union.
+                    {ageWider && ageWider.countries.length > 0 && (
+                      <>
+                        {' '}In {ageWider.countries.length} of these {ageWider.of} countries the step
+                        between the two ages is wider than the whole distance from the lowest
+                        country on this page to the highest.
+                      </>
+                    )}
+                  </p>
+                </div>
+                <span class="meta mono">{periodLabel(agePair.period)}</span>
+              </div>
+
+              <div class="tile">
+                <div>
+                  <b>{ageRank.unchanged === 0 ? `All ${ageRank.of}` : `${ageRank.of - ageRank.unchanged} of ${ageRank.of}`}</b>
+                  <p>
+                    countries change place in the ranking when you count only the under-25s. The
+                    table above is one answer to "where is it worst"; for someone leaving school it
+                    is a different one.
+                  </p>
+                </div>
+                <span class="meta mono">a different order</span>
+              </div>
+            </div>
+
+            <p class="more" style="margin-top:22px">
+              <a class="btn btn--ghost" href="/unemployment/by-age/">
+                Both age groups, every country
+                <span class="arr" aria-hidden="true">→</span>
+              </a>
+            </p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   <Related metric="unemployment" />
 
   <section class="block" id="method" aria-labelledby="method-title">
@@ -395,11 +468,25 @@ const description =
             <dt>How often it changes</dt>
             <dd>
               Eurostat publishes a month about 31 days after it ends, by their own account, so the
-              newest month here is roughly a month old and earlier months can still be revised. That
-              is why {periodLabel(newestPeriod)} is in the downloaded series but not on this page:
-              only {newestCount} {newestCount === 1 ? 'country' : 'countries'} had a figure for it
-              when this page was built, and a map of {newestCount === 1 ? 'one' : 'those'} alone
-              would not be a map of Europe.
+              newest month here is roughly a month old and earlier months can still be revised.
+              {/* Alleen als de nieuwste gedownloade maand nog te dun is voor een kaart. Zodra
+                  hij vol genoeg is wordt hij zelf het anker, en dan is deze zin onwaar — hij
+                  stond er één verversing lang wél, over de maand die op dat moment al getoond
+                  werd. */}
+              {newestPeriod !== h.year ? (
+                <>
+                  {' '}That is why {periodLabel(newestPeriod)} is in the downloaded series but not on
+                  this page: only {newestCount} {newestCount === 1 ? 'country' : 'countries'} had a
+                  figure for it when this page was built, and a map of
+                  {' '}{newestCount === 1 ? 'one' : 'those'} alone would not be a map of Europe.
+                </>
+              ) : (
+                <>
+                  {' '}{periodLabel(newestPeriod)} is the newest month Eurostat has published and the
+                  one shown here, with {newestCount} of the {index.countries.length} countries in it;
+                  the rest carry their own most recent month.
+                </>
+              )}
             </dd>
           </div>
           <div>

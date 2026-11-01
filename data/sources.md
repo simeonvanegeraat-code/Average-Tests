@@ -395,7 +395,13 @@ landenlijst, elk land draagt zijn eigen jaar, en nooit rekenen over een reeksbre
 | `lfsa_ewhuis` | /working-hours/ | 1983–2025 | 2025 | 34 | 27 | **geen** | ja |
 | `lfso_23pens03` | /pension-age/ | 2023 | 2023 | 30 | 0 | **één jaar** | ja |
 | `demo_find` | /first-child/ | 1960–2024 | 2024 | 37 | 13 | **geen** | nee |
-| `une_rt_m` | /unemployment/ | 2021-10–2026-09 | 2026-08 | 30 | 2 | 2025-02–2026-08 | ja |
+| `une_rt_m` | /unemployment/ | 2021-10–2026-09 | 2026-09 | 31 | 2 | 2025-02–2026-09 | ja |
+| `une_rt_m` (`Y_LT25`) | /unemployment/by-age/ | 2021-10–2026-09 | 2026-09 | 30 | 3 | 2025-02–2026-09 | ja |
+| `une_rt_m` (`Y25-74`) | /unemployment/by-age/ | 2021-10–2026-09 | 2026-09 | 30 | 2 | 2025-02–2026-09 | ja |
+
+De onderste twee zijn **geen aparte metrieken** maar dezelfde dataset met een andere
+doorsnede op `age`. Ze staan niet in de catalogus en dus niet in het menu, en ze delen de
+tint van de hoofdpagina.
 
 ### `une_rt_m` is de eerste maandreeks, en dat verandert vier dingen
 
@@ -437,6 +443,36 @@ beroepsbevolking (werkenden plus werklozen), niet de bevolking.
 indicatoren niet vergelijkbaar zijn, omdat registratieregels per land verschillen en niet
 de ILO-definitie volgen. Een nationaal cijfer dat afwijkt is dus geen fout in een van de
 twee.
+
+### De leeftijdsuitsplitsing, en waarom hij drie specs nodig had
+
+`une_rt_m` draagt drie doorsneden op `age`: `TOTAL`, `Y_LT25` en `Y25-74`. De eerste stond
+er al; de andere twee zijn er op 1 november 2026 bij gekomen voor `/unemployment/by-age/`.
+
+**Dat legde meteen een fout in de pijplijn bloot.** De ruwe antwoorden werden opgeslagen
+als `<datasetcode>.json`, dus alle drie de specs schreven `une_rt_m.json` en de laatste
+won. De andere twee vonden daarna geen enkel land meer — met een nette foutmelding, maar
+pas in de bouwstap, en alleen omdat er toevallig drie waren. Het ruwe bestand heet nu naar
+de **spec-sleutel**.
+
+Drie dingen lopen per leeftijdsklasse uiteen, en alle drie zouden ze een stille fout geven:
+
+| | `TOTAL` | `Y_LT25` | `Y25-74` |
+|---|---|---|---|
+| Landen op 2026-09 | 31 | 30 | 30 |
+| Achterlopend | CH, BA | CH, BA, **RO** | CH, BA, **IT** |
+| Breukvlaggen | DK 2023-10, MT 2025-01 | **+ CZ 2023-06** | DK 2023-10, MT 2025-01 |
+
+De maand per land is dus niet gelijk tussen de twee leeftijdsklassen: Roemenië staat op
+juni in de jeugdreeks en september in de andere, Italië andersom. `pairs()` in
+`src/lib/unemployment-age.js` eist daarom **dezelfde maand** voor een verhouding en geeft
+de rest apart terug; die landen worden op de pagina met naam genoemd.
+
+**Eén bewering die onderweg sneuvelde.** Het lag voor de hand om te schrijven dat leeftijd
+meer uitmaakt dan welk land dan ook. Dat is onwaar: de spreiding tussen landen op
+`/unemployment/` is 3,9x (Tsjechië 2,8 tot Finland 11,0) en de leeftijdskloof in de EU
+2,9x. Wat er nu staat is geteld: in **6 van de 30** landen is de kloof tussen de twee
+leeftijden breder dan de hele afstand tussen het laagste en het hoogste land.
 
 ### Wat dit betekent voor de pagina's
 

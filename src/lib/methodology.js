@@ -24,6 +24,7 @@ import healthyYears from './metrics/healthy-years.js';
 import firstChild from './metrics/first-child.js';
 import pensionAge from './metrics/pension-age.js';
 import unemployment from './metrics/unemployment.js';
+import unemploymentUnder25 from './metrics/unemployment-under25.js';
 
 import leavingHomeData from '../../data/leaving-home/index.json';
 import workingLifeData from '../../data/working-life/index.json';
@@ -34,6 +35,7 @@ import healthyYearsData from '../../data/healthy-years/index.json';
 import firstChildData from '../../data/first-child/index.json';
 import pensionAgeData from '../../data/pension-age/index.json';
 import unemploymentData from '../../data/unemployment/index.json';
+import unemploymentUnder25Data from '../../data/unemployment-under25/index.json';
 import exitAgeData from '../../data/exit-age/index.json';
 import wealthData from '../../data/wealth/index.json';
 import wealthCheck from '../../data/wealth-validation.json';
@@ -298,6 +300,7 @@ export const METHODOLOGY = [
   eurostat(workingLife, workingLifeData),
   eurostat(workingHours, workingHoursData),
   eurostat(unemployment, unemploymentData),
+  eurostat(unemploymentUnder25, unemploymentUnder25Data),
   eurostat(pensionAge, pensionAgeData),
   oecd(),
   eurostat(healthyYears, healthyYearsData),

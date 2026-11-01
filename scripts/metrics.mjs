@@ -112,6 +112,52 @@ export const METRICS = [
     absurd: { min: 0, max: 60 },
     plausible: { min: 1, max: 30 },
   },
+
+  /**
+   * Dezelfde dataset, twee leeftijdsklassen, voor /unemployment/by-age/.
+   *
+   * Het is geen elfde en twaalfde metriek: ze staan niet in de catalogus en krijgen geen
+   * eigen tint. Ze bestaan omdat de uitsplitsing die `age: 'TOTAL'` hierboven wegneemt
+   * het grootste leeftijdseffect op deze site is — onder de 25 is de werkloosheid bijna
+   * drie keer zo hoog — en omdat de ranglijst van landen er een andere volgorde door
+   * krijgt.
+   *
+   * Drie dingen die per leeftijdsklasse verschillen en die de pagina moet afvangen:
+   *
+   *  - **De dekking.** Op 2026-08 had `TOTAL` 32 landen, `Y_LT25` 30 (Roemenië en
+   *    Bosnië ontbreken) en `Y25-74` 31 (Italië ontbreekt). Een verhouding tussen de
+   *    twee bestaat dus niet overal.
+   *  - **De breuken.** `Y_LT25` draagt Tsjechië 2023-06 bovenop de twee die `TOTAL` ook
+   *    heeft. Elke spec rekent daardoor zijn eigen vergelijkbare venster uit.
+   *  - **Het anker.** `minCoverage` kiest per spec de nieuwste maand die genoeg landen
+   *    haalt, en dat hoeft niet dezelfde maand te zijn.
+   *
+   * De grenzen hieronder zijn gemeten over het hele venster van zestig maanden en niet
+   * geschat: jeugd loopt van 2,7 (Kroatië) tot 42,1 (Zweden), de groep daarboven van
+   * 1,5 (Zwitserland) tot 16,5 (Zweden).
+   */
+  {
+    key: 'unemployment-under25',
+    code: 'une_rt_m',
+    params: { s_adj: 'SA', age: 'Y_LT25', unit: 'PC_ACT', lastTimePeriod: 60 },
+    fixed: { s_adj: 'SA', age: 'Y_LT25', unit: 'PC_ACT' },
+    split: SEX,
+    expect: 'Unemployment by sex and age',
+    minCoverage: 25,
+    absurd: { min: 0, max: 100 },
+    plausible: { min: 1, max: 55 },
+  },
+  {
+    key: 'unemployment-25to74',
+    code: 'une_rt_m',
+    params: { s_adj: 'SA', age: 'Y25-74', unit: 'PC_ACT', lastTimePeriod: 60 },
+    fixed: { s_adj: 'SA', age: 'Y25-74', unit: 'PC_ACT' },
+    split: SEX,
+    expect: 'Unemployment by sex and age',
+    minCoverage: 25,
+    absurd: { min: 0, max: 60 },
+    plausible: { min: 0.5, max: 25 },
+  },
   {
     key: 'pension-age',
     code: 'lfso_23pens03',
