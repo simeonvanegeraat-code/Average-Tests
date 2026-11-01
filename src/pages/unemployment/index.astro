@@ -361,8 +361,11 @@ const description =
               Everything above counts a 22-year-old and a 52-year-old as one country
             </h2>
             <p>
-              The same dataset splits by age, and the split is the largest on this site:
-              {' '}{fmt(agePair.youth)}% of under-25s in the European labour force are unemployed
+              {/* Geen superlatief. "De grootste splitsing op de site" stond hier en was onwaar:
+                  de kloof tussen eigenaren en huurders op /wealth/ haalt 15,5x. Wat hier staat is
+                  wat de twee cijfers doen met het cijfer erboven, en dat is te controleren. */}
+              The same dataset splits by age, and the figure above sits between two very different
+              ones: {fmt(agePair.youth)}% of under-25s in the European labour force are unemployed,
               against {fmt(agePair.older)}% of everyone from 25 to 74.
             </p>
           </header>
