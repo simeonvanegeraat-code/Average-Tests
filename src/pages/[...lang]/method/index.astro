@@ -1,0 +1,480 @@
+---
+import { localePaths } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import leaving from '../../../../data/leaving-home/index.json';
+import wealth from '../../../../data/wealth/index.json';
+import wealthCheck from '../../../../data/wealth-validation.json';
+import exitAge from '../../../../data/exit-age/index.json';
+import { headline, staleCountries } from '../../../lib/leaving-home.js';
+import { periodLabel } from '../../../lib/period.js';
+import { formatPeriod } from '../../../lib/wealth.js';
+import { METHODOLOGY } from '../../../lib/methodology.js';
+import { count } from '../../../lib/metric.js';
+
+/**
+ * De methodepagina. Elke metriekpagina verwijst hierheen voor het volledige verhaal.
+ *
+ * Herschreven op 24 oktober 2026. De vorige versie ging volledig over NHANES en
+ * percentielen uit microdata; die data en die pagina's zijn eraf. Wat blijft is de
+ * belofte eronder, en die geldt onverminderd voor de Europese bronnen.
+ *
+ * Elk getal komt uit de gebouwde databestanden of uit de validatiebestanden die de
+ * poorten bij elke geslaagde run wegschrijven.
+ */
+
+const h = headline(leaving);
+const stale = staleCountries(leaving);
+
+/**
+ * Twee tellingen die vroeger vaste tekst waren. "This is the only one of our Eurostat
+ * sources that is" klopte zolang alleen working-life een onafgebroken reeks had; met
+ * de OECD-reeks erbij zijn het er twee, en met een derde zou de zin drie keer onwaar
+ * zijn. En het aantal uitgevers stond als "two statistical agencies" in de tekst.
+ */
+const unbroken = METHODOLOGY.filter((set) => set.comparability.kind === 'unbroken');
+const definitions = METHODOLOGY.filter((set) => set.definition);
+const publishers = [...new Set(METHODOLOGY.map((set) => set.publisher))];
+
+const title = 'How We Get These Numbers | HumanAverage';
+const description =
+  'Where each figure on this site comes from, what it does and does not say, and the gate ' +
+  'every number passes before it appears. Eurostat, the ECB, and nothing estimated on top.';
+/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
+export function getStaticPaths() {
+  return localePaths();
+}
+
+---
+
+<BaseV2 title={title} description={description} canonical="/method/">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Method</p>
+      <h1 data-reveal>How we get these numbers</h1>
+      <p class="lead">
+        Short version: we do not make any up. Every figure is published by a statistical
+        agency, and the only arithmetic we add is the kind you could repeat.
+      </p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="kind-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">What you are looking at</p>
+        <h2 id="kind-title">A figure is not the same as a distribution</h2>
+      </header>
+
+      <div class="prose" data-reveal>
+        <p>
+          Most statistical agencies publish one number per country per year. That number tells
+          you where the middle of a country sits. It does not tell you how people are spread
+          around that middle, and no amount of arithmetic can recover the spread from the
+          summary once it has been thrown away.
+        </p>
+        <p>
+          This is why the pages here say <b>which side of a figure you fall on</b> rather than
+          giving you a percentile. A percentile needs the individual records — one row per
+          person — and the sources behind these pages do not publish those. Where a source ever
+          does, the page will say so and give you the real position instead.
+        </p>
+        <p>
+          Two concrete cases, both spelled out on their own pages. The wealth pages cannot give
+          a percentile because the ECB publishes the <em>average of each group</em> and not
+          where the groups begin: we know what the seventh decile owns on average, not where
+          the seventh decile starts. The leaving-home page cannot either, because Eurostat
+          publishes the age by which half have left — a midpoint, not a distribution.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="source-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Sources</p>
+        <h2 id="source-title">Where the data comes from</h2>
+        <p>
+          {count(publishers.length, 'statistical agency', 'statistical agencies')}, all publishing
+          openly, each recorded per dataset in the repository with its code, coverage, licence and
+          the date we fetched it.
+        </p>
+      </header>
+
+      <div class="bento" data-reveal>
+        <div class="tile">
+          <div>
+            <h3>Eurostat</h3>
+            <p>
+              <b class="code">{leaving.source.dataset}</b> — {leaving.source.label}. Derived from
+              the EU Labour Force Survey, series {leaving.years[0]} to {
+                leaving.years[leaving.years.length - 1]
+              }, last updated by Eurostat on {leaving.source.eurostatUpdated.slice(0, 10)}.
+            </p>
+          </div>
+          <span class="meta mono">{h.countries} countries at {h.year}</span>
+        </div>
+
+        <div class="tile">
+          <div>
+            <h3>European Central Bank</h3>
+            <p>
+              {wealth.source}. Quarterly, openly available through the ECB data portal, covering
+              {wealth.countries.length} countries through {formatPeriod(wealth.latestPeriod)}.
+            </p>
+          </div>
+          <span class="meta mono">{wealthCheck.quarters} quarters</span>
+        </div>
+
+        <div class="tile">
+          <div>
+            <h3>OECD</h3>
+            <p>
+              <b class="code">{exitAge.source.measure}</b> — {exitAge.source.label}, from the{' '}
+              {exitAge.source.name} database. The widest reach of anything here: {exitAge.countries.length}{' '}
+              countries, {exitAge.years[0]} to {exitAge.years[exitAge.years.length - 1]}, and the only
+              series that goes beyond Europe.
+            </p>
+          </div>
+          <span class="meta mono">men and women, never a total</span>
+        </div>
+
+        <div class="tile">
+          <div>
+            <h3>Natural Earth</h3>
+            <p>
+              The country outlines on the maps. Public domain, pinned to one package version and
+              one checksum, projected once by a script in the repository rather than by hand.
+            </p>
+          </div>
+          <span class="meta mono">reproducible</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="datasets-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Every dataset, line by line</p>
+        <h2 id="datasets-title">What each source publishes, in its own words</h2>
+        <p>
+          One block per dataset: the code you can look it up by, how far the figures reach, what we
+          read per country, and when it was last refreshed. Nothing here is typed by hand — it is
+          read from the files the pipeline writes.
+        </p>
+        <p>
+          Where a publisher writes its own definition, that definition is quoted rather than
+          summarised, because the gap between a dataset's title and its definition is where this
+          site has been wrong before. {definitions.length} of these {METHODOLOGY.length} datasets come
+          with one and the rest do not, so the row is absent where the words would have had to be
+          ours.
+        </p>
+        <p>
+          The row about comparing across time is the one that costs the most to get wrong.
+          There is a longer piece on it:{' '}
+          <a href="/notes/eurostat-2021-series-break/">why you cannot compare Eurostat figures
+          across 2021</a>.
+        </p>
+      </header>
+
+      <div class="datasets" data-reveal>
+        {
+          METHODOLOGY.map((set) => (
+            <article class="dataset hued" id={`ds-${set.key}`} style={`--h:${set.hue}`}>
+              <header class="dataset-head">
+                <h3><a href={set.path}>{set.label}</a></h3>
+                <p class="mono who">
+                  {set.publisher}
+                  {set.dataset && <> · {set.dataset}</>}
+                </p>
+              </header>
+
+              <dl>
+                {set.sourceLabel && (
+                  <div class="wide">
+                    <dt>What the publisher calls it</dt>
+                    <dd>{set.sourceLabel}</dd>
+                  </div>
+                )}
+
+                {set.definition && (
+                  <div class="wide">
+                    <dt>Its own definition</dt>
+                    <dd class="quote">{set.definition}</dd>
+                  </div>
+                )}
+
+                <div>
+                  <dt>Coverage</dt>
+                  <dd>
+                    {set.countries} countries at {set.year}
+                    {set.firstYear && <> · series {set.firstYear}–{set.lastYear}</>}
+                    {set.quarters && <> · {set.quarters} quarters</>}
+                    {set.stale.length > 0 && (
+                      <> · {set.stale.length} behind ({set.stale.map((c) => `${c.name} ${c.year}`).join(', ')})</>
+                    )}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt>Comparing across time</dt>
+                  <dd>
+                    {set.comparability.kind === 'since' && (
+                      <>
+                        Comparable since {set.comparability.since}.{' '}
+                        {set.comparability.broken === set.countries
+                          ? `All ${set.countries} countries carry`
+                          : `${set.comparability.broken} of the ${set.countries} countries ${set.comparability.broken === 1 ? 'carries' : 'carry'}`}{' '}
+                        a break flag in {set.comparability.year}, and <code>trend()</code> refuses to
+                        measure across it.
+                        {/* Werkloosheid breekt per land in plaats van voor iedereen tegelijk, en dan
+                            vertelt een telling op de laatste breuk maar de helft. */}
+                        {set.comparability.others > 0 && (
+                          <>
+                            {' '}
+                            {set.comparability.others} other{set.comparability.others === 1 ? '' : 's'} carry
+                            one at a different date ({set.comparability.otherYears}), which is why the
+                            comparable window starts after the latest of them.
+                          </>
+                        )}
+                      </>
+                    )}
+                    {set.comparability.kind === 'break-at-end' && (
+                      <>
+                        The last break falls in {set.comparability.year}, the most recent year itself
+                        ({set.comparability.broken} of {set.countries} countries), so there is no window
+                        left to measure change over. The ranking holds; a trend would not.
+                      </>
+                    )}
+                    {set.comparability.kind === 'single-year' && (
+                      <>
+                        {set.publisher} publishes this table for {set.comparability.year} alone. Nothing
+                        can break in a single year, and nothing can be compared across one either — so
+                        the page carries a ranking and no trend.
+                      </>
+                    )}
+                    {set.comparability.kind === 'unbroken' && (
+                      <>
+                        {set.publisher} flags no break in this series, so the whole run
+                        {set.comparability.from && <> from {set.comparability.from}</>} is comparable.
+                        {unbroken.length === 1
+                          ? ' It is the only one of our sources you can read end to end.'
+                          : ` ${unbroken.length} of our ${METHODOLOGY.length} sources can be read end to end; most cannot.`}
+                      </>
+                    )}
+                    {set.comparability.kind === 'none' && (
+                      <>These accounts carry no series breaks; the ECB revises the whole run instead.</>
+                    )}
+                    {/* Een enquêtegolf is geen reeks: er valt niets te breken, en er valt ook
+                        niets mee te vergelijken. Het veldwerk per land loopt bovendien uiteen. */}
+                    {set.comparability.kind === 'survey-wave' && (
+                      <>
+                        One survey wave, not a series. Fieldwork across the
+                        {' '}{set.comparability.countries} countries ran between
+                        {' '}{periodLabel(set.comparability.from)} and {periodLabel(set.comparability.to)},
+                        and each country carries its own window, so no single year describes them
+                        all. Comparing waves is possible in principle but is not done here.
+                      </>
+                    )}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt>What we read per country</dt>
+                  <dd>{set.lenses.length ? set.lenses.join(' · ') : 'One figure per country'}</dd>
+                </div>
+
+                <div>
+                  <dt>Last refreshed</dt>
+                  <dd>
+                    {set.published && <>Published {set.published} · </>}
+                    Fetched {set.fetched}
+                    {set.checked && <> · checked {set.checked}</>}
+                  </dd>
+                </div>
+
+                <div class="wide">
+                  <dt>Look it up yourself</dt>
+                  <dd>
+                    {set.doi && <>DOI <code>{set.doi}</code> · </>}
+                    {set.metadata && (
+                      <>
+                        <a href={set.metadata} rel="noopener" data-method-link>Publisher's metadata</a>
+                        {set.api && <> · </>}
+                      </>
+                    )}
+                    {set.api && <a href={set.api} rel="noopener" data-method-link>the exact query we run</a>}
+                  </dd>
+                </div>
+              </dl>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="pipeline-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Pipeline</p>
+        <h2 id="pipeline-title">What we do to it</h2>
+      </header>
+
+      <div class="prose" data-reveal>
+        <ol>
+          <li>
+            <b>Fetch.</b> A script pulls the source into an untracked folder and writes down what
+            it got: the exact request, the agency's own update stamp, the periods and the areas.
+            No checksum on the response itself, because these agencies publish on a schedule and
+            a changing answer is correct behaviour. Instead the script checks the dataset's
+            <em>label</em>, so that a silently reassigned code fails the build rather than quietly
+            changing a number on the site.
+          </li>
+          <li>
+            <b>Build.</b> A second script turns that into a compact JSON file that is committed to
+            the repository. Aggregates like the EU total are kept apart from countries, because
+            they sit in the same dimension at the source and are not countries. Each country
+            carries its own reference year rather than being forced into a shared one.
+          </li>
+          <li>
+            <b>Validate.</b> A gate recomputes every published figure from the raw response. If it
+            fails, nothing is published.
+          </li>
+        </ol>
+        <p>
+          The pages themselves calculate every sentence from that committed JSON at build time.
+          There is no number typed into a page by hand anywhere on this site, which is the only
+          way a figure cannot quietly go stale when a source republishes.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="check-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Checks</p>
+        <h2 id="check-title">How we check ourselves</h2>
+        <p>
+          The gate does not trust the file we built. It goes back to the source response and
+          recomputes.
+        </p>
+      </header>
+
+      <div class="prose" data-reveal>
+        <p>
+          <b>For the wealth data</b>, the sharpest check available is that the balance has to
+          close: every published component, with debts counted negative, must add up to the
+          published net wealth. If a component is missing, a subtotal is double-counted, or a
+          scale is wrong, the sum breaks. All three are invisible on the page itself. Last run
+          on {wealthCheck.checkedOn}, across {wealthCheck.countries} countries and {
+            wealthCheck.quarters
+          } quarters, the largest deviation was <b>0.11%</b>.
+        </p>
+        <p>
+          <b>For the Eurostat data</b>, every figure and every series-break flag is recomputed
+          from the raw response. That second part matters more than it sounds. Eurostat
+          reorganised the Labour Force Survey in {leaving.lastBreak} and flags the break; the
+          break year itself is a transition, so even measuring from it is wrong. Compared with
+          2005 the gap between countries appears to grow. Compared across years that are
+          actually comparable, it shrinks. The code refuses to calculate the first version
+          rather than printing it with a footnote, and the comparable window starts at {
+            leaving.comparableSince
+          }.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="limits-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Limits</p>
+        <h2 id="limits-title">What we will not do, and what we cannot</h2>
+      </header>
+
+      <div class="prose" data-reveal>
+        <p>
+          <b>We will not invent a statistic.</b> Not from memory, not from a search result, not
+          as a placeholder to get a page finished. If a figure cannot be traced to a dataset,
+          it does not go on the site, and the gap is left visible instead of filled.
+        </p>
+        <p>
+          <b>We will not call something a percentile when it is not one.</b> See the top of this
+          page. It would read better and it would be false.
+        </p>
+
+        <div class="limits">
+          <b>What these figures cannot tell you</b>
+          <p>
+            They are country-level. They describe a population, not anyone in it, and the spread
+            inside a country is almost always wider than the gap between countries. Coverage is
+            European: the United States, Canada and Australia are not in these datasets.
+            {
+              stale.length > 0 && (
+                <>
+                  {' '}
+                  And some countries stop reporting — {
+                    stale.map((country: { name: string; year: string }) => `${country.name} (${country.year})`).join(', ')
+                  } are shown at their most recent year, marked on the map and labelled in the
+                  table rather than quietly mixed in with the rest.
+                </>
+              )
+            }
+          </p>
+        </div>
+
+        <p class="note">
+          Every dataset is recorded in <code>data/sources.md</code> in the repository, with its
+          code, coverage, licence and fetch date. The repository is public.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseV2>
+
+<style>
+  .tile h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+  }
+
+  .tile .code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    color: var(--data);
+  }
+
+  .tile .meta {
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .prose ol {
+    margin: 0 0 1.1em;
+    padding-left: 1.3em;
+  }
+
+  .prose ol li {
+    margin-bottom: 0.9em;
+    line-height: 1.7;
+  }
+
+  .prose b {
+    color: var(--text);
+  }
+
+  .prose .note {
+    margin-top: 1.6em;
+    font-size: 0.92rem;
+  }
+
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+</style>

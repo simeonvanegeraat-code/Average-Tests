@@ -1,0 +1,77 @@
+---
+import { localePaths } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+
+const title = 'Contact — HumanAverage';
+const description =
+  'Questions, corrections and source suggestions for HumanAverage. Demonstrable errors are ' +
+  'fixed and the correction is noted.';
+/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
+export function getStaticPaths() {
+  return localePaths();
+}
+
+---
+
+<BaseV2 title={title} description={description} canonical="/contact/">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Contact</p>
+      <h1>Found a mistake? Tell me.</h1>
+      <p class="lead">
+        A site built on a promise of traceable numbers only works if the numbers can be
+        challenged. Corrections are welcome and get fixed.
+      </p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap prose">
+      <h2>Email</h2>
+      <p>
+        <a class="btn" href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>
+      </p>
+      <p>
+        There is no contact form, because a form would mean collecting your details on a site
+        whose whole point is that it collects almost nothing.
+      </p>
+
+      <h2>What helps</h2>
+      <ul>
+        <li>
+          <strong>About a specific result:</strong> the page, the country you chose, the value
+          you entered and the answer you got back. That is enough to reproduce it exactly.
+        </li>
+        <li>
+          <strong>About a figure you think is wrong:</strong> which number, and what you believe
+          it should be. A source makes it far quicker to check — and if you are right, it gets
+          corrected.
+        </li>
+        <li>
+          <strong>About something not working:</strong> your device, browser and what you did
+          just before it broke.
+        </li>
+        <li>
+          <strong>Suggesting a dataset:</strong> a link to the data itself, not to an article
+          about it. What works best is a series an agency publishes per country and keeps
+          updating.
+        </li>
+      </ul>
+
+      <h2>What this is not</h2>
+      <div class="limits">
+        <p>
+          HumanAverage cannot answer medical, psychological or personal health questions, and
+          nothing here is a diagnosis. If a measurement worries you, that is a conversation for
+          a doctor, who can see everything a country-level statistic cannot.
+        </p>
+      </div>
+
+      <p>
+        Background on who runs this and how it is funded is on the
+        <a href="/about/">about page</a>. How the numbers are produced is on the
+        <a href="/method/">method page</a>.
+      </p>
+    </div>
+  </section>
+</BaseV2>

@@ -1,0 +1,105 @@
+---
+import { localePaths } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import { STAGES } from '../../../lib/hue.js';
+import { NOTES, noteDate } from '../../../lib/notes.js';
+import { METHODOLOGY } from '../../../lib/methodology.js';
+
+/**
+ * Het overzicht van de artikelen.
+ *
+ * Gebouwd toen Simeon zei dat er meer artikelen komen. Tot dan wees "Notes" in de
+ * balk rechtstreeks naar het enige artikel, juist om deze pagina niet te hoeven
+ * bouwen met één regel erop.
+ *
+ * Alles komt uit src/lib/notes.js. Een nieuw artikel is één regel daar plus een
+ * bestand in src/pages/notes/; deze pagina, de balk, het paneel en de voet
+ * verversen vanzelf.
+ *
+ * De tweede helft van de pagina legt uit wanneer hier iets geschreven wordt en
+ * wanneer niet. Dat is geen vulling: het is dezelfde regel die bepaalt of een
+ * metriekpagina mag bestaan, en hij hoort op de plek te staan waar iemand komt
+ * kijken wat voor stukken dit zijn.
+ */
+
+/** Het aantal datasets waar een artikel uit kan komen. */
+const datasets = METHODOLOGY.length;
+const metBreuk = METHODOLOGY.filter((set) => set.comparability.kind !== 'unbroken' && set.comparability.kind !== 'none').length;
+
+const title = 'Notes | HumanAverage';
+const description =
+  'Short pieces about what the figures on this site can and cannot say: where a dataset ' +
+  'breaks, where a definition does not match its title, and what that changes.';
+/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
+export function getStaticPaths() {
+  return localePaths();
+}
+
+---
+
+<BaseV2 title={title} description={description} canonical="/notes/" hue={STAGES.leave}>
+  <section class="hero hero--list" aria-labelledby="notes-title">
+    <div class="wrap">
+      <p class="eyebrow mono" data-reveal>Notes</p>
+      <h1 id="notes-title" data-reveal>What the figures cannot say</h1>
+      <p class="lead" data-reveal>
+        The metric pages answer one question each. These are the pieces that do not fit on
+        them: where a dataset breaks, where a definition does not match its own title, and
+        what that changes about the answer.
+      </p>
+
+      <p class="unit mono" data-reveal>
+        {NOTES.length === 1 ? 'One piece' : `${NOTES.length} pieces`} so far
+      </p>
+
+      <div class="notelist" data-reveal>
+        {
+          NOTES.map((note) => (
+            <a class="noteitem hued" href={note.path} style={`--h:${note.hue}`}>
+              <p class="when mono">{noteDate(note.published)}</p>
+              <h3>{note.title}</h3>
+              <p class="teaser">{note.teaser}</p>
+              <span class="go" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h13M12 5l7 7-7 7"></path>
+                </svg>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="when-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">The rule</p>
+        <h2 id="when-title">When something gets written here</h2>
+      </header>
+
+      <div data-reveal>
+        <div class="prose">
+          <p>
+            A piece appears here when a dataset does something that its own page cannot fully
+            carry. The metric pages have room for a method section, not for an argument. When
+            the argument is the interesting part, it moves here.
+          </p>
+          <p>
+            Of the {datasets} datasets behind this site, {metBreuk} carry a series break that
+            the code refuses to measure across. That is the kind of thing worth a piece: it is
+            invisible on the chart, it reverses a conclusion, and almost nobody checks for it.
+          </p>
+          <p>
+            What does not appear here: anything the data cannot carry. No round-ups of other
+            people's reporting, no predictions, and no sentence with a number in it that was
+            typed by hand. Every figure in every piece is computed from the same files the
+            metric pages use, at build time, so a piece cannot quietly go stale when a source
+            publishes again. <a href="/method/">The method page</a> lists those files per
+            dataset.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseV2>

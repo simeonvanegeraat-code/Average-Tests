@@ -1,0 +1,377 @@
+---
+import { localePaths } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import { STAGES } from '../../../lib/hue.js';
+import { METHODOLOGY } from '../../../lib/methodology.js';
+import {
+  spreadAt,
+  jumps,
+  bigJumps,
+  flagged,
+  transition,
+  sharpest,
+  years,
+  comparable,
+  source,
+} from '../../../lib/break-story.js';
+
+/**
+ * Het eerste artikel. Onderwerp: de reeksbreuk van 2021 in de Europese
+ * arbeidskrachtenenquête, en waarom een voetnoot daar niet genoeg voor is.
+ *
+ * Geen enkel getal staat hier met de hand. Alles komt uit src/lib/break-story.js,
+ * dat rekent uit data/leaving-home/index.json. Eurostat publiceert bij, en een
+ * achtergebleven getal in een zin is precies de fout die niemand ziet.
+ *
+ * Er is nog geen index op /notes/: één artikel achter een overzichtspagina is de
+ * dunne pagina die we niet willen. Hij wordt gevonden via /leaving-home/, via
+ * /method/ en via de sitemap. Bij een derde artikel volgt de index.
+ */
+
+const published = '2026-10-25';
+
+const before = spreadAt(years.before);
+const at = spreadAt(years.break);
+const early = spreadAt('2005');
+const now = spreadAt(years.last);
+
+/** De metrieken met een eigen breuk, voor de sectie over waar het nog meer bijt. */
+const elsewhere = METHODOLOGY.filter(
+  (set) => set.comparability.kind === 'since' || set.comparability.kind === 'break-at-end',
+);
+const unbroken = METHODOLOGY.filter((set) => set.comparability.kind === 'unbroken');
+
+const title = 'Why You Cannot Compare Eurostat Figures Across 2021';
+const description =
+  `In ${years.before} Eurostat put half of young Swedes out of the parental home by ` +
+  `${sharpest.before.toFixed(1)}. In ${years.break} it said ${sharpest.after.toFixed(1)}. Nothing happened to Swedish ` +
+  `teenagers that year — the survey changed. What the ${years.break} series break is, how far it ` +
+  `reaches, and why a footnote is not enough.`;
+
+const canonical = '/notes/eurostat-2021-series-break/';
+/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
+export function getStaticPaths() {
+  return localePaths();
+}
+
+---
+
+<BaseV2 title={title} description={description} canonical={canonical} hue={STAGES.leave}>
+  <Fragment slot="head">
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: title,
+        description,
+        datePublished: published,
+        dateModified: published,
+        inLanguage: 'en-US',
+        mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.humanaverage.com${canonical}` },
+        author: { '@type': 'Organization', name: 'HumanAverage', url: 'https://www.humanaverage.com/' },
+        publisher: { '@type': 'Organization', name: 'HumanAverage', url: 'https://www.humanaverage.com/' },
+        about: {
+          '@type': 'Dataset',
+          name: source.label ?? 'Eurostat yth_demo_030',
+          identifier: source.dataset ?? 'yth_demo_030',
+          creator: { '@type': 'Organization', name: 'Eurostat' },
+        },
+      })}
+    />
+  </Fragment>
+
+  <section class="hero" aria-labelledby="note-title">
+    <div class="wrap">
+      <p class="eyebrow mono" data-reveal>Note · {published}</p>
+      <h1 id="note-title" data-reveal>Nothing happened to Swedish teenagers in {years.break}</h1>
+      <p class="unit mono" data-reveal>
+        Eurostat · {source.dataset} · series {years.first}–{years.last}
+      </p>
+      <p class="lead" data-reveal>
+        In {years.before} Eurostat said half of young Swedes had left the parental home by
+        {' '}<b>{sharpest.before.toFixed(1)}</b>. In {years.break} it said <b>{sharpest.after.toFixed(1)}</b>. That is a
+        jump of {Math.abs(sharpest.shift)} years in twelve months, and it is not a thing that can
+        happen to a country.
+      </p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="what-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">What actually changed</p>
+        <h2 id="what-title">The survey was rebuilt, not the country</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          The figures behind this page come from the European Union Labour Force Survey. In
+          {' '}{years.break} that survey was reorganised: new regulation, new definitions of who
+          counts as living with their parents, new sampling in several member states. The numbers
+          before and after are both correct. They are just not measurements of the same thing.
+        </p>
+        <p>
+          Eurostat does not hide this. It attaches a flag — the letter <code>b</code>, for break —
+          to the affected observations. In this dataset <b>{flagged.count} of the {flagged.of}</b>
+          {' '}countries carry that flag for {years.break}. It is not an edge case affecting a
+          stray country. It is almost the whole table.
+        </p>
+        <p>
+          The trouble is what a flag does and does not do. It marks the data. It does not stop
+          anyone drawing a line straight through it, and a line through a break looks exactly like
+          a line through a trend.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="footnote-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Why a footnote is not enough</p>
+        <h2 id="footnote-title">The same data, two opposite stories</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          Here is a sentence you could write from this dataset without inventing anything. Between
+          2005 and {years.last}, the gap between the earliest and the latest country in Europe grew
+          from <b>{early.spread} years</b> to <b>{now.spread} years</b>. Young Europeans, you might
+          conclude, are drifting apart.
+        </p>
+        <p>
+          Two things are wrong with it. The first is the break. The second is quieter and worse:
+          2005 covers <b>{early.countries} countries</b> and {years.last} covers
+          {' '}<b>{now.countries}</b>. The countries that joined the table in between are not a
+          random sample — they are mostly the ones at the far ends of the range. Some of that
+          "growing gap" is just more countries being measured.
+        </p>
+        <p>
+          Measure inside a window where the definition held still, and the direction reverses.
+          Between {comparable.since} and {comparable.until}, across the
+          {' '}{comparable.countries} countries that report in both years, the spread
+          {' '}<b>narrowed</b> from {Math.round(comparable.spreadThen * 10) / 10} years to
+          {' '}{Math.round(comparable.spreadNow * 10) / 10}. Same dataset. Opposite conclusion.
+        </p>
+
+        <div class="limits">
+          <b>This is why the flag is not enough</b>
+          <p>
+            A footnote tells a careful reader that something happened. It does not stop the chart
+            above it from being wrong, and almost nobody reads the footnote before they read the
+            line.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="year-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">The break year itself</p>
+        <h2 id="year-title">{years.break} is neither the old measure nor the new one</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          The obvious fix — drop the break year, join the two ends — does not work either, because
+          the break year is not a midpoint between the old definition and the new one. It is a
+          transition, with countries switching over at different moments and in different ways.
+        </p>
+        <p>
+          {transition.name} is the clearest case. It reads <b>{transition.before}</b> in
+          {' '}{years.before}, jumps to <b>{transition.at}</b> in {years.break}, and settles at
+          {' '}<b>{transition.after}</b> the year after. By {years.last} it is back to
+          {' '}{transition.latest}. Whatever {transition.at} measures, it is not the age at which
+          half of young {transition.name === 'Portugal' ? 'Portuguese' : transition.name} people
+          had left home that year.
+        </p>
+        <p>
+          The same thing shows up in the spread across all countries. In {years.before} the
+          distance between the lowest and the highest country was <b>{before.spread} years</b>. In
+          {' '}{years.break} it was <b>{at.spread}</b>. Europe did not converge by
+          {' '}{Math.round((before.spread - at.spread) * 10) / 10} years in one year; the bottom of
+          the range simply moved, from {before.low} to {at.low}, when the definition did.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="size-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">How big is it</p>
+        <h2 id="size-title">Six countries move more than a full year</h2>
+        <p>
+          The shift between {years.before} and {years.break} for every country that reports in both
+          years. This is not change over time — it is the distance between two different
+          measurements.
+        </p>
+      </header>
+
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Shift across the break by country" data-reveal>
+        <table>
+          <caption class="vh">
+            Shift between {years.before} and {years.break}, {jumps.length} countries
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Country</th>
+              <th scope="col" class="n">{years.before}</th>
+              <th scope="col" class="n">{years.break}</th>
+              <th scope="col" class="n">Shift</th>
+            </tr>
+          </thead>
+          <tbody>
+            {jumps.map((row) => (
+              <tr>
+                <th scope="row">{row.name}</th>
+                <td class="n">{row.before.toFixed(1)}</td>
+                <td class="n">{row.after.toFixed(1)}</td>
+                <td class:list={['n', Math.abs(row.shift) >= 1 && 'strong']}>
+                  {row.shift > 0 ? '+' : row.shift < 0 ? '−' : ''}{Math.abs(row.shift).toFixed(1)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          <b>{bigJumps.length} of the {jumps.length}</b> countries move by a year or more. For a
+          figure that shifts by a tenth or two in a normal year, that is enormous. And the moves do
+          not point the same way: {bigJumps.filter((row) => row.shift > 0).length} rise and
+          {' '}{bigJumps.filter((row) => row.shift < 0).length} fall, which is what you would expect
+          from a definitional change and not from anything that happened in Europe.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="do-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">What this site does</p>
+        <h2 id="do-title">The code refuses, rather than the footnote warning</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          Every page here that shows change over time asks one function for the answer, and that
+          function checks for a break inside the window first. If it finds one, it returns nothing
+          and the section does not render. There is no option to override it and no footnote
+          variant, because a footnote is what failed.
+        </p>
+        <p>
+          That is why <a href="/leaving-home/">leaving home</a> carries a trend measured from
+          {' '}{comparable.since} and not from {years.first}, even though the data goes back that
+          far. And it is why some pages carry no trend at all.
+        </p>
+
+        <h2>Where else this bites</h2>
+        <p>
+          The {years.break} reorganisation was not specific to one indicator, and other sources
+          have breaks of their own. Across the datasets behind this site:
+        </p>
+        <ul>
+          {elsewhere.map((set) => (
+            <li>
+              <a href={set.path}>{set.label}</a> — {set.comparability.kind === 'since' ? (
+                <>comparable since {set.comparability.since}, with a break in {set.comparability.year}</>
+              ) : (
+                <>
+                  the break falls in {set.comparability.year}, the latest year itself, so there is
+                  no window to measure over at all
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+        {unbroken.length > 0 && (
+          <p>
+            {unbroken.map((set) => set.label).join(' and ')} {unbroken.length === 1 ? 'is' : 'are'}
+            {' '}the exception: no break is flagged, so the whole run is comparable. It is the only
+            page here that can honestly show two decades on one line.
+          </p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="faq-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Questions</p>
+        <h2 id="faq-title">Reasonable objections</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <h3>So none of the data before {years.break} is usable?</h3>
+        <p>
+          It is usable, just not in the same sentence as the data after. The older run is a
+          perfectly good series on its own terms: you can compare countries within 2015, or follow
+          one country from {years.first} to {years.before}. What you cannot do is subtract a number
+          from one side of the break from a number on the other.
+        </p>
+
+        <h3>Why does Eurostat not just correct the old figures?</h3>
+        <p>
+          Reconstructing twenty years of survey responses under a definition that did not exist
+          when they were collected would mean estimating, and Eurostat publishes what it measured.
+          Flagging the break is the honest option available to them. The gap is not in their
+          statistics; it is in what readers do with them.
+        </p>
+
+        <h3>How do I check whether another dataset has a break?</h3>
+        <p>
+          In Eurostat's own browser, flagged observations carry a small <code>b</code>. Through the
+          API the flag arrives in the <code>status</code> block alongside the values. Our pipeline
+          reads that block rather than the published table, which is the only way to be sure the
+          flag has not been dropped somewhere in between — the full account is on
+          {' '}<a href="/method/">the method page</a>.
+        </p>
+
+        <h3>Does this affect the comparison I get when I enter my own age?</h3>
+        <p>
+          No. That comparison uses one year — the most recent one each country reports — so it
+          never crosses a break. Breaks only matter when you look at change over time, which is
+          exactly where this site is most careful and most other pages are not.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="src-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">Source</p>
+        <h2 id="src-title">Everything above, traceable</h2>
+      </header>
+      <div data-reveal>
+        <ul class="source-list">
+          <li>
+            <strong>Dataset</strong>
+            <span>
+              <a href={source.metadata} rel="noopener" data-method-link>
+                Eurostat {source.dataset}
+              </a>{source.label && <> — {source.label}</>}
+            </span>
+          </li>
+          {source.doi && <li><strong>DOI</strong> <span><code>{source.doi}</code></span></li>}
+          <li><strong>Retrieved</strong> <span>{String(source.fetchedOn ?? '').slice(0, 10)}</span></li>
+          <li>
+            <strong>Every figure here</strong>
+            <span>
+              is computed from that file at build time — see <a href="/method/#datasets-title">the
+              dataset blocks</a> for the rest.
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseV2>

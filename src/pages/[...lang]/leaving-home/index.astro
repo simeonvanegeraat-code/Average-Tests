@@ -1,0 +1,223 @@
+---
+import { localePaths } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import StatHero from '../../../components/StatHero.astro';
+import StageMap from '../../../components/StageMap.astro';
+import CompareForm from '../../../components/CompareForm.astro';
+import ResultPanel from '../../../components/ResultPanel.astro';
+import FactsBento from '../../../components/FactsBento.astro';
+import RankTable from '../../../components/RankTable.astro';
+import MethodBlock from '../../../components/MethodBlock.astro';
+import Related from '../../../components/Related.astro';
+import geo from '../../../../data/geo/europe.json';
+import index from '../../../../data/leaving-home/index.json';
+import { STAGES } from '../../../lib/hue.js';
+import { clientData } from '../../../lib/leaving-home-copy.js';
+import metric from '../../../lib/metrics/leaving-home.js';
+import { age, years, headline, trend } from '../../../lib/leaving-home.js';
+
+/**
+ * Pagina 1 van het Europese cluster, in de vormtaal van 2026.
+ *
+ * De pagina is samenstelling plus bedrading. Alle inhoud zit in de onderdelen:
+ * StatHero, StageMap, CompareForm, ResultPanel, FactsBento, RankTable en
+ * MethodBlock rekenen allemaal zelf uit data/leaving-home/index.json. Hier staat
+ * opzettelijk geen enkel cijfer met de hand — Eurostat publiceert jaarlijks bij en
+ * een achtergebleven getal in een zin is precies de fout die niemand ziet.
+ *
+ * De onderdelen praten via gebeurtenissen op `document` (`ha:country`, `ha:age`,
+ * `ha:submit`) en kennen elkaar verder niet. Wat deze pagina doet is die
+ * gebeurtenissen koppelen aan het profiel en aan de meting. Twee regels daarbij,
+ * allebei uit research/migration-leaving-home-v2.md:
+ *
+ *  1. Samenvoegen, nooit vervangen. De themakeuze van BaseV2 staat in dezelfde
+ *     sleutel; een profiel overschrijven zou die wissen.
+ *  2. Terugzetten is geen invoer. Bij het laden sturen we de opgeslagen keuzes met
+ *     `source: 'restore'`, zodat de onderdelen reageren maar het bewaren en
+ *     `value_submitted` die bron negeren. Zonder die vlag telt elk bezoek van een
+ *     terugkerende bezoeker als een ingevulde waarde.
+ *
+ * Let op de terminologie, vastgelegd in src/lib/leaving-home.js: Eurostat noemt de
+ * dataset "estimated average age", maar de eigen definitie is de leeftijd waarop de
+ * helft niet meer thuis woont. Dat is een middelpunt, geen gemiddelde. Gezocht
+ * wordt er wel op "average age", dus die formulering staat in de title.
+ */
+
+const h = headline(index);
+const movement = trend(index);
+
+const euValue = h.eu ? age(h.eu.total) : age(h.earliest.total);
+
+/** Alleen wat de browser nodig heeft. Dubbele backslash: met één doet dit niets. */
+const clientJson = JSON.stringify(clientData(index)).replace(/</g, '\\u003c');
+
+const title = `Average Age of Leaving Home by Country in Europe (${h.year})`;
+const description =
+  `Half of young Europeans have left the parental home by age ${euValue}. ` +
+  `Compare all ${h.countries} countries on a map, from ${h.earliest.name} at ` +
+  `${age(h.earliest.total)} to ${h.latest.name} at ${age(h.latest.total)}, and see where your own age fits.`;
+/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
+export function getStaticPaths() {
+  return localePaths();
+}
+
+---
+
+<BaseV2 title={title} description={description} canonical="/leaving-home/" hue={STAGES.leave}>
+  <StatHero index={index} />
+
+  <StageMap geo={geo} index={index} metric={metric} />
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Your turn</p>
+        <h2 id="compare-title">Where do you fit?</h2>
+        <p>
+          Enter the age you left your parents' home. We will place it against the midpoint of
+          every country in the dataset.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <CompareForm index={index} metric={metric} />
+        <ResultPanel index={index} />
+
+        <div class="limits">
+          <b>Why there is no percentile here</b>
+          <p>
+            A percentile needs the individual records — one row per person, thousands of them.
+            What Eurostat publishes here is one number per country: the age by which half have
+            left. That tells you which side of the midpoint you are on, and nothing about the
+            shape of the distribution around it. So we will not tell you that you are in the
+            30th percentile, because the data cannot support it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Every country</p>
+        <h2 id="table-title">All {index.countries.length} countries, earliest to latest</h2>
+        <p>
+          Sort by any column. The gap column is men minus women, so a positive number means women
+          leave earlier.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <RankTable index={index} metric={metric} />
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">What the numbers say</p>
+        <h2 id="facts-title">The European figure is flat. The countries are converging.</h2>
+      </header>
+
+      <div data-reveal>
+        <FactsBento index={index} />
+
+        {
+          movement && (
+            <div class="prose">
+              <p>
+                Between {movement.since} and {movement.until} the European Union figure barely
+                moved, from {age(movement.euThen)} to {age(movement.euNow)}. That flat line hides
+                the actual change: the spread between the earliest and latest country narrowed
+                from {years(movement.spreadThen)} to {years(movement.spreadNow)}. The countries
+                that leave latest are closing the distance; the Nordics are drifting the other way.
+              </p>
+              <p>
+                The comparison starts at {movement.since} and not earlier, and that is not a
+                rounding of convenience. Eurostat flags a break in {index.lastBreak}, when the
+                European Labour Force Survey was reorganised, and the break year itself is
+                transitional:{' '}
+                {
+                  (() => {
+                    const pt = index.countries.find((country: { code: string }) => country.code === 'PT');
+                    if (!pt) return 'several countries jump by more than a year across it';
+                    return `Portugal reads ${age(pt.series[index.lastBreak])} in ${index.lastBreak}, ${age(
+                      pt.series[movement.since],
+                    )} the year after, and ${age(pt.series['2019'])} back in 2019`;
+                  })()
+                }. Measured from 2005 the spread appears to grow; measured across comparable years
+                it shrinks. The code refuses to calculate it the first way —{' '}
+                  <a href="/notes/eurostat-2021-series-break/">why that break matters more than a
+                  footnote</a>.
+              </p>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <Related metric="leaving-home" />
+
+  <MethodBlock index={index} />
+
+  <script type="application/json" id="leaving-home-data" set:html={clientJson} />
+
+  <script>
+    import { readProfile, mergeProfile } from '../../../lib/profile.js';
+    import { validAge } from '../../../lib/leaving-home-copy.js';
+    import { track, EVENTS } from '../../../lib/analytics.js';
+
+    /**
+     * De bedrading. De onderdelen rekenen en tekenen zelf; hier worden alleen hun
+     * gebeurtenissen aan het profiel en aan de meting geknoopt.
+     */
+    const send = (name: string, detail: object) =>
+      document.dispatchEvent(new CustomEvent(name, { detail }));
+
+    /** Het land zodra het gekozen wordt, niet pas bij versturen: een eis uit CLAUDE.md. */
+    document.addEventListener('ha:country', (event) => {
+      const { code, source } = (event as CustomEvent<{ code?: string; source?: string }>).detail ?? {};
+      if (!code || source === 'restore') return;
+      mergeProfile({ country: code });
+    });
+
+    document.addEventListener('ha:submit', (event) => {
+      const { code, age, source } =
+        (event as CustomEvent<{ code?: string; age?: number; source?: string }>).detail ?? {};
+      if (!code || source === 'restore') return;
+      mergeProfile({ country: code, age });
+      track(EVENTS.valueSubmitted, { metric: 'leaving-home', country: code });
+    });
+
+    /**
+     * Terugzetten pas als elk onderdeel zijn luisteraars heeft. Modulescripts draaien
+     * allemaal vóór DOMContentLoaded, dus dat is het eerste moment waarop iedereen
+     * meeluistert; eerder sturen betekent dat de kaart of het formulier het mist.
+     */
+    function restore() {
+      const saved = readProfile();
+      const code = typeof saved.country === 'string' ? saved.country : null;
+      if (!code) return;
+
+      send('ha:country', { code, source: 'restore' });
+
+      const own = Number(saved.age);
+      if (validAge(own)) send('ha:submit', { code, age: own, source: 'restore' });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', restore, { once: true });
+    } else {
+      restore();
+    }
+
+    for (const link of document.querySelectorAll('[data-method-link]')) {
+      link.addEventListener('click', () => {
+        track(EVENTS.methodologyOpened, { from: 'leaving-home' });
+      });
+    }
+  </script>
+</BaseV2>
