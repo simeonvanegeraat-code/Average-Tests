@@ -1,0 +1,414 @@
+---
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import StageMap from '../../../components/StageMap.astro';
+import geo from '../../../../data/geo/europe.json';
+import youthIndex from '../../../../data/unemployment-under25/index.json';
+import olderIndex from '../../../../data/unemployment-25to74/index.json';
+import totalIndex from '../../../../data/unemployment/index.json';
+import metric from '../../../lib/metrics/unemployment-under25.js';
+import { periodLabel, periodShort } from '../../../lib/period.js';
+import { aggregatePair, gapRange, pairs, rankShift, sexGap, widerThanSpread } from '../../../lib/unemployment-age.js';
+import { formatAmount, formatValue, withArticle } from '../../../lib/metric.js';
+
+/**
+ * Werkloosheid onder de 25 naast werkloosheid van 25 tot 74.
+ *
+ * Wat deze pagina beantwoordt en geen andere: de ranglijst van landen verandert van
+ * volgorde zodra je alleen naar jongeren kijkt. Op /unemployment/ staat wie het slechtst
+ * af is; hier staat dat dat antwoord van je leeftijd afhangt.
+ *
+ * Twee reeksen uit dezelfde dataset, en ze lopen niet gelijk: elk land draagt zijn eigen
+ * laatste maand, en die hoeft tussen de twee leeftijdsklassen niet dezelfde te zijn.
+ * `pairs()` in src/lib/unemployment-age.js eist daarom dezelfde maand en geeft de rest
+ * apart terug; die landen worden op de pagina met naam genoemd in plaats van stil
+ * weggelaten.
+ */
+
+const { matched, skipped } = pairs(youthIndex, olderIndex);
+const eu = aggregatePair(youthIndex, olderIndex);
+const rank = rankShift(matched, totalIndex);
+const gaps = gapRange(matched);
+const sexes = sexGap(eu, totalIndex);
+/**
+ * De verleiding is te schrijven dat leeftijd meer uitmaakt dan welk land dan ook. Dat is
+ * onwaar — de landenspreiding is 3,9x en de leeftijdskloof in de EU 2,9x. Wat wél waar is
+ * staat hier, en het is te tellen.
+ */
+const wider = widerThanSpread(matched, totalIndex);
+
+const anchor = youthIndex.latestYear;
+const behind = matched.filter((row) => row.period !== anchor);
+
+const fmt = (value: number | null) => formatValue(value, metric);
+const amt = (value: number, options = {}) => formatAmount(value, metric, options);
+const times = (value: number | null) => (value === null ? '—' : `${value.toFixed(1)}×`);
+
+/**
+ * "A, B, and C" met de komma vóór de laatste. Die komma is hier geen stijlkeuze: een van
+ * de landen heet "Bosnia and Herzegovina", en zonder hem leest de opsomming als twee
+ * landen in plaats van drie.
+ */
+const list = (items: string[]) =>
+  items.length < 3 ? items.join(' and ') : `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+
+/**
+ * De kop is de bevinding en hangt dus aan het cijfer: blijkt er ooit wél een land op
+ * zijn plek te blijven, dan verandert de zin mee in plaats van onwaar te worden.
+ */
+const heading =
+  rank.unchanged === 0
+    ? 'Rank Europe by unemployment, then by the under-25s, and not one country stays where it was.'
+    : `Rank Europe by unemployment, then by the under-25s, and ${rank.of - rank.unchanged} of ${rank.of} countries move.`;
+
+/** De grootste bewegers, beide kanten op, voor de bevindingen. */
+const worse = rank.movers.filter((row) => row.shift > 0).slice(0, 3);
+const better = rank.movers.filter((row) => row.shift < 0).slice(0, 3);
+/** Hoeveel landen vijf plaatsen of meer opschuiven — telbaar, in plaats van "veel". */
+const bigMovers = rank.movers.filter((row) => Math.abs(row.shift) >= 5).length;
+
+const title = `Youth Unemployment by Country in Europe (${periodLabel(anchor)})`;
+const description =
+  `Under-25 unemployment is ${fmt(eu?.youth ?? null)}% across the European Union, against ` +
+  `${fmt(eu?.older ?? null)}% for everyone from 25 to 74. Every country, both age groups, ` +
+  'and how the ranking changes.';
+---
+
+<BaseV2 title={title} description={description} canonical="/unemployment/by-age/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">
+        Eurostat · {matched.length} countries · {periodLabel(anchor)}
+      </p>
+
+      <h1 data-reveal>{heading}</h1>
+
+      <span class="giant num">{times(eu?.ratio ?? null)}</span>
+      <p class="unit mono">
+        the under-25 rate against the 25-to-74 rate · <b>European Union</b> ·
+        {' '}{periodLabel(eu?.period ?? anchor)}
+      </p>
+
+      <p class="lead">
+        {fmt(eu?.youth ?? null)}% of under-25s in the European labour force are unemployed. For
+        everyone from 25 to 74 it is {fmt(eu?.older ?? null)}%.
+        {wider && wider.countries.length > 0 && (
+          <>
+            {' '}In {wider.countries.length} of these {wider.of} countries that step is wider than
+            the whole distance from Europe's lowest overall rate to its highest.
+          </>
+        )}
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn" href="#table">
+          Find your country <span class="arr" aria-hidden="true">→</span>
+        </a>
+        <span class="hint">Updated when Eurostat publishes, about a month behind.</span>
+      </div>
+
+      <p class="hero-note">
+        This is a share of the <em>labour force</em>, not of all young people. Most under-25s are
+        in education and not looking for work, so they count in neither half of this fraction. A
+        youth unemployment rate of {fmt(eu?.youth ?? null)}% does not mean {fmt(eu?.youth ?? null)}%
+        of young Europeans are sitting at home — it means that of those who are working or looking,
+        that share has not found it.
+      </p>
+    </div>
+  </section>
+
+  <StageMap
+    geo={geo}
+    index={youthIndex}
+    metric={metric}
+    eyebrow="The map"
+    title="Where it is hardest to start"
+    lede="Tap a country, or switch between everyone, men and women."
+  />
+
+  <section class="block" id="table" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Both age groups</p>
+        <h2 id="table-title">All {matched.length} countries, worst first for the under-25s</h2>
+        <p>
+          The last two columns are the same country's place in two different rankings: by the
+          overall rate, which is what <a href="/unemployment/">the main page</a> shows, and by the
+          under-25 rate. Nothing else on this site moves a ranking this far.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <div class="tablewrap" tabindex="0" role="region" aria-label="Unemployment by age and country">
+          <table>
+            <caption class="vh">
+              Unemployment under 25 and from 25 to 74, {matched.length} countries,
+              {' '}{periodLabel(anchor)}.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Country</th>
+                <th scope="col" class="n">Under 25</th>
+                <th scope="col" class="n">25 to 74</th>
+                <th scope="col" class="n">Times</th>
+                <th scope="col" class="n">Rank overall</th>
+                <th scope="col" class="n">Rank under 25</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                matched.map((row) => {
+                  const place = rank.shifts.find((shift) => shift.code === row.code);
+                  return (
+                    <tr>
+                      <th scope="row">
+                        {row.name}
+                        {row.period !== anchor && <span class="stale-year">{periodShort(row.period)}</span>}
+                      </th>
+                      <td class="n strong">{fmt(row.youth)}</td>
+                      <td class="n">{fmt(row.older)}</td>
+                      <td class="n">{times(row.ratio)}</td>
+                      <td class="n muted">{place ? place.rankTotal : '—'}</td>
+                      <td class:list={['n', { up: place && place.shift > 0, down: place && place.shift < 0 }]}>
+                        {place ? place.rankYouth : '—'}
+                      </td>
+                    </tr>
+                  );
+                })
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <p class="brk-foot">
+          {behind.length > 0 && (
+            <>A month next to a country means Eurostat has no {periodLabel(anchor)} figure for it,
+            and both of its columns are from that month instead. </>
+          )}
+          {skipped.length > 0 && (
+            <>
+              {list(skipped.map((row) => row.name))} {skipped.length === 1 ? 'is' : 'are'} left
+              out: Eurostat's two age groups land on different months for{' '}
+              {skipped.length === 1 ? 'it' : 'them'}, and a ratio between two different months is
+              not a ratio.
+            </>
+          )}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">What the numbers say</p>
+        <h2 id="facts-title">The same country, two different places</h2>
+      </header>
+
+      <div data-reveal>
+        <div class="bento">
+          <div class="tile s4">
+            <div>
+              <b>{rank.unchanged === 0 ? `All ${rank.of}` : `${rank.of - rank.unchanged} of ${rank.of}`}</b>
+              <p>
+                countries sit somewhere else in the two rankings. {rank.of < matched.length && (
+                  <>
+                    The comparison runs over {rank.of} of the {matched.length} in the table: the
+                    rest have no figure for {periodLabel(anchor)} in the overall series either, so
+                    they have no place in that ranking to move from.{' '}
+                  </>
+                )}
+                {worse.length > 0 && (
+                  <>
+                    {' '}The sharpest rises are{' '}
+                    {worse.map((row) => `${row.name} (${row.rankTotal} to ${row.rankYouth})`).join(', ')}
+                    {' '}— worse for the young than their overall figure suggests.
+                  </>
+                )}
+                {better.length > 0 && (
+                  <>
+                    {' '}The sharpest falls are{' '}
+                    {better.map((row) => `${row.name} (${row.rankTotal} to ${row.rankYouth})`).join(', ')}.
+                  </>
+                )}
+              </p>
+            </div>
+            <span class="meta mono">overall against under 25</span>
+          </div>
+
+          {
+            gaps && (
+              <div class="tile">
+                <div>
+                  <b>{times(gaps.widest.ratio)}</b>
+                  <p>
+                    in {withArticle(gaps.widest.name)}, the widest age gap here:
+                    {' '}{fmt(gaps.widest.youth)}% against {fmt(gaps.widest.older)}%.
+                  </p>
+                </div>
+                <span class="meta mono">widest gap</span>
+              </div>
+            )
+          }
+
+          {
+            gaps && (
+              <div class="tile">
+                <div>
+                  <b>{times(gaps.narrowest.ratio)}</b>
+                  <p>
+                    in {withArticle(gaps.narrowest.name)}, the narrowest. The middle country sits at
+                    {' '}{times(gaps.middle.ratio)}.
+                  </p>
+                </div>
+                <span class="meta mono">narrowest gap</span>
+              </div>
+            )
+          }
+        </div>
+
+        {
+          sexes && (
+            <div class="bento" style="margin-top:14px">
+              <div class="tile s4 dark">
+                <div>
+                  <h3>
+                    {Math.abs(sexes.youth.gap) > Math.abs(sexes.everyone.gap)
+                      ? 'The gap between men and women is wider among the young'
+                      : 'The gap between men and women is narrower among the young'}
+                  </h3>
+                  <p>
+                    Among under-25s in the European Union, {fmt(sexes.youth.men)}% of men and
+                    {' '}{fmt(sexes.youth.women)}% of women are unemployed — {amt(Math.abs(sexes.youth.gap))}
+                    {' '}apart. Across the whole labour force it is {fmt(sexes.everyone.men)}% against
+                    {' '}{fmt(sexes.everyone.women)}%, {amt(Math.abs(sexes.everyone.gap))} apart. Both
+                    figures are for {periodLabel(sexes.period)}.
+                  </p>
+                </div>
+                <span class="meta mono">men against women</span>
+              </div>
+            </div>
+          )
+        }
+
+        <div class="prose">
+          <p>
+            A ranking of countries by unemployment is read as a ranking of labour markets, and it
+            is one — for people who are already in them. For someone leaving school it describes a
+            different country. That is not a small correction: it moves
+            {' '}{rank.movers[0].name} by {Math.abs(rank.movers[0].shift)} places, and {bigMovers} of
+            the {rank.of} by five or more.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">Method</p>
+        <h2 id="method-title">How this is measured</h2>
+        <p>Published by Eurostat. Nothing here is estimated on top of what they publish.</p>
+      </header>
+
+      <div data-reveal>
+        <dl>
+          <div>
+            <dt>What the figures are</dt>
+            <dd>
+              The same measure as <a href="/unemployment/">the main unemployment page</a>, cut by
+              age instead of totalled: the share of the labour force that is unemployed,
+              seasonally adjusted, for one calendar month. Unemployed follows the ILO definition —
+              no job in the reference week, actively looking in the past four weeks, able to start
+              within two weeks.
+            </dd>
+          </div>
+          <div>
+            <dt>What it is not</dt>
+            <dd>
+              It is not the share of young people who are out of work. The denominator is the
+              labour force, and most under-25s are in education and outside it. Eurostat publishes
+              a separate "youth unemployment ratio" for that question; this is not it. It is also
+              not a distribution, so no percentile can be built from it.
+            </dd>
+          </div>
+          <div>
+            <dt>
+              {skipped.length === 0
+                ? 'Coverage'
+                : `Why ${skipped.length === 1 ? 'one country is' : `${skipped.length} countries are`} missing`}
+            </dt>
+            <dd>
+              {skipped.length === 0
+                ? 'Every country in the dataset appears in both age groups on the same month.'
+                : `${list(skipped.map((row) => row.name))} publish their two age groups on different months, and a ratio across two months is not a ratio. Their figures are on the main page; only the comparison here needs both to line up.`}
+            </dd>
+          </div>
+          <div>
+            <dt>Series breaks</dt>
+            <dd>
+              The two age groups do not carry the same flags: the under-25 series has one that the
+              others do not. Nothing on this page is measured across a break — every statement here
+              is about a single month — and the comparable window for each age group is worked out
+              on its own series rather than shared, which is why{' '}
+              <a href="/method/">the method page</a> carries the under-25 series as an entry of its
+              own, separate from the overall one.
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>Dataset</strong> Eurostat <code>{youthIndex.source.dataset}</code>, {youthIndex.source.label}</li>
+          <li><strong>Breakdown</strong> seasonally adjusted, percentage of the labour force, under 25 and 25 to 74</li>
+          <li><strong>Series</strong> {periodLabel(youthIndex.years[0])} to {periodLabel(youthIndex.years[youthIndex.years.length - 1])}</li>
+          <li><strong>Last updated by Eurostat</strong> {youthIndex.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>Retrieved</strong> {youthIndex.source.fetchedOn.slice(0, 10)}</li>
+          <li>
+            <strong>DOI</strong>
+            <a href={`https://doi.org/${youthIndex.source.doi}`} data-method-link>{youthIndex.source.doi}</a>
+          </li>
+        </ul>
+
+        <p class="source-note">
+          Licence: Eurostat data may be reused, including commercially, with attribution. How we
+          handle data is on <a href="/method/">the method page</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import { mergeProfile } from '../../../lib/profile.js';
+    import { track, EVENTS } from '../../../lib/analytics.js';
+
+    /** Geen invoerveld; het land dat je in de kaart kiest blijft wel in het profiel staan. */
+    document.addEventListener('ha:country', (event) => {
+      const { code, source } = (event as CustomEvent<any>).detail ?? {};
+      if (!code || source === 'restore') return;
+      mergeProfile({ country: code });
+    });
+
+    for (const link of document.querySelectorAll('[data-method-link]')) {
+      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'unemployment-by-age' }));
+    }
+  </script>
+
+  <style>
+    .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .tile .meta { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-2); }
+
+    .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+    .prose p { margin: 0; line-height: 1.7; }
+
+    td.muted { color: var(--text-2); }
+    /* Hoger in de jeugdlijst dan in de totaallijst is slechter voor jongeren, en andersom. */
+    td.up { color: var(--data-on-tint, var(--text)); font-weight: 700; }
+    td.down { color: var(--text-2); }
+
+    .source-list { list-style: none; padding: 0; overflow-wrap: anywhere; }
+    .source-list li { padding: .35rem 0; border-bottom: 1px solid var(--line); font-size: .92rem; }
+    .source-list li:last-child { border-bottom: 0; }
+    .source-list strong { display: inline-block; min-width: 12rem; color: var(--text-2); font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    @media (max-width: 540px) { .source-list strong { display: block; min-width: 0; } }
+  </style>
+</BaseV2>
