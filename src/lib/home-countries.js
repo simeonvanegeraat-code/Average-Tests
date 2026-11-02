@@ -29,7 +29,9 @@
  */
 import { currentCountries, formatValue } from './metric.js';
 import { euro } from './wealth.js';
-import { CATALOGUE } from './catalogue.js';
+import { catalogue } from './catalogue.js';
+import { DEFAULT_LOCALE } from './locales.js';
+import { localise } from './country-names.js';
 
 import leavingHome from './metrics/leaving-home.js';
 import householdSize from './metrics/household-size.js';
@@ -83,74 +85,107 @@ function position(value, low, high) {
   return Math.min(100, Math.max(0, ((value - low) / distance) * 100));
 }
 
-const byCode = new Map();
-
-const remember = (code, name) => {
-  const key = canonical(code);
-  if (!key) return null;
-  if (!byCode.has(key)) byCode.set(key, { code: key, name, values: {} });
-  return byCode.get(key);
-};
-
-for (const [metric, index] of EUROSTAT) {
-  const current = currentCountries(index);
-  const totals = current.map((country) => country.total);
-  const low = Math.min(...totals);
-  const high = Math.max(...totals);
-
-  for (const country of current) {
-    const entry = remember(country.code, country.name);
-    if (!entry) continue;
-    entry.values[metric.key] = {
-      v: formatValue(country.total, metric),
-      at: position(country.total, low, high),
-    };
-  }
-}
-
-// Vermogen apart, om de reden in de kop van dit bestand.
-{
-  const withMedian = wealthData.countries.filter((country) => typeof country.median === 'number');
-  const medians = withMedian.map((country) => country.median);
-  const low = Math.min(...medians);
-  const high = Math.max(...medians);
-
-  for (const country of withMedian) {
-    const entry = remember(country.area, country.name);
-    if (!entry) continue;
-    entry.values.wealth = {
-      v: euro(country.median, { compact: true }),
-      at: position(country.median, low, high),
-      /** Vermogen is de enige metriek die al een pagina per land heeft. */
-      path: `/wealth/${country.area.toLowerCase()}/`,
-    };
-  }
-}
-
-/** Elk land dat in minstens één dataset staat, op naam. */
-export const HOME_COUNTRIES = [...byCode.values()]
-  .map((country) => ({ ...country, have: Object.keys(country.values).length }))
-  .sort((a, b) => a.name.localeCompare(b.name));
-
-/** Hoeveel metrieken de voordeur toont; de noemer in "4 of the 9 figures". */
-export const METRIC_COUNT = CATALOGUE.length;
-
 /**
- * Wat de browser krijgt. Klein gehouden: alleen naam, cijfers en balkposities, en
- * de balkpositie op één decimaal. Gemeten op 40 landen is dit een paar kilobyte.
+ * Dit stond op moduleniveau: drie `export const` die bij het importeren werden
+ * berekend. Een landenlijst die bij import ontstaat draagt de namen van één taal en
+ * wordt daarna door elke pagina gedeeld — dus zou de voordeur Engelse landnamen
+ * houden op /nl/. Zie dezelfde omzetting in catalogue.js.
+ *
+ * De sortering staat hier ook niet voor niets: `localeCompare(a, b, lang)` zet
+ * IJsland en Oostenrijk anders dan het Engels dat doet, en een landenlijst die op
+ * zijn Engelse naam gesorteerd is leest in het Nederlands als een willekeurige rij.
  */
-export const COUNTRY_DATA = Object.fromEntries(
-  HOME_COUNTRIES.map((country) => [
-    country.code,
-    {
-      n: country.name,
-      have: country.have,
-      m: Object.fromEntries(
-        Object.entries(country.values).map(([key, cell]) => [
-          key,
-          { v: cell.v, at: cell.at === null ? null : Number(cell.at.toFixed(1)), ...(cell.path ? { p: cell.path } : {}) },
-        ]),
-      ),
-    },
-  ]),
-);
+const perLang = new Map();
+
+function build(lang) {
+  const byCode = new Map();
+
+  const remember = (code, name) => {
+    const key = canonical(code);
+    if (!key) return null;
+    if (!byCode.has(key)) byCode.set(key, { code: key, name, values: {} });
+    return byCode.get(key);
+  };
+
+  for (const [metric, index] of EUROSTAT) {
+    const cfg = { ...metric, locale: lang };
+    const current = currentCountries(localise(index, lang));
+    const totals = current.map((country) => country.total);
+    const low = Math.min(...totals);
+    const high = Math.max(...totals);
+
+    for (const country of current) {
+      const entry = remember(country.code, country.name);
+      if (!entry) continue;
+      entry.values[metric.key] = {
+        v: formatValue(country.total, cfg),
+        at: position(country.total, low, high),
+      };
+    }
+  }
+
+  // Vermogen apart, om de reden in de kop van dit bestand.
+  {
+    const named = localise(wealthData, lang);
+    const withMedian = named.countries.filter((country) => typeof country.median === 'number');
+    const medians = withMedian.map((country) => country.median);
+    const low = Math.min(...medians);
+    const high = Math.max(...medians);
+
+    for (const country of withMedian) {
+      const entry = remember(country.area, country.name);
+      if (!entry) continue;
+      entry.values.wealth = {
+        v: euro(country.median, { compact: true, locale: lang }),
+        at: position(country.median, low, high),
+        /**
+         * Vermogen is de enige metriek die al een pagina per land heeft. Zonder
+         * taalvoorvoegsel, net als `path` in catalogue.js: de pagina zet het ervoor.
+         * Let op de valkuil hier — voor Nederland is dit `/wealth/nl/`, en met een
+         * voorvoegsel erop `/nl/wealth/nl/`. Twee keer "nl" die niets met elkaar te
+         * maken hebben.
+         */
+        path: `/wealth/${country.area.toLowerCase()}/`,
+      };
+    }
+  }
+
+  const countries = [...byCode.values()]
+    .map((country) => ({ ...country, have: Object.keys(country.values).length }))
+    .sort((a, b) => a.name.localeCompare(b.name, lang));
+
+  return {
+    /** Elk land dat in minstens één dataset staat, op naam. */
+    countries,
+    /** Hoeveel metrieken de voordeur toont; de noemer in "4 of the 9 figures". */
+    metricCount: catalogue(lang).length,
+    /**
+     * Wat de browser krijgt. Klein gehouden: alleen naam, cijfers en balkposities, en
+     * de balkpositie op één decimaal. Gemeten op 40 landen is dit een paar kilobyte.
+     */
+    countryData: Object.fromEntries(
+      countries.map((country) => [
+        country.code,
+        {
+          n: country.name,
+          have: country.have,
+          m: Object.fromEntries(
+            Object.entries(country.values).map(([key, cell]) => [
+              key,
+              { v: cell.v, at: cell.at === null ? null : Number(cell.at.toFixed(1)), ...(cell.path ? { p: cell.path } : {}) },
+            ]),
+          ),
+        },
+      ]),
+    ),
+  };
+}
+
+export function homeCountries(lang = DEFAULT_LOCALE) {
+  let found = perLang.get(lang);
+  if (!found) {
+    found = build(lang);
+    perLang.set(lang, found);
+  }
+  return found;
+}

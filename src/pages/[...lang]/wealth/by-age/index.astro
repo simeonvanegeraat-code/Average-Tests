@@ -1,13 +1,23 @@
 ---
-import { localePaths } from '../../../../lib/locales.js';
+import { localeOf, localePaths } from '../../../../lib/locales.js';
+import { localise } from '../../../../lib/country-names.js';
 import { grouped } from '../../../../lib/format.js';
 import BaseV2 from '../../../../layouts/BaseV2.astro';
-import ageIndex from '../../../../../data/wealth-age/index.json';
+import rawAgeIndex from '../../../../../data/wealth-age/index.json';
 import validation from '../../../../../data/wealth-age-validation.json';
 import { euro, multiple, withArticle } from '../../../../lib/wealth.js';
 import { bySteepness, curveOf, fieldworkLabel, peaksByBand } from '../../../../lib/wealth-age.js';
 import { periodLabel } from '../../../../lib/period.js';
 import { STAGES } from '../../../../lib/hue.js';
+
+/**
+ * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
+ * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
+ * taal in voordat enig onderdeel de index ziet, en `locale` in de
+ * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ */
+const lang = localeOf(Astro.url.pathname);
+const ageIndex = localise(rawAgeIndex, lang);
 
 /**
  * Vermogen per leeftijdsgroep, alle landen naast elkaar.

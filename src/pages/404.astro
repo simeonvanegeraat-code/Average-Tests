@@ -1,6 +1,16 @@
 ---
 import BaseV2 from '../layouts/BaseV2.astro';
-import { CATALOGUE } from '../lib/catalogue.js';
+import { catalogue } from '../lib/catalogue.js';
+import { DEFAULT_LOCALE } from '../lib/locales.js';
+
+/**
+ * De 404 staat buiten [...lang] en is er dus één, in de standaardtaal. Astro bouwt
+ * precies één dist/404.html en Vercel serveert die op elk pad, ook onder /nl/. Een
+ * Nederlandse bezoeker die een verkeerde URL intikt krijgt daarom een Engelse 404.
+ * Dat is bewust: liever één 404 die werkt dan een taalkeuze die nergens vandaan komt,
+ * want op een niet-bestaand pad is er geen taal om uit te lezen.
+ */
+const CATALOGUE = catalogue(DEFAULT_LOCALE);
 
 /**
  * De 404 van het Engelse cluster.

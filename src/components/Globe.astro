@@ -19,10 +19,15 @@
  *
  * Luistert naar `ha:country` en draait dan naar dat land, net zoals StageMap dat doet.
  */
-import { CATALOGUE } from '../lib/catalogue.js';
+import { catalogue } from '../lib/catalogue.js';
+import { localeOf } from '../lib/locales.js';
 
 /** Alleen wat de tekenaar nodig heeft: sleutel, naam en tint. */
-const metrics = CATALOGUE.map((metric) => ({ key: metric.key, label: metric.label, hue: metric.hue }));
+const metrics = catalogue(localeOf(Astro.url.pathname)).map((metric) => ({
+  key: metric.key,
+  label: metric.label,
+  hue: metric.hue,
+}));
 const first = metrics[0];
 ---
 
