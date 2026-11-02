@@ -22,6 +22,7 @@
  *      van 1 november 2026). Een poort die dat niet weet, blokkeert precies de tekst
  *      die er hoort te staan, en een poort die onterecht afgaat wordt uitgezet.
  *   5. Een getal met een punt als decimaalteken op een Nederlandse pagina.
+ *   6. Een interne link op een Nederlandse pagina die het taalvoorvoegsel mist.
  *   6. Een geciteerde definitie zonder `lang`-attribuut.
  *
  * Deze poort leest de data en de bron, niet het gebouwde bestand — behalve voor de
@@ -291,6 +292,43 @@ if (pages.length === 0) {
       }
       const xDefault = alternates.filter((a) => a === 'x-default').length;
       if (xDefault !== 1) fail(`${url}: x-default staat er ${xDefault} keer, moet precies één keer.`);
+    }
+
+    /**
+     * Een interne link die het taalvoorvoegsel mist.
+     *
+     * Dit is de controle die voorkomt dat een taalversie veertig doodlopende pagina's
+     * wordt. Op 2 november 2026 droeg nul van de 86 interne links een voorvoegsel: de
+     * Nederlandse pagina's zouden gebouwd zijn, er goed uitzien, en bij de eerste klik
+     * terug op het Engels komen. Een build die slaagt vindt dat niet.
+     *
+     * Wat hier wél een link naar een andere taal mag zijn: de taalkiezer. Die wijst
+     * per definitie naar de andere talen, dus zijn `nav` gaat er eerst uit. Zonder dat
+     * gaat deze poort af op precies de code die goed is — en een poort die onterecht
+     * afgaat, wordt uitgezet.
+     *
+     * Alleen paginapaden. Een paginapad van deze site eindigt op een schuine streep,
+     * eventueel met een anker; alles in public/ heeft een extensie en hoort geen
+     * voorvoegsel te dragen.
+     */
+    if (prefix !== DEFAULT) {
+      const zonderKiezer = html.replace(/<nav class="lang-switch"[\s\S]*?<\/nav>/g, '');
+      const mis = new Set();
+
+      for (const hit of zonderKiezer.matchAll(/href="(\/[^"\/][^"]*|\/)"/g)) {
+        const path = hit[1];
+        if (!/\/(#[^/]*)?$/.test(path)) continue; // geen pagina maar een bestand
+        if (path === `/${prefix}/` || path.startsWith(`/${prefix}/`)) continue;
+        mis.add(path);
+      }
+
+      if (mis.size) {
+        const sample = [...mis].slice(0, 6).join(', ');
+        fail(
+          `${url}: ${mis.size} interne link(s) zonder het voorvoegsel "/${prefix}": ${sample}. ` +
+            'Haal ze door linkTo(path, lang) in src/lib/locales.js.',
+        );
+      }
     }
 
     /**
