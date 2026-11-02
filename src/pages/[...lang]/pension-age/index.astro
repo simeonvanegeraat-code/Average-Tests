@@ -1,15 +1,27 @@
 ---
-import { localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import Related from '../../../components/Related.astro';
 import StageMap from '../../../components/StageMap.astro';
 import CompareForm from '../../../components/CompareForm.astro';
 import RankTable from '../../../components/RankTable.astro';
 import geo from '../../../../data/geo/europe.json';
-import index from '../../../../data/pension-age/index.json';
-import exitIndex from '../../../../data/exit-age/index.json';
-import metric from '../../../lib/metrics/pension-age.js';
+import rawIndex from '../../../../data/pension-age/index.json';
+import rawExitIndex from '../../../../data/exit-age/index.json';
+import baseMetric from '../../../lib/metrics/pension-age.js';
 import { citation, exitAge, exitAgeRows } from '../../../lib/exit-age.js';
+
+/**
+ * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
+ * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
+ * taal in voordat enig onderdeel de index ziet, en `locale` in de
+ * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ */
+const lang = localeOf(Astro.url.pathname);
+const index = localise(rawIndex, lang);
+const exitIndex = localise(rawExitIndex, lang);
+const metric = { ...baseMetric, locale: lang };
 import {
   count,
   currentCountries,

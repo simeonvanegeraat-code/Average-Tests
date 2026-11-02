@@ -1,5 +1,6 @@
 ---
-import { localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localise } from '../../../lib/country-names.js';
 import { decimal } from '../../../lib/format.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import Related from '../../../components/Related.astro';
@@ -7,11 +8,23 @@ import StageMap from '../../../components/StageMap.astro';
 import CompareForm from '../../../components/CompareForm.astro';
 import RankTable from '../../../components/RankTable.astro';
 import geo from '../../../../data/geo/europe.json';
-import index from '../../../../data/dwelling-size/index.json';
-import householdData from '../../../../data/household-size/index.json';
-import metric from '../../../lib/metrics/dwelling-size.js';
-import householdMetric from '../../../lib/metrics/household-size.js';
+import rawIndex from '../../../../data/dwelling-size/index.json';
+import rawHouseholdData from '../../../../data/household-size/index.json';
+import baseMetric from '../../../lib/metrics/dwelling-size.js';
+import baseHouseholdMetric from '../../../lib/metrics/household-size.js';
 import { spacePerPerson } from '../../../lib/space-per-person.js';
+
+/**
+ * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
+ * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
+ * taal in voordat enig onderdeel de index ziet, en `locale` in de
+ * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ */
+const lang = localeOf(Astro.url.pathname);
+const index = localise(rawIndex, lang);
+const householdData = localise(rawHouseholdData, lang);
+const metric = { ...baseMetric, locale: lang };
+const householdMetric = { ...baseHouseholdMetric, locale: lang };
 import {
   currentCountries,
   formatAmount,

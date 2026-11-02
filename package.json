@@ -9,7 +9,7 @@
     "preview": "astro preview",
     "check": "node scripts/check-pages.mjs",
     "locales:build": "node scripts/build-locale-names.mjs",
-    "locales:validate": "node scripts/validate-i18n.mjs",
+    "locales:validate": "node scripts/build-locale-names.mjs --check && node scripts/validate-i18n.mjs",
     "locales": "npm run locales:build && npm run locales:validate",
     "wealth:fetch": "node scripts/fetch-dwa.mjs",
     "wealth:build": "node scripts/build-wealth.mjs",

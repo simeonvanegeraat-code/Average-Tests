@@ -1,12 +1,23 @@
 ---
-import { localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
-import index from '../../../../data/wealth/index.json';
-import ageIndex from '../../../../data/wealth-age/index.json';
+import rawIndex from '../../../../data/wealth/index.json';
+import rawAgeIndex from '../../../../data/wealth-age/index.json';
 import { euro, multiple, formatPeriod, percentChange, withArticle } from '../../../lib/wealth.js';
 import { decimal } from '../../../lib/format.js';
 import { curveOf, fieldworkLabel } from '../../../lib/wealth-age.js';
 import { STAGES } from '../../../lib/hue.js';
+
+/**
+ * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
+ * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
+ * taal in voordat enig onderdeel de index ziet, en `locale` in de
+ * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ */
+const lang = localeOf(Astro.url.pathname);
+const index = localise(rawIndex, lang);
+const ageIndex = localise(rawAgeIndex, lang);
 
 /**
  * Eén pagina per land.
@@ -29,8 +40,13 @@ export async function getStaticPaths() {
    * alleen een taal om heen. Zolang Engels de enige taal is, is `lang` undefined en
    * blijven dit precies de 21 paden die er altijd stonden.
    */
+  /**
+   * De rúwe index, niet de gelokaliseerde. getStaticPaths draait voordat de pagina
+   * bestaat en kent Astro.url dus niet, en heeft hier ook geen taal nodig: de paden
+   * komen uit `area`, een landcode, en die is in elke taal hetzelfde.
+   */
   return localePaths().flatMap(({ params: { lang } }) =>
-    index.countries.map((summary) => {
+    rawIndex.countries.map((summary) => {
       const key = Object.keys(files).find((p) => p.endsWith(`/${summary.area.toLowerCase()}.json`));
       const country = files[key].default ?? files[key];
       return { params: { lang, country: summary.area.toLowerCase() }, props: { country } };
