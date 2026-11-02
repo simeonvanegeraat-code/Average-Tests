@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import rawIndex from '../../../../data/wealth/index.json';
@@ -141,7 +141,7 @@ const description =
         {' '}{rank} of the {ranked.length} countries the European Central Bank measures.
       </p>
       <div class="hero-cta" data-reveal>
-        <a class="btn" href="/wealth/#compare">
+        <a class="btn" href={linkTo('/wealth/#compare', lang)}>
           Compare your own household
           <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
         </a>
@@ -393,7 +393,7 @@ const description =
                 {' '}The average for each group sits above the middle everywhere — in the
                 {' '}{curve.youngest.label} group it is {multiple(curve.youngest.mean / curve.youngest.median)} the
                 middle, because a small number of large fortunes pull it up.
-                {' '}<a href="/wealth/by-age/">All {ageIndex.countries.length} countries side by side</a>.
+                {' '}<a href={linkTo('/wealth/by-age/', lang)}>All {ageIndex.countries.length} countries side by side</a>.
               </p>
             </div>
 

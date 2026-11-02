@@ -1,9 +1,12 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import { STAGES } from '../../../lib/hue.js';
 import { NOTES, noteDate } from '../../../lib/notes.js';
 import { METHODOLOGY } from '../../../lib/methodology.js';
+
+/** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
+const lang = localeOf(Astro.url.pathname);
 
 /**
  * Het overzicht van de artikelen.
@@ -55,7 +58,7 @@ export function getStaticPaths() {
       <div class="notelist" data-reveal>
         {
           NOTES.map((note) => (
-            <a class="noteitem hued" href={note.path} style={`--h:${note.hue}`}>
+            <a class="noteitem hued" href={linkTo(note.path, lang)} style={`--h:${note.hue}`}>
               <p class="when mono">{noteDate(note.published)}</p>
               <h3>{note.title}</h3>
               <p class="teaser">{note.teaser}</p>
@@ -95,7 +98,7 @@ export function getStaticPaths() {
             people's reporting, no predictions, and no sentence with a number in it that was
             typed by hand. Every figure in every piece is computed from the same files the
             metric pages use, at build time, so a piece cannot quietly go stale when a source
-            publishes again. <a href="/method/">The method page</a> lists those files per
+            publishes again. <a href={linkTo('/method/', lang)}>The method page</a> lists those files per
             dataset.
           </p>
         </div>

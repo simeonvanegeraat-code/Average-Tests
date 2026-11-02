@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import StatHero from '../../../components/StatHero.astro';
@@ -160,7 +160,7 @@ export function getStaticPaths() {
                   })()
                 }. Measured from 2005 the spread appears to grow; measured across comparable years
                 it shrinks. The code refuses to calculate it the first way —{' '}
-                  <a href="/notes/eurostat-2021-series-break/">why that break matters more than a
+                  <a href={linkTo('/notes/eurostat-2021-series-break/', lang)}>why that break matters more than a
                   footnote</a>.
               </p>
             </div>

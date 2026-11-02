@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import { decimal } from '../../../lib/format.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
@@ -200,7 +200,7 @@ export function getStaticPaths() {
 
         <p class="source-note">
           Licence: Eurostat data may be reused, including commercially, with attribution. How we handle
-          data is on <a href="/method/">the method page</a>.
+          data is on <a href={linkTo('/method/', lang)}>the method page</a>.
         </p>
       </div>
     </div>

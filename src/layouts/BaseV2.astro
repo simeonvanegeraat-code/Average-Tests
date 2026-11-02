@@ -21,7 +21,7 @@
  * samenvoeging van wat er al staat, nooit als vervanging.
  */
 import { hueStyle } from '../lib/hue.js';
-import { localeOf, prefixOf, alternatesOf } from '../lib/locales.js';
+import { localeOf, prefixOf, alternatesOf, linkTo } from '../lib/locales.js';
 import { catalogue } from '../lib/catalogue.js';
 import { NOTES, NOTES_LINK } from '../lib/notes.js';
 
@@ -155,7 +155,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
 
     <header class="nav-shell">
       <nav class="nav" aria-label="Main navigation">
-        <a class="brand" href="/" aria-label="HumanAverage home">
+        <a class="brand" href={linkTo('/', lang)} aria-label="HumanAverage home">
           <svg class="mark" viewBox="0 0 36 16" aria-hidden="true">
             <defs>
               <linearGradient id="ha-spectrum" x1="0" x2="1">
@@ -179,9 +179,9 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
           </svg>
         </button>
 
-        <a class="nav-method" href={NOTES_LINK} aria-current={here.startsWith('/notes/') ? 'page' : undefined}>Notes</a>
+        <a class="nav-method" href={linkTo(NOTES_LINK, lang)} aria-current={here.startsWith('/notes/') ? 'page' : undefined}>Notes</a>
 
-        <a class="nav-method" href="/method/" aria-current={isCurrent('/method/') ? 'page' : undefined}>Method</a>
+        <a class="nav-method" href={linkTo('/method/', lang)} aria-current={isCurrent('/method/') ? 'page' : undefined}>Method</a>
 
         <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Switch theme">
           <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -202,7 +202,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
             CATALOGUE.map((metric, i) => (
               <a
                 class="cat-card hued"
-                href={metric.path}
+                href={linkTo(metric.path, lang)}
                 style={cardStyle(metric, i)}
                 aria-current={isCurrent(metric.path) ? 'page' : undefined}
                 data-metric={metric.key}
@@ -227,7 +227,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
             ))
           }
 
-          <a class="cat-card cat-method" href="/method/" style={`--i:${CATALOGUE.length}`} data-method-card>
+          <a class="cat-card cat-method" href={linkTo('/method/', lang)} style={`--i:${CATALOGUE.length}`} data-method-card>
             <span class="cue">How we read it</span>
             <span class="name">Sources, and the breaks we refuse to cross</span>
             <span class="go" aria-hidden="true">
@@ -242,7 +242,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
               NOTES.length > 0 && (
                 <div class="cat-notes">
                   {NOTES.slice(0, 1).map((note) => (
-                    <a class="cat-note" href={note.path} data-note-card>
+                    <a class="cat-note" href={linkTo(note.path, lang)} data-note-card>
                       <span class="cue">Note</span>
                       <span class="name">{note.card}</span>
                       <span class="go" aria-hidden="true">
@@ -260,7 +260,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
                     strip hierboven wijst naar het nieuwste artikel, niet naar de
                     lijst. Op een telefoon bestond het overzicht dus niet.
                   */}
-                  <a class="cat-note cat-note--all" href={NOTES_LINK} data-note-card>
+                  <a class="cat-note cat-note--all" href={linkTo(NOTES_LINK, lang)} data-note-card>
                     <span class="cue">All</span>
                     <span class="name">{NOTES.length === 1 ? 'Every note' : `All ${NOTES.length} notes`}</span>
                     <span class="go" aria-hidden="true">
@@ -293,18 +293,18 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
           <div>
             <h3>Every metric</h3>
             <div class="foot-links">
-              {CATALOGUE.map((metric) => <a href={metric.path}>{metric.label}</a>)}
-              <a href="/method/">How we calculate it</a>
+              {CATALOGUE.map((metric) => <a href={linkTo(metric.path, lang)}>{metric.label}</a>)}
+              <a href={linkTo('/method/', lang)}>How we calculate it</a>
             </div>
           </div>
           <div>
             <h3>About</h3>
             <div class="foot-links">
-              <a href="/about/">About</a>
-              <a href="/contact/">Contact</a>
-              <a href="/privacy/">Privacy</a>
-              {NOTES.slice(0, 3).map((note) => <a href={note.path}>{note.title}</a>)}
-              {NOTES.length > 3 && <a href="/notes/">All notes</a>}
+              <a href={linkTo('/about/', lang)}>About</a>
+              <a href={linkTo('/contact/', lang)}>Contact</a>
+              <a href={linkTo('/privacy/', lang)}>Privacy</a>
+              {NOTES.slice(0, 3).map((note) => <a href={linkTo(note.path, lang)}>{note.title}</a>)}
+              {NOTES.length > 3 && <a href={linkTo('/notes/', lang)}>All notes</a>}
             </div>
           </div>
         </div>

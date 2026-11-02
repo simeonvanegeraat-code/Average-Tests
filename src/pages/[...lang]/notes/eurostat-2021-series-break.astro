@@ -1,9 +1,12 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { decimal } from '../../../lib/format.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import { STAGES } from '../../../lib/hue.js';
 import { METHODOLOGY } from '../../../lib/methodology.js';
+
+/** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
+const lang = localeOf(Astro.url.pathname);
 import {
   spreadAt,
   jumps,
@@ -268,7 +271,7 @@ export function getStaticPaths() {
           variant, because a footnote is what failed.
         </p>
         <p>
-          That is why <a href="/leaving-home/">leaving home</a> carries a trend measured from
+          That is why <a href={linkTo('/leaving-home/', lang)}>leaving home</a> carries a trend measured from
           {' '}{comparable.since} and not from {years.first}, even though the data goes back that
           far. And it is why some pages carry no trend at all.
         </p>
@@ -281,7 +284,7 @@ export function getStaticPaths() {
         <ul>
           {elsewhere.map((set) => (
             <li>
-              <a href={set.path}>{set.label}</a> — {set.comparability.kind === 'since' ? (
+              <a href={linkTo(set.path, lang)}>{set.label}</a> — {set.comparability.kind === 'since' ? (
                 <>comparable since {set.comparability.since}, with a break in {set.comparability.year}</>
               ) : (
                 <>
@@ -333,7 +336,7 @@ export function getStaticPaths() {
           API the flag arrives in the <code>status</code> block alongside the values. Our pipeline
           reads that block rather than the published table, which is the only way to be sure the
           flag has not been dropped somewhere in between — the full account is on
-          {' '}<a href="/method/">the method page</a>.
+          {' '}<a href={linkTo('/method/', lang)}>the method page</a>.
         </p>
 
         <h3>Does this affect the comparison I get when I enter my own age?</h3>
@@ -367,7 +370,7 @@ export function getStaticPaths() {
           <li>
             <strong>Every figure here</strong>
             <span>
-              is computed from that file at build time — see <a href="/method/#datasets-title">the
+              is computed from that file at build time — see <a href={linkTo('/method/#datasets-title', lang)}>the
               dataset blocks</a> for the rest.
             </span>
           </li>

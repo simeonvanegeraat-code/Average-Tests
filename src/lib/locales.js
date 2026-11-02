@@ -26,6 +26,25 @@ export const LOCALES = ['en'];
 export const prefixOf = (lang) => (lang === DEFAULT_LOCALE ? '' : `/${lang}`);
 
 /**
+ * Een interne link in de taal van de pagina. `/method/` wordt `/nl/method/`.
+ *
+ * Dit is één regel en toch de kern van de tweede taal. Zonder deze functie zijn de
+ * Nederlandse pagina's veertig doodlopende straten: elke link in de balk, het
+ * megamenu en de voetregel stond zonder voorvoegsel, dus één klik en de bezoeker
+ * staat weer op het Engels. Gemeten op 2 november 2026, vóór deze ronde: nul van de
+ * 86 interne links droeg het voorvoegsel.
+ *
+ * De paden zelf blijven overal zonder voorvoegsel staan — in `catalogue.js`, in
+ * `notes.js`, in de pagina's. Dat is bewust: de navigatie vergelijkt ze met `here`,
+ * waar het voorvoegsel al af is, en de canonical bouwt erop. Eén plek zet het ervoor,
+ * en dat is hier.
+ *
+ * Een anker mag mee (`/method/#datasets-title`): het voorvoegsel gaat ervóór, dus
+ * het anker blijft waar het hoort.
+ */
+export const linkTo = (path, lang) => `${prefixOf(lang)}${path}`;
+
+/**
  * De waarde voor de routeparameter `[...lang]`. Dat `undefined` is hier het punt: een
  * restparameter zonder waarde laat het segment weg, dus /leaving-home/ en niet
  * /en/leaving-home/.

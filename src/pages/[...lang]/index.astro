@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../lib/locales.js';
 import { localise } from '../../lib/country-names.js';
 import { decimal } from '../../lib/format.js';
 import BaseV2 from '../../layouts/BaseV2.astro';
@@ -155,7 +155,7 @@ export function getStaticPaths() {
       <div class="cat-grid" data-reveal data-pick-grid>
         {
           CATALOGUE.map((metric, i) => (
-            <a class="cat-card hued" href={metric.path} style={cardStyle(metric, i)} data-metric={metric.key}>
+            <a class="cat-card hued" href={linkTo(metric.path, lang)} style={cardStyle(metric, i)} data-metric={metric.key}>
               <span class="name">{metric.label}</span>
               {metric.value && (
                 <span class="val">
@@ -176,7 +176,7 @@ export function getStaticPaths() {
           ))
         }
 
-        <a class="cat-card cat-method" href="/method/" style={`--i:${CATALOGUE.length}`}>
+        <a class="cat-card cat-method" href={linkTo('/method/', lang)} style={`--i:${CATALOGUE.length}`}>
           <span class="cue">How we read it</span>
           <span class="name">Sources, and the breaks we refuse to cross</span>
           <span class="go" aria-hidden="true">
@@ -204,7 +204,7 @@ export function getStaticPaths() {
 
           <div class="notelist" data-reveal>
             {NOTES.slice(0, 3).map((note) => (
-              <a class="noteitem hued" href={note.path} style={`--h:${note.hue}`}>
+              <a class="noteitem hued" href={linkTo(note.path, lang)} style={`--h:${note.hue}`}>
                 <p class="eyebrow mono">{noteDate(note.published)}</p>
                 <h3>{note.title}</h3>
                 <p>{note.teaser}</p>
@@ -214,7 +214,7 @@ export function getStaticPaths() {
           </div>
 
           {NOTES.length > 3 && (
-            <p class="more"><a href={NOTES_LINK}>All {NOTES.length} notes <span aria-hidden="true">→</span></a></p>
+            <p class="more"><a href={linkTo(NOTES_LINK, lang)}>All {NOTES.length} notes <span aria-hidden="true">→</span></a></p>
           )}
         </div>
       </section>
@@ -229,7 +229,7 @@ export function getStaticPaths() {
         <p>
           Where a source publishes one figure per country — which is almost always — a page
           tells you which side of it you are on, and says so plainly instead of dressing it up
-          as a percentile. <a href="/method/">The method page</a> has the whole argument, per
+          as a percentile. <a href={linkTo('/method/', lang)}>The method page</a> has the whole argument, per
           dataset.
         </p>
       </header>
