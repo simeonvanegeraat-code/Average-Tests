@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../../lib/locales.js';
 import { localise } from '../../../../lib/country-names.js';
 import { grouped } from '../../../../lib/format.js';
 import BaseV2 from '../../../../layouts/BaseV2.astro';
@@ -111,7 +111,7 @@ export function getStaticPaths() {
       </p>
 
       <div class="hero-cta">
-        <a class="btn" href="/wealth/#compare">
+        <a class="btn" href={linkTo('/wealth/#compare', lang)}>
           Put your own figure in <span class="arr" aria-hidden="true">→</span>
         </a>
         <span class="hint">Nothing you type leaves your browser.</span>
@@ -119,7 +119,7 @@ export function getStaticPaths() {
 
       <p class="hero-note">
         This is the ECB's household survey, and it measures something narrower than the quarterly
-        accounts on <a href="/wealth/">the main wealth page</a>: the value of public and
+        accounts on <a href={linkTo('/wealth/', lang)}>the main wealth page</a>: the value of public and
         occupational pension plans is left out. The two sets of figures are not comparable with
         each other, so nothing on this page is placed next to them.
       </p>
@@ -278,7 +278,7 @@ export function getStaticPaths() {
           <div>
             <dt>What it is not</dt>
             <dd>
-              It is not the figure on <a href="/wealth/">the main wealth page</a>. That one comes
+              It is not the figure on <a href={linkTo('/wealth/', lang)}>the main wealth page</a>. That one comes
               from the ECB's quarterly accounts, which do include pension entitlements and carry no
               age split at all. It is not a percentile either: the survey publishes a middle and an
               average per group, not a distribution, so no position among individuals can be built
@@ -339,7 +339,7 @@ export function getStaticPaths() {
         </ul>
 
         <p class="source-note">
-          How we handle data is on <a href="/method/">the method page</a>.
+          How we handle data is on <a href={linkTo('/method/', lang)}>the method page</a>.
         </p>
       </div>
     </div>

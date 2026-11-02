@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../../lib/locales.js';
 import { localise } from '../../../../lib/country-names.js';
 import { decimal } from '../../../../lib/format.js';
 import BaseV2 from '../../../../layouts/BaseV2.astro';
@@ -152,7 +152,7 @@ export function getStaticPaths() {
         <h2 id="table-title">All {matched.length} countries, worst first for the under-25s</h2>
         <p>
           The last two columns are the same country's place in two different rankings: by the
-          overall rate, which is what <a href="/unemployment/">the main page</a> shows, and by the
+          overall rate, which is what <a href={linkTo('/unemployment/', lang)}>the main page</a> shows, and by the
           under-25 rate. They disagree for every country here, and for {bigMovers} of them by five
           places or more.
         </p>
@@ -337,7 +337,7 @@ export function getStaticPaths() {
           <div>
             <dt>What the figures are</dt>
             <dd>
-              The same measure as <a href="/unemployment/">the main unemployment page</a>, cut by
+              The same measure as <a href={linkTo('/unemployment/', lang)}>the main unemployment page</a>, cut by
               age instead of totalled: the share of the labour force that is unemployed,
               seasonally adjusted, for one calendar month. Unemployed follows the ILO definition —
               no job in the reference week, actively looking in the past four weeks, able to start
@@ -372,7 +372,7 @@ export function getStaticPaths() {
               others do not. Nothing on this page is measured across a break — every statement here
               is about a single month — and the comparable window for each age group is worked out
               on its own series rather than shared, which is why{' '}
-              <a href="/method/">the method page</a> carries the under-25 series as an entry of its
+              <a href={linkTo('/method/', lang)}>the method page</a> carries the under-25 series as an entry of its
               own, separate from the overall one.
             </dd>
           </div>
@@ -392,7 +392,7 @@ export function getStaticPaths() {
 
         <p class="source-note">
           Licence: Eurostat data may be reused, including commercially, with attribution. How we
-          handle data is on <a href="/method/">the method page</a>.
+          handle data is on <a href={linkTo('/method/', lang)}>the method page</a>.
         </p>
       </div>
     </div>

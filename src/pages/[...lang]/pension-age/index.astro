@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import Related from '../../../components/Related.astro';
@@ -387,7 +387,7 @@ export function getStaticPaths() {
           allow the same — "even for commercial use" — on condition that the citation above is given; that
           is why it is printed here and not only in our notes.
           {cite.terms && (<> <a href={cite.terms} data-method-link>The OECD terms are here</a>.</>)}
-          {' '}How we handle data is on <a href="/method/">the method page</a>.
+          {' '}How we handle data is on <a href={linkTo('/method/', lang)}>the method page</a>.
         </p>
       </div>
     </div>

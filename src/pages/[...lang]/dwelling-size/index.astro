@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import { decimal } from '../../../lib/format.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
@@ -316,12 +316,12 @@ export function getStaticPaths() {
           <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
           <li><strong>DOI</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
           {index.source.metadata && (<li><strong>Eurostat metadata</strong><a href={index.source.metadata} data-method-link>explanatory texts</a></li>)}
-          {space && (<li><strong>Household size</strong> Eurostat <code>{householdData.source.dataset}</code> at {space.year}, used only for the per-person calculation — <a href="/household-size/">its own page is here</a></li>)}
+          {space && (<li><strong>Household size</strong> Eurostat <code>{householdData.source.dataset}</code> at {space.year}, used only for the per-person calculation — <a href={linkTo('/household-size/', lang)}>its own page is here</a></li>)}
         </ul>
 
         <p class="source-note">
           Licence: Eurostat data may be reused, including commercially, with attribution. How we handle
-          data is on <a href="/method/">the method page</a>.
+          data is on <a href={linkTo('/method/', lang)}>the method page</a>.
         </p>
       </div>
     </div>

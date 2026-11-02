@@ -454,3 +454,62 @@ daar `<html lang>`, nagemeten op de live site.
 2. **`euroArea.name: "I9"` in `data/wealth/index.json` staat er nog**, en is een fout in
    `build-wealth.mjs`. Repareren betekent `npm run wealth` draaien en dus data in de repo
    veranderen; dat ligt bij Simeon en is op 1 november aan hem voorgelegd.
+
+## De linklaag en de taalkiezer (2 november 2026)
+
+Dit stond niet als eigen stap in de bouwvolgorde hierboven, en dat was een gat in het
+plan. De vraag die het opende: *hoe wisselt een bezoeker eigenlijk van taal?*
+
+**Het antwoord was: dat kon niet.** En er zat iets ernstigers onder. Gemeten vóór deze
+ronde: **nul van de 86 interne links droeg een taalvoorvoegsel.** `prefixOf()` werd
+alleen gebruikt voor de canonical en om het voorvoegsel er juist *af* te halen. De
+Nederlandse versie zou dus veertig doodlopende pagina's zijn geweest — gebouwd, mooi,
+en bij de eerste klik terug op het Engels.
+
+Dat corrigeert ook de commitboodschap van `fe3e6d9`, waar staat dat BaseV2 het
+voorvoegsel "bij een href zelf weer voor zet". Het eerste deel van die zin klopt; het
+tweede beschreef iets wat niet bestond.
+
+### Wat er nu staat
+
+| | |
+|---|---|
+| `linkTo(path, lang)` | Eén functie op de grens. De paden blijven overal zonder voorvoegsel; één plek zet het ervoor |
+| 86 links | Alle interne links erdoorheen, ankers incluis (`/method/#datasets-title`) |
+| De taalkiezer | In de balk, gewone links, uit dezelfde `alternatesOf()` als de hreflang |
+| Poortregel 6 | Een pagina met voorvoegsel mag geen interne link zonder voorvoegsel bevatten |
+
+De kiezer is met opzet zo simpel: gewone links, geen JavaScript, geen opgeslagen keuze.
+Het plan wil geen doorsturing op IP en geen taaldetectie, dus er is niets om te
+onthouden — de bezoeker kiest en de URL ís de keuze. Hij verdwijnt niet op een smal
+scherm zoals Notes en Method dat doen; daar wordt de volledige naam de taalcode.
+
+De namen komen uit CLDR, elk in zijn eigen taal. Een Nederlandse bezoeker die op het
+Engels belandt zoekt "Nederlands", niet "Dutch".
+
+### Drie dingen die de proefrit uitwees
+
+1. **De poort vindt nog precies één link zonder voorvoegsel**: de `/method/` in
+   `about/index.astro`. Dat bestand is van een andere sessie zolang PR #37 open staat,
+   dus met rust gelaten. Zodra Nederlands aangaat eist de poort hem op, en dat is het
+   juiste moment.
+2. **De dubbele `nl` werkt.** `/nl/wealth/nl/` bestaat en wordt door de clientcode goed
+   gezet — de voordeur zet die link met `setAttribute('href', cell.p)`, dus dat pad
+   krijgt zijn voorvoegsel in `home-countries.js` en niet in de pagina. Nagemeten:
+   België geeft `/nl/wealth/be/` met €288k, Nederland `/nl/wealth/nl/` met €232k.
+3. **De landenlijst sorteert nu echt Nederlands.** De eerste opties zijn Albanië,
+   België, Bosnië en Herzegovina — dat is `localeCompare(..., lang)` aan het werk, en in
+   het Engels zou die rij anders zijn.
+
+### Twee fouten van mijzelf, met de les erbij
+
+- **Een lijst in plaats van een regel.** Ik had de uitzonderingen (wat géén paginapad
+  is) met de hand overgetypt uit een gefilterd overzicht, en gaf daarmee het favicon,
+  twee iconen en beide lettertypen een taalvoorvoegsel: vijf 404-en op `/nl/`.
+  Vervangen door een regel — een paginapad eindigt op een schuine streep, alles in
+  `public/` heeft een extensie — en het script meldt nu wat het overslaat.
+- **Twee expressieblokken kostten twee bytes op 41 pagina's.** Astro bewaart
+  bronwitruimte en de compressie maakt er één spatie van, nooit nul (nagemeten in
+  `894e21d`). Twee losse blokken met een regel ertussen gaven dus twee spaties waar er
+  eerst één stond. Eén blok, vastgeplakt aan de `</a>` ervoor, en de HTML is weer bit
+  voor bit gelijk aan `main`.

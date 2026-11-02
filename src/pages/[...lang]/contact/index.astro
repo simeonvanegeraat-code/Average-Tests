@@ -1,6 +1,9 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
+
+/** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
+const lang = localeOf(Astro.url.pathname);
 
 const title = 'Contact — HumanAverage';
 const description =
@@ -69,8 +72,8 @@ export function getStaticPaths() {
 
       <p>
         Background on who runs this and how it is funded is on the
-        <a href="/about/">about page</a>. How the numbers are produced is on the
-        <a href="/method/">method page</a>.
+        <a href={linkTo('/about/', lang)}>about page</a>. How the numbers are produced is on the
+        <a href={linkTo('/method/', lang)}>method page</a>.
       </p>
     </div>
   </section>

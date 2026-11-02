@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import Related from '../../../components/Related.astro';
@@ -379,7 +379,7 @@ export function getStaticPaths() {
       </div>
 
       <p class="more" data-reveal>
-        <a class="btn btn--ghost" href="/wealth/by-age/">
+        <a class="btn btn--ghost" href={linkTo('/wealth/by-age/', lang)}>
           Every country, every age group
           <span class="arr" aria-hidden="true">→</span>
         </a>
@@ -412,7 +412,7 @@ export function getStaticPaths() {
           <tbody>
             {countries.map((c) => (
               <tr>
-                <th scope="row"><a href={`/wealth/${c.area.toLowerCase()}/`}>{c.name}</a></th>
+                <th scope="row"><a href={linkTo(`/wealth/${c.area.toLowerCase()}/`, lang)}>{c.name}</a></th>
                 <td class="n strong">{euro(c.median)}</td>
                 <td class="n">{c.homeowners ? euro(c.homeowners) : '—'}</td>
                 <td class="n">{c.renters ? euro(c.renters) : '—'}</td>

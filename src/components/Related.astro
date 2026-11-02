@@ -8,7 +8,11 @@
  * controleren in de tabel op beide pagina's. Dat is dezelfde lat als voor de pagina's
  * zelf: een berekening die nergens anders staat.
  */
+import { localeOf, linkTo } from '../lib/locales.js';
 import { related, breakNote } from '../lib/related.js';
+
+/** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
+const lang = localeOf(Astro.url.pathname);
 
 interface Props {
   /** De sleutel van de huidige metriek, zoals in src/lib/metrics/. */
@@ -31,7 +35,7 @@ const note = breakNote(metric);
 
         <div class="nextlist" data-reveal>
           {neighbours.map((neighbour) => (
-            <a class="nextitem" href={neighbour.path}>
+            <a class="nextitem" href={linkTo(neighbour.path, lang)}>
               <span class="k mono">{neighbour.label}</span>
               <p>{neighbour.line}</p>
               <span class="arr">Open it <span aria-hidden="true">→</span></span>
@@ -39,7 +43,7 @@ const note = breakNote(metric);
           ))}
 
           {note && (
-            <a class="nextitem nextitem--note" href={note.path}>
+            <a class="nextitem nextitem--note" href={linkTo(note.path, lang)}>
               <span class="k mono">The note</span>
               <p>
                 {note.of === note.countries

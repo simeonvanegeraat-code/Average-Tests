@@ -231,6 +231,20 @@
   .nav-method { padding: 9px 14px; border-radius: 999px; color: var(--text-2); font-weight: 600; font-size: .94rem; text-decoration: none; transition: background-color .2s, color .2s; }
   .nav-method:hover, .nav-method[aria-current] { color: var(--text); background: color-mix(in oklab, var(--text) 7%, transparent); text-decoration: none; }
 
+  /* De taalkiezer. Dezelfde pil als .nav-method, maar hij verdwijnt niet op een smal
+     scherm zoals Notes en Method dat doen: wie in de verkeerde taal staat moet er
+     meteen uit kunnen, en niet pas na scrollen naar de voetregel. Daar wordt de
+     volledige naam dus de taalcode, en de aria-label houdt de naam. */
+  .lang-switch { display: flex; align-items: center; gap: 2px; }
+  .lang-switch a { padding: 9px 12px; border-radius: 999px; color: var(--text-2); font-weight: 600; font-size: .94rem; text-decoration: none; transition: background-color .2s, color .2s; }
+  .lang-switch a:hover, .lang-switch a[aria-current] { color: var(--text); background: color-mix(in oklab, var(--text) 7%, transparent); text-decoration: none; }
+  .lang-switch .lang-short { display: none; }
+  @media (max-width: 560px) {
+    .lang-switch a { padding: 9px 10px; font-size: .88rem; letter-spacing: .02em; }
+    .lang-switch .lang-long { display: none; }
+    .lang-switch .lang-short { display: inline; }
+  }
+
   .catalogue { display: none; }
   @supports selector(:popover-open) { .catalogue { display: revert; } }
   @supports not selector(:popover-open) { .stagebtn { display: none; } }

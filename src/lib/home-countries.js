@@ -30,7 +30,7 @@
 import { currentCountries, formatValue } from './metric.js';
 import { euro } from './wealth.js';
 import { catalogue } from './catalogue.js';
-import { DEFAULT_LOCALE } from './locales.js';
+import { DEFAULT_LOCALE, linkTo } from './locales.js';
 import { localise } from './country-names.js';
 
 import leavingHome from './metrics/leaving-home.js';
@@ -139,13 +139,19 @@ function build(lang) {
         v: euro(country.median, { compact: true, locale: lang }),
         at: position(country.median, low, high),
         /**
-         * Vermogen is de enige metriek die al een pagina per land heeft. Zonder
-         * taalvoorvoegsel, net als `path` in catalogue.js: de pagina zet het ervoor.
-         * Let op de valkuil hier — voor Nederland is dit `/wealth/nl/`, en met een
-         * voorvoegsel erop `/nl/wealth/nl/`. Twee keer "nl" die niets met elkaar te
-         * maken hebben.
+         * Vermogen is de enige metriek die al een pagina per land heeft, en dit pad
+         * krijgt zijn taalvoorvoegsel **hier**, anders dan `path` in catalogue.js.
+         *
+         * De reden is waar het pad heen gaat: dit beland in het JSON-blok voor de
+         * browser, en de voordeur zet het met setAttribute('href', cell.p) op een
+         * kaart. Daar is geen Astro meer om er een voorvoegsel voor te zetten. Een
+         * pad dat de client in gaat moet dus af zijn.
+         *
+         * Let op de valkuil — voor Nederland is dit `/wealth/nl/`, en op een
+         * Nederlandse pagina `/nl/wealth/nl/`. Twee keer "nl" die niets met elkaar te
+         * maken hebben: de eerste is de taal, de tweede het land.
          */
-        path: `/wealth/${country.area.toLowerCase()}/`,
+        path: linkTo(`/wealth/${country.area.toLowerCase()}/`, lang),
       };
     }
   }

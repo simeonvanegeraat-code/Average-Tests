@@ -1,5 +1,5 @@
 ---
-import { localeOf, localePaths } from '../../../lib/locales.js';
+import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import rawLeaving from '../../../../data/leaving-home/index.json';
@@ -185,7 +185,7 @@ export function getStaticPaths() {
         <p>
           The row about comparing across time is the one that costs the most to get wrong.
           There is a longer piece on it:{' '}
-          <a href="/notes/eurostat-2021-series-break/">why you cannot compare Eurostat figures
+          <a href={linkTo('/notes/eurostat-2021-series-break/', lang)}>why you cannot compare Eurostat figures
           across 2021</a>.
         </p>
       </header>
@@ -195,7 +195,7 @@ export function getStaticPaths() {
           METHODOLOGY.map((set) => (
             <article class="dataset hued" id={`ds-${set.key}`} style={`--h:${set.hue}`}>
               <header class="dataset-head">
-                <h3><a href={set.path}>{set.label}</a></h3>
+                <h3><a href={linkTo(set.path, lang)}>{set.label}</a></h3>
                 <p class="mono who">
                   {set.publisher}
                   {set.dataset && <> · {set.dataset}</>}

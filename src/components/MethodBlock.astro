@@ -9,7 +9,11 @@
  * bibliotheek en uit de gegevens. De links naar de bron dragen `data-method-link`, de haak
  * waarmee de pagina de gebeurtenis `methodology_opened` meet.
  */
+import { localeOf, linkTo } from '../lib/locales.js';
 import { staleCountries, headline } from '../lib/leaving-home.js';
+
+/** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
+const lang = localeOf(Astro.url.pathname);
 
 interface Props {
   index: any;
@@ -88,7 +92,7 @@ const lastYear = index.years[index.years.length - 1];
         </div>
       </dl>
       <p class="legal">
-        Licence: Eurostat data may be reused, including commercially, with attribution. Read how we handle data on <a href="/method/">our method page</a>.
+        Licence: Eurostat data may be reused, including commercially, with attribution. Read how we handle data on <a href={linkTo('/method/', lang)}>our method page</a>.
       </p>
     </div>
   </div>
