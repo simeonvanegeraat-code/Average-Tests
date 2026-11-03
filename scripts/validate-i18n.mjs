@@ -691,7 +691,21 @@ if (pages.length === 0) {
         .replace(new RegExp(`<(blockquote|p|span|q|div|dd|li)[^>]*\\slang="[^"]*"[^>]*>[\\s\\S]*?</\\1>`, 'g'), ' ')
         .replace(/<[^>]+>/g, ' ');
 
-      const foreign = [...visible.matchAll(/\d+[.,]\d/g)]
+      /**
+       * Een DOI is geen decimaalgetal.
+       *
+       * `10.2908/YTH_DEMO_030` matcht `\d+[.,]\d` en werd dus gemeld als een Engels
+       * geschreven getal op een Nederlandse pagina. Dat is onjuist: het is een
+       * identificatie van de uitgever en die verandert niet per taal. Zo'n onterechte
+       * melding is gevaarlijker dan geen melding, want een poort die je leert te
+       * wantrouwen wordt uitgezet.
+       *
+       * Een DOI begint altijd met `10.` gevolgd door het registrantnummer en een schuine
+       * streep. Alleen die vorm gaat eruit, niet elk getal dat met 10 begint.
+       */
+      const withoutDoi = visible.replace(/\b10\.\d{4,9}\/\S+/g, ' ');
+
+      const foreign = [...withoutDoi.matchAll(/\d+[.,]\d/g)]
         .map((hit) => hit[0])
         .filter((hit) => !hit.includes(point));
 

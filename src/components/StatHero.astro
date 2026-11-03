@@ -36,7 +36,7 @@ const { index } = Astro.props;
 
 const h = headline(index);
 const order = ranked(index);
-const euValue = h.eu ? age(h.eu.total) : age(order[Math.floor(order.length / 2)].total);
+const euValue = h.eu ? age(h.eu.total, { locale: lang }) : age(order[Math.floor(order.length / 2)].total);
 const change = euChange(index);
 
 const rows = order.map(({ code, name, total }) => ({ code, name, total }));
@@ -44,8 +44,8 @@ const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare
 
 const plotLabel =
   `Dot plot of ${h.countries} countries by the age by which half of young people have left home, ` +
-  `from ${age(h.earliest.total)} in ${h.earliest.name} to ${age(h.latest.total)} in ${h.latest.name}` +
-  (h.eu ? `. The European Union figure is ${age(h.eu.total)}.` : '.');
+  `from ${age(h.earliest.total, { locale: lang })} in ${h.earliest.name} to ${age(h.latest.total, { locale: lang })} in ${h.latest.name}` +
+  (h.eu ? `. The European Union figure is ${age(h.eu.total, { locale: lang })}.` : '.');
 ---
 
 <section class="hero" aria-labelledby="hero-title">
@@ -58,11 +58,11 @@ const plotLabel =
         Half of young Europeans have left home by age <span class="giant num">{euValue}</span>
       </h1>
       <p class="unit mono" data-reveal>
-        Years old · European Union · <b>{h.year}</b>{change && <> · {years(change.delta, { sign: true })} vs {change.previousYear}</>}
+        Years old · European Union · <b>{h.year}</b>{change && <> · {years(change.delta, { sign: true, locale: lang })} vs {change.previousYear}</>}
       </p>
       <p class="lead" data-reveal>
-        In <b>{withArticle(h.earliest.name)}</b> that point arrives at {age(h.earliest.total)}. In <b>{withArticle(h.latest.name)}</b> it does
-        not arrive until {age(h.latest.total)}, a gap of {years(h.gap)} for the same step in life. This compares European countries with each
+        In <b>{withArticle(h.earliest.name)}</b> that point arrives at {age(h.earliest.total, { locale: lang })}. In <b>{withArticle(h.latest.name)}</b> it does
+        not arrive until {age(h.latest.total, { locale: lang })}, a gap of {years(h.gap, { locale: lang })} for the same step in life. This compares European countries with each
         other, not with the United States.
       </p>
       <div class="hero-cta" data-reveal>
@@ -81,7 +81,7 @@ const plotLabel =
     <figure class="panel hued" data-reveal aria-labelledby="hero-panel-label">
       <div class="panel-head mono">
         <span id="hero-panel-label">Every country · {h.year}</span>
-        <span class="delta num">{years(h.gap)} apart</span>
+        <span class="delta num">{years(h.gap, { locale: lang })} apart</span>
       </div>
       <div class="picker">
         <label class="mono" for="hero-country">{t.whereDoYouLive}</label>
@@ -95,8 +95,8 @@ const plotLabel =
       <p class="you-line" data-hero-you aria-live="polite">{t.chooseYourCountryTo}</p>
       <DotPlot rows={rows} eu={h.eu ? h.eu.total : null} mode="hero" label={plotLabel} />
       <div class="panel-foot">
-        {h.eu && h.eu.women !== null && <span class="chip">Women <b>{age(h.eu.women)}</b></span>}
-        {h.eu && h.eu.men !== null && <span class="chip">Men <b>{age(h.eu.men)}</b></span>}
+        {h.eu && h.eu.women !== null && <span class="chip">Women <b>{age(h.eu.women, { locale: lang })}</b></span>}
+        {h.eu && h.eu.men !== null && <span class="chip">Men <b>{age(h.eu.men, { locale: lang })}</b></span>}
         <span class="chip">Countries <b>{h.countries}</b></span>
       </div>
     </figure>

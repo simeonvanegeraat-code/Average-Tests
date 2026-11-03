@@ -1,0 +1,74 @@
+---
+/**
+ * De bedrading van /leaving-home/: gedrag, geen tekst.
+ *
+ * Stond in het paginabestand zelf. Nu de pagina per taal bestaat zou dit script
+ * meegekopieerd worden, en dan zijn er twee versies van dezelfde bedrading die uiteen
+ * kunnen lopen. Er staat geen woord in dat een bezoeker leest, dus hij hoort één keer te
+ * bestaan.
+ *
+ * De onderdelen praten via gebeurtenissen op `document` (`ha:country`, `ha:age`,
+ * `ha:submit`) en kennen elkaar verder niet. Wat hier gebeurt is die gebeurtenissen
+ * knopen aan het profiel en aan de meting. Twee regels daarbij, allebei uit
+ * research/migration-leaving-home-v2.md:
+ *
+ *  1. Samenvoegen, nooit vervangen. De themakeuze van BaseV2 staat in dezelfde sleutel;
+ *     een profiel overschrijven zou die wissen.
+ *  2. Terugzetten is geen invoer. Bij het laden gaan de opgeslagen keuzes mee met
+ *     `source: 'restore'`, zodat de onderdelen reageren maar het bewaren en
+ *     `value_submitted` die bron negeren. Zonder die vlag telt elk bezoek van een
+ *     terugkerende bezoeker als een ingevulde waarde.
+ */
+---
+
+<script>
+  import { readProfile, mergeProfile } from '../lib/profile.js';
+  import { validAge } from '../lib/leaving-home-copy.js';
+  import { track, EVENTS } from '../lib/analytics.js';
+
+  const send = (name: string, detail: object) =>
+    document.dispatchEvent(new CustomEvent(name, { detail }));
+
+  /** Het land zodra het gekozen wordt, niet pas bij versturen: een eis uit CLAUDE.md. */
+  document.addEventListener('ha:country', (event) => {
+    const { code, source } = (event as CustomEvent<{ code?: string; source?: string }>).detail ?? {};
+    if (!code || source === 'restore') return;
+    mergeProfile({ country: code });
+  });
+
+  document.addEventListener('ha:submit', (event) => {
+    const { code, age, source } =
+      (event as CustomEvent<{ code?: string; age?: number; source?: string }>).detail ?? {};
+    if (!code || source === 'restore') return;
+    mergeProfile({ country: code, age });
+    track(EVENTS.valueSubmitted, { metric: 'leaving-home', country: code });
+  });
+
+  /**
+   * Terugzetten pas als elk onderdeel zijn luisteraars heeft. Modulescripts draaien
+   * allemaal vóór DOMContentLoaded, dus dat is het eerste moment waarop iedereen
+   * meeluistert; eerder sturen betekent dat de kaart of het formulier het mist.
+   */
+  function restore() {
+    const saved = readProfile();
+    const code = typeof saved.country === 'string' ? saved.country : null;
+    if (!code) return;
+
+    send('ha:country', { code, source: 'restore' });
+
+    const own = Number(saved.age);
+    if (validAge(own)) send('ha:submit', { code, age: own, source: 'restore' });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', restore, { once: true });
+  } else {
+    restore();
+  }
+
+  for (const link of document.querySelectorAll('[data-method-link]')) {
+    link.addEventListener('click', () => {
+      track(EVENTS.methodologyOpened, { from: 'leaving-home' });
+    });
+  }
+</script>

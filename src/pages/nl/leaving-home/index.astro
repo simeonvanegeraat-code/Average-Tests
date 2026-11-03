@@ -1,0 +1,154 @@
+---
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import StatHero from '../../../components/StatHero.astro';
+import StageMap from '../../../components/StageMap.astro';
+import CompareForm from '../../../components/CompareForm.astro';
+import ResultPanel from '../../../components/ResultPanel.astro';
+import FactsBento from '../../../components/FactsBento.astro';
+import RankTable from '../../../components/RankTable.astro';
+import MethodBlock from '../../../components/MethodBlock.astro';
+import Related from '../../../components/Related.astro';
+import LeavingHomeWiring from '../../../components/LeavingHomeWiring.astro';
+import geo from '../../../../data/geo/europe.json';
+import { STAGES } from '../../../lib/hue.js';
+import { leavingHomePage } from '../../../lib/pages/leaving-home.js';
+import { age, years } from '../../../lib/leaving-home.js';
+
+/**
+ * De Nederlandse /leaving-home/.
+ *
+ * Geen vertaling van `src/pages/leaving-home/index.astro` maar een eigen pagina: het
+ * rekenwerk komt uit `src/lib/pages/leaving-home.js`, de woorden staan hier. Dat is de
+ * keuze van 3 november 2026, en de reden is dat een Nederlandse zin niet een Engelse
+ * zin met andere woorden erin is. De kop hieronder staat in het Nederlands anders dan
+ * in het Engels, en de alinea over de reeksbreuk loopt ook anders — dat kan alleen als
+ * de zin hier geschreven wordt in plaats van ingevuld.
+ *
+ * Hier staat opzettelijk geen enkel cijfer met de hand, net als in de Engelse versie.
+ * Elk getal komt uit de index en gaat door de taalgrens, dus met een komma.
+ *
+ * **Terminologie.** Eurostat noemt deze dataset "estimated average age", maar zijn eigen
+ * definitie is de leeftijd waarop de helft niet meer bij de ouders woont. Dat is een
+ * middelpunt en geen gemiddelde, en deze pagina volgt de definitie. In de titel staat
+ * wel "gemiddelde leeftijd", want daar wordt op gezocht — en de pagina zegt daarna
+ * meteen wat het cijfer wél is.
+ */
+const lang = localeOf(Astro.url.pathname);
+const { index, metric, h, movement, clientJson, portugal } = leavingHomePage(lang);
+
+const nl = { locale: lang };
+const euValue = h.eu ? age(h.eu.total, nl) : age(h.earliest.total, nl);
+
+const title = `Op welke leeftijd gaan jongeren het huis uit? Europa vergeleken (${h.year})`;
+const description =
+  `De helft van de Europese jongeren is op ${euValue} het ouderlijk huis uit. ` +
+  `Vergelijk alle ${h.countries} landen op de kaart, van ${h.earliest.name} op ` +
+  `${age(h.earliest.total, nl)} tot ${h.latest.name} op ${age(h.latest.total, nl)}, en zie waar jouw eigen leeftijd valt.`;
+---
+
+<BaseV2 title={title} description={description} canonical="/leaving-home/" hue={STAGES.leave}>
+  <StatHero index={index} />
+
+  <StageMap geo={geo} index={index} metric={metric} />
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Jouw beurt</p>
+        <h2 id="compare-title">Waar val jij?</h2>
+        <p>
+          Vul in op welke leeftijd je bij je ouders wegging. We zetten die naast het middelpunt
+          van elk land in de dataset.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <CompareForm index={index} metric={metric} />
+        <ResultPanel index={index} />
+
+        <div class="limits">
+          <b>Waarom hier geen percentiel staat</b>
+          <p>
+            Voor een percentiel heb je de losse records nodig: één regel per persoon, duizenden
+            bij elkaar. Wat Eurostat hier publiceert is één getal per land — de leeftijd waarop
+            de helft vertrokken is. Daarmee weet je aan welke kant van dat middelpunt je zit, en
+            niets over de verdeling eromheen. Je leest hier dus niet dat je in het 30e percentiel
+            valt, want dat kan dit cijfer niet dragen.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Elk land</p>
+        <h2 id="table-title">Alle {index.countries.length} landen, van vroegst naar laatst</h2>
+        <p>
+          Sorteer op elke kolom. De verschilkolom is mannen min vrouwen, dus een positief getal
+          betekent dat vrouwen eerder vertrekken.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <RankTable index={index} metric={metric} />
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Wat de cijfers zeggen</p>
+        <h2 id="facts-title">Het Europese cijfer staat stil. De landen kruipen naar elkaar toe.</h2>
+      </header>
+
+      <div data-reveal>
+        <FactsBento index={index} />
+
+        {
+          movement && (
+            <div class="prose">
+              <p>
+                Tussen {movement.since} en {movement.until} bewoog het cijfer voor de Europese
+                Unie nauwelijks: van {age(movement.euThen, nl)} naar {age(movement.euNow, nl)}. Die
+                vlakke lijn verbergt wat er wél gebeurde, want de afstand tussen het vroegste en
+                het laatste land kromp van {years(movement.spreadThen, nl)} naar{' '}
+                {years(movement.spreadNow, nl)}. De landen waar jongeren het laatst vertrekken
+                lopen in; de Noordse landen bewegen de andere kant op.
+              </p>
+              <p>
+                De vergelijking begint bij {movement.since} en niet eerder, en dat is geen
+                afronding die ons goed uitkomt. Eurostat markeert een reeksbreuk in{' '}
+                {index.lastBreak}, het jaar waarin de Europese arbeidskrachtenenquête herzien
+                werd, en dat breukjaar is zelf een overgangsjaar:{' '}
+                {
+                  portugal
+                    ? `Portugal staat in ${index.lastBreak} op ${age(portugal.series[index.lastBreak], nl)}, het jaar erna op ${age(
+                        portugal.series[movement.since],
+                        nl,
+                      )}, en in 2019 op ${age(portugal.series['2019'], nl)}`
+                    : 'bij meerdere landen springt het cijfer er meer dan een jaar overheen'
+                }. Reken je vanaf 2005, dan lijkt de spreiding te groeien; reken je binnen
+                vergelijkbare jaren, dan krimpt hij. De code weigert de eerste berekening te
+                maken —{' '}
+                  <a href={linkTo('/notes/eurostat-2021-series-break/', lang)}>waarom die breuk meer is
+                  dan een voetnoot</a>.
+              </p>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <Related metric="leaving-home" />
+
+  <MethodBlock index={index} />
+
+  <script type="application/json" id="leaving-home-data" set:html={clientJson} />
+
+  <LeavingHomeWiring />
+</BaseV2>
