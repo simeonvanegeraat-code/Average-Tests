@@ -207,7 +207,7 @@ export function getStaticPaths() {
           <div class="notelist" data-reveal>
             {NOTES.slice(0, 3).map((note) => (
               <a class="noteitem hued" href={linkTo(note.path, lang)} style={`--h:${note.hue}`}>
-                <p class="eyebrow mono">{noteDate(note.published)}</p>
+                <p class="eyebrow mono">{noteDate(note.published, { locale: lang })}</p>
                 <h3>{note.title}</h3>
                 <p>{note.teaser}</p>
                 <span class="arr">Read it <span aria-hidden="true">→</span></span>

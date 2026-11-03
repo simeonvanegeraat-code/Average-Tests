@@ -53,7 +53,7 @@ const turnedDown = ageIndex.countries.length - stillClimbing.length;
 
 /** De vroegste en laatste veldwerkmaand over alle landen: het venster van deze golf. */
 const alleMaanden = countries.flatMap((c) => [c.fieldwork.from, c.fieldwork.to]).sort();
-const venster = `${periodLabel(alleMaanden[0])} to ${periodLabel(alleMaanden[alleMaanden.length - 1])}`;
+const venster = `${periodLabel(alleMaanden[0], { locale: lang })} to ${periodLabel(alleMaanden[alleMaanden.length - 1], { locale: lang })}`;
 
 /**
  * Alleen wat de browser nodig heeft om tussen middelpunt en gemiddelde te wisselen.
@@ -303,7 +303,7 @@ export function getStaticPaths() {
                   countries.map((country) => (
                     <li>
                       <span>{country.name}</span>
-                      <span class="mono">{fieldworkLabel(country.fieldwork)}</span>
+                      <span class="mono">{fieldworkLabel(country.fieldwork, { locale: lang })}</span>
                     </li>
                   ))
                 }

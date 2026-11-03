@@ -104,7 +104,7 @@ export function mapSummary(rows, latestYear, lens, cfg) {
 
   return copy.mapSummary({
     subject,
-    period: periodLabel(latestYear),
+    period: periodLabel(latestYear, { locale: cfg.locale }),
     low: { name: low.name, value: formatValue(valueFor(low, lens), cfg) },
     high: { name: high.name, value: formatValue(valueFor(high, lens), cfg) },
   });
@@ -152,7 +152,7 @@ export function inspectFacts(data, code, lens = 'total', cfg) {
 
   let note = copy.joinNotes([rankText, euText]);
   if (isEu) note = words.euNote;
-  else if (behind) note = copy.behindNote({ latest: periodLabel(latestYear), from: periodLabel(behind) });
+  else if (behind) note = copy.behindNote({ latest: periodLabel(latestYear, { locale: cfg.locale }), from: periodLabel(behind, { locale: cfg.locale }) });
   else if (value === null) note = copy.noFigure();
 
   /**
@@ -169,7 +169,7 @@ export function inspectFacts(data, code, lens = 'total', cfg) {
     code,
     name: isEu ? copy.euName : row.name,
     isEu,
-    meta: copy.metaLine({ period: periodLabel(row.year), lensLabel: label }),
+    meta: copy.metaLine({ period: periodLabel(row.year, { locale: cfg.locale }), lensLabel: label }),
     value,
     valueText: formatValue(value, cfg),
     rank,
@@ -184,9 +184,9 @@ export function inspectFacts(data, code, lens = 'total', cfg) {
     /** De toelichting bij het trendlijntje: waarvoor het staat, en waar de lijn afbreekt en waarom. */
     sparkNote: copy.sparkNote({
       lensLabel: cfg.lenses[0].label,
-      from: periods.length > 1 ? periodLabel(periods[0]) : null,
-      to: periods.length > 1 ? periodLabel(periods[periods.length - 1]) : null,
-      breaks: breaks.map(periodLabel),
+      from: periods.length > 1 ? periodLabel(periods[0], { locale: cfg.locale }) : null,
+      to: periods.length > 1 ? periodLabel(periods[periods.length - 1], { locale: cfg.locale }) : null,
+      breaks: breaks.map((p) => periodLabel(p, { locale: cfg.locale })),
       sourceName: cfg.sourceName,
     }),
   };

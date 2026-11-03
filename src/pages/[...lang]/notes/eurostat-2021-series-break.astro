@@ -4,10 +4,12 @@ import { siteIdentity, pageUrl } from '../../../lib/schema.js';
 import { decimal } from '../../../lib/format.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import { STAGES } from '../../../lib/hue.js';
-import { METHODOLOGY } from '../../../lib/methodology.js';
+import { methodology } from '../../../lib/methodology.js';
 
 /** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
 const lang = localeOf(Astro.url.pathname);
+/** De dertien datasets in de taal van deze pagina. Zie src/lib/methodology.js. */
+const METHODOLOGY = methodology(lang);
 import {
   spreadAt,
   jumps,

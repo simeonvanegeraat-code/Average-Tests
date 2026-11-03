@@ -82,10 +82,15 @@ export function curveOf(country) {
 }
 
 /** "2023-05" en "2023-06" worden "May and June 2023"; over een jaargrens heen voluit. */
-export function fieldworkLabel(fieldwork) {
+/**
+ * De taal gaat hier als optie mee en niet als vast gegeven, want deze functie wordt ook
+ * uit een clientscript aangeroepen (zie wealth/index.astro). Zonder `locale` leest
+ * `period.js` de taal daar uit `<html lang>`, en dat is op de pagina de waarheid.
+ */
+export function fieldworkLabel(fieldwork, { locale } = {}) {
   if (!fieldwork?.from || !fieldwork?.to) return '';
-  const van = periodLabel(fieldwork.from);
-  const tot = periodLabel(fieldwork.to);
+  const van = periodLabel(fieldwork.from, { locale });
+  const tot = periodLabel(fieldwork.to, { locale });
   if (van === tot) return van;
 
   const zelfdeJaar = fieldwork.from.slice(0, 4) === fieldwork.to.slice(0, 4);

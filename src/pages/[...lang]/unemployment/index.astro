@@ -147,9 +147,9 @@ const breakDetail =
   flagged.length === 0
     ? ''
     : `The ${flagged.length === 1 ? 'exception is' : 'exceptions are'} ` +
-      `${flagged.map((country) => `${country.name} (${country.breaks.map(periodLabel).join(', ')})`).join(' and ')}. ` +
+      `${flagged.map((country) => `${country.name} (${country.breaks.map((p) => periodLabel(p, { locale: lang })).join(', ')})`).join(' and ')}. ` +
       'Because a comparison between countries has to hold for every country in it, the window used for ' +
-      `that above starts after the later of those breaks, in ${periodLabel(index.comparableSince)}. ` +
+      `that above starts after the later of those breaks, in ${periodLabel(index.comparableSince, { locale: lang })}. ` +
       "Each country's own line in the table runs the full series and simply breaks where its flag is.";
 
 /**
@@ -171,7 +171,7 @@ const ageWider = widerThanSpread(agePairs, index);
 const newestPeriod = index.years[index.years.length - 1];
 const newestCount = index.countries.filter((country: any) => country.series[newestPeriod] !== undefined).length;
 
-const title = `Unemployment Rate by Country in Europe (${periodLabel(h.year)})`;
+const title = `Unemployment Rate by Country in Europe (${periodLabel(h.year, { locale: lang })})`;
 const description =
   `Unemployment is ${euValue}% across the European Union — ${fmt(h.earliest.total)}% in ` +
   `${h.earliest.name}, ${fmt(h.latest.total)}% in ${h.latest.name}. All ${h.countries} countries ` +
@@ -186,13 +186,13 @@ export function getStaticPaths() {
 <BaseV2 title={title} description={description} canonical="/unemployment/" hue={metric.hue}>
   <section class="hero">
     <div class="wrap">
-      <p class="eyebrow mono">Eurostat · {h.countries} countries · {periodLabel(h.year)}</p>
+      <p class="eyebrow mono">Eurostat · {h.countries} countries · {periodLabel(h.year, { locale: lang })}</p>
 
       <h1 data-reveal>{heading}</h1>
 
       <span class="giant num">{euValue}</span>
       <p class="unit mono">
-        % of the labour force · <b>European Union</b> · {periodLabel(h.year)}
+        % of the labour force · <b>European Union</b> · {periodLabel(h.year, { locale: lang })}
       </p>
 
       <p class="lead">
@@ -254,7 +254,7 @@ export function getStaticPaths() {
         <h2 id="facts-title">A still average over moving countries</h2>
         <p>
           Everything in this section is measured inside the window where all {movement?.countries ?? h.countries}
-          countries are comparable with each other: {periodLabel(movement?.since ?? h.year)} to {periodLabel(h.year)}.
+          countries are comparable with each other: {periodLabel(movement?.since ?? h.year, { locale: lang })} to {periodLabel(h.year, { locale: lang })}.
           {' '}
           {breakClause}
         </p>
@@ -269,11 +269,11 @@ export function getStaticPaths() {
                   <b>{movement.earlier.length}</b>
                   <p>
                     of {movement.countries} countries came down by at least {amt(movement.minimumMove)}{' '}
-                    since {periodLabel(movement.since)}. The steepest falls, in percentage points:{' '}
+                    since {periodLabel(movement.since, { locale: lang })}. The steepest falls, in percentage points:{' '}
                     {topFalls}.
                   </p>
                 </div>
-                <span class="meta mono">{periodLabel(movement.since)} – {periodLabel(movement.until)}</span>
+                <span class="meta mono">{periodLabel(movement.since, { locale: lang })} – {periodLabel(movement.until, { locale: lang })}</span>
               </div>
 
               <div class="tile">
@@ -319,7 +319,7 @@ export function getStaticPaths() {
                     runs the other way in {gender.womenLower}{gender.tied > 0 ? `, and ${gender.tied} are level to the first decimal` : ''}.
                   </p>
                 </div>
-                <span class="meta mono">{periodLabel(h.year)}</span>
+                <span class="meta mono">{periodLabel(h.year, { locale: lang })}</span>
               </div>
 
               <div class="tile s4 dark">
@@ -356,7 +356,7 @@ export function getStaticPaths() {
               Comparing countries with each other needs the short window above. Asking what happened
               inside one country needs only that country's own series to be whole — and{' '}
               {longer.countries} of the {longer.countries + longer.excluded.length} are, all the way
-              back to {periodLabel(longer.from)}.{' '}
+              back to {periodLabel(longer.from, { locale: lang })}.{' '}
               {longer.excluded.map((country: any) => country.name).join(' and ')} are left out of
               everything in this section.
             </p>
@@ -364,7 +364,7 @@ export function getStaticPaths() {
 
           <div class="prose" data-reveal>
             <p>
-              Of those {longer.countries}, {longer.down} are lower now than in {periodLabel(longer.from)}
+              Of those {longer.countries}, {longer.down} are lower now than in {periodLabel(longer.from, { locale: lang })}
               and {longer.up} are higher. The largest falls:{' '}
               {movedFrom(longer.fell)}. The largest rises: {movedFrom(longer.rose)}.
             </p>
@@ -418,7 +418,7 @@ export function getStaticPaths() {
                     )}
                   </p>
                 </div>
-                <span class="meta mono">{periodLabel(agePair.period)}</span>
+                <span class="meta mono">{periodLabel(agePair.period, { locale: lang })}</span>
               </div>
 
               <div class="tile">
@@ -482,12 +482,12 @@ export function getStaticPaths() {
           <div>
             <dt>Coverage</dt>
             <dd>
-              {h.countries} countries have a figure for {periodLabel(h.year)}.
+              {h.countries} countries have a figure for {periodLabel(h.year, { locale: lang })}.
               {
                 stale.length > 0 && (
                   <>
                     {' '}
-                    {stale.map((country: any) => `${country.name} (${periodLabel(country.year)})`).join(', ')}{' '}
+                    {stale.map((country: any) => `${country.name} (${periodLabel(country.year, { locale: lang })})`).join(', ')}{' '}
                     publish later than the rest and are shown at their most recent month, hatched on
                     the map and labelled in the table.
                   </>
@@ -510,14 +510,14 @@ export function getStaticPaths() {
                   werd. */}
               {newestPeriod !== h.year ? (
                 <>
-                  {' '}That is why {periodLabel(newestPeriod)} is in the downloaded series but not on
+                  {' '}That is why {periodLabel(newestPeriod, { locale: lang })} is in the downloaded series but not on
                   this page: only {newestCount} {newestCount === 1 ? 'country' : 'countries'} had a
                   figure for it when this page was built, and a map of
                   {' '}{newestCount === 1 ? 'one' : 'those'} alone would not be a map of Europe.
                 </>
               ) : (
                 <>
-                  {' '}{periodLabel(newestPeriod)} is the newest month Eurostat has published and the
+                  {' '}{periodLabel(newestPeriod, { locale: lang })} is the newest month Eurostat has published and the
                   one shown here, with {newestCount} of the {index.countries.length} countries in it;
                   the rest carry their own most recent month.
                 </>
@@ -529,7 +529,7 @@ export function getStaticPaths() {
             <dd>
               Eurostat says it adjusts the monthly series for breaks wherever it can, and on this
               dataset it mostly has: {unbroken.length} of the {current.length} countries carry no
-              flag at all across {periodLabel(index.years[0])} to {periodLabel(h.year)}.
+              flag at all across {periodLabel(index.years[0], { locale: lang })} to {periodLabel(h.year, { locale: lang })}.
               {' '}
               {breakDetail}
             </dd>
@@ -538,7 +538,7 @@ export function getStaticPaths() {
 
         <ul class="source-list">
           <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
-          <li><strong>Series</strong> {periodLabel(index.years[0])} to {periodLabel(index.years[index.years.length - 1])}</li>
+          <li><strong>Series</strong> {periodLabel(index.years[0], { locale: lang })} to {periodLabel(index.years[index.years.length - 1], { locale: lang })}</li>
           <li><strong>Breakdown</strong> seasonally adjusted, all ages, percentage of the labour force</li>
           <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
           <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>

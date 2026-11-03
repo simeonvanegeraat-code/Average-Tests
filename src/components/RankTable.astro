@@ -88,8 +88,8 @@ const line = (row: any) => {
   return {
     spark,
     note:
-      `Trend ${periodLabel(periods[0])} to ${periodLabel(periods[periods.length - 1])}.` +
-      (breaks.length ? ` Series breaks in ${breaks.map(periodLabel).join(', ')}.` : ''),
+      `Trend ${periodLabel(periods[0], { locale: lang })} to ${periodLabel(periods[periods.length - 1], { locale: lang })}.` +
+      (breaks.length ? ` Series breaks in ${breaks.map((p) => periodLabel(p, { locale: lang })).join(', ')}.` : ''),
   };
 };
 
@@ -101,7 +101,7 @@ const line = (row: any) => {
  * kaart eerder, en dezelfde oplossing: de zin komt uit de beschrijving van de metriek.
  */
 const caption =
-  `${metric.words.legend}. ${rows.length - behind} countries at ${periodLabel(latestYear)}` +
+  `${metric.words.legend}. ${rows.length - behind} countries at ${periodLabel(latestYear, { locale: lang })}` +
   (behind > 0 ? `; ${behind} shown at their most recent ${grain} instead.` : '.');
 ---
 
@@ -125,7 +125,7 @@ const caption =
         <th scope="col" class="n sortable" aria-sort="none">
           <button type="button" data-sort="gap" data-type="number">Gap<span class="vh"> between men and women</span></button>
         </th>
-        <th scope="col">Trend {periodShort(yearMin)}–{periodShort(yearMax)}, with breaks</th>
+        <th scope="col">Trend {periodShort(yearMin, { locale: lang })}–{periodShort(yearMax, { locale: lang })}, with breaks</th>
       </tr>
     </thead>
     <tbody>
@@ -137,7 +137,7 @@ const caption =
             <tr data-name={row.name} data-total={row.total} data-men={row.men ?? ''} data-women={row.women ?? ''} data-gap={gap ?? ''}>
               <th scope="row">
                 {row.name}
-                {row.year !== latestYear && <span class="stale-year">{periodShort(row.year)}</span>}
+                {row.year !== latestYear && <span class="stale-year">{periodShort(row.year, { locale: lang })}</span>}
               </th>
               <td class="n strong">{formatValue(row.total, metric)}</td>
               <td class="n">{formatValue(row.men, metric)}</td>
@@ -177,12 +177,12 @@ const caption =
 
 <p class="brk-foot">
   {hasSexes && <>The gap is men minus women, so a positive number means the figure is higher for men. </>}
-  {behind > 0 && <>A {grain} next to a country means {publisher} has no {periodLabel(latestYear)} figure for it, and the row shows that {grain} instead. </>}
+  {behind > 0 && <>A {grain} next to a country means {publisher} has no {periodLabel(latestYear, { locale: lang })} figure for it, and the row shows that {grain} instead. </>}
   {oneYear
-    ? <>{publisher} publishes this table for {periodLabel(latestYear)} alone, so there is no line to draw and no past to compare with.</>
+    ? <>{publisher} publishes this table for {periodLabel(latestYear, { locale: lang })} alone, so there is no line to draw and no past to compare with.</>
     : breakPeriods.length > 0
-      ? <>Trend lines are not drawn across series breaks (the small notches): {broken} of {rows.length} countries {broken === 1 ? 'carries' : 'carry'} one, in {list(breakPeriods.map(periodLabel))}.</>
-      : <>{publisher} flags no series break here, so every line runs from {periodLabel(index.years[0])} to {periodLabel(latestYear)} without a notch.</>}
+      ? <>Trend lines are not drawn across series breaks (the small notches): {broken} of {rows.length} countries {broken === 1 ? 'carries' : 'carry'} one, in {list(breakPeriods.map((p) => periodLabel(p, { locale: lang })))}.</>
+      : <>{publisher} flags no series break here, so every line runs from {periodLabel(index.years[0], { locale: lang })} to {periodLabel(latestYear, { locale: lang })} without a notch.</>}
 </p>
 
 <script>
