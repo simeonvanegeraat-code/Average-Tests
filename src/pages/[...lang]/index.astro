@@ -1,5 +1,6 @@
 ---
 import { localeOf, localePaths, linkTo } from '../../lib/locales.js';
+import { siteIdentity } from '../../lib/schema.js';
 import { localise } from '../../lib/country-names.js';
 import { decimal } from '../../lib/format.js';
 import BaseV2 from '../../layouts/BaseV2.astro';
@@ -31,6 +32,14 @@ import { NOTES, NOTES_LINK, noteDate } from '../../lib/notes.js';
  */
 
 const lang = localeOf(Astro.url.pathname);
+
+/**
+ * De identiteit van de site, uit src/lib/schema.js in plaats van hier uitgetypt.
+ * Dit blok had `url` en `publisher.url` hardgecodeerd op de Engelse wortel staan, en
+ * `inLanguage: 'en-US'` — op /nl/ zou de voordeur dus in zijn structured data naar de
+ * Engelse site wijzen en beweren dat hij Engels is.
+ */
+const site = siteIdentity(lang, Astro.site);
 const leaving = localise(rawLeaving, lang);
 
 /**
@@ -74,17 +83,10 @@ export function getStaticPaths() {
       is:inline
       set:html={JSON.stringify({
         '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: 'HumanAverage',
-        url: 'https://www.humanaverage.com/',
-        inLanguage: 'en-US',
+        ...site.website,
         description:
           'Country-by-country comparisons of how Europeans live, built from figures published by Eurostat, the OECD and the European Central Bank.',
-        publisher: {
-          '@type': 'Organization',
-          name: 'HumanAverage',
-          url: 'https://www.humanaverage.com/',
-        },
+        publisher: site.organisation,
       })}
     />
   </Fragment>

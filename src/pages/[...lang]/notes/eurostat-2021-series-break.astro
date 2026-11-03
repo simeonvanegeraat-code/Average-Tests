@@ -1,5 +1,6 @@
 ---
 import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
+import { siteIdentity, pageUrl } from '../../../lib/schema.js';
 import { decimal } from '../../../lib/format.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import { STAGES } from '../../../lib/hue.js';
@@ -53,6 +54,18 @@ const description =
   `reaches, and why a footnote is not enough.`;
 
 const canonical = '/notes/eurostat-2021-series-break/';
+
+/**
+ * De site en de eigen URL van deze pagina, in de taal van deze pagina.
+ *
+ * Dit blok rekende `mainEntityOfPage` uit als de oorsprong plus `canonical` zónder
+ * taalvoorvoegsel. Zodra /nl/notes/eurostat-2021-series-break/ bestaat — en die gaat
+ * bestaan, want het artikel gaat mee in het Nederlands — zou die pagina in zijn
+ * structured data zeggen dat hij over de Engelse pagina gaat. Dat is een andere fout
+ * dan een verkeerde `inLanguage`: hier wijst de pagina een andere pagina aan.
+ */
+const site = siteIdentity(lang, Astro.site);
+const url = pageUrl(canonical, lang, Astro.site);
 /** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
 export function getStaticPaths() {
   return localePaths();
@@ -72,10 +85,11 @@ export function getStaticPaths() {
         description,
         datePublished: published,
         dateModified: published,
-        inLanguage: 'en-US',
-        mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.humanaverage.com${canonical}` },
-        author: { '@type': 'Organization', name: 'HumanAverage', url: 'https://www.humanaverage.com/' },
-        publisher: { '@type': 'Organization', name: 'HumanAverage', url: 'https://www.humanaverage.com/' },
+        inLanguage: lang,
+        isPartOf: site.website,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+        author: site.organisation,
+        publisher: site.organisation,
         about: {
           '@type': 'Dataset',
           name: source.label ?? 'Eurostat yth_demo_030',
