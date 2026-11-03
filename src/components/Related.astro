@@ -22,8 +22,8 @@ interface Props {
 }
 
 const { metric } = Astro.props;
-const neighbours = related(metric);
-const note = breakNote(metric);
+const neighbours = related(metric, lang);
+const note = breakNote(metric, lang);
 ---
 
 {
@@ -40,7 +40,7 @@ const note = breakNote(metric);
             <a class="nextitem" href={linkTo(neighbour.path, lang)}>
               <span class="k mono">{neighbour.label}</span>
               <p>{neighbour.line}</p>
-              <span class="arr">Open it <span aria-hidden="true">→</span></span>
+              <span class="arr">{t.openIt}{' '}<span aria-hidden="true">→</span></span>
             </a>
           ))}
 
@@ -54,7 +54,7 @@ const note = breakNote(metric);
                 line drawn through it means nothing. Why Eurostat's 2021 revision breaks almost every
                 series, and what we do about it.
               </p>
-              <span class="arr">Read it <span aria-hidden="true">→</span></span>
+              <span class="arr">{t.readIt}{' '}<span aria-hidden="true">→</span></span>
             </a>
           )}
         </div>
