@@ -13,8 +13,14 @@
  * Het is een div met role="status" en geen <output>: een <output> mag alleen lopende
  * tekst bevatten, en dit blok bevat een kop, een grafiek en een paneel.
  */
+import { localeOf } from '../lib/locales.js';
+import { ui } from '../lib/ui.js';
 import DotPlot from './DotPlot.astro';
 import { age, ranked, headline } from '../lib/leaving-home.js';
+
+/** De taal van deze pagina, en de vaste tekst erin. Zie src/lib/ui.js. */
+const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).resultPanel;
 
 interface Props {
   index: any;
@@ -27,7 +33,7 @@ const label = `Dot plot of ${h.countries} countries by the age by which half of 
 ---
 
 <div class="result" data-compare-result role="status" hidden>
-  <p class="tag mono" data-result-tag>Your result</p>
+  <p class="tag mono" data-result-tag>{t.eyebrow}</p>
   <h3 data-result-head></h3>
   <p class="sub" data-result-sub></p>
   <figure class="panel hued">

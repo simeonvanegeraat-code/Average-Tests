@@ -14,7 +14,13 @@
  * en luistert naar `ha:country`, zodat het land gelijk loopt met de kiezer in de kop.
  * Het bewaren van de keuze en de eventnaam `value_submitted` zijn aan de pagina.
  */
+import { localeOf } from '../lib/locales.js';
+import { ui } from '../lib/ui.js';
 import { currentCountries } from '../lib/metric.js';
+
+/** De taal van deze pagina, en de vaste tekst erin. Zie src/lib/ui.js. */
+const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).compareForm;
 
 interface Props {
   index: any;
@@ -28,13 +34,13 @@ const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare
 ---
 
 <form class="madlib" data-compare data-noun={field.noun} novalidate>
-  <label for="compare-country">I live in</label>
+  <label for="compare-country">{t.iLiveIn}</label>
   <span class="select">
     <select id="compare-country" name="country" data-compare-country required>
       {options.map((country) => <option value={country.code}>{country.name}</option>)}
     </select>
   </span>
-  <label for="compare-age">and left home at</label>
+  <label for="compare-age">{t.andLeftHomeAt}</label>
   <input
     id="compare-age"
     type="number"
@@ -54,7 +60,7 @@ const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare
 </form>
 <p class="field-error" id="compare-error" data-compare-error role="alert" hidden></p>
 <p class="field-hint">
-  Nothing is sent anywhere. Your answer is kept in this browser so the next page already knows it, and you can clear it at any time.
+  {t.nothingIsSentAnywhere}
 </p>
 
 <script>

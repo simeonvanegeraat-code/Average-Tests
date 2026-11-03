@@ -17,6 +17,8 @@
  *     schrijft alsnog `24.6`.
  *   + Een taal in LOCALES zonder lidwoordtabel in grammar.js, of een tabel die een
  *     naam noemt die in het woordenbestand van die taal niet voorkomt.
+ *   + Een taal in LOCALES zonder vaste tekst in ui.json, of een ui.json met andere
+ *     sleutels dan de standaardtaal.
  *   + Een taal in LOCALES zonder metriekwoorden, een woordenbestand met andere
  *     sleutels dan de standaardtaal, of een klasselabel waarvan de getallen niet de
  *     klassegrenzen zijn die het beschrijft.
@@ -50,6 +52,7 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
  */
 import { GRAMMAR_LANGUAGES, articleNames } from '../src/lib/grammar.js';
 import { METRIC_LANGUAGES, metricWords } from '../src/lib/metric-names.js';
+import { UI_LANGUAGES, uiRaw } from '../src/lib/ui.js';
 import { join, relative, sep } from 'node:path';
 
 const problems = [];
@@ -214,6 +217,58 @@ for (const lang of LOCALES) {
       fail(
         `src/lib/grammar.js: ARTICLES.${lang} noemt ${unknown.length} naam/namen die niet in ` +
           `${file} voorkomen: ${unknown.join(', ')}. Zo'n regel doet niets en meldt niets.`,
+      );
+    }
+  }
+}
+
+/**
+ * De vaste tekst: bestaat de taal, en heeft hij dezelfde sleutels?
+ *
+ * `ui(lang)` legt het bestand van een taal óver het Engelse heen, dus een ontbrekende
+ * sleutel geeft Engelse tekst in plaats van `undefined`. Dat is met opzet — undefined in
+ * een sjabloon is een lege kop — maar het betekent ook dat een half vertaald bestand
+ * nergens opvalt. Deze controle is de plek die het hoort te zeggen.
+ *
+ * Anders dan metrics.json wordt ui.json **niet** gegenereerd: de Engelse tekst stond
+ * eerst in de .astro-bestanden en staat nu hier, dus dit bestand ís de bron. Er is dus
+ * niets om hem tegen te vergelijken, en daarom is deze pariteitscontrole het enige wat
+ * een gat kan vinden.
+ */
+{
+  const paden = (obj, prefix = '') =>
+    Object.entries(obj ?? {}).flatMap(([key, value]) =>
+      value && typeof value === 'object' && !Array.isArray(value)
+        ? paden(value, `${prefix}${key}.`)
+        : [`${prefix}${key}`],
+    );
+
+  const verwacht = new Set(paden(uiRaw(DEFAULT)));
+
+  for (const lang of LOCALES) {
+    if (!UI_LANGUAGES.includes(lang)) {
+      fail(
+        `src/lib/ui.js: '${lang}' staat in LOCALES maar niet in TEXT, dus ui() geeft die ` +
+          'taal de vaste tekst van de standaardtaal. Voeg de import en de regel toe.',
+      );
+      continue;
+    }
+    if (lang === DEFAULT) continue;
+
+    const heeft = new Set(paden(uiRaw(lang)));
+    const mist = [...verwacht].filter((p) => !heeft.has(p));
+    const over = [...heeft].filter((p) => !verwacht.has(p));
+
+    if (mist.length) {
+      fail(
+        `src/locales/${lang}/ui.json: ${mist.length} van ${verwacht.size} sleutel(s) ontbreken, ` +
+          `dus die tekst blijft Engels: ${mist.slice(0, 8).join(', ')}${mist.length > 8 ? ' …' : ''}`,
+      );
+    }
+    if (over.length) {
+      fail(
+        `src/locales/${lang}/ui.json: ${over.length} sleutel(s) die de standaardtaal niet kent: ` +
+          `${over.slice(0, 8).join(', ')}. Zo'n sleutel wordt nooit gelezen.`,
       );
     }
   }

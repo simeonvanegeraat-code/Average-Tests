@@ -8,11 +8,13 @@
  * controleren in de tabel op beide pagina's. Dat is dezelfde lat als voor de pagina's
  * zelf: een berekening die nergens anders staat.
  */
+import { ui } from '../lib/ui.js';
 import { localeOf, linkTo } from '../lib/locales.js';
 import { related, breakNote } from '../lib/related.js';
 
 /** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
 const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).related;
 
 interface Props {
   /** De sleutel van de huidige metriek, zoals in src/lib/metrics/. */
@@ -29,8 +31,8 @@ const note = breakNote(metric);
     <section class="block" aria-labelledby="related-title">
       <div class="wrap">
         <header class="sec-head" data-reveal>
-          <p class="eyebrow mono">Next question</p>
-          <h2 id="related-title">What this figure sits next to</h2>
+          <p class="eyebrow mono">{t.eyebrow}</p>
+          <h2 id="related-title">{t.whatThisFigureSits}</h2>
         </header>
 
         <div class="nextlist" data-reveal>

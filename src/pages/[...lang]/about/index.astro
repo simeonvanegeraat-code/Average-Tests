@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localePaths, localeOf, linkTo } from '../../../lib/locales.js';
 import { siteIdentity, pageUrl } from '../../../lib/schema.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
@@ -24,6 +25,7 @@ export function getStaticPaths() {
  * zegt — precies de fout die eudebtmap.com op zijn Nederlandse pagina's heeft.
  */
 const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).about;
 const site = siteIdentity(lang, Astro.site);
 const url = pageUrl('/about/', lang, Astro.site);
 
@@ -69,22 +71,19 @@ const url = pageUrl('/about/', lang, Astro.site);
 
   <section class="hero">
     <div class="wrap">
-      <p class="eyebrow mono">About</p>
-      <h1>A small project with one rule</h1>
+      <p class="eyebrow mono">{t.about}</p>
+      <h1>{t.aSmallProjectWith}</h1>
       <p class="lead">
-        Hi, I’m Simeon. I built HumanAverage on my own, around one rule: no number appears on
-        this site unless it can be traced back to data somebody else published.
+        {t.hiIMSimeon}
       </p>
     </div>
   </section>
 
   <section class="block">
     <div class="wrap prose">
-      <h2>Why it exists</h2>
+      <h2>{t.whyItExists}</h2>
       <p>
-        Search for a European average and you get a number. It is usually correct, and it is
-        almost useless on its own — because one figure for a continent hides the thing you
-        actually wanted to know: how far apart the countries are, and where you sit between them.
+        {t.searchForAEuropean}
       </p>
       <p>
         Answering that takes the figure for every country rather than the one for the whole, the
@@ -94,7 +93,7 @@ const url = pageUrl('/about/', lang, Astro.site);
         exactly how.
       </p>
 
-      <h2>Who makes it, and who does not</h2>
+      <h2>{t.whoMakesItAnd}</h2>
       <p>
         <strong>This site is independent.</strong> I am not part of any government, statistical
         agency, university or institution, nobody commissions or reviews what goes on it, and I
@@ -102,30 +101,25 @@ const url = pageUrl('/about/', lang, Astro.site);
         European Central Bank — beyond downloading what they publish for anyone.
       </p>
       <p>
-        There is no anonymous “research team” either, and no medical team, research institute or
-        editorial department. It is one person. Where software or AI helps prepare the work, I
-        remain responsible for the final check, the choice of sources and the decision to publish.
+        {t.thereIsNoAnonymous}
       </p>
 
-      <h2>Editorial principles</h2>
+      <h2>{t.editorialPrinciples}</h2>
       <ul>
-        <li>I never invent a statistic. Every figure comes from a dataset I can point to.</li>
-        <li>I say which kind of figure a page shows, and never call something a percentile
-        when the source published a single number instead of a distribution.</li>
-        <li>I show no percentile where no representative sample exists, however tempting.</li>
-        <li>I keep my own calculation separate from results published by others.</li>
-        <li>I describe what a comparison means, and what it does not.</li>
-        <li>I correct demonstrable errors and say when the method was last checked.</li>
+        <li>{t.iNeverInventA}</li>
+        <li>{t.iSayWhichKind}</li>
+        <li>{t.iShowNoPercentile}</li>
+        <li>{t.iKeepMyOwn}</li>
+        <li>{t.iDescribeWhatA}</li>
+        <li>{t.iCorrectDemonstrableErrors}</li>
       </ul>
 
-      <h2>How it is paid for</h2>
+      <h2>{t.howItIsPaid}</h2>
       <p>
-        HumanAverage is free to use. Advertising may eventually help cover hosting and further
-        development. It currently carries no advertising code, and adverts would never change a
-        calculation or a conclusion.
+        {t.humanaverageIsFreeTo}
       </p>
 
-      <h2>Corrections</h2>
+      <h2>{t.corrections}</h2>
       <p>
         If you can show that something here is wrong, that is genuinely useful and it will be
         fixed. Email <a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>. For a
@@ -135,8 +129,7 @@ const url = pageUrl('/about/', lang, Astro.site);
 
       <div class="limits">
         <p>
-          This site is an informational comparison. It is not medical advice, not a diagnosis,
-          and not an assessment of your health.
+          {t.thisSiteIsAn}
         </p>
       </div>
     </div>

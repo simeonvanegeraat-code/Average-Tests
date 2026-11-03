@@ -580,7 +580,7 @@ per taal.
 |---|---|---|---|
 | 1 | `grammar.js` krijgt `lang` + het naamval-argument; Nederlandse tabel ernaast | Nee | **Gedaan** |
 | 2a | `metrics.json` + `localiseMetric()`: de 244 metriekwoorden | Nee | **Gedaan** |
-| 2b | `ui.json`, `notes.json` + `ui()`: de vaste tekst in pagina en component | Nee | |
+| 2b | `ui.json` + `ui()`: de vaste tekst in de schil en de prozapagina's | Nee | **Gedaan** |
 | 3a | `leaving-home-copy.js` en `metric-map.js` gesplitst (de twee die de browser haalt) | Nee | |
 | 3b | De zeven server-only libs gesplitst | Nee | |
 | 4 | Het Nederlands: alle woordenbestanden, alle `copy/nl/`, het artikel; `nl` in `LOCALES`, `/nl/` op `noindex` | Ja, op `/nl/` | |
@@ -645,3 +645,31 @@ blijft, maar hij kan niet meer wegdrijven — en bij het vertalen vangt dezelfde
 **Twee woorden blijven liggen voor 2b**: `wealthEntry()` in `catalogue.js` heeft
 `'Wealth'` en `'median'` met de hand, en vermogen heeft geen bestand in
 `src/lib/metrics/`. Dat zijn paginawoorden en ze horen in `ui.json`.
+
+### Wat stap 2b heeft opgeleverd, en een maatstaf die moest wijken
+
+132 fragmenten vaste tekst staan in `src/locales/en/ui.json`, met `ui(lang)` in
+`src/lib/ui.js` als grens. Dat is de schil (layout, 404, zeven componenten) plus de
+lopende tekst van `/method/`, `/about/`, `/privacy/`, `/contact/` en `/notes/`.
+
+**De knip is anders uitgevallen dan het plan hierboven zei.** Gemeten op 3 november: 560
+fragmenten vaste tekst in de .astro-bestanden, en 488 zinnen met data erin. De ~390 vaste
+fragmenten op de negen metriekpagina's staan tussen hun eigen datazinnen, en die zinnen
+gaan in stap 3 tóch om — dus ze gaan daar mee, per bestand, in plaats van nu apart. Elk
+bestand twee keer open is precies de verspilling waar dit plan al een keer in liep.
+
+`ui.json` is **niet** gegenereerd, anders dan `metrics.json`. De Engelse tekst stond in de
+.astro-bestanden en staat nu hier, dus dit bestand ís de bron en er is niets om hem tegen
+te vergelijken. De pariteitscontrole in de poort is daarom het enige wat een gat kan
+vinden.
+
+**Byte-identiek is hier niet haalbaar, en dat is hoe Astro werkt.** Tekst die een
+expressie wordt, krijgt zijn omringende witruimte genormaliseerd: waar de compressie eerst
+een regeleinde plus indentatie tot `\n` terugbracht, staat er nu een spatie. En een
+apostrof uit een expressie wordt `&#39;` in plaats van letterlijk — twee keer op de hele
+site, in "this browser's local storage" op `/privacy/`.
+
+De maatstaf voor stap 2b en 3 is daarom **identiek ná normalisatie van witruimte en
+entiteiten**. Dat is wat "niets verandert voor een bezoeker" echt betekent; byte voor byte
+was daar alleen een proxy voor, en die gaat hier niet op. Uitkomst: 40 van de 40 pagina's
+identiek, en de site werd 1556 bytes kleiner.

@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import { STAGES } from '../../../lib/hue.js';
@@ -7,6 +8,7 @@ import { METHODOLOGY } from '../../../lib/methodology.js';
 
 /** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
 const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).notes;
 
 /**
  * Het overzicht van de artikelen.
@@ -43,12 +45,10 @@ export function getStaticPaths() {
 <BaseV2 title={title} description={description} canonical="/notes/" hue={STAGES.leave}>
   <section class="hero hero--list" aria-labelledby="notes-title">
     <div class="wrap">
-      <p class="eyebrow mono" data-reveal>Notes</p>
-      <h1 id="notes-title" data-reveal>What the figures cannot say</h1>
+      <p class="eyebrow mono" data-reveal>{t.notes}</p>
+      <h1 id="notes-title" data-reveal>{t.whatTheFiguresCannot}</h1>
       <p class="lead" data-reveal>
-        The metric pages answer one question each. These are the pieces that do not fit on
-        them: where a dataset breaks, where a definition does not match its own title, and
-        what that changes about the answer.
+        {t.theMetricPagesAnswer}
       </p>
 
       <p class="unit mono" data-reveal>
@@ -77,16 +77,14 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="when-title">
     <div class="wrap method-grid">
       <header class="sec-head" data-reveal style="margin: 0">
-        <p class="eyebrow mono">The rule</p>
-        <h2 id="when-title">When something gets written here</h2>
+        <p class="eyebrow mono">{t.theRule}</p>
+        <h2 id="when-title">{t.whenSomethingGetsWritten}</h2>
       </header>
 
       <div data-reveal>
         <div class="prose">
           <p>
-            A piece appears here when a dataset does something that its own page cannot fully
-            carry. The metric pages have room for a method section, not for an argument. When
-            the argument is the interesting part, it moves here.
+            {t.aPieceAppearsHere}
           </p>
           <p>
             Of the {datasets} datasets behind this site, {metBreuk} carry a series break that

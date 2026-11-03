@@ -1,0 +1,162 @@
+{
+  "shell": {
+    "skipToContent": "Skip to content",
+    "mainNavigation": "Main navigation",
+    "humanaverageHome": "HumanAverage home",
+    "notes": "Notes",
+    "method": "Method",
+    "language": "Language",
+    "switchTheme": "Switch theme",
+    "allMetrics": "All metrics",
+    "tagline": "One question per page, answered from figures that Eurostat, the OECD and the ECB publish themselves. Nothing is estimated on top, and every number is traceable to its source.",
+    "everyMetric": "Every metric",
+    "howWeCalculateIt": "How we calculate it",
+    "about": "About",
+    "aboutLink": "About",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "allNotes": "All notes",
+    "disclaimer": "Not medical advice. Informational comparison only."
+  },
+  "notFound": {
+    "title": "That page is not here",
+    "lead": "Either it never existed, or it was one of the Dutch test pages that were removed in October 2026. Everything this site publishes now is a European comparison, and all of it is one click away.",
+    "eyebrow": "Every metric",
+    "suggestionsTitle": "Perhaps you were looking for one of these"
+  },
+  "methodBlock": {
+    "eyebrow": "Method",
+    "howThisIsMeasured": "How this is measured",
+    "intro": "Every number on this page is either published by Eurostat or counted from those published numbers. Nothing is estimated on top.",
+    "whatTheFigureIs": "What the figure is",
+    "whatItIsBody": "Eurostat publishes one indicator per country per year: the age by which half of young people no longer live in a household with their parents. It is derived from the European Union Labour Force Survey. Eurostat’s own dataset title calls it an “estimated average age”, which does not match its own definition — a midpoint and an average are different things, and they differ most where the distribution is lopsided. This page follows the definition.",
+    "whatItIsNot": "What it is not",
+    "whatItIsNotBody": "It is not a distribution, so no percentile can be calculated from it. It is not a count of people. And it is a country-level figure: it describes a cohort, not any individual in it.",
+    "coverage": "Coverage",
+    "seriesBreaks": "Series breaks",
+    "source": "Source"
+  },
+  "stageMap": {
+    "showFiguresFor": "Show figures for",
+    "notLabeledOnThe": "Not labeled on the map:",
+    "detailsForOneCountry": "Details for one country",
+    "lookUpACountry": "Look up a country",
+    "europeanUnion": "European Union",
+    "men": "Men",
+    "women": "Women",
+    "menWomen": "Men − women"
+  },
+  "rankTable": {
+    "everyCountrySortableTable": "Every country, sortable table"
+  },
+  "statHero": {
+    "nothingIsSentAnywhere": "Nothing is sent anywhere.",
+    "whereDoYouLive": "Where do you live?",
+    "chooseYourCountry": "Choose your country",
+    "chooseYourCountryTo": "Choose your country to see where it falls."
+  },
+  "compareForm": {
+    "iLiveIn": "I live in",
+    "andLeftHomeAt": "and left home at",
+    "nothingIsSentAnywhere": "Nothing is sent anywhere. Your answer is kept in this browser so the next page already knows it, and you can clear it at any time."
+  },
+  "related": {
+    "eyebrow": "Next question",
+    "whatThisFigureSits": "What this figure sits next to"
+  },
+  "resultPanel": {
+    "eyebrow": "Your result"
+  },
+  "method": {
+    "method": "Method",
+    "howWeGetThese": "How we get these numbers",
+    "shortVersionWeDo": "Short version: we do not make any up. Every figure is published by a statistical agency, and the only arithmetic we add is the kind you could repeat.",
+    "whatYouAreLooking": "What you are looking at",
+    "aFigureIsNot": "A figure is not the same as a distribution",
+    "mostStatisticalAgenciesPublish": "Most statistical agencies publish one number per country per year. That number tells you where the middle of a country sits. It does not tell you how people are spread around that middle, and no amount of arithmetic can recover the spread from the summary once it has been thrown away.",
+    "sources": "Sources",
+    "whereTheDataComes": "Where the data comes from",
+    "eurostat": "Eurostat",
+    "europeanCentralBank": "European Central Bank",
+    "oecd": "OECD",
+    "menAndWomenNever": "men and women, never a total",
+    "naturalEarth": "Natural Earth",
+    "theCountryOutlinesOn": "The country outlines on the maps. Public domain, pinned to one package version and one checksum, projected once by a script in the repository rather than by hand.",
+    "reproducible": "reproducible",
+    "everyDatasetLineBy": "Every dataset, line by line",
+    "whatEachSourcePublishes": "What each source publishes, in its own words",
+    "oneBlockPerDataset": "One block per dataset: the code you can look it up by, how far the figures reach, what we read per country, and when it was last refreshed. Nothing here is typed by hand — it is read from the files the pipeline writes.",
+    "whatThePublisherCalls": "What the publisher calls it",
+    "itsOwnDefinition": "Its own definition",
+    "coverage": "Coverage",
+    "comparingAcrossTime": "Comparing across time",
+    "whatWeReadPer": "What we read per country",
+    "lastRefreshed": "Last refreshed",
+    "lookItUpYourself": "Look it up yourself",
+    "pipeline": "Pipeline",
+    "whatWeDoTo": "What we do to it",
+    "thePagesThemselvesCalculate": "The pages themselves calculate every sentence from that committed JSON at build time. There is no number typed into a page by hand anywhere on this site, which is the only way a figure cannot quietly go stale when a source republishes.",
+    "checks": "Checks",
+    "howWeCheckOurselves": "How we check ourselves",
+    "theGateDoesNot": "The gate does not trust the file we built. It goes back to the source response and recomputes.",
+    "limits": "Limits",
+    "whatWeWillNot": "What we will not do, and what we cannot",
+    "whatTheseFiguresCannot": "What these figures cannot tell you"
+  },
+  "about": {
+    "about": "About",
+    "aSmallProjectWith": "A small project with one rule",
+    "hiIMSimeon": "Hi, I’m Simeon. I built HumanAverage on my own, around one rule: no number appears on this site unless it can be traced back to data somebody else published.",
+    "whyItExists": "Why it exists",
+    "searchForAEuropean": "Search for a European average and you get a number. It is usually correct, and it is almost useless on its own — because one figure for a continent hides the thing you actually wanted to know: how far apart the countries are, and where you sit between them.",
+    "whoMakesItAnd": "Who makes it, and who does not",
+    "thereIsNoAnonymous": "There is no anonymous “research team” either, and no medical team, research institute or editorial department. It is one person. Where software or AI helps prepare the work, I remain responsible for the final check, the choice of sources and the decision to publish.",
+    "editorialPrinciples": "Editorial principles",
+    "iNeverInventA": "I never invent a statistic. Every figure comes from a dataset I can point to.",
+    "iSayWhichKind": "I say which kind of figure a page shows, and never call something a percentile when the source published a single number instead of a distribution.",
+    "iShowNoPercentile": "I show no percentile where no representative sample exists, however tempting.",
+    "iKeepMyOwn": "I keep my own calculation separate from results published by others.",
+    "iDescribeWhatA": "I describe what a comparison means, and what it does not.",
+    "iCorrectDemonstrableErrors": "I correct demonstrable errors and say when the method was last checked.",
+    "howItIsPaid": "How it is paid for",
+    "humanaverageIsFreeTo": "HumanAverage is free to use. Advertising may eventually help cover hosting and further development. It currently carries no advertising code, and adverts would never change a calculation or a conclusion.",
+    "corrections": "Corrections",
+    "thisSiteIsAn": "This site is an informational comparison. It is not medical advice, not a diagnosis, and not an assessment of your health."
+  },
+  "privacy": {
+    "privacy": "Privacy",
+    "whatWeCollectAlmost": "What we collect: almost nothing",
+    "whatYouTypeIs": "What you type is never sent to us. The comparison is calculated inside your own browser, from a data file your browser already downloaded with the page.",
+    "theValuesYouEnter": "The values you enter",
+    "thePagesAskFor": "The pages ask for a country and one number — the age you left home, the hours you work, what your household is worth. Those values stay in the memory of the page you have open. They are used to look up a position in a table that was downloaded with the page, and they disappear when you reload or close it. Nothing is transmitted to us, and no account is created.",
+    "whatYourBrowserRemembers": "What your browser remembers",
+    "onTheEuropeanComparison": "On the European comparison pages there is one exception. The country and the age you enter, together with the light or dark theme you pick, are saved in this browser's local storage, under a single key, so that the next page already knows them instead of asking again. That storage sits on your own device: it is never sent to us, there is no server behind it, and no profile of you exists anywhere else. Clearing site data for this domain removes it, and a private window keeps nothing at all.",
+    "analyticsAndCookies": "Analytics and cookies",
+    "thisSiteSetsNo": "This site sets no cookies, runs no analytics, and contains no advertising code. There is nothing to consent to, so we do not ask.",
+    "thatMayChangeIf": "That may change. If analytics or advertising is ever added, this page will be updated before the code goes live, and where consent is legally required it will be requested through an appropriate consent platform — with no non-essential cookies set before you have chosen.",
+    "technicallyNecessaryData": "Technically necessary data",
+    "weDoAlsoUse": "We do also use Google Search Console, which reports how the site performs in Google Search. It shows aggregated figures — how often pages appeared and were clicked — and does not identify individual visitors to us.",
+    "externalLinks": "External links",
+    "weLinkToThe": "We link to the CDC, to scientific publishers and to source datasets. Once you open one of those, that party's own privacy policy applies. We never pass your entered values along in such a link.",
+    "email": "Email",
+    "yourRights": "Your rights"
+  },
+  "contact": {
+    "contact": "Contact",
+    "foundAMistakeTell": "Found a mistake? Tell me.",
+    "aSiteBuiltOn": "A site built on a promise of traceable numbers only works if the numbers can be challenged. Corrections are welcome and get fixed.",
+    "email": "Email",
+    "thereIsNoContact": "There is no contact form, because a form would mean collecting your details on a site whose whole point is that it collects almost nothing.",
+    "whatHelps": "What helps",
+    "whatThisIsNot": "What this is not",
+    "humanaverageCannotAnswerMedical": "HumanAverage cannot answer medical, psychological or personal health questions, and nothing here is a diagnosis. If a measurement worries you, that is a conversation for a doctor, who can see everything a country-level statistic cannot."
+  },
+  "notes": {
+    "notes": "Notes",
+    "whatTheFiguresCannot": "What the figures cannot say",
+    "theMetricPagesAnswer": "The metric pages answer one question each. These are the pieces that do not fit on them: where a dataset breaks, where a definition does not match its own title, and what that changes about the answer.",
+    "theRule": "The rule",
+    "whenSomethingGetsWritten": "When something gets written here",
+    "aPieceAppearsHere": "A piece appears here when a dataset does something that its own page cannot fully carry. The metric pages have room for a method section, not for an argument. When the argument is the interesting part, it moves here."
+  }
+}

@@ -1,9 +1,11 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 
 /** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
 const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).contact;
 
 const title = 'Contact — HumanAverage';
 const description =
@@ -19,27 +21,25 @@ export function getStaticPaths() {
 <BaseV2 title={title} description={description} canonical="/contact/">
   <section class="hero">
     <div class="wrap">
-      <p class="eyebrow mono">Contact</p>
-      <h1>Found a mistake? Tell me.</h1>
+      <p class="eyebrow mono">{t.contact}</p>
+      <h1>{t.foundAMistakeTell}</h1>
       <p class="lead">
-        A site built on a promise of traceable numbers only works if the numbers can be
-        challenged. Corrections are welcome and get fixed.
+        {t.aSiteBuiltOn}
       </p>
     </div>
   </section>
 
   <section class="block">
     <div class="wrap prose">
-      <h2>Email</h2>
+      <h2>{t.email}</h2>
       <p>
         <a class="btn" href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>
       </p>
       <p>
-        There is no contact form, because a form would mean collecting your details on a site
-        whose whole point is that it collects almost nothing.
+        {t.thereIsNoContact}
       </p>
 
-      <h2>What helps</h2>
+      <h2>{t.whatHelps}</h2>
       <ul>
         <li>
           <strong>About a specific result:</strong> the page, the country you chose, the value
@@ -61,12 +61,10 @@ export function getStaticPaths() {
         </li>
       </ul>
 
-      <h2>What this is not</h2>
+      <h2>{t.whatThisIsNot}</h2>
       <div class="limits">
         <p>
-          HumanAverage cannot answer medical, psychological or personal health questions, and
-          nothing here is a diagnosis. If a measurement worries you, that is a conversation for
-          a doctor, who can see everything a country-level statistic cannot.
+          {t.humanaverageCannotAnswerMedical}
         </p>
       </div>
 
