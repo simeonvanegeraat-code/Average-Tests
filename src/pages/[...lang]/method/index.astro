@@ -10,7 +10,7 @@ import rawExitAge from '../../../../data/exit-age/index.json';
 import { headline, staleCountries } from '../../../lib/leaving-home.js';
 import { periodLabel } from '../../../lib/period.js';
 import { formatPeriod } from '../../../lib/wealth.js';
-import { METHODOLOGY } from '../../../lib/methodology.js';
+import { methodology } from '../../../lib/methodology.js';
 import { count } from '../../../lib/metric.js';
 
 /**
@@ -20,6 +20,8 @@ import { count } from '../../../lib/metric.js';
  * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
  */
 const lang = localeOf(Astro.url.pathname);
+/** De dertien datasets in de taal van deze pagina. Zie src/lib/methodology.js. */
+const METHODOLOGY = methodology(lang);
 const t = ui(lang).method;
 const leaving = localise(rawLeaving, lang);
 const wealth = localise(rawWealth, lang);
@@ -279,7 +281,7 @@ export function getStaticPaths() {
                       <>
                         One survey wave, not a series. Fieldwork across the
                         {' '}{set.comparability.countries} countries ran between
-                        {' '}{periodLabel(set.comparability.from)} and {periodLabel(set.comparability.to)},
+                        {' '}{periodLabel(set.comparability.from, { locale: lang })} and {periodLabel(set.comparability.to, { locale: lang })},
                         and each country carries its own window, so no single year describes them
                         all. Comparing waves is possible in principle but is not done here.
                       </>

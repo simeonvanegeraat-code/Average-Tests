@@ -11,6 +11,9 @@
  * Alleen op de server: dit importeert zeven JSON-bestanden.
  */
 import { headline, staleCountries, currentCountries } from './metric.js';
+import { localiseMetric } from './metric-names.js';
+import { localise } from './country-names.js';
+import { DEFAULT_LOCALE } from './locales.js';
 import { periodLabel } from './period.js';
 import { formatPeriod } from './wealth.js';
 import { STAGES } from './hue.js';
@@ -60,7 +63,15 @@ function day(stamp) {
   return match ? match[1] : null;
 }
 
-function eurostat(metric, index) {
+function eurostat(rawMetric, rawIndex, lang) {
+  /**
+   * De woorden en de landnamen in de taal van de pagina, vóórdat er iets uit gelezen
+   * wordt. Dit blok leest `metric.label`, `metric.unit` en de lenslabels, en `stale`
+   * hieronder leest landnamen — alle vier dingen die per taal verschillen.
+   */
+  const metric = localiseMetric(rawMetric, lang);
+  const index = localise(rawIndex, lang);
+
   const source = index.source ?? {};
   const { countries, year } = headline(index);
   const stale = staleCountries(index);
@@ -107,9 +118,9 @@ function eurostat(metric, index) {
      * "August 2026" te zijn zodra het in een zin belandt. Bij de jaarreeksen verandert
      * `periodLabel()` niets. Vermogen doet dit al met `formatPeriod()` hieronder.
      */
-    year: periodLabel(year),
-    firstYear: index.years?.length ? periodLabel(index.years[0]) : null,
-    lastYear: index.years?.length ? periodLabel(index.years[index.years.length - 1]) : null,
+    year: periodLabel(year, { locale: lang }),
+    firstYear: index.years?.length ? periodLabel(index.years[0], { locale: lang }) : null,
+    lastYear: index.years?.length ? periodLabel(index.years[index.years.length - 1], { locale: lang }) : null,
     /**
      * Vier werkelijk verschillende gevallen, en ze vragen vier verschillende zinnen.
      * Eén sjabloon eroverheen leverde "0 of 32 countries carry a break flag in "
@@ -121,23 +132,23 @@ function eurostat(metric, index) {
      * reeks vanaf 2023 is vergelijkbaar" zeggen over één jaar is een lege belofte.
      */
     comparability: index.years?.length === 1
-      ? { kind: 'single-year', year: periodLabel(index.years[0]) }
+      ? { kind: 'single-year', year: periodLabel(index.years[0], { locale: lang }) }
       : !index.lastBreak
-        ? { kind: 'unbroken', from: periodLabel(index.comparableSince ?? index.years?.[0] ?? null) }
+        ? { kind: 'unbroken', from: periodLabel(index.comparableSince ?? index.years?.[0] ?? null, { locale: lang }) }
         : index.comparableSince
           ? {
               kind: 'since',
-              since: periodLabel(index.comparableSince),
-              year: periodLabel(index.lastBreak),
+              since: periodLabel(index.comparableSince, { locale: lang }),
+              year: periodLabel(index.lastBreak, { locale: lang }),
               broken: broken.length,
               others: alsoBroken.length,
               otherYears: [...new Set(alsoBroken.flatMap((country) => country.breaks))]
-                .map(periodLabel)
+                .map((p) => periodLabel(p, { locale: lang }))
                 .join(', '),
             }
-          : { kind: 'break-at-end', year: periodLabel(index.lastBreak), broken: broken.length },
+          : { kind: 'break-at-end', year: periodLabel(index.lastBreak, { locale: lang }), broken: broken.length },
 
-    stale: stale.map((country) => ({ name: country.name, year: periodLabel(country.year) })),
+    stale: stale.map((country) => ({ name: country.name, year: periodLabel(country.year, { locale: lang }) })),
 
     published: day(source.eurostatUpdated),
     fetched: day(source.fetchedOn),
@@ -149,7 +160,7 @@ function eurostat(metric, index) {
  * enkele regel. Wat hier staat komt uit de index en uit de poort; de vaste teksten
  * (uitgever, API) zijn namen, geen cijfers.
  */
-function wealth() {
+function wealth(lang) {
   return {
     key: 'wealth',
     label: 'Wealth',
@@ -196,7 +207,7 @@ function wealth() {
  * de leeftijdscijfers in een eigen paneel staan, en het hoort dus ook hier te staan en
  * niet als voetnoot bij vermogen.
  */
-function wealthAge() {
+function wealthAge(lang) {
   const maanden = wealthAgeData.countries.flatMap((c) => [c.fieldwork.from, c.fieldwork.to]).sort();
 
   return {
@@ -252,7 +263,7 @@ function wealthAge() {
  * Deze bron heeft geen totaal, alleen mannen en vrouwen — dat staat bij "wat we per
  * land lezen", zodat het niet alleen op de pagina zelf te vinden is.
  */
-function oecd() {
+function oecd(lang) {
   const source = exitAgeData.source ?? {};
   const years = exitAgeData.years ?? [];
 
@@ -292,19 +303,40 @@ function oecd() {
   };
 }
 
-/** Dezelfde volgorde als het paneel in de header. */
-export const METHODOLOGY = [
-  eurostat(leavingHome, leavingHomeData),
-  eurostat(householdSize, householdSizeData),
-  eurostat(dwellingSize, dwellingSizeData),
-  eurostat(workingLife, workingLifeData),
-  eurostat(workingHours, workingHoursData),
-  eurostat(unemployment, unemploymentData),
-  eurostat(unemploymentUnder25, unemploymentUnder25Data),
-  eurostat(pensionAge, pensionAgeData),
-  oecd(),
-  eurostat(healthyYears, healthyYearsData),
-  eurostat(firstChild, firstChildData),
-  wealth(),
-  wealthAge(),
-];
+/**
+ * Dezelfde volgorde als het paneel in de header.
+ *
+ * Dit was `export const METHODOLOGY = [...]`, en dat kon per definitie geen taal kennen:
+ * een moduleconstante wordt één keer bij import berekend en is tussen alle pagina's van
+ * één build gedeeld. Op een Nederlandse pagina stonden hier dus Engelse metrieklabels,
+ * Engelse lensnamen en Engelse maandnamen — precies dezelfde fout die `catalogue.js` en
+ * `home-countries.js` eerder hadden, en om dezelfde reden niet te zien in een build die
+ * slaagt.
+ *
+ * Eén keer per taal, niet per pagina: /method/, /notes/ en het artikel vragen alle drie
+ * dezelfde lijst, en hem drie keer opbouwen leest dertien datasets drie keer.
+ */
+const perLang = new Map();
+
+export function methodology(lang = DEFAULT_LOCALE) {
+  let found = perLang.get(lang);
+  if (!found) {
+    found = [
+      eurostat(leavingHome, leavingHomeData, lang),
+      eurostat(householdSize, householdSizeData, lang),
+      eurostat(dwellingSize, dwellingSizeData, lang),
+      eurostat(workingLife, workingLifeData, lang),
+      eurostat(workingHours, workingHoursData, lang),
+      eurostat(unemployment, unemploymentData, lang),
+      eurostat(unemploymentUnder25, unemploymentUnder25Data, lang),
+      eurostat(pensionAge, pensionAgeData, lang),
+      oecd(lang),
+      eurostat(healthyYears, healthyYearsData, lang),
+      eurostat(firstChild, firstChildData, lang),
+      wealth(lang),
+      wealthAge(lang),
+    ];
+    perLang.set(lang, found);
+  }
+  return found;
+}

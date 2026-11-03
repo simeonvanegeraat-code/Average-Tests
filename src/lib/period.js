@@ -14,11 +14,35 @@
  * ECB. Die blijft staan: de vermogenspagina's hangen eraan, en één van de twee
  * weghalen is een verbouwing die niet bij deze pagina hoort.
  */
+import { localeOfNumber } from './format.js';
 
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
+/**
+ * De maandnamen komen uit CLDR, niet uit een lijst hier.
+ *
+ * Hier stond een vaste Engelse lijst, en op een Nederlandse pagina leverde die "August
+ * 2026" op waar "augustus 2026" hoort te staan. Dat raakt 29 gebouwde pagina's: elke
+ * vermogenslandpagina, de werkloosheidspagina's en /method/.
+ *
+ * Nagemeten tegen de oude lijst voordat hij eruit ging: `Intl` geeft in het Engels
+ * exact dezelfde twaalf namen, en `month: 'short'` geeft exact wat de oude code met
+ * `.slice(0, 3)` maakte. Er verandert dus geen Engelse letter. Dit is dezelfde bron als
+ * de landnamen in `src/locales/<taal>/countries.json`, en dezelfde reden: een lijst die je
+ * met de hand bijhoudt, houdt iemand niet bij.
+ *
+ * Opzetten kost meer dan formatteren, dus per taal en stijl één keer.
+ */
+const monthCache = new Map();
+
+function monthNames(locale, style) {
+  const key = `${locale}|${style}`;
+  let found = monthCache.get(key);
+  if (!found) {
+    const fmt = new Intl.DateTimeFormat(locale, { month: style, timeZone: 'UTC' });
+    found = Array.from({ length: 12 }, (_, i) => fmt.format(new Date(Date.UTC(2025, i, 15))));
+    monthCache.set(key, found);
+  }
+  return found;
+}
 
 /** "2026-08" naar `{ year: 2026, month: 8 }`, "2026-Q2" naar `{ year: 2026, quarter: 2 }`. */
 function parse(period) {
@@ -54,20 +78,30 @@ export function periodNumber(period) {
   return parts.year;
 }
 
-/** "2026-08" naar "August 2026", "2026-Q2" naar "Q2 2026", "2026" naar "2026". */
-export function periodLabel(period) {
+/**
+ * "2026-08" naar "August 2026", "2026-Q2" naar "Q2 2026", "2026" naar "2026".
+ *
+ * De taal gaat net zo als bij een getal: expliciet als de aanroeper hem heeft, anders
+ * uit `<html lang>` in de browser, anders de standaardtaal. `localeOfNumber` doet die
+ * keuze al en staat daarom hier niet nog een keer — de naam zegt "number" omdat hij voor
+ * de opmaakgrens geschreven is, maar de beslissing is dezelfde en hoort op één plek.
+ *
+ * Het kwartaal blijft "Q2". Of dat in het Nederlands "K2" of "2e kwartaal" wordt, is een
+ * woordkeuze en geen opmaak, en die hoort dus in de woordenlaag en niet hier.
+ */
+export function periodLabel(period, { locale } = {}) {
   const parts = parse(period);
   if (!parts) return String(period ?? '');
-  if (parts.month) return `${MONTHS[parts.month - 1]} ${parts.year}`;
+  if (parts.month) return `${monthNames(localeOfNumber(locale), 'long')[parts.month - 1]} ${parts.year}`;
   if (parts.quarter) return `Q${parts.quarter} ${parts.year}`;
   return String(parts.year);
 }
 
 /** Dezelfde naam, afgekort: "Aug 2026". Voor een tabelkop, waar de volle naam niet past. */
-export function periodShort(period) {
+export function periodShort(period, { locale } = {}) {
   const parts = parse(period);
   if (!parts) return String(period ?? '');
-  if (parts.month) return `${MONTHS[parts.month - 1].slice(0, 3)} ${parts.year}`;
+  if (parts.month) return `${monthNames(localeOfNumber(locale), 'short')[parts.month - 1]} ${parts.year}`;
   if (parts.quarter) return `Q${parts.quarter} ${parts.year}`;
   return String(parts.year);
 }
@@ -86,3 +120,17 @@ export function periodUnit(period) {
   if (parts.quarter) return 'quarter';
   return 'year';
 }
+
+/**
+ * De naam van één maand, voor een volledige datum buiten een periode om.
+ *
+ * Bestaat zodat `notes.js` geen derde lijst maandnamen hoeft te houden — er stonden er
+ * drie in deze repo: hier, in notes.js, en impliciet in wealth.js.
+ *
+ * Alleen de naam en niet de hele datum, en dat is met opzet. `Intl` geeft voor een
+ * volledige datum in het Engels "October 25, 2026", en deze site schrijft
+ * "25 October 2026". De volgorde komt dus niet van Intl. Een taal die een andere
+ * volgorde wil, zet die zin in haar eigen woordenlaag in plaats van hier.
+ */
+export const monthName = (month, { locale, style = 'long' } = {}) =>
+  monthNames(localeOfNumber(locale), style)[month - 1] ?? '';

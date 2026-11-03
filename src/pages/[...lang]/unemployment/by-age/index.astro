@@ -82,7 +82,7 @@ const better = rank.movers.filter((row) => row.shift < 0).slice(0, 3);
 /** Hoeveel landen vijf plaatsen of meer opschuiven — telbaar, in plaats van "veel". */
 const bigMovers = rank.movers.filter((row) => Math.abs(row.shift) >= 5).length;
 
-const title = `Youth Unemployment by Country in Europe (${periodLabel(anchor)})`;
+const title = `Youth Unemployment by Country in Europe (${periodLabel(anchor, { locale: lang })})`;
 const description =
   `Under-25 unemployment is ${fmt(eu?.youth ?? null)}% across the European Union, against ` +
   `${fmt(eu?.older ?? null)}% for everyone from 25 to 74. Every country, both age groups, ` +
@@ -98,7 +98,7 @@ export function getStaticPaths() {
   <section class="hero">
     <div class="wrap">
       <p class="eyebrow mono">
-        Eurostat · {matched.length} countries · {periodLabel(anchor)}
+        Eurostat · {matched.length} countries · {periodLabel(anchor, { locale: lang })}
       </p>
 
       <h1 data-reveal>{heading}</h1>
@@ -106,7 +106,7 @@ export function getStaticPaths() {
       <span class="giant num">{times(eu?.ratio ?? null)}</span>
       <p class="unit mono">
         the under-25 rate against the 25-to-74 rate · <b>European Union</b> ·
-        {' '}{periodLabel(eu?.period ?? anchor)}
+        {' '}{periodLabel(eu?.period ?? anchor, { locale: lang })}
       </p>
 
       <p class="lead">
@@ -164,7 +164,7 @@ export function getStaticPaths() {
           <table>
             <caption class="vh">
               Unemployment under 25 and from 25 to 74, {matched.length} countries,
-              {' '}{periodLabel(anchor)}.
+              {' '}{periodLabel(anchor, { locale: lang })}.
             </caption>
             <thead>
               <tr>
@@ -184,7 +184,7 @@ export function getStaticPaths() {
                     <tr>
                       <th scope="row">
                         {row.name}
-                        {row.period !== anchor && <span class="stale-year">{periodShort(row.period)}</span>}
+                        {row.period !== anchor && <span class="stale-year">{periodShort(row.period, { locale: lang })}</span>}
                       </th>
                       <td class="n strong">{fmt(row.youth)}</td>
                       <td class="n">{fmt(row.older)}</td>
@@ -203,7 +203,7 @@ export function getStaticPaths() {
 
         <p class="brk-foot">
           {behind.length > 0 && (
-            <>A month next to a country means Eurostat has no {periodLabel(anchor)} figure for it,
+            <>A month next to a country means Eurostat has no {periodLabel(anchor, { locale: lang })} figure for it,
             and both of its columns are from that month instead. </>
           )}
           {skipped.length > 0 && (
@@ -235,7 +235,7 @@ export function getStaticPaths() {
                 countries sit somewhere else in the two rankings. {rank.of < matched.length && (
                   <>
                     The comparison runs over {rank.of} of the {matched.length} in the table: the
-                    rest have no figure for {periodLabel(anchor)} in the overall series either, so
+                    rest have no figure for {periodLabel(anchor, { locale: lang })} in the overall series either, so
                     they have no place in that ranking to move from.{' '}
                   </>
                 )}
@@ -303,7 +303,7 @@ export function getStaticPaths() {
                     {' '}{fmt(sexes.youth.women)}% of women are unemployed — {amt(Math.abs(sexes.youth.gap))}
                     {' '}apart. Across the whole labour force it is {fmt(sexes.everyone.men)}% against
                     {' '}{fmt(sexes.everyone.women)}%, {amt(Math.abs(sexes.everyone.gap))} apart. Both
-                    figures are for {periodLabel(sexes.period)}.
+                    figures are for {periodLabel(sexes.period, { locale: lang })}.
                   </p>
                 </div>
                 <span class="meta mono">men against women</span>
@@ -382,7 +382,7 @@ export function getStaticPaths() {
         <ul class="source-list">
           <li><strong>Dataset</strong> Eurostat <code>{youthIndex.source.dataset}</code>, {youthIndex.source.label}</li>
           <li><strong>Breakdown</strong> seasonally adjusted, percentage of the labour force, under 25 and 25 to 74</li>
-          <li><strong>Series</strong> {periodLabel(youthIndex.years[0])} to {periodLabel(youthIndex.years[youthIndex.years.length - 1])}</li>
+          <li><strong>Series</strong> {periodLabel(youthIndex.years[0], { locale: lang })} to {periodLabel(youthIndex.years[youthIndex.years.length - 1], { locale: lang })}</li>
           <li><strong>Last updated by Eurostat</strong> {youthIndex.source.eurostatUpdated.slice(0, 10)}</li>
           <li><strong>Retrieved</strong> {youthIndex.source.fetchedOn.slice(0, 10)}</li>
           <li>

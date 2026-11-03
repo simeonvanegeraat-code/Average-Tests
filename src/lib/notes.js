@@ -13,6 +13,8 @@
  * Nieuw artikel toevoegen: een regel hier en een bestand in `src/pages/notes/`.
  * De nieuwste bovenaan.
  */
+
+import { monthName } from './period.js';
 export const NOTES = [
   {
     slug: 'eurostat-2021-series-break',
@@ -35,12 +37,8 @@ export const NOTES = [
 export const NOTES_LINK = '/notes/';
 
 /** "2026-10-25" wordt "25 October 2026". */
-export function noteDate(iso) {
+export function noteDate(iso, { locale } = {}) {
   const [year, month, day] = String(iso).split('-').map(Number);
   if (!year || !month || !day) return iso;
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
-  return `${day} ${months[month - 1]} ${year}`;
+  return `${day} ${monthName(month, { locale })} ${year}`;
 }

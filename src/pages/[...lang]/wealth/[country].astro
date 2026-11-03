@@ -399,7 +399,7 @@ const description =
 
             <p class="panel-source panel-source--light" style="margin-top:22px">
               {ageIndex.source.publisher}, {ageIndex.source.survey}, wave {ageIndex.source.wave}.
-              Fieldwork in {where} ran {fieldworkLabel(survey.fieldwork)}. Age is that of the
+              Fieldwork in {where} ran {fieldworkLabel(survey.fieldwork, { locale: lang })}. Age is that of the
               household's reference person.
             </p>
           </div>
@@ -452,7 +452,7 @@ const description =
               <strong>Age section only</strong>
               <span>
                 <a href={ageIndex.source.url} data-method-link>{ageIndex.source.survey}</a>, wave
-                {' '}{ageIndex.source.wave}, fieldwork {fieldworkLabel(survey.fieldwork)}. A separate
+                {' '}{ageIndex.source.wave}, fieldwork {fieldworkLabel(survey.fieldwork, { locale: lang })}. A separate
                 measure: public and occupational pensions are not counted in it.
               </span>
             </li>

@@ -4,10 +4,12 @@ import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import { STAGES } from '../../../lib/hue.js';
 import { NOTES, noteDate } from '../../../lib/notes.js';
-import { METHODOLOGY } from '../../../lib/methodology.js';
+import { methodology } from '../../../lib/methodology.js';
 
 /** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
 const lang = localeOf(Astro.url.pathname);
+/** De dertien datasets in de taal van deze pagina. Zie src/lib/methodology.js. */
+const METHODOLOGY = methodology(lang);
 const t = ui(lang).notes;
 
 /**
@@ -59,7 +61,7 @@ export function getStaticPaths() {
         {
           NOTES.map((note) => (
             <a class="noteitem hued" href={linkTo(note.path, lang)} style={`--h:${note.hue}`}>
-              <p class="when mono">{noteDate(note.published)}</p>
+              <p class="when mono">{noteDate(note.published, { locale: lang })}</p>
               <h3>{note.title}</h3>
               <p class="teaser">{note.teaser}</p>
               <span class="go" aria-hidden="true">

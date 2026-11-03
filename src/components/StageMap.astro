@@ -186,7 +186,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
           {
             stale.length > 0 && (
               <span class="legend-nodata">
-                <i class="legend-stale"></i>Latest figure is older than {periodLabel(latestYear)}
+                <i class="legend-stale"></i>Latest figure is older than {periodLabel(latestYear, { locale: lang })}
               </span>
             )
           }
@@ -208,8 +208,8 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
           {/* Stond hier als vaste zin over het ouderlijk huis, dus op acht van de negen
               pagina's onwaar — en zichtbaar, niet alleen voor een schermlezer. Nu uit de
               beschrijving van de metriek, net als de titel boven de legenda. */}
-          {metric.words?.legend ?? metric.label}, {periodLabel(latestYear)}.
-          {stale.length > 0 && <> Hatched countries have no figure for {periodLabel(latestYear)}; the map shows their most recent {grain} instead, and the table below names it.</>}
+          {metric.words?.legend ?? metric.label}, {periodLabel(latestYear, { locale: lang })}.
+          {stale.length > 0 && <> Hatched countries have no figure for {periodLabel(latestYear, { locale: lang })}; the map shows their most recent {grain} instead, and the table below names it.</>}
           Every figure is also in that table.
         </figcaption>
       </figure>
