@@ -17,6 +17,8 @@
  *     schrijft alsnog `24.6`.
  *   + Een taal in LOCALES zonder lidwoordtabel in grammar.js, of een tabel die een
  *     naam noemt die in het woordenbestand van die taal niet voorkomt.
+ *   + Een taal in LOCALES zonder zinsbouwers, of een zinsbouwer die niet dezelfde
+ *     functies exporteert als de standaardtaal.
  *   + Een taal in LOCALES zonder vaste tekst in ui.json, of een ui.json met andere
  *     sleutels dan de standaardtaal.
  *   + Een taal in LOCALES zonder metriekwoorden, een woordenbestand met andere
@@ -53,6 +55,8 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { GRAMMAR_LANGUAGES, articleNames } from '../src/lib/grammar.js';
 import { METRIC_LANGUAGES, metricWords } from '../src/lib/metric-names.js';
 import { UI_LANGUAGES, uiRaw } from '../src/lib/ui.js';
+import { COPY_LANGUAGES as MAP_COPY } from '../src/lib/metric-map.js';
+import { COPY_LANGUAGES as HOME_COPY } from '../src/lib/leaving-home-copy.js';
 import { join, relative, sep } from 'node:path';
 
 const problems = [];
@@ -218,6 +222,54 @@ for (const lang of LOCALES) {
         `src/lib/grammar.js: ARTICLES.${lang} noemt ${unknown.length} naam/namen die niet in ` +
           `${file} voorkomen: ${unknown.join(', ')}. Zo'n regel doet niets en meldt niets.`,
       );
+    }
+  }
+}
+
+/**
+ * De zinsbouwers: bestaat de taal, en levert hij dezelfde functies?
+ *
+ * Deze laag valt net als de andere terug op de standaardtaal, en dat is hier het
+ * gevaarlijkst van allemaal: een ontbrekende zinsbouwer geeft een vloeiende Engelse zin
+ * midden op een Nederlandse pagina. Geen lege plek, geen `undefined` — een zin die er
+ * goed uitziet en in de verkeerde taal staat. Dat is precies wat alleen een poort vindt.
+ *
+ * De tweede controle vergelijkt de geëxporteerde functies. Een copy-module die er één
+ * mist, laat de aanroeper op `undefined is not a function` vallen bij de eerste bezoeker
+ * die op dat pad komt — en dat pad kan "dit land heeft geen cijfer dit jaar" zijn, dus
+ * niet het pad dat je zelf toevallig aanklikt.
+ */
+{
+  const modules = [
+    ['src/lib/metric-map.js', MAP_COPY, 'metric-map'],
+    ['src/lib/leaving-home-copy.js', HOME_COPY, 'leaving-home'],
+  ];
+
+  for (const [waar, talen, bestand] of modules) {
+    for (const lang of LOCALES) {
+      if (!talen.includes(lang)) {
+        fail(
+          `${waar}: '${lang}' staat in LOCALES maar niet in COPY, dus die taal krijgt ` +
+            `Engelse zinnen. Voeg src/locales/${lang}/copy/${bestand}.js toe plus de import en de regel.`,
+        );
+        continue;
+      }
+      if (lang === DEFAULT) continue;
+
+      const [standaard, taal] = await Promise.all([
+        import(`../src/locales/${DEFAULT}/copy/${bestand}.js`),
+        import(`../src/locales/${lang}/copy/${bestand}.js`),
+      ]);
+
+      const verwacht = Object.keys(standaard.default ?? {}).sort();
+      const heeft = new Set(Object.keys(taal.default ?? {}));
+      const mist = verwacht.filter((k) => !heeft.has(k));
+      if (mist.length) {
+        fail(
+          `src/locales/${lang}/copy/${bestand}.js mist ${mist.length} van ${verwacht.length} ` +
+            `functie(s): ${mist.join(', ')}.`,
+        );
+      }
     }
   }
 }

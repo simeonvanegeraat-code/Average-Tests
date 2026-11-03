@@ -61,7 +61,7 @@ const movement = trend(index);
 const euValue = h.eu ? age(h.eu.total) : age(h.earliest.total);
 
 /** Alleen wat de browser nodig heeft. Dubbele backslash: met één doet dit niets. */
-const clientJson = JSON.stringify(clientData(index)).replace(/</g, '\\u003c');
+const clientJson = JSON.stringify(clientData(index, lang)).replace(/</g, '\\u003c');
 
 const title = `Average Age of Leaving Home by Country in Europe (${h.year})`;
 const description =

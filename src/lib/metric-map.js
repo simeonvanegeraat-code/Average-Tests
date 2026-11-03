@@ -15,8 +15,27 @@
  * Er staat geen getal met de hand in een zin. Wat hier als drempel staat (de
  * labelrijen van `tierOf`) gaat over tekengrootte, niet over statistiek.
  */
-import { bandOf, formatAmount, formatValue, ordinal, signed, withArticle } from './metric.js';
+import { bandOf, formatAmount, formatValue, signed } from './metric.js';
 import { periodLabel, periodNumber } from './period.js';
+import { DEFAULT_LOCALE } from './locales.js';
+import enCopy from '../locales/en/copy/metric-map.js';
+
+/**
+ * De zinnen per taal, net als NAMES in country-names.js en WORDS in metric-names.js.
+ * Een taal erbij is de import hierboven en een sleutel hier; validate-i18n.mjs
+ * vergelijkt deze sleutels met LOCALES.
+ *
+ * De taal komt uit `cfg.locale`. Dat is geen toeval en geen nieuwe leiding: de
+ * metriekconfiguratie reist al als JSON-blok naar de browser (zie de kop hierboven),
+ * en sinds fase 2 draagt hij zijn taal mee. Dus server en client lezen dezelfde taal
+ * uit dezelfde bron, en kunnen per definitie niet uit elkaar lopen.
+ */
+const COPY = { en: enCopy };
+
+const copyOf = (cfg) => COPY[cfg?.locale] ?? COPY[DEFAULT_LOCALE];
+
+/** Welke talen hier zinnen hebben. Alleen voor de poort. */
+export const COPY_LANGUAGES = Object.keys(COPY);
 
 /** De code waarmee het detailpaneel het Europese cijfer aanwijst. Geen landcode van Eurostat, dus geen botsing. */
 export const EU_CODE = 'EU';
@@ -76,17 +95,19 @@ export function mapSummary(rows, latestYear, lens, cfg) {
     .sort((a, b) => valueFor(a, lens) - valueFor(b, lens));
   const { who } = lensOf(cfg, lens);
   const subject = cfg.words.mapSubject.replace('{who}', who);
+  const copy = copyOf(cfg);
 
-  if (current.length === 0) return `Map of Europe: ${subject}.`;
+  if (current.length === 0) return copy.mapSummary({ subject });
 
   const low = current[0];
   const high = current[current.length - 1];
-  return (
-    `Map of Europe: ${subject}, ${periodLabel(latestYear)}. ` +
-    `It ranges from ${formatValue(valueFor(low, lens), cfg)} in ${withArticle(low.name)} ` +
-    `to ${formatValue(valueFor(high, lens), cfg)} in ${withArticle(high.name)}. ` +
-    'Every figure is also in the table below the map.'
-  );
+
+  return copy.mapSummary({
+    subject,
+    period: periodLabel(latestYear),
+    low: { name: low.name, value: formatValue(valueFor(low, lens), cfg) },
+    high: { name: high.name, value: formatValue(valueFor(high, lens), cfg) },
+  });
 }
 
 /**
@@ -106,35 +127,33 @@ export function inspectFacts(data, code, lens = 'total', cfg) {
 
   const { label } = lensOf(cfg, lens);
   const words = cfg.words;
+  const copy = copyOf(cfg);
   const value = valueFor(row, lens);
   const behind = !isEu && row.year !== latestYear ? row.year : null;
   const rank = isEu || behind ? null : rankFor(rows, latestYear, code, lens);
   const delta = isEu || behind ? null : deltaVsEu(row, eu, lens);
   const gap = row.men !== null && row.women !== null ? row.men - row.women : null;
 
-  let rankText = '';
-  if (rank) {
-    if (rank.rank === 1) rankText = `${words.low} of ${rank.of} countries`;
-    else if (rank.rank === rank.of) rankText = `${words.high} of ${rank.of} countries`;
-    else rankText = `${ordinal(rank.rank)} ${words.comparative} of ${rank.of} countries`;
-  }
+  const rankText = rank ? copy.rankNote({ rank: rank.rank, of: rank.of, words }) : '';
 
   // De drempel voor "gelijk aan het EU-cijfer" is een halve laatste decimaal: wat
   // daaronder ligt verdwijnt toch in de afronding.
   const tiny = 0.5 * 10 ** -(cfg.decimals ?? 1);
 
-  let euText = '';
-  if (delta !== null) {
-    euText =
-      Math.abs(delta) < tiny
-        ? 'right on the EU figure'
-        : `${formatAmount(Math.abs(delta), cfg)} ${delta > 0 ? words.above : words.below} than the EU figure`;
-  }
+  const euText =
+    delta === null
+      ? ''
+      : copy.euDistance({
+          equal: Math.abs(delta) < tiny,
+          amount: formatAmount(Math.abs(delta), cfg),
+          higher: delta > 0,
+          words,
+        });
 
-  let note = [rankText, euText].filter(Boolean).join(' · ');
+  let note = copy.joinNotes([rankText, euText]);
   if (isEu) note = words.euNote;
-  else if (behind) note = `No ${periodLabel(latestYear)} figure. This is the latest, from ${periodLabel(behind)}, and it is not ranked.`;
-  else if (value === null) note = 'No figure for this group.';
+  else if (behind) note = copy.behindNote({ latest: periodLabel(latestYear), from: periodLabel(behind) });
+  else if (value === null) note = copy.noFigure();
 
   /**
    * De breuken die het lijntje in het paneel werkelijk afbreken: alles ná de eerste
@@ -148,9 +167,9 @@ export function inspectFacts(data, code, lens = 'total', cfg) {
 
   return {
     code,
-    name: isEu ? 'European Union' : row.name,
+    name: isEu ? copy.euName : row.name,
     isEu,
-    meta: `${periodLabel(row.year)} · ${label}`,
+    meta: copy.metaLine({ period: periodLabel(row.year), lensLabel: label }),
     value,
     valueText: formatValue(value, cfg),
     rank,
@@ -163,15 +182,12 @@ export function inspectFacts(data, code, lens = 'total', cfg) {
     breaks,
     span: periods.length ? [periods[0], periods[periods.length - 1]] : null,
     /** De toelichting bij het trendlijntje: waarvoor het staat, en waar de lijn afbreekt en waarom. */
-    sparkNote: [
-      periods.length > 1
-        ? `${cfg.lenses[0].label}, ${periodLabel(periods[0])}–${periodLabel(periods[periods.length - 1])}.`
-        : '',
-      breaks.length === 0
-        ? ''
-        : `Notches mark ${cfg.sourceName} series breaks (${breaks.map(periodLabel).join(', ')}). The line is not drawn across them.`,
-    ]
-      .filter(Boolean)
-      .join(' '),
+    sparkNote: copy.sparkNote({
+      lensLabel: cfg.lenses[0].label,
+      from: periods.length > 1 ? periodLabel(periods[0]) : null,
+      to: periods.length > 1 ? periodLabel(periods[periods.length - 1]) : null,
+      breaks: breaks.map(periodLabel),
+      sourceName: cfg.sourceName,
+    }),
   };
 }
