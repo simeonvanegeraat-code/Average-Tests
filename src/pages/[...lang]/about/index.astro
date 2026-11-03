@@ -1,5 +1,6 @@
 ---
-import { localePaths, localeOf, prefixOf } from '../../../lib/locales.js';
+import { localePaths, localeOf, linkTo } from '../../../lib/locales.js';
+import { siteIdentity, pageUrl } from '../../../lib/schema.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 
 const title = 'About HumanAverage';
@@ -13,17 +14,18 @@ export function getStaticPaths() {
 
 /**
  * De taal en de URL van deze pagina, op dezelfde manier uitgerekend als BaseV2 dat doet:
- * localeOf() leest de taal uit het pad, prefixOf() zet het voorvoegsel ervoor. BaseV2
- * houdt die twee voor zichzelf en geeft ze niet aan de pagina door, dus een pagina die
- * ze in zijn structured data nodig heeft rekent ze zelf uit.
+ * localeOf() leest de taal uit het pad en het voorvoegsel gaat ervoor. BaseV2 houdt die
+ * twee voor zichzelf en geeft ze niet aan de pagina door, dus een pagina die ze in zijn
+ * structured data nodig heeft rekent ze zelf uit — nu via src/lib/schema.js, zodat de
+ * drie pagina's met structured data één site beschrijven in plaats van drie.
  *
  * Hier mag 'en' dus niet ingetypt staan. Zodra er een tweede taal bij komt, zou
  * /nl/about/ anders in zijn JSON-LD beweren dat hij Engels is terwijl <html lang> nl
  * zegt — precies de fout die eudebtmap.com op zijn Nederlandse pagina's heeft.
  */
 const lang = localeOf(Astro.url.pathname);
-const pageUrl = new URL(`${prefixOf(lang)}/about/`, Astro.site).href;
-const siteUrl = new URL(`${prefixOf(lang)}/`, Astro.site).href;
+const site = siteIdentity(lang, Astro.site);
+const url = pageUrl('/about/', lang, Astro.site);
 
 ---
 
@@ -45,21 +47,19 @@ const siteUrl = new URL(`${prefixOf(lang)}/`, Astro.site).href;
       set:html={JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'AboutPage',
-        '@id': pageUrl,
-        url: pageUrl,
+        '@id': url,
+        url,
         name: title,
         description,
         inLanguage: lang,
-        isPartOf: { '@type': 'WebSite', name: 'HumanAverage', url: siteUrl },
+        isPartOf: site.website,
         mainEntity: {
-          '@type': 'Organization',
-          name: 'HumanAverage',
-          url: siteUrl,
+          ...site.organisation,
           email: 'firenature23@gmail.com',
           founder: {
             '@type': 'Person',
             name: 'Simeon',
-            url: pageUrl,
+            url,
             description: 'Built HumanAverage alone, and checks every figure that goes on it.',
           },
         },
@@ -90,7 +90,7 @@ const siteUrl = new URL(`${prefixOf(lang)}/`, Astro.site).href;
         Answering that takes the figure for every country rather than the one for the whole, the
         honesty to say which side of it you fall on rather than inventing a precision the source
         does not support, and a check that the numbers survived the trip from the agency to the
-        page. That is what this site does, and the <a href="/method/">method page</a> shows
+        page. That is what this site does, and the <a href={linkTo('/method/', lang)}>method page</a> shows
         exactly how.
       </p>
 
