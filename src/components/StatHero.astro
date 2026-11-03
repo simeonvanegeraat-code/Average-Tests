@@ -18,9 +18,15 @@
  * loopt met de landkiezer van het formulier en de grafiek. Het onthouden van de keuze
  * is aan de pagina, niet aan dit onderdeel.
  */
+import { localeOf } from '../lib/locales.js';
+import { ui } from '../lib/ui.js';
 import DotPlot from './DotPlot.astro';
 import { age, years, withArticle, headline, ranked, currentCountries } from '../lib/leaving-home.js';
 import { euChange } from '../lib/leaving-home-copy.js';
+
+/** De taal van deze pagina, en de vaste tekst erin. Zie src/lib/ui.js. */
+const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).statHero;
 
 interface Props {
   index: any;
@@ -64,7 +70,7 @@ const plotLabel =
           Where do you fit?
           <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
         </a>
-        <span class="hint">Nothing is sent anywhere.</span>
+        <span class="hint">{t.nothingIsSentAnywhere}</span>
       </div>
       <p class="hero-note" data-reveal>
         Searches for this figure usually call it the <em>average age of leaving home</em>. It is not quite an average: Eurostat measures the
@@ -78,15 +84,15 @@ const plotLabel =
         <span class="delta num">{years(h.gap)} apart</span>
       </div>
       <div class="picker">
-        <label class="mono" for="hero-country">Where do you live?</label>
+        <label class="mono" for="hero-country">{t.whereDoYouLive}</label>
         <div class="select">
           <select id="hero-country" data-hero-country>
-            <option value="" selected disabled>Choose your country</option>
+            <option value="" selected disabled>{t.chooseYourCountry}</option>
             {options.map((country) => <option value={country.code}>{country.name}</option>)}
           </select>
         </div>
       </div>
-      <p class="you-line" data-hero-you aria-live="polite">Choose your country to see where it falls.</p>
+      <p class="you-line" data-hero-you aria-live="polite">{t.chooseYourCountryTo}</p>
       <DotPlot rows={rows} eu={h.eu ? h.eu.total : null} mode="hero" label={plotLabel} />
       <div class="panel-foot">
         {h.eu && h.eu.women !== null && <span class="chip">Women <b>{age(h.eu.women)}</b></span>}

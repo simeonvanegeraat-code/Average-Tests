@@ -33,10 +33,16 @@
  * Gebeurtenissen: luistert naar `ha:country` { code }. Stuurt niets zelf.
  * De gegevens voor de browser staan in één JSON-element in dit onderdeel (`data-map-data`).
  */
+import { localeOf } from '../lib/locales.js';
+import { ui } from '../lib/ui.js';
 import { euAggregate, formatValue } from '../lib/metric.js';
 import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
 import { periodLabel, periodUnit } from '../lib/period.js';
 import { band, EU_CODE, legendTicks, tierOf, mapSummary, inspectFacts } from '../lib/metric-map.js';
+
+/** De taal van deze pagina, en de vaste tekst erin. Zie src/lib/ui.js. */
+const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).stageMap;
 
 interface Shape {
   ctx?: number;
@@ -121,7 +127,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
     </header>
 
     <div class="controls" data-reveal>
-      <div class="seg" role="group" aria-label="Show figures for">
+      <div class="seg" role="group" aria-label={t.showFiguresFor}>
         {metric.lenses.map((lens: any, i: number) => <button type="button" data-lens={lens.key} aria-pressed={i === 0 ? 'true' : 'false'}>{lens.label}</button>)}
       </div>
     </div>
@@ -187,7 +193,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
         </div>
 
         <div class="smallchips">
-          <span>Not labeled on the map:</span>
+          <span>{t.notLabeledOnThe}</span>
           {
             chips.map(({ row, shape }) => (
               <button type="button" class={`smallchip t${tierOf(shape.lr)}`} data-c={row.code} aria-pressed="false">
@@ -208,12 +214,12 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
         </figcaption>
       </figure>
 
-      <aside class="aside" aria-label="Details for one country" data-reveal>
+      <aside class="aside" aria-label={t.detailsForOneCountry} data-reveal>
         <div class="picker">
-          <label class="mono" for="map-country">Look up a country</label>
+          <label class="mono" for="map-country">{t.lookUpACountry}</label>
           <div class="select">
             <select id="map-country" data-map-country>
-              <option value={EU_CODE} selected>European Union</option>
+              <option value={EU_CODE} selected>{t.europeanUnion}</option>
               {countries.map((row) => <option value={row.code}>{row.name}</option>)}
             </select>
           </div>
@@ -237,15 +243,15 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
               <p class="rk" data-f="note">{start.note}</p>
               <dl>
                 <div>
-                  <dt>Men</dt>
+                  <dt>{t.men}</dt>
                   <dd data-f="men">{formatValue(start.men, metric)}</dd>
                 </div>
                 <div>
-                  <dt>Women</dt>
+                  <dt>{t.women}</dt>
                   <dd data-f="women">{formatValue(start.women, metric)}</dd>
                 </div>
                 <div>
-                  <dt>Men − women</dt>
+                  <dt>{t.menWomen}</dt>
                   <dd data-f="gap">{start.gapText}</dd>
                 </div>
               </dl>

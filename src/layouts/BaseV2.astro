@@ -20,6 +20,7 @@
  * vóór de eerste verf gezet zodat er geen flits is. Schrijf het profiel dus altijd als
  * samenvoeging van wat er al staat, nooit als vervanging.
  */
+import { ui } from '../lib/ui.js';
 import { hueStyle } from '../lib/hue.js';
 import { localeOf, prefixOf, alternatesOf, linkTo, languageName } from '../lib/locales.js';
 import { catalogue } from '../lib/catalogue.js';
@@ -44,6 +45,7 @@ const { title, description, canonical, noindex = false, hue = 262, ogImage } = A
  * is dat voorvoegsel leeg en verandert er niets aan de uitvoer.
  */
 const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).shell;
 const canonicalUrl = new URL(`${prefixOf(lang)}${canonical}`, Astro.site).href;
 
 /**
@@ -151,11 +153,11 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
   </head>
 
   <body>
-    <a class="skip" href="#content">Skip to content</a>
+    <a class="skip" href="#content">{t.skipToContent}</a>
 
     <header class="nav-shell">
-      <nav class="nav" aria-label="Main navigation">
-        <a class="brand" href={linkTo('/', lang)} aria-label="HumanAverage home">
+      <nav class="nav" aria-label={t.mainNavigation}>
+        <a class="brand" href={linkTo('/', lang)} aria-label={t.humanaverageHome}>
           <svg class="mark" viewBox="0 0 36 16" aria-hidden="true">
             <defs>
               <linearGradient id="ha-spectrum" x1="0" x2="1">
@@ -179,9 +181,9 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
           </svg>
         </button>
 
-        <a class="nav-method" href={linkTo(NOTES_LINK, lang)} aria-current={here.startsWith('/notes/') ? 'page' : undefined}>Notes</a>
+        <a class="nav-method" href={linkTo(NOTES_LINK, lang)} aria-current={here.startsWith('/notes/') ? 'page' : undefined}>{t.notes}</a>
 
-        <a class="nav-method" href={linkTo('/method/', lang)} aria-current={isCurrent('/method/') ? 'page' : undefined}>Method</a>{
+        <a class="nav-method" href={linkTo('/method/', lang)} aria-current={isCurrent('/method/') ? 'page' : undefined}>{t.method}</a>{
           /*
            * De taalkiezer. Leeg zolang LOCALES één taal bevat, want alternatesOf()
            * geeft dan een lege lijst — dus deze fase verandert de HTML niet.
@@ -215,7 +217,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
            * main. Zie de commitboodschap van 894e21d, waar dat gedrag is nagemeten.
            */
           alternates.length > 1 && (
-          <nav class="lang-switch" aria-label="Language">
+          <nav class="lang-switch" aria-label={t.language}>
             {alternates.map(({ lang: alt, path }) => (
               <a
                 href={path}
@@ -232,7 +234,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
           )
         }
 
-        <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Switch theme">
+        <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label={t.switchTheme}>
           <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
           </svg>
@@ -245,7 +247,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
       </nav>
 
       <div id="metrics-menu" class="catalogue" popover data-on-metric={onMetric ? 'yes' : 'no'}>
-        <nav aria-label="All metrics">
+        <nav aria-label={t.allMetrics}>
             <div class="cat-grid">
           {
             CATALOGUE.map((metric, i) => (
@@ -334,32 +336,30 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
         <div class="foot-cols">
           <div>
             <p>
-              One question per page, answered from figures that Eurostat, the OECD and the ECB
-              publish themselves. Nothing is estimated on top, and every number is traceable to
-              its source.
+              {t.tagline}
             </p>
           </div>
           <div>
-            <h3>Every metric</h3>
+            <h3>{t.everyMetric}</h3>
             <div class="foot-links">
               {CATALOGUE.map((metric) => <a href={linkTo(metric.path, lang)}>{metric.label}</a>)}
-              <a href={linkTo('/method/', lang)}>How we calculate it</a>
+              <a href={linkTo('/method/', lang)}>{t.howWeCalculateIt}</a>
             </div>
           </div>
           <div>
-            <h3>About</h3>
+            <h3>{t.about}</h3>
             <div class="foot-links">
-              <a href={linkTo('/about/', lang)}>About</a>
-              <a href={linkTo('/contact/', lang)}>Contact</a>
-              <a href={linkTo('/privacy/', lang)}>Privacy</a>
+              <a href={linkTo('/about/', lang)}>{t.aboutLink}</a>
+              <a href={linkTo('/contact/', lang)}>{t.contact}</a>
+              <a href={linkTo('/privacy/', lang)}>{t.privacy}</a>
               {NOTES.slice(0, 3).map((note) => <a href={linkTo(note.path, lang)}>{note.title}</a>)}
-              {NOTES.length > 3 && <a href={linkTo('/notes/', lang)}>All notes</a>}
+              {NOTES.length > 3 && <a href={linkTo('/notes/', lang)}>{t.allNotes}</a>}
             </div>
           </div>
         </div>
         <div class="foot-bottom">
           <span>© <span data-current-year>2026</span> HumanAverage</span>
-          <span>Not medical advice. Informational comparison only.</span>
+          <span>{t.disclaimer}</span>
         </div>
         <div class="wordmark" aria-hidden="true">HumanAverage</div>
       </div>

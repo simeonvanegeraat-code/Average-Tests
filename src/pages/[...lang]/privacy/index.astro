@@ -1,6 +1,11 @@
 ---
-import { localePaths } from '../../../lib/locales.js';
+import { ui } from '../../../lib/ui.js';
+import { localeOf, localePaths } from '../../../lib/locales.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
+
+/** De taal van deze pagina, en de vaste tekst erin. Zie src/lib/ui.js. */
+const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).privacy;
 
 /**
  * Dit beleid moet beschrijven wat de site fetitelijk doet, niet wat we van plan
@@ -23,11 +28,10 @@ export function getStaticPaths() {
 <BaseV2 title={title} description={description} canonical="/privacy/">
   <section class="hero">
     <div class="wrap">
-      <p class="eyebrow mono">Privacy</p>
-      <h1>What we collect: almost nothing</h1>
+      <p class="eyebrow mono">{t.privacy}</p>
+      <h1>{t.whatWeCollectAlmost}</h1>
       <p class="lead">
-        What you type is never sent to us. The comparison is calculated inside your own
-        browser, from a data file your browser already downloaded with the page.
+        {t.whatYouTypeIs}
       </p>
     </div>
   </section>
@@ -36,23 +40,14 @@ export function getStaticPaths() {
     <div class="wrap prose">
       <p class="field-hint">Last updated: {updated}</p>
 
-      <h2>The values you enter</h2>
+      <h2>{t.theValuesYouEnter}</h2>
       <p>
-        The pages ask for a country and one number — the age you left home, the hours you work,
-        what your household is worth. Those values stay in the memory of the page you have open.
-        They are used to look up a position in a table that was downloaded with the page, and they
-        disappear when you reload or close it. Nothing is transmitted to us, and no account is
-        created.
+        {t.thePagesAskFor}
       </p>
 
-      <h3>What your browser remembers</h3>
+      <h3>{t.whatYourBrowserRemembers}</h3>
       <p>
-        On the European comparison pages there is one exception. The country and the age you enter,
-        together with the light or dark theme you pick, are saved in this browser's local storage,
-        under a single key, so that the next page already knows them instead of asking again. That storage sits on your own device: it is
-        never sent to us, there is no server behind it, and no profile of you exists anywhere
-        else. Clearing site data for this domain removes it, and a private window keeps nothing at
-        all.
+        {t.onTheEuropeanComparison}
       </p>
 
       <div class="limits">
@@ -65,19 +60,15 @@ export function getStaticPaths() {
         </p>
       </div>
 
-      <h2>Analytics and cookies</h2>
+      <h2>{t.analyticsAndCookies}</h2>
       <p>
-        This site sets no cookies, runs no analytics, and contains no advertising code. There is
-        nothing to consent to, so we do not ask.
+        {t.thisSiteSetsNo}
       </p>
       <p>
-        That may change. If analytics or advertising is ever added, this page will be updated
-        before the code goes live, and where consent is legally required it will be requested
-        through an appropriate consent platform — with no non-essential cookies set before you
-        have chosen.
+        {t.thatMayChangeIf}
       </p>
 
-      <h2>Technically necessary data</h2>
+      <h2>{t.technicallyNecessaryData}</h2>
       <p>
         As with virtually any website, the hosting provider processes technical request data:
         an IP address, the time, the page requested, browser information and errors. This is
@@ -85,19 +76,15 @@ export function getStaticPaths() {
         <a href="https://vercel.com/legal/privacy-policy" rel="noopener">Vercel</a>.
       </p>
       <p>
-        We do also use Google Search Console, which reports how the site performs in Google
-        Search. It shows aggregated figures — how often pages appeared and were clicked — and
-        does not identify individual visitors to us.
+        {t.weDoAlsoUse}
       </p>
 
-      <h2>External links</h2>
+      <h2>{t.externalLinks}</h2>
       <p>
-        We link to the CDC, to scientific publishers and to source datasets. Once you open one
-        of those, that party's own privacy policy applies. We never pass your entered values
-        along in such a link.
+        {t.weLinkToThe}
       </p>
 
-      <h2>Email</h2>
+      <h2>{t.email}</h2>
       <p>
         If you email <a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a> we
         receive your address, your message and anything else you choose to include, and use it
@@ -106,7 +93,7 @@ export function getStaticPaths() {
         information.
       </p>
 
-      <h2>Your rights</h2>
+      <h2>{t.yourRights}</h2>
       <p>
         Because we never receive your measurements, we cannot show you, correct or delete them —
         there is nothing on our side to act on. For questions about other data, about deleting

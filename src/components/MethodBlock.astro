@@ -9,11 +9,13 @@
  * bibliotheek en uit de gegevens. De links naar de bron dragen `data-method-link`, de haak
  * waarmee de pagina de gebeurtenis `methodology_opened` meet.
  */
+import { ui } from '../lib/ui.js';
 import { localeOf, linkTo } from '../lib/locales.js';
 import { staleCountries, headline } from '../lib/leaving-home.js';
 
 /** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
 const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).methodBlock;
 
 interface Props {
   index: any;
@@ -30,31 +32,27 @@ const lastYear = index.years[index.years.length - 1];
 <section class="block" id="method" aria-labelledby="method-title">
   <div class="wrap method-grid">
     <header class="sec-head" data-reveal style="margin: 0">
-      <p class="eyebrow mono">Method</p>
-      <h2 id="method-title">How this is measured</h2>
-      <p>Every number on this page is either published by Eurostat or counted from those published numbers. Nothing is estimated on top.</p>
+      <p class="eyebrow mono">{t.eyebrow}</p>
+      <h2 id="method-title">{t.howThisIsMeasured}</h2>
+      <p>{t.intro}</p>
     </header>
 
     <div data-reveal>
       <dl>
         <div>
-          <dt>What the figure is</dt>
+          <dt>{t.whatTheFigureIs}</dt>
           <dd>
-            Eurostat publishes one indicator per country per year: the age by which half of young people no longer live in a household with
-            their parents. It is derived from the European Union Labour Force Survey. Eurostat’s own dataset title calls it an “estimated
-            average age”, which does not match its own definition — a midpoint and an average are different things, and they differ most where
-            the distribution is lopsided. This page follows the definition.
+            {t.whatItIsBody}
           </dd>
         </div>
         <div>
-          <dt>What it is not</dt>
+          <dt>{t.whatItIsNot}</dt>
           <dd>
-            It is not a distribution, so no percentile can be calculated from it. It is not a count of people. And it is a country-level
-            figure: it describes a cohort, not any individual in it.
+            {t.whatItIsNotBody}
           </dd>
         </div>
         <div>
-          <dt>Coverage</dt>
+          <dt>{t.coverage}</dt>
           <dd>
             {h.countries} countries have a figure for {h.year}.
             {
@@ -70,7 +68,7 @@ const lastYear = index.years[index.years.length - 1];
           </dd>
         </div>
         <div>
-          <dt>Series breaks</dt>
+          <dt>{t.seriesBreaks}</dt>
           <dd>
             In {index.lastBreak} Eurostat flags a break in the series: the European Labour Force Survey was reorganized, and {withBreak} of
             {' '}{index.countries.length} countries carry the flag for that year. The break year itself is transitional, so figures before {index.comparableSince}
@@ -78,7 +76,7 @@ const lastYear = index.years[index.years.length - 1];
           </dd>
         </div>
         <div>
-          <dt>Source</dt>
+          <dt>{t.source}</dt>
           <dd>
             <ul class="source-list">
               <li><b>Dataset</b> <span>Eurostat <code>{index.source.dataset}</code>, {index.source.label}</span></li>

@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
@@ -19,6 +20,7 @@ import { count } from '../../../lib/metric.js';
  * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
  */
 const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).method;
 const leaving = localise(rawLeaving, lang);
 const wealth = localise(rawWealth, lang);
 const exitAge = localise(rawExitAge, lang);
@@ -61,11 +63,10 @@ export function getStaticPaths() {
 <BaseV2 title={title} description={description} canonical="/method/">
   <section class="hero">
     <div class="wrap">
-      <p class="eyebrow mono">Method</p>
-      <h1 data-reveal>How we get these numbers</h1>
+      <p class="eyebrow mono">{t.method}</p>
+      <h1 data-reveal>{t.howWeGetThese}</h1>
       <p class="lead">
-        Short version: we do not make any up. Every figure is published by a statistical
-        agency, and the only arithmetic we add is the kind you could repeat.
+        {t.shortVersionWeDo}
       </p>
     </div>
   </section>
@@ -73,16 +74,13 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="kind-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What you are looking at</p>
-        <h2 id="kind-title">A figure is not the same as a distribution</h2>
+        <p class="eyebrow mono">{t.whatYouAreLooking}</p>
+        <h2 id="kind-title">{t.aFigureIsNot}</h2>
       </header>
 
       <div class="prose" data-reveal>
         <p>
-          Most statistical agencies publish one number per country per year. That number tells
-          you where the middle of a country sits. It does not tell you how people are spread
-          around that middle, and no amount of arithmetic can recover the spread from the
-          summary once it has been thrown away.
+          {t.mostStatisticalAgenciesPublish}
         </p>
         <p>
           This is why the pages here say <b>which side of a figure you fall on</b> rather than
@@ -104,8 +102,8 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="source-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Sources</p>
-        <h2 id="source-title">Where the data comes from</h2>
+        <p class="eyebrow mono">{t.sources}</p>
+        <h2 id="source-title">{t.whereTheDataComes}</h2>
         <p>
           {count(publishers.length, 'statistical agency', 'statistical agencies')}, all publishing
           openly, each recorded per dataset in the repository with its code, coverage, licence and
@@ -116,7 +114,7 @@ export function getStaticPaths() {
       <div class="bento" data-reveal>
         <div class="tile">
           <div>
-            <h3>Eurostat</h3>
+            <h3>{t.eurostat}</h3>
             <p>
               <b class="code">{leaving.source.dataset}</b> — {leaving.source.label}. Derived from
               the EU Labour Force Survey, series {leaving.years[0]} to {
@@ -129,7 +127,7 @@ export function getStaticPaths() {
 
         <div class="tile">
           <div>
-            <h3>European Central Bank</h3>
+            <h3>{t.europeanCentralBank}</h3>
             <p>
               {wealth.source}. Quarterly, openly available through the ECB data portal, covering
               {wealth.countries.length} countries through {formatPeriod(wealth.latestPeriod)}.
@@ -140,7 +138,7 @@ export function getStaticPaths() {
 
         <div class="tile">
           <div>
-            <h3>OECD</h3>
+            <h3>{t.oecd}</h3>
             <p>
               <b class="code">{exitAge.source.measure}</b> — {exitAge.source.label}, from the{' '}
               {exitAge.source.name} database. The widest reach of anything here: {exitAge.countries.length}{' '}
@@ -148,18 +146,17 @@ export function getStaticPaths() {
               series that goes beyond Europe.
             </p>
           </div>
-          <span class="meta mono">men and women, never a total</span>
+          <span class="meta mono">{t.menAndWomenNever}</span>
         </div>
 
         <div class="tile">
           <div>
-            <h3>Natural Earth</h3>
+            <h3>{t.naturalEarth}</h3>
             <p>
-              The country outlines on the maps. Public domain, pinned to one package version and
-              one checksum, projected once by a script in the repository rather than by hand.
+              {t.theCountryOutlinesOn}
             </p>
           </div>
-          <span class="meta mono">reproducible</span>
+          <span class="meta mono">{t.reproducible}</span>
         </div>
       </div>
     </div>
@@ -168,12 +165,10 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="datasets-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Every dataset, line by line</p>
-        <h2 id="datasets-title">What each source publishes, in its own words</h2>
+        <p class="eyebrow mono">{t.everyDatasetLineBy}</p>
+        <h2 id="datasets-title">{t.whatEachSourcePublishes}</h2>
         <p>
-          One block per dataset: the code you can look it up by, how far the figures reach, what we
-          read per country, and when it was last refreshed. Nothing here is typed by hand — it is
-          read from the files the pipeline writes.
+          {t.oneBlockPerDataset}
         </p>
         <p>
           Where a publisher writes its own definition, that definition is quoted rather than
@@ -205,20 +200,20 @@ export function getStaticPaths() {
               <dl>
                 {set.sourceLabel && (
                   <div class="wide">
-                    <dt>What the publisher calls it</dt>
+                    <dt>{t.whatThePublisherCalls}</dt>
                     <dd>{set.sourceLabel}</dd>
                   </div>
                 )}
 
                 {set.definition && (
                   <div class="wide">
-                    <dt>Its own definition</dt>
+                    <dt>{t.itsOwnDefinition}</dt>
                     <dd class="quote">{set.definition}</dd>
                   </div>
                 )}
 
                 <div>
-                  <dt>Coverage</dt>
+                  <dt>{t.coverage}</dt>
                   <dd>
                     {set.countries} countries at {set.year}
                     {set.firstYear && <> · series {set.firstYear}–{set.lastYear}</>}
@@ -230,7 +225,7 @@ export function getStaticPaths() {
                 </div>
 
                 <div>
-                  <dt>Comparing across time</dt>
+                  <dt>{t.comparingAcrossTime}</dt>
                   <dd>
                     {set.comparability.kind === 'since' && (
                       <>
@@ -293,12 +288,12 @@ export function getStaticPaths() {
                 </div>
 
                 <div>
-                  <dt>What we read per country</dt>
+                  <dt>{t.whatWeReadPer}</dt>
                   <dd>{set.lenses.length ? set.lenses.join(' · ') : 'One figure per country'}</dd>
                 </div>
 
                 <div>
-                  <dt>Last refreshed</dt>
+                  <dt>{t.lastRefreshed}</dt>
                   <dd>
                     {set.published && <>Published {set.published} · </>}
                     Fetched {set.fetched}
@@ -307,7 +302,7 @@ export function getStaticPaths() {
                 </div>
 
                 <div class="wide">
-                  <dt>Look it up yourself</dt>
+                  <dt>{t.lookItUpYourself}</dt>
                   <dd>
                     {set.doi && <>DOI <code>{set.doi}</code> · </>}
                     {set.metadata && (
@@ -330,8 +325,8 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="pipeline-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Pipeline</p>
-        <h2 id="pipeline-title">What we do to it</h2>
+        <p class="eyebrow mono">{t.pipeline}</p>
+        <h2 id="pipeline-title">{t.whatWeDoTo}</h2>
       </header>
 
       <div class="prose" data-reveal>
@@ -356,9 +351,7 @@ export function getStaticPaths() {
           </li>
         </ol>
         <p>
-          The pages themselves calculate every sentence from that committed JSON at build time.
-          There is no number typed into a page by hand anywhere on this site, which is the only
-          way a figure cannot quietly go stale when a source republishes.
+          {t.thePagesThemselvesCalculate}
         </p>
       </div>
     </div>
@@ -367,11 +360,10 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="check-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Checks</p>
-        <h2 id="check-title">How we check ourselves</h2>
+        <p class="eyebrow mono">{t.checks}</p>
+        <h2 id="check-title">{t.howWeCheckOurselves}</h2>
         <p>
-          The gate does not trust the file we built. It goes back to the source response and
-          recomputes.
+          {t.theGateDoesNot}
         </p>
       </header>
 
@@ -403,8 +395,8 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="limits-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Limits</p>
-        <h2 id="limits-title">What we will not do, and what we cannot</h2>
+        <p class="eyebrow mono">{t.limits}</p>
+        <h2 id="limits-title">{t.whatWeWillNot}</h2>
       </header>
 
       <div class="prose" data-reveal>
@@ -419,7 +411,7 @@ export function getStaticPaths() {
         </p>
 
         <div class="limits">
-          <b>What these figures cannot tell you</b>
+          <b>{t.whatTheseFiguresCannot}</b>
           <p>
             They are country-level. They describe a population, not anyone in it, and the spread
             inside a country is almost always wider than the gap between countries. Coverage is

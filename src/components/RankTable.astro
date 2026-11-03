@@ -17,9 +17,15 @@
  * Sorteren gebeurt in de browser, maar de tabel staat volledig en in een zinnige volgorde
  * (van vroeg naar laat) in de HTML. Zonder JavaScript mis je alleen het sorteren.
  */
+import { localeOf } from '../lib/locales.js';
+import { ui } from '../lib/ui.js';
 import { formatAmount, formatValue } from '../lib/metric.js';
 import { periodLabel, periodNumber, periodShort, periodUnit } from '../lib/period.js';
 import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
+
+/** De taal van deze pagina, en de vaste tekst erin. Zie src/lib/ui.js. */
+const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).rankTable;
 
 interface Props {
   /** Het gebouwde databestand van de metriek. */
@@ -99,7 +105,7 @@ const caption =
   (behind > 0 ? `; ${behind} shown at their most recent ${grain} instead.` : '.');
 ---
 
-<div class="tablewrap" tabindex="0" role="region" aria-label="Every country, sortable table" data-reveal>
+<div class="tablewrap" tabindex="0" role="region" aria-label={t.everyCountrySortableTable} data-reveal>
   <table data-rank-table>
     <caption class="vh">{caption}</caption>
     <thead>

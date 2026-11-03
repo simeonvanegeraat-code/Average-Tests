@@ -1,7 +1,12 @@
 ---
+import { ui } from '../lib/ui.js';
 import BaseV2 from '../layouts/BaseV2.astro';
 import { catalogue } from '../lib/catalogue.js';
-import { DEFAULT_LOCALE } from '../lib/locales.js';
+import { localeOf, DEFAULT_LOCALE } from '../lib/locales.js';
+
+/** De taal van deze pagina, en de vaste tekst erin. Zie src/lib/ui.js. */
+const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).notFound;
 
 /**
  * De 404 staat buiten [...lang] en is er dus één, in de standaardtaal. Astro bouwt
@@ -33,11 +38,9 @@ const description =
   <section class="hero" aria-labelledby="nf-title">
     <div class="wrap">
       <p class="eyebrow mono">404</p>
-      <h1 id="nf-title">That page is not here</h1>
+      <h1 id="nf-title">{t.title}</h1>
       <p class="lead">
-        Either it never existed, or it was one of the Dutch test pages that were removed in
-        October 2026. Everything this site publishes now is a European comparison, and all of it
-        is one click away.
+        {t.lead}
       </p>
       <div class="hero-cta">
         <a class="btn" href="/">
@@ -51,8 +54,8 @@ const description =
   <section class="block" aria-labelledby="all-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Every metric</p>
-        <h2 id="all-title">Perhaps you were looking for one of these</h2>
+        <p class="eyebrow mono">{t.eyebrow}</p>
+        <h2 id="all-title">{t.suggestionsTitle}</h2>
       </header>
 
       <div class="cat-grid" data-reveal>
