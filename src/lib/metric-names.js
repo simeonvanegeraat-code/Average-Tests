@@ -33,6 +33,7 @@
 import { DEFAULT_LOCALE } from './locales.js';
 /** Met `with { type: 'json' }`, zodat plain Node deze grens kan testen. Zie country-names.js. */
 import en from '../locales/en/metrics.json' with { type: 'json' };
+import nl from '../locales/nl/metrics.json' with { type: 'json' };
 
 /**
  * Eén woordenbestand per taal. Een taal erbij is de import hierboven en een sleutel hier,
@@ -40,7 +41,7 @@ import en from '../locales/en/metrics.json' with { type: 'json' };
  * compleet woordenbestand dat hier niet staat, krijgt zwijgend het Engels. Dat is op
  * 1 november precies één keer gebeurd met de landnamen, en één keer is genoeg.
  */
-const WORDS = { en };
+const WORDS = { en, nl };
 
 export function metricWords(lang) {
   return WORDS[lang] ?? WORDS[DEFAULT_LOCALE];

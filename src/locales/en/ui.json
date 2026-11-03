@@ -8,6 +8,7 @@
     "language": "Language",
     "switchTheme": "Switch theme",
     "allMetrics": "All metrics",
+    "metrics": "Metrics",
     "tagline": "One question per page, answered from figures that Eurostat, the OECD and the ECB publish themselves. Nothing is estimated on top, and every number is traceable to its source.",
     "everyMetric": "Every metric",
     "howWeCalculateIt": "How we calculate it",

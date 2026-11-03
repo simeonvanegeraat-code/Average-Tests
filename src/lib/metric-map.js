@@ -19,6 +19,7 @@ import { bandOf, formatAmount, formatValue, signed } from './metric.js';
 import { periodLabel, periodNumber } from './period.js';
 import { DEFAULT_LOCALE } from './locales.js';
 import enCopy from '../locales/en/copy/metric-map.js';
+import nlCopy from '../locales/nl/copy/metric-map.js';
 
 /**
  * De zinnen per taal, net als NAMES in country-names.js en WORDS in metric-names.js.
@@ -30,7 +31,7 @@ import enCopy from '../locales/en/copy/metric-map.js';
  * en sinds fase 2 draagt hij zijn taal mee. Dus server en client lezen dezelfde taal
  * uit dezelfde bron, en kunnen per definitie niet uit elkaar lopen.
  */
-const COPY = { en: enCopy };
+const COPY = { en: enCopy, nl: nlCopy };
 
 const copyOf = (cfg) => COPY[cfg?.locale] ?? COPY[DEFAULT_LOCALE];
 

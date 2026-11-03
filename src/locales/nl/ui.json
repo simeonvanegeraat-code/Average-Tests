@@ -1,0 +1,163 @@
+{
+  "shell": {
+    "skipToContent": "Naar de inhoud",
+    "mainNavigation": "Hoofdnavigatie",
+    "humanaverageHome": "HumanAverage startpagina",
+    "notes": "Artikelen",
+    "method": "Methode",
+    "language": "Taal",
+    "switchTheme": "Thema wisselen",
+    "allMetrics": "Alle metrieken",
+    "metrics": "Metrieken",
+    "tagline": "Eén vraag per pagina, beantwoord met cijfers die Eurostat, de OESO en de ECB zelf publiceren. Er wordt niets bij geschat, en elk getal is terug te leiden naar zijn bron.",
+    "everyMetric": "Elke metriek",
+    "howWeCalculateIt": "Hoe we het berekenen",
+    "about": "Over",
+    "aboutLink": "Over",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "allNotes": "Alle artikelen",
+    "disclaimer": "Geen medisch advies. Alleen een informatieve vergelijking."
+  },
+  "notFound": {
+    "title": "Deze pagina staat hier niet",
+    "lead": "Of hij heeft nooit bestaan, of het was een van de Nederlandse testpagina's die in oktober 2026 zijn verwijderd. Alles wat deze site nu publiceert is een Europese vergelijking, en dat ligt allemaal één klik ver.",
+    "eyebrow": "Elke metriek",
+    "suggestionsTitle": "Misschien zocht je een van deze"
+  },
+  "methodBlock": {
+    "eyebrow": "Methode",
+    "howThisIsMeasured": "Hoe dit gemeten is",
+    "intro": "Elk getal op deze pagina is of door Eurostat gepubliceerd, of geteld uit die gepubliceerde getallen. Er wordt niets bij geschat.",
+    "whatTheFigureIs": "Wat het cijfer is",
+    "whatItIsBody": "Eurostat publiceert één indicator per land per jaar: de leeftijd waarop de helft van de jongeren niet meer in een huishouden met hun ouders woont. Het is afgeleid uit de arbeidskrachtenenquête van de Europese Unie. Eurostats eigen datasettitel noemt het een “estimated average age”, en dat klopt niet met zijn eigen definitie — een middelpunt en een gemiddelde zijn verschillende dingen, en ze lopen het verst uiteen waar de verdeling scheef ligt. Deze pagina volgt de definitie.",
+    "whatItIsNot": "Wat het niet is",
+    "whatItIsNotBody": "Het is geen verdeling, dus er valt geen percentiel uit te rekenen. Het is geen telling van mensen. En het is een cijfer op landniveau: het beschrijft een cohort, niet iemand daarin.",
+    "coverage": "Dekking",
+    "seriesBreaks": "Reeksbreuken",
+    "source": "Bron"
+  },
+  "stageMap": {
+    "showFiguresFor": "Toon cijfers voor",
+    "notLabeledOnThe": "Niet op de kaart benoemd:",
+    "detailsForOneCountry": "Details voor één land",
+    "lookUpACountry": "Zoek een land op",
+    "europeanUnion": "Europese Unie",
+    "men": "Mannen",
+    "women": "Vrouwen",
+    "menWomen": "Mannen − vrouwen"
+  },
+  "rankTable": {
+    "everyCountrySortableTable": "Elk land, sorteerbare tabel"
+  },
+  "statHero": {
+    "nothingIsSentAnywhere": "Er wordt niets verstuurd.",
+    "whereDoYouLive": "Waar woon je?",
+    "chooseYourCountry": "Kies je land",
+    "chooseYourCountryTo": "Kies je land om te zien waar het valt."
+  },
+  "compareForm": {
+    "iLiveIn": "Ik woon in",
+    "andLeftHomeAt": "en ging het huis uit op",
+    "nothingIsSentAnywhere": "Er wordt niets verstuurd. Je antwoord blijft in deze browser, zodat de volgende pagina het al weet, en je kunt het op elk moment wissen."
+  },
+  "related": {
+    "eyebrow": "Volgende vraag",
+    "whatThisFigureSits": "Waar dit cijfer aan vastzit"
+  },
+  "resultPanel": {
+    "eyebrow": "Jouw uitkomst"
+  },
+  "method": {
+    "method": "Methode",
+    "howWeGetThese": "Hoe we aan deze cijfers komen",
+    "shortVersionWeDo": "Kort gezegd: we verzinnen er geen. Elk cijfer is door een statistiekbureau gepubliceerd, en het enige rekenwerk dat wij toevoegen is het soort dat je zelf kunt herhalen.",
+    "whatYouAreLooking": "Waar je naar kijkt",
+    "aFigureIsNot": "Een cijfer is niet hetzelfde als een verdeling",
+    "mostStatisticalAgenciesPublish": "De meeste statistiekbureaus publiceren één getal per land per jaar. Dat getal zegt waar het midden van een land ligt. Het zegt niet hoe mensen rond dat midden verspreid zijn, en geen enkele berekening kan die spreiding terughalen uit de samenvatting zodra hij is weggegooid.",
+    "sources": "Bronnen",
+    "whereTheDataComes": "Waar de data vandaan komt",
+    "eurostat": "Eurostat",
+    "europeanCentralBank": "Europese Centrale Bank",
+    "oecd": "OESO",
+    "menAndWomenNever": "mannen en vrouwen, nooit een totaal",
+    "naturalEarth": "Natural Earth",
+    "theCountryOutlinesOn": "De landcontouren op de kaarten. Publiek domein, vastgezet op één pakketversie en één controlesom, één keer geprojecteerd door een script in de repository in plaats van met de hand.",
+    "reproducible": "reproduceerbaar",
+    "everyDatasetLineBy": "Elke dataset, regel voor regel",
+    "whatEachSourcePublishes": "Wat elke bron publiceert, in zijn eigen woorden",
+    "oneBlockPerDataset": "Eén blok per dataset: de code waarmee je het kunt opzoeken, hoe ver de cijfers reiken, wat we per land lezen, en wanneer het voor het laatst is ververst. Niets hiervan is met de hand getypt — het wordt gelezen uit de bestanden die de pijplijn schrijft.",
+    "whatThePublisherCalls": "Hoe de uitgever het zelf noemt",
+    "itsOwnDefinition": "Zijn eigen definitie",
+    "coverage": "Dekking",
+    "comparingAcrossTime": "Vergelijken over tijd",
+    "whatWeReadPer": "Wat we per land lezen",
+    "lastRefreshed": "Laatst ververst",
+    "lookItUpYourself": "Zoek het zelf op",
+    "pipeline": "Pijplijn",
+    "whatWeDoTo": "Wat wij ermee doen",
+    "thePagesThemselvesCalculate": "De pagina's rekenen elke zin zelf uit die vastgelegde JSON uit, tijdens de build. Er staat nergens op deze site een getal met de hand in een pagina, en dat is de enige manier waarop een cijfer niet stil kan verouderen als een bron opnieuw publiceert.",
+    "checks": "Controles",
+    "howWeCheckOurselves": "Hoe we onszelf controleren",
+    "theGateDoesNot": "De poort vertrouwt het bestand dat we gebouwd hebben niet. Hij gaat terug naar het antwoord van de bron en rekent het opnieuw uit.",
+    "limits": "Grenzen",
+    "whatWeWillNot": "Wat we niet doen, en wat we niet kunnen",
+    "whatTheseFiguresCannot": "Wat deze cijfers je niet kunnen vertellen"
+  },
+  "about": {
+    "about": "Over",
+    "aSmallProjectWith": "Een klein project met één regel",
+    "hiIMSimeon": "Hoi, ik ben Simeon. Ik heb HumanAverage alleen gebouwd, rond één regel: er komt geen getal op deze site tenzij het terug te leiden is naar data die iemand anders gepubliceerd heeft.",
+    "whyItExists": "Waarom het bestaat",
+    "searchForAEuropean": "Zoek op een Europees gemiddelde en je krijgt een getal. Dat is meestal juist, en op zichzelf vrijwel nutteloos — want één cijfer voor een werelddeel verbergt precies wat je wilde weten: hoe ver de landen uiteen liggen, en waar jij daartussen zit.",
+    "whoMakesItAnd": "Wie het maakt, en wie niet",
+    "thereIsNoAnonymous": "Er is ook geen anoniem “onderzoeksteam”, en geen medisch team, onderzoeksinstituut of redactie. Het is één persoon. Waar software of AI helpt bij het voorbereiden van het werk, blijf ik verantwoordelijk voor de eindcontrole, de keuze van de bronnen en de beslissing om te publiceren.",
+    "editorialPrinciples": "Redactionele uitgangspunten",
+    "iNeverInventA": "Ik verzin nooit een statistiek. Elk cijfer komt uit een dataset die ik kan aanwijzen.",
+    "iSayWhichKind": "Ik zeg welk soort cijfer een pagina toont, en noem iets nooit een percentiel als de bron één getal publiceerde in plaats van een verdeling.",
+    "iShowNoPercentile": "Ik toon geen percentiel waar geen representatieve steekproef bestaat, hoe verleidelijk ook.",
+    "iKeepMyOwn": "Ik houd mijn eigen berekening gescheiden van uitkomsten die anderen gepubliceerd hebben.",
+    "iDescribeWhatA": "Ik beschrijf wat een vergelijking betekent, en wat niet.",
+    "iCorrectDemonstrableErrors": "Ik herstel aantoonbare fouten en zeg wanneer de methode voor het laatst is nagekeken.",
+    "howItIsPaid": "Hoe het betaald wordt",
+    "humanaverageIsFreeTo": "HumanAverage is gratis te gebruiken. Advertenties kunnen op termijn helpen de hosting en verdere ontwikkeling te dekken. Er staat nu geen advertentiecode op, en advertenties zouden nooit een berekening of een conclusie veranderen.",
+    "corrections": "Correcties",
+    "thisSiteIsAn": "Deze site is een informatieve vergelijking. Het is geen medisch advies, geen diagnose, en geen beoordeling van jouw gezondheid."
+  },
+  "privacy": {
+    "privacy": "Privacy",
+    "whatWeCollectAlmost": "Wat we verzamelen: bijna niets",
+    "whatYouTypeIs": "Wat je typt wordt nooit naar ons verstuurd. De vergelijking wordt in je eigen browser berekend, uit een databestand dat je browser al met de pagina heeft binnengehaald.",
+    "theValuesYouEnter": "De waarden die je invult",
+    "thePagesAskFor": "De pagina's vragen om een land en één getal — de leeftijd waarop je het huis uit ging, de uren die je werkt, wat je huishouden waard is. Die waarden blijven in het geheugen van de pagina die je open hebt. Ze worden gebruikt om een plek op te zoeken in een tabel die met de pagina is meegekomen, en ze verdwijnen zodra je herlaadt of sluit. Er wordt niets naar ons verstuurd, en er wordt geen account aangemaakt.",
+    "whatYourBrowserRemembers": "Wat je browser onthoudt",
+    "onTheEuropeanComparison": "Op de Europese vergelijkingspagina's is er één uitzondering. Het land en de leeftijd die je invult, samen met het lichte of donkere thema dat je kiest, worden in de local storage van deze browser bewaard, onder één sleutel, zodat de volgende pagina ze al weet in plaats van het opnieuw te vragen. Die opslag staat op je eigen apparaat: hij wordt nooit naar ons verstuurd, er zit geen server achter, en er bestaat nergens anders een profiel van je. Site-data wissen voor dit domein haalt het weg, en een privévenster bewaart helemaal niets.",
+    "analyticsAndCookies": "Statistieken en cookies",
+    "thisSiteSetsNo": "Deze site plaatst geen cookies, draait geen statistiekensoftware, en bevat geen advertentiecode. Er is niets om mee in te stemmen, dus vragen we er ook niet om.",
+    "thatMayChangeIf": "Dat kan veranderen. Als er ooit statistieken of advertenties bij komen, wordt deze pagina bijgewerkt voordat die code live gaat, en waar instemming wettelijk vereist is wordt die gevraagd via een passend instemmingsplatform — zonder dat er niet-noodzakelijke cookies worden geplaatst voordat jij gekozen hebt.",
+    "technicallyNecessaryData": "Technisch noodzakelijke gegevens",
+    "weDoAlsoUse": "We gebruiken daarnaast Google Search Console, dat rapporteert hoe de site het doet in Google Search. Het toont geaggregeerde cijfers — hoe vaak pagina's verschenen en werden aangeklikt — en identificeert voor ons geen individuele bezoekers.",
+    "externalLinks": "Externe links",
+    "weLinkToThe": "We linken naar de CDC, naar wetenschappelijke uitgevers en naar brondatasets. Zodra je er een opent, geldt het privacybeleid van die partij zelf. We geven de waarden die jij hebt ingevuld nooit mee in zo'n link.",
+    "email": "E-mail",
+    "yourRights": "Jouw rechten"
+  },
+  "contact": {
+    "contact": "Contact",
+    "foundAMistakeTell": "Een fout gevonden? Laat het me weten.",
+    "aSiteBuiltOn": "Een site die belooft dat elk cijfer te herleiden is, werkt alleen als die cijfers ook tegengesproken kunnen worden. Correcties zijn welkom en worden hersteld.",
+    "email": "E-mail",
+    "thereIsNoContact": "Er is geen contactformulier, want een formulier zou betekenen dat we jouw gegevens verzamelen op een site waarvan het hele punt is dat hij bijna niets verzamelt.",
+    "whatHelps": "Wat helpt",
+    "whatThisIsNot": "Wat dit niet is",
+    "humanaverageCannotAnswerMedical": "HumanAverage kan geen medische, psychologische of persoonlijke gezondheidsvragen beantwoorden, en niets hier is een diagnose. Als een meting je zorgen baart, is dat een gesprek voor een arts, die alles kan zien wat een cijfer op landniveau niet kan."
+  },
+  "notes": {
+    "notes": "Artikelen",
+    "whatTheFiguresCannot": "Wat de cijfers niet kunnen zeggen",
+    "theMetricPagesAnswer": "De metriekpagina's beantwoorden elk één vraag. Dit zijn de stukken die daar niet op passen: waar een dataset breekt, waar een definitie niet klopt met zijn eigen titel, en wat dat verandert aan het antwoord.",
+    "theRule": "De regel",
+    "whenSomethingGetsWritten": "Wanneer hier iets geschreven wordt",
+    "aPieceAppearsHere": "Een stuk komt hier wanneer een dataset iets doet dat zijn eigen pagina niet helemaal kan dragen. De metriekpagina's hebben ruimte voor een methodesectie, niet voor een betoog. Als het betoog het interessante deel is, verhuist het hierheen."
+  }
+}

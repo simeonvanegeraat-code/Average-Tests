@@ -22,7 +22,7 @@
  */
 import { ui } from '../lib/ui.js';
 import { hueStyle } from '../lib/hue.js';
-import { localeOf, prefixOf, alternatesOf, linkTo, languageName } from '../lib/locales.js';
+import { localeOf, prefixOf, alternatesOf, linkTo, languageName, DEFAULT_LOCALE } from '../lib/locales.js';
 import { catalogue } from '../lib/catalogue.js';
 import { NOTES, NOTES_LINK } from '../lib/notes.js';
 
@@ -106,7 +106,14 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
     {alternates.length > 0 && (
       <link rel="alternate" hreflang="x-default" href={new URL(canonical, Astro.site).href} />
     )}
-    {noindex && <meta name="robots" content="noindex, follow" />}
+    {/*
+      Elke pagina buiten de standaardtaal staat op noindex, en dat is een besluit en
+      geen veiligheidsmaatregel: Simeon leest het Nederlands eerst zelf na. Zolang de
+      metriekpagina's nog halve Engelse zinnen dragen, is dit precies de "content van
+      weinig waarde" waarop AdSense deze site op 25 oktober afwees. follow blijft staan,
+      dus de links worden wel gevolgd.
+    */}
+    {(noindex || lang !== DEFAULT_LOCALE) && <meta name="robots" content="noindex, follow" />}
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -175,7 +182,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
         </a>
 
         <button class="cat-btn" type="button" popovertarget="metrics-menu" aria-expanded="false">
-          <span>Metrics</span>
+          <span>{t.metrics}</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M6 9l6 6 6-6"></path>
           </svg>
