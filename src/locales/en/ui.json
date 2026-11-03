@@ -63,7 +63,9 @@
   },
   "related": {
     "eyebrow": "Next question",
-    "whatThisFigureSits": "What this figure sits next to"
+    "whatThisFigureSits": "What this figure sits next to",
+    "openIt": "Open it",
+    "readIt": "Read it"
   },
   "resultPanel": {
     "eyebrow": "Your result"
@@ -174,5 +176,8 @@
     "whereADatasetTurned": "Where a dataset turned out to say something other than its title, we write it down rather than quietly work around it.",
     "whatThisIsNot": "What this is not",
     "anAverageIsA": "An average is a bad answer to a personal question"
+  },
+  "metricLabels": {
+    "wealth": "Wealth"
   }
 }

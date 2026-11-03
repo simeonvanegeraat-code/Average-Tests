@@ -63,7 +63,9 @@
   },
   "related": {
     "eyebrow": "Volgende vraag",
-    "whatThisFigureSits": "Waar dit cijfer aan vastzit"
+    "whatThisFigureSits": "Waar dit cijfer aan vastzit",
+    "openIt": "Bekijk",
+    "readIt": "Lees het"
   },
   "resultPanel": {
     "eyebrow": "Jouw uitkomst"
@@ -174,5 +176,8 @@
     "whereADatasetTurned": "Waar een dataset iets anders bleek te zeggen dan zijn titel, schrijven we dat op in plaats van er stil om heen te werken.",
     "whatThisIsNot": "Wat dit niet is",
     "anAverageIsA": "Een gemiddelde is een slecht antwoord op een persoonlijke vraag"
+  },
+  "metricLabels": {
+    "wealth": "Vermogen"
   }
 }
