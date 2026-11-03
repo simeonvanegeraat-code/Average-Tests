@@ -9,8 +9,12 @@
  *
  * De sectiekop hoort bij de pagina; dit onderdeel levert alleen de tegels en de voetnoot.
  */
+import { localeOf } from '../lib/locales.js';
 import { age, years, count, withArticle, genderGap, trend, headline } from '../lib/leaving-home.js';
 import { decimal } from '../lib/format.js';
+
+/** De taal van de pagina waar dit onderdeel op staat; elk getal hieronder gaat erdoor. */
+const lang = localeOf(Astro.url.pathname);
 
 interface Props {
   index: any;
@@ -34,37 +38,37 @@ const tiles = [
     className: 'tile s4 dark',
     value: `${gender.womenEarlier} of ${gender.of}`,
     text:
-      `countries where women reach the midpoint before men in ${h.year}, by ${years(gender.mean)} on average.` +
+      `countries where women reach the midpoint before men in ${h.year}, by ${years(gender.mean, { locale: lang })} on average.` +
       (gender.exceptions.length === 0
         ? ''
         : ` The exception${gender.exceptions.length === 1 ? ' is' : 's are'} ${names(gender.exceptions)}.`),
   },
   movement && {
     className: 'tile',
-    value: [age(movement.spreadThen), age(movement.spreadNow)],
+    value: [age(movement.spreadThen, { locale: lang }), age(movement.spreadNow, { locale: lang })],
     text: `years between the earliest and the latest country, ${movement.since} versus ${movement.until}. Only the ${movement.countries} countries with a value in both years.`,
   },
   movement &&
     movement.euThen !== null &&
     movement.euNow !== null && {
       className: 'tile',
-      value: [age(movement.euThen), age(movement.euNow)],
+      value: [age(movement.euThen, { locale: lang }), age(movement.euNow, { locale: lang })],
       text:
         `the European Union figure, ${movement.since} to ${movement.until}. ` +
-        `${count(movement.earlier.length, 'country', 'countries')} moved earlier by at least ${years(movement.minimumMove)}, ` +
+        `${count(movement.earlier.length, 'country', 'countries')} moved earlier by at least ${years(movement.minimumMove, { locale: lang })}, ` +
         `${movement.later.length} moved later.`,
     },
   biggest && {
     className: 'tile',
     // Het teken blijft van `sign` hierboven: die schrijft − bij nul, waar signed() in
     // metric.js niets schrijft. Alleen het getal gaat door de taalgrens.
-    value: `${sign(biggest.change)}${decimal(Math.abs(biggest.change), 1)}`,
-    text: `years: the biggest move since ${movement!.since}, in ${withArticle(biggest.name)} (${age(biggest.series[movement!.since])} to ${age(biggest.series[movement!.until])}).`,
+    value: `${sign(biggest.change)}${decimal(Math.abs(biggest.change), 1, { locale: lang })}`,
+    text: `years: the biggest move since ${movement!.since}, in ${withArticle(biggest.name)} (${age(biggest.series[movement!.since], { locale: lang })} to ${age(biggest.series[movement!.until], { locale: lang })}).`,
   },
   gender && {
     className: 'tile',
-    value: age(gender.widestGap),
-    text: `years: the widest gap between men and women in ${h.year}, in ${withArticle(gender.widest.name)} (men ${age(gender.widest.men)}, women ${age(gender.widest.women)}).`,
+    value: age(gender.widestGap, { locale: lang }),
+    text: `years: the widest gap between men and women in ${h.year}, in ${withArticle(gender.widest.name)} (men ${age(gender.widest.men, { locale: lang })}, women ${age(gender.widest.women, { locale: lang })}).`,
   },
 ].filter(Boolean) as { className: string; value: string | string[]; text: string }[];
 ---
