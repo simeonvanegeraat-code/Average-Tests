@@ -11,8 +11,25 @@
  * Zinnen zijn rijen van stukken: een gewone tekst, of een object met `strong` of `em`
  * voor nadruk. De browser maakt er elementen van met textContent, nooit met innerHTML.
  */
-import { age, years, withArticle, currentCountries, euAggregate, comparison } from './leaving-home.js';
+import { age, years, currentCountries, euAggregate, comparison } from './leaving-home.js';
 import { decimal } from './format.js';
+import { DEFAULT_LOCALE } from './locales.js';
+import enCopy from '../locales/en/copy/leaving-home.js';
+
+/**
+ * De zinnen per taal. Een taal erbij is de import hierboven en een sleutel hier;
+ * validate-i18n.mjs vergelijkt deze sleutels met LOCALES.
+ *
+ * De taal reist mee in `clientData()`, en dus in het JSON-blok dat de browser leest.
+ * Dat is dezelfde truc als `cfg.locale` bij de kaart: de taal gaat met de gegevens die
+ * de client toch al krijgt, zodat er geen tweede weg is waarlangs hij kan afwijken.
+ */
+const COPY = { en: enCopy };
+
+const copyOf = (lang) => COPY[lang] ?? COPY[DEFAULT_LOCALE];
+
+/** Welke talen hier zinnen hebben. Alleen voor de poort. */
+export const COPY_LANGUAGES = Object.keys(COPY);
 
 /** Grenzen van het invoerveld, gelijk aan wat de pagina nu al controleert. */
 export const AGE_MIN = 10;
@@ -20,10 +37,14 @@ export const AGE_MAX = 60;
 
 export const validAge = (value) => Number.isFinite(value) && value >= AGE_MIN && value <= AGE_MAX;
 
-/** Wat de browser nodig heeft: alleen de landen op het laatste jaar, en het Europese cijfer. */
-export function clientData(index) {
+/**
+ * Wat de browser nodig heeft: alleen de landen op het laatste jaar, het Europese cijfer,
+ * en de taal waarin de zinnen moeten komen.
+ */
+export function clientData(index, lang = DEFAULT_LOCALE) {
   const eu = euAggregate(index);
   return {
+    lang,
     latestYear: index.latestYear,
     eu: eu ? eu.total : null,
     countries: currentCountries(index).map(({ code, name, year, total }) => ({ code, name, year, total })),
@@ -43,9 +64,6 @@ export function euChange(index) {
   return { delta: eu.total - eu.series[previous], previousYear: previous };
 }
 
-const strong = (text) => ({ strong: text });
-const em = (text) => ({ em: text });
-
 /**
  * Eigen leeftijd zoals ingevoerd: hele jaren zonder decimaal, halve jaren met één.
  *
@@ -63,17 +81,18 @@ export function youLine(data, code) {
   const home = data.countries.find((country) => country.code === code);
   if (!home) return null;
 
-  const lead = [`In ${withArticle(home.name)} half had left by `, strong(age(home.total))];
-  if (data.eu === null) return [...lead, '.'];
+  const copy = copyOf(data.lang);
+  const base = { name: home.name, value: age(home.total) };
+
+  if (data.eu === null) return copy.youLine({ ...base, eu: null });
 
   const difference = home.total - data.eu;
-  if (Math.abs(difference) < 0.05) return [...lead, ', right on the EU figure.'];
-  return [
-    ...lead,
-    ': ',
-    strong(`${years(Math.abs(difference))} ${difference > 0 ? 'later' : 'earlier'}`),
-    ' than the EU figure.',
-  ];
+  if (Math.abs(difference) < 0.05) return copy.youLine({ ...base, eu: { equal: true } });
+
+  return copy.youLine({
+    ...base,
+    eu: { amount: years(Math.abs(difference)), later: difference > 0 },
+  });
 }
 
 /**
@@ -85,37 +104,33 @@ export function resultCopy(data, { code, age: own }) {
   if (!validAge(own)) return null;
   const outcome = comparison(data, { code, age: own });
   const { home, difference, beforeMidpoint, of, closest } = outcome;
-  const mine = ownAge(own);
+  const copy = copyOf(data.lang);
+  const mine = ownAge(own, { locale: data.lang });
 
-  const verdict =
-    beforeMidpoint === of
-      ? [`That is before the midpoint of every one of the ${of} countries in the dataset.`]
-      : beforeMidpoint === 0
-        ? [`That is after the midpoint of all ${of} countries in the dataset.`]
-        : ['That is before the midpoint in ', em(`${beforeMidpoint} of ${of}`), ` countries, and after it in ${of - beforeMidpoint}.`];
+  const verdict = copy.verdict({ before: beforeMidpoint, of });
 
   let sub = [];
   if (home) {
     const year = home.year !== data.latestYear ? ` (${home.year})` : '';
     sub =
       Math.abs(difference) < 0.05
-        ? [`That is exactly the point where half of ${withArticle(home.name)} had left: `, strong(age(home.total)), '.']
-        : [
-            `In ${withArticle(home.name)}, half had left by `,
-            strong(age(home.total)),
-            `${year}: you were `,
-            strong(years(Math.abs(difference))),
-            ` ${difference < 0 ? 'before' : 'after'} that point.`,
-          ];
+        ? copy.exactLine({ name: home.name, value: age(home.total) })
+        : copy.homeLine({
+            name: home.name,
+            value: age(home.total),
+            year,
+            distance: years(Math.abs(difference)),
+            after: difference >= 0,
+          });
   }
 
   return {
-    head: [`You left home at ${mine}. `, ...verdict],
+    head: copy.head({ own: mine, verdict }),
     sub,
-    closest: [`The country closest to your age is ${withArticle(closest.name)}, at ${age(closest.total)}.`],
+    closest: copy.closest({ name: closest.name, value: age(closest.total) }),
     chips: [
-      ['Your age', mine],
-      ...(data.eu === null ? [] : [['EU', age(data.eu)]]),
+      [copy.chips.own, mine],
+      ...(data.eu === null ? [] : [[copy.chips.eu, age(data.eu)]]),
       ...(home ? [[home.name, age(home.total)]] : []),
     ],
     home,
