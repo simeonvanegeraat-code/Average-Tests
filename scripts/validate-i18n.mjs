@@ -17,6 +17,10 @@
  *     schrijft alsnog `24.6`.
  *   + Een taal in LOCALES zonder lidwoordtabel in grammar.js, of een tabel die een
  *     naam noemt die in het woordenbestand van die taal niet voorkomt.
+ *   + Structured data die een andere taal of een andere pagina aanwijst dan de pagina
+ *     waar hij op staat. Dezelfde bug als regel 3, maar in JSON-LD in plaats van in
+ *     het lang-attribuut — en daar ziet niemand hem, want er staat niets van op de
+ *     pagina.
  *
  *   PAS BIJ FASE 3/4, als er Nederlandse pagina's zijn om tegen te meten
  *   2. Engelse tekst op een Nederlandse pagina — mét de uitzondering voor de
@@ -341,6 +345,62 @@ if (pages.length === 0) {
       }
       const xDefault = alternates.filter((a) => a === 'x-default').length;
       if (xDefault !== 1) fail(`${url}: x-default staat er ${xDefault} keer, moet precies één keer.`);
+    }
+
+    /**
+     * Structured data die zich op de verkeerde taal of de verkeerde pagina beroept.
+     *
+     * Dit is regel 3 nog een keer, maar in JSON-LD. Daar is hij erger, want een
+     * verkeerd `lang`-attribuut kun je in de browser zien en dit niet: het staat in
+     * een `<script>` dat alleen een zoekmachine leest.
+     *
+     * Twee dingen worden nagekeken. `inLanguage` moet zeggen wat `<html lang>` zegt —
+     * op /nl/ stond hier `en-US` ingetypt. En een `@id` of `url` die naar een pagina
+     * van deze site wijst, moet naar een pagina in **deze** taal wijzen: het
+     * `mainEntityOfPage` van het artikel wees op /nl/ naar de Engelse pagina, dus
+     * beweerde de Nederlandse pagina dat hij over een andere pagina ging.
+     *
+     * Alleen paden op deze site. Een `url` naar eurostat.ec.europa.eu of naar
+     * schema.org is extern en draagt geen taal van ons.
+     */
+    for (const hit of html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)) {
+      let data;
+      try {
+        data = JSON.parse(hit[1]);
+      } catch (e) {
+        fail(`${url}: een ld+json-blok is geen geldige JSON (${e.message}).`);
+        continue;
+      }
+
+      /** Elke sleutel op elke diepte, want deze knopen zitten in elkaar genest. */
+      const walk = (node, visit) => {
+        if (Array.isArray(node)) return node.forEach((n) => walk(n, visit));
+        if (!node || typeof node !== 'object') return;
+        visit(node);
+        for (const value of Object.values(node)) walk(value, visit);
+      };
+
+      const site = String(readFileSync('astro.config.mjs', 'utf8').match(/site: '([^']+)'/)?.[1] ?? '');
+      const verwacht = prefix === DEFAULT ? `${site}/` : `${site}/${prefix}/`;
+
+      walk(data, (node) => {
+        if (node.inLanguage !== undefined && node.inLanguage !== declared) {
+          fail(
+            `${url}: ld+json zegt inLanguage "${node.inLanguage}" terwijl <html lang> ` +
+              `"${declared}" zegt. Dit is de bug van eudebtmap.com, nu in structured data.`,
+          );
+        }
+
+        for (const key of ['@id', 'url']) {
+          const value = node[key];
+          if (typeof value !== 'string' || !value.startsWith(`${site}/`)) continue;
+          if (value.startsWith(verwacht)) continue;
+          fail(
+            `${url}: ld+json ${key} is "${value}" en wijst daarmee buiten "${verwacht}". ` +
+              'Reken hem uit met pageUrl()/siteIdentity() in src/lib/schema.js.',
+          );
+        }
+      });
     }
 
     /**
