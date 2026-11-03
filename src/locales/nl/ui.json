@@ -159,5 +159,20 @@
     "theRule": "De regel",
     "whenSomethingGetsWritten": "Wanneer hier iets geschreven wordt",
     "aPieceAppearsHere": "Een stuk komt hier wanneer een dataset iets doet dat zijn eigen pagina niet helemaal kan dragen. De metriekpagina's hebben ruimte voor een methodesectie, niet voor een betoog. Als het betoog het interessante deel is, verhuist het hierheen."
+  },
+  "home": {
+    "eyebrow": "Eurostat · OESO · ECB · {count} vragen",
+    "title": "Een Europees gemiddelde beschrijft bijna niemand.",
+    "lead": "In {low} is de helft van de jongeren het huis uit op {lowAge}. In {high} komt dat punt pas op {highAge} — {gap} jaar verschil, op dezelfde vraag. Één Europees cijfer verbergt ze beide.",
+    "startWithYourCountry": "Begin met je land",
+    "europe": "Europa",
+    "everyFigureBelowSwitches": "Elk cijfer hieronder schakelt mee naar jouw land. Niets van wat je kiest verlaat je browser.",
+    "whatIsHere": "Wat er staat",
+    "eachOneIsA": "Elk ervan is een kaart, een sorteerbare tabel met elk land, en een vergelijking met wat je zelf invult. De balk onder elk cijfer laat zien waar het ligt tussen het laagste en het hoogste land.",
+    "latest": "Nieuwste",
+    "whatWeWorkedOut": "Wat we onderweg uitzochten",
+    "whereADatasetTurned": "Waar een dataset iets anders bleek te zeggen dan zijn titel, schrijven we dat op in plaats van er stil om heen te werken.",
+    "whatThisIsNot": "Wat dit niet is",
+    "anAverageIsA": "Een gemiddelde is een slecht antwoord op een persoonlijke vraag"
   }
 }

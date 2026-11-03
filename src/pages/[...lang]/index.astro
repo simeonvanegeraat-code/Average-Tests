@@ -1,5 +1,6 @@
 ---
 import { localeOf, localePaths, linkTo } from '../../lib/locales.js';
+import { ui, fill } from '../../lib/ui.js';
 import { siteIdentity } from '../../lib/schema.js';
 import { localise } from '../../lib/country-names.js';
 import { decimal } from '../../lib/format.js';
@@ -40,6 +41,8 @@ const lang = localeOf(Astro.url.pathname);
  * Engelse site wijzen en beweren dat hij Engels is.
  */
 const site = siteIdentity(lang, Astro.site);
+/** De tekst van deze pagina in haar eigen taal. Zie src/lib/ui.js. */
+const t = ui(lang).home;
 const leaving = localise(rawLeaving, lang);
 
 /**
@@ -100,15 +103,20 @@ export function getStaticPaths() {
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <p class="eyebrow mono">Eurostat · OECD · ECB · {METRIC_COUNT} questions</p>
+        <p class="eyebrow mono">{fill(t.eyebrow, { count: METRIC_COUNT })}</p>
 
-        <h1 data-reveal>A European average describes almost nobody.</h1>
+        <h1 data-reveal>{t.title}</h1>
 
         <p class="lead">
-          In {h.earliest.name} half of young people have left home by {age(h.earliest.total)}. In {
-            h.latest.name
-          } that point does not arrive until {age(h.latest.total)} — {decimal(h.gap, 1)} years apart, on
-          the same question. One European figure hides both.
+          {
+          fill(t.lead, {
+            low: h.earliest.name,
+            lowAge: age(h.earliest.total, { locale: lang }),
+            high: h.latest.name,
+            highAge: age(h.latest.total, { locale: lang }),
+            gap: decimal(h.gap, 1, { locale: lang }),
+          })
+        }
         </p>
       </div>
 
@@ -123,10 +131,10 @@ export function getStaticPaths() {
 
     <div class="wrap">
       <form class="pick" data-pick autocomplete="off">
-        <label class="pick-label" for="pick-country">Start with your country</label>
+        <label class="pick-label" for="pick-country">{t.startWithYourCountry}</label>
         <div class="pick-row">
           <select id="pick-country" name="country" data-pick-country>
-            <option value="">Europe</option>
+            <option value="">{t.europe}</option>
             {HOME_COUNTRIES.map((country) => <option value={country.code}>{country.name}</option>)}
           </select>
           <button class="btn" type="submit">
@@ -134,7 +142,7 @@ export function getStaticPaths() {
           </button>
         </div>
         <p class="hint" data-pick-note>
-          Every figure below switches to your country. Nothing you pick leaves your browser.
+          {t.everyFigureBelowSwitches}
         </p>
       </form>
     </div>
@@ -143,14 +151,12 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="metrics-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What is here</p>
+        <p class="eyebrow mono">{t.whatIsHere}</p>
         <h2 id="metrics-title">
           <span data-pick-heading>{METRIC_COUNT} questions, answered for every country</span>
         </h2>
         <p>
-          Each one is a map, a sortable table of every country, and a comparison with whatever
-          you enter about yourself. The bar under each figure shows where it sits between the
-          lowest and the highest country.
+          {t.eachOneIsA}
         </p>
       </header>
 
@@ -196,11 +202,10 @@ export function getStaticPaths() {
       <section class="block" aria-labelledby="latest-title">
         <div class="wrap">
           <header class="sec-head" data-reveal>
-            <p class="eyebrow mono">Latest</p>
-            <h2 id="latest-title">What we worked out along the way</h2>
+            <p class="eyebrow mono">{t.latest}</p>
+            <h2 id="latest-title">{t.whatWeWorkedOut}</h2>
             <p>
-              Where a dataset turned out to say something other than its title, we write it
-              down rather than quietly work around it.
+              {t.whereADatasetTurned}
             </p>
           </header>
 
@@ -226,8 +231,8 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="honest-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What this is not</p>
-        <h2 id="honest-title">An average is a bad answer to a personal question</h2>
+        <p class="eyebrow mono">{t.whatThisIsNot}</p>
+        <h2 id="honest-title">{t.anAverageIsA}</h2>
         <p>
           Where a source publishes one figure per country — which is almost always — a page
           tells you which side of it you are on, and says so plainly instead of dressing it up

@@ -159,5 +159,20 @@
     "theRule": "The rule",
     "whenSomethingGetsWritten": "When something gets written here",
     "aPieceAppearsHere": "A piece appears here when a dataset does something that its own page cannot fully carry. The metric pages have room for a method section, not for an argument. When the argument is the interesting part, it moves here."
+  },
+  "home": {
+    "eyebrow": "Eurostat · OECD · ECB · {count} questions",
+    "title": "A European average describes almost nobody.",
+    "lead": "In {low} half of young people have left home by {lowAge}. In {high} that point does not arrive until {highAge} — {gap} years apart, on the same question. One European figure hides both.",
+    "startWithYourCountry": "Start with your country",
+    "europe": "Europe",
+    "everyFigureBelowSwitches": "Every figure below switches to your country. Nothing you pick leaves your browser.",
+    "whatIsHere": "What is here",
+    "eachOneIsA": "Each one is a map, a sortable table of every country, and a comparison with whatever you enter about yourself. The bar under each figure shows where it sits between the lowest and the highest country.",
+    "latest": "Latest",
+    "whatWeWorkedOut": "What we worked out along the way",
+    "whereADatasetTurned": "Where a dataset turned out to say something other than its title, we write it down rather than quietly work around it.",
+    "whatThisIsNot": "What this is not",
+    "anAverageIsA": "An average is a bad answer to a personal question"
   }
 }
