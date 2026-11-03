@@ -17,6 +17,9 @@
  *     schrijft alsnog `24.6`.
  *   + Een taal in LOCALES zonder lidwoordtabel in grammar.js, of een tabel die een
  *     naam noemt die in het woordenbestand van die taal niet voorkomt.
+ *   + Een taal in LOCALES zonder metriekwoorden, een woordenbestand met andere
+ *     sleutels dan de standaardtaal, of een klasselabel waarvan de getallen niet de
+ *     klassegrenzen zijn die het beschrijft.
  *   + Structured data die een andere taal of een andere pagina aanwijst dan de pagina
  *     waar hij op staat. Dezelfde bug als regel 3, maar in JSON-LD in plaats van in
  *     het lang-attribuut — en daar ziet niemand hem, want er staat niets van op de
@@ -46,6 +49,7 @@ import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
  * op zijn vorm en niet op zijn inhoud.
  */
 import { GRAMMAR_LANGUAGES, articleNames } from '../src/lib/grammar.js';
+import { METRIC_LANGUAGES, metricWords } from '../src/lib/metric-names.js';
 import { join, relative, sep } from 'node:path';
 
 const problems = [];
@@ -211,6 +215,117 @@ for (const lang of LOCALES) {
         `src/lib/grammar.js: ARTICLES.${lang} noemt ${unknown.length} naam/namen die niet in ` +
           `${file} voorkomen: ${unknown.join(', ')}. Zo'n regel doet niets en meldt niets.`,
       );
+    }
+  }
+}
+
+/**
+ * De metriekwoorden: bestaat de taal, heeft hij dezelfde sleutels, en kloppen de
+ * klasselabels met hun grenzen?
+ *
+ * Drie dingen, en het derde is de interessante. Een klasselabel ("22 to 24") bevat de
+ * grenzen die er als `until` al staan, en die dubbeling blijft bestaan omdat de opmaak
+ * van dat getal per metriek met de hand gekozen is — build-locale-metrics.mjs legt uit
+ * waarom er geen generator voor is. Wat wél kan, is nameten dat de twee niet zijn
+ * weggedreven: de getallen in het label moeten precies de grenzen van die klasse zijn.
+ *
+ * Dat vangt twee fouten. Iemand die een grens verschuift en het label vergeet, en een
+ * vertaler die "22 tot 24" overtypt als "22 tot 25". Het tweede is waarschijnlijker dan
+ * het eerste, en geen van beide is op de kaart te zien zonder de legenda na te rekenen.
+ */
+{
+  /** De grenzen komen uit de beschrijving, niet uit het woordenbestand. */
+  const bandsPerMetric = new Map();
+  for (const name of readdirSync('src/lib/metrics').filter((f) => f.endsWith('.js'))) {
+    const cfg = (await import(`../src/lib/metrics/${name}`)).default;
+    bandsPerMetric.set(cfg.key, cfg.bands);
+  }
+
+  const defaultWords = metricWords(DEFAULT);
+
+  /** Het decimaalteken van een taal, zodat "2,0" als 2 gelezen wordt en niet als 20. */
+  const separatorOf = (lang) =>
+    new Intl.NumberFormat(lang)
+      .formatToParts(1.5)
+      .find((part) => part.type === 'decimal')?.value ?? '.';
+
+  for (const lang of LOCALES) {
+    if (!METRIC_LANGUAGES.includes(lang)) {
+      fail(
+        `src/lib/metric-names.js: '${lang}' staat in LOCALES maar niet in WORDS, dus ` +
+          'localiseMetric() geeft die taal de woorden van de standaardtaal. Voeg de import en de regel toe.',
+      );
+      continue;
+    }
+
+    const words = metricWords(lang);
+
+    /** Dezelfde metrieken, en per metriek dezelfde woordsleutels. */
+    for (const key of Object.keys(defaultWords)) {
+      if (!words[key]) {
+        fail(`src/locales/${lang}/metrics.json: metriek '${key}' ontbreekt.`);
+        continue;
+      }
+      for (const [group, shape] of [
+        ['words', defaultWords[key].words],
+        ['input', defaultWords[key].input],
+      ]) {
+        if (!shape) continue;
+        const missing = Object.keys(shape).filter((k) => words[key][group]?.[k] === undefined);
+        if (missing.length) {
+          fail(`src/locales/${lang}/metrics.json: ${key}.${group} mist ${missing.join(', ')}.`);
+        }
+      }
+      const lenses = Object.keys(defaultWords[key].lenses ?? {});
+      const missingLenses = lenses.filter((l) => !words[key].lenses?.[l]);
+      if (missingLenses.length) {
+        fail(`src/locales/${lang}/metrics.json: ${key}.lenses mist ${missingLenses.join(', ')}.`);
+      }
+    }
+
+    const extra = Object.keys(words).filter((k) => !defaultWords[k]);
+    if (extra.length) {
+      fail(
+        `src/locales/${lang}/metrics.json: ${extra.length} metriek(en) die de standaardtaal niet kent: ` +
+          `${extra.join(', ')}. Zo'n sleutel wordt nooit gelezen.`,
+      );
+    }
+
+    /** De klasselabels tegen hun grenzen. */
+    const sep = separatorOf(lang);
+    for (const [key, bands] of bandsPerMetric) {
+      const labels = words[key]?.bands;
+      if (!Array.isArray(labels)) continue;
+
+      if (labels.length !== bands.length) {
+        fail(
+          `src/locales/${lang}/metrics.json: ${key}.bands heeft ${labels.length} label(s) ` +
+            `voor ${bands.length} klassen.`,
+        );
+        continue;
+      }
+
+      for (let i = 0; i < bands.length; i++) {
+        const expected =
+          i === 0
+            ? [bands[0].until]
+            : i === bands.length - 1
+              ? [bands[i - 1].until]
+              : [bands[i - 1].until, bands[i].until];
+
+        const found = [...String(labels[i]).replaceAll(sep, '.').matchAll(/\d+(?:\.\d+)?/g)].map((m) =>
+          Number(m[0]),
+        );
+
+        const same =
+          found.length === expected.length && expected.every((n, j) => found[j] === n);
+        if (!same) {
+          fail(
+            `src/locales/${lang}/metrics.json: ${key}.bands[${i}] is "${labels[i]}" maar de ` +
+              `klasse loopt over ${expected.join('–')}. Het label en de grens zijn weggedreven.`,
+          );
+        }
+      }
     }
   }
 }

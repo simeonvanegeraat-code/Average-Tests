@@ -1,0 +1,390 @@
+{
+  "dwelling-size": {
+    "label": "Home size",
+    "unit": "m²",
+    "unitOne": "m²",
+    "bands": [
+      "under 80",
+      "80 to 95",
+      "95 to 105",
+      "105 to 120",
+      "120 to 140",
+      "140 and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Everyone",
+        "who": "homes"
+      }
+    },
+    "words": {
+      "legend": "Floor area per home, in m²",
+      "low": "Smallest",
+      "high": "Largest",
+      "comparative": "smallest",
+      "above": "larger",
+      "below": "smaller",
+      "mapSubject": "how much floor space the average {who} has",
+      "euNote": "Eurostat's figure for the European Union."
+    },
+    "input": {
+      "label": "Your home in square metres",
+      "placeholder": "95",
+      "noun": "a floor area"
+    }
+  },
+  "first-child": {
+    "label": "First child",
+    "unit": "years",
+    "unitOne": "year",
+    "bands": [
+      "under 27.5",
+      "27.5 to 28.5",
+      "28.5 to 29.5",
+      "29.5 to 30.5",
+      "30.5 to 31.5",
+      "31.5 and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Mothers",
+        "who": "mothers"
+      }
+    },
+    "words": {
+      "legend": "Mother's age at her first child",
+      "low": "Youngest",
+      "high": "Oldest",
+      "comparative": "youngest",
+      "above": "later",
+      "below": "earlier",
+      "mapSubject": "how old {who} are when they have their first child",
+      "euNote": "Eurostat's figure for the European Union."
+    },
+    "input": {
+      "label": "Your age at your first child",
+      "placeholder": "29",
+      "noun": "an age"
+    }
+  },
+  "healthy-years": {
+    "label": "Healthy years",
+    "unit": "years",
+    "unitOne": "year",
+    "bands": [
+      "under 57",
+      "57 to 61",
+      "61 to 65",
+      "65 to 69",
+      "69 to 73",
+      "73 and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Everyone",
+        "who": "people"
+      },
+      "men": {
+        "label": "Men",
+        "who": "men"
+      },
+      "women": {
+        "label": "Women",
+        "who": "women"
+      }
+    },
+    "words": {
+      "legend": "Years of life without a limiting health problem",
+      "low": "Fewest",
+      "high": "Most",
+      "comparative": "fewest",
+      "above": "more",
+      "below": "fewer",
+      "mapSubject": "how many years {who} can expect to live without a limiting health problem",
+      "euNote": "Eurostat's figure for the European Union."
+    },
+    "input": {
+      "label": "Your age",
+      "placeholder": "38",
+      "noun": "an age"
+    }
+  },
+  "household-size": {
+    "label": "Household size",
+    "unit": "people",
+    "unitOne": "person",
+    "bands": [
+      "under 2.0",
+      "2.0 to 2.2",
+      "2.2 to 2.4",
+      "2.4 to 2.6",
+      "2.6 to 2.9",
+      "2.9 and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Everyone",
+        "who": "households"
+      }
+    },
+    "words": {
+      "legend": "People per household",
+      "low": "Smallest",
+      "high": "Largest",
+      "comparative": "smallest",
+      "above": "larger",
+      "below": "smaller",
+      "mapSubject": "how many people live in the average {who}",
+      "euNote": "Eurostat's figure for the European Union."
+    },
+    "input": {
+      "label": "People in your household",
+      "placeholder": "3",
+      "noun": "a number of people"
+    }
+  },
+  "leaving-home": {
+    "label": "Leaving home",
+    "unit": "years",
+    "unitOne": "year",
+    "bands": [
+      "under 22",
+      "22 to 24",
+      "24 to 26",
+      "26 to 28",
+      "28 to 30",
+      "30 and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Everyone",
+        "who": "young people"
+      },
+      "men": {
+        "label": "Men",
+        "who": "young men"
+      },
+      "women": {
+        "label": "Women",
+        "who": "young women"
+      }
+    },
+    "words": {
+      "legend": "Age by which half have left home",
+      "low": "Earliest",
+      "high": "Latest",
+      "comparative": "earliest",
+      "above": "later",
+      "below": "earlier",
+      "mapSubject": "the age by which half of {who} have left the parental home",
+      "euNote": "Eurostat's figure for the European Union."
+    },
+    "input": {
+      "label": "Age you left home",
+      "placeholder": "21",
+      "noun": "an age"
+    }
+  },
+  "pension-age": {
+    "label": "Pension age",
+    "unit": "years",
+    "unitOne": "year",
+    "bands": [
+      "under 60",
+      "60 to 61",
+      "61 to 62",
+      "62 to 63",
+      "63 to 64.5",
+      "64.5 and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Everyone",
+        "who": "people"
+      },
+      "men": {
+        "label": "Men",
+        "who": "men"
+      },
+      "women": {
+        "label": "Women",
+        "who": "women"
+      }
+    },
+    "words": {
+      "legend": "Age an old-age pension began",
+      "low": "Earliest",
+      "high": "Latest",
+      "comparative": "earliest",
+      "above": "later",
+      "below": "earlier",
+      "mapSubject": "at what age {who} started drawing an old-age pension",
+      "euNote": "Eurostat's figure for the European Union."
+    },
+    "input": {
+      "label": "The age you started, or expect to start",
+      "placeholder": "65",
+      "noun": "an age"
+    }
+  },
+  "unemployment-under25": {
+    "label": "Unemployment under 25",
+    "unit": "percentage points",
+    "unitOne": "percentage point",
+    "unitShort": "%",
+    "bands": [
+      "under 10%",
+      "10 to 13%",
+      "13 to 16%",
+      "16 to 19%",
+      "19 to 23%",
+      "23% and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Everyone",
+        "who": "people"
+      },
+      "men": {
+        "label": "Men",
+        "who": "men"
+      },
+      "women": {
+        "label": "Women",
+        "who": "women"
+      }
+    },
+    "words": {
+      "legend": "Unemployed under 25, as a share of the labour force",
+      "low": "Lowest",
+      "high": "Highest",
+      "comparative": "lowest",
+      "above": "higher",
+      "below": "lower",
+      "mapSubject": "what share of {who} under 25 in the labour force are unemployed",
+      "euNote": "Eurostat's figure for the European Union."
+    }
+  },
+  "unemployment": {
+    "label": "Unemployment",
+    "unit": "percentage points",
+    "unitOne": "percentage point",
+    "unitShort": "%",
+    "bands": [
+      "under 4%",
+      "4 to 5%",
+      "5 to 6%",
+      "6 to 8%",
+      "8 to 10%",
+      "10% and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Everyone",
+        "who": "people"
+      },
+      "men": {
+        "label": "Men",
+        "who": "men"
+      },
+      "women": {
+        "label": "Women",
+        "who": "women"
+      }
+    },
+    "words": {
+      "legend": "Unemployed, as a share of the labour force",
+      "low": "Lowest",
+      "high": "Highest",
+      "comparative": "lowest",
+      "above": "higher",
+      "below": "lower",
+      "mapSubject": "what share of {who} in the labour force are unemployed",
+      "euNote": "Eurostat's figure for the European Union."
+    }
+  },
+  "working-hours": {
+    "label": "Working hours",
+    "unit": "hours",
+    "unitOne": "hour",
+    "bands": [
+      "under 35",
+      "35 to 37",
+      "37 to 39",
+      "39 to 41",
+      "41 to 43",
+      "43 and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Everyone",
+        "who": "people in work"
+      },
+      "men": {
+        "label": "Men",
+        "who": "men in work"
+      },
+      "women": {
+        "label": "Women",
+        "who": "women in work"
+      }
+    },
+    "words": {
+      "legend": "Usual hours worked per week",
+      "low": "Shortest",
+      "high": "Longest",
+      "comparative": "shortest",
+      "above": "longer",
+      "below": "shorter",
+      "mapSubject": "how many hours a week {who} usually work in their main job",
+      "euNote": "Eurostat's figure for the European Union."
+    },
+    "input": {
+      "label": "Hours you usually work",
+      "placeholder": "36",
+      "noun": "a number of hours"
+    }
+  },
+  "working-life": {
+    "label": "Working life",
+    "unit": "years",
+    "unitOne": "year",
+    "bands": [
+      "under 33",
+      "33 to 36",
+      "36 to 39",
+      "39 to 42",
+      "42 to 45",
+      "45 and over"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Everyone",
+        "who": "people"
+      },
+      "men": {
+        "label": "Men",
+        "who": "men"
+      },
+      "women": {
+        "label": "Women",
+        "who": "women"
+      }
+    },
+    "words": {
+      "legend": "Expected years in the labour market",
+      "low": "Shortest",
+      "high": "Longest",
+      "comparative": "shortest",
+      "above": "longer",
+      "below": "shorter",
+      "mapSubject": "how many years {who} are expected to spend in the labour market",
+      "euNote": "Eurostat's figure for the European Union."
+    },
+    "input": {
+      "label": "Years you have worked so far",
+      "placeholder": "12",
+      "noun": "a number of years"
+    }
+  }
+}

@@ -579,7 +579,8 @@ per taal.
 | # | Wat | Zichtbaar | Staat |
 |---|---|---|---|
 | 1 | `grammar.js` krijgt `lang` + het naamval-argument; Nederlandse tabel ernaast | Nee | **Gedaan** |
-| 2 | `ui.json`, `metrics.json`, `notes.json` + `localiseMetric()` en `ui()` | Nee | |
+| 2a | `metrics.json` + `localiseMetric()`: de 244 metriekwoorden | Nee | **Gedaan** |
+| 2b | `ui.json`, `notes.json` + `ui()`: de vaste tekst in pagina en component | Nee | |
 | 3a | `leaving-home-copy.js` en `metric-map.js` gesplitst (de twee die de browser haalt) | Nee | |
 | 3b | De zeven server-only libs gesplitst | Nee | |
 | 4 | Het Nederlands: alle woordenbestanden, alle `copy/nl/`, het artikel; `nl` in `LOCALES`, `/nl/` op `noindex` | Ja, op `/nl/` | |
@@ -612,3 +613,35 @@ in Nederlandse code. Nu patchen betekent twee keer langs.
 Wat `/wealth/by-age/` wél nodig heeft, is dat zijn aggregaatrij zijn label uit `ui.json`
 haalt in plaats van uit `euroArea.name`. Dat is precies wat `country-names.js` voorspelde:
 een gebiedsnaam is een woord van de pagina, niet een landnaam.
+
+### Wat stap 2a heeft opgeleverd
+
+244 metriekwoorden staan in `src/locales/en/metrics.json`, gegenereerd uit
+`src/lib/metrics/*.js` door `scripts/build-locale-metrics.mjs` en met `--check`
+afgedwongen in `npm run locales:validate`. De grens is `localiseMetric(metric, lang)` in
+`src/lib/metric-names.js`, aangeroepen op elf plekken plus `entry()` in `catalogue.js`.
+Alle 40 pagina's byte voor byte gelijk aan de live site.
+
+Stap 2 is in twee gesplitst, zoals stap 3 al was. De metriekwoorden zijn gestructureerd
+en mechanisch na te meten; de vaste tekst in de pagina's is dat niet, en dat zijn twee
+verschillende soorten werk.
+
+**De klasselabels blijven tekst, en dat is een afweging die het opschrijven waard is.**
+"under 22" bevat de 22 die er als `until` al staat, en CLAUDE.md regel 5 zegt dat geen
+getal met de hand ergens staat. Maar de opmaak van dat getal is per metriek met de hand
+gekozen en volgt geen regel die alle zestig labels reproduceert:
+
+| Metriek | Labels | Wat de opmaak doet |
+|---|---|---|
+| `household-size` | `2.0 to 2.2` | houdt de nul |
+| `pension-age` | `60 to 61` … `63 to 64.5` | heeft die nul niet |
+
+Een generator die beide geeft bestaat niet, en een die één van de twee verandert
+verandert de Engelse site. Daarom blijven ze gegevens, en meet de poort in plaats daarvan
+na dat de getallen in een label de grenzen zijn die het label beschrijft. De dubbeling
+blijft, maar hij kan niet meer wegdrijven — en bij het vertalen vangt dezelfde regel een
+"22 tot 25" waar "22 tot 24" hoort.
+
+**Twee woorden blijven liggen voor 2b**: `wealthEntry()` in `catalogue.js` heeft
+`'Wealth'` en `'median'` met de hand, en vermogen heeft geen bestand in
+`src/lib/metrics/`. Dat zijn paginawoorden en ze horen in `ui.json`.

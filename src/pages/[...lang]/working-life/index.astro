@@ -9,6 +9,7 @@ import RankTable from '../../../components/RankTable.astro';
 import geo from '../../../../data/geo/europe.json';
 import rawIndex from '../../../../data/working-life/index.json';
 import baseMetric from '../../../lib/metrics/working-life.js';
+import { localiseMetric } from '../../../lib/metric-names.js';
 
 /**
  * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
@@ -18,7 +19,7 @@ import baseMetric from '../../../lib/metrics/working-life.js';
  */
 const lang = localeOf(Astro.url.pathname);
 const index = localise(rawIndex, lang);
-const metric = { ...baseMetric, locale: lang };
+const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
 import {
   currentCountries,
   formatAmount,
