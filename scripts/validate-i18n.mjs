@@ -15,6 +15,8 @@
  *   + Een getal dat buiten de taalgrens om wordt opgemaakt. Staat niet in het plan,
  *     maar is de reden dat fase 2 bestaat: één bypass en een Nederlandse pagina
  *     schrijft alsnog `24.6`.
+ *   + Een taal in LOCALES zonder lidwoordtabel in grammar.js, of een tabel die een
+ *     naam noemt die in het woordenbestand van die taal niet voorkomt.
  *
  *   PAS BIJ FASE 3/4, als er Nederlandse pagina's zijn om tegen te meten
  *   2. Engelse tekst op een Nederlandse pagina — mét de uitzondering voor de
@@ -22,14 +24,24 @@
  *      van 1 november 2026). Een poort die dat niet weet, blokkeert precies de tekst
  *      die er hoort te staan, en een poort die onterecht afgaat wordt uitgezet.
  *   5. Een getal met een punt als decimaalteken op een Nederlandse pagina.
- *   6. Een interne link op een Nederlandse pagina die het taalvoorvoegsel mist.
  *   6. Een geciteerde definitie zonder `lang`-attribuut.
+ *   + Een interne link op een Nederlandse pagina die het taalvoorvoegsel mist. Staat
+ *     niet in het plan en is er in november bij gekomen; hij stond hier even als een
+ *     tweede "6".
  *
  * Deze poort leest de data en de bron, niet het gebouwde bestand — behalve voor de
  * controles die over de gebouwde HTML gáán. Dat is met opzet: een poort die het
  * gebouwde bestand gelooft, controleert zijn eigen uitvoer.
  */
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+/**
+ * De enige bron die deze poort inlaadt in plaats van als tekst te lezen. Dat mag hier,
+ * en nergens anders: grammar.js is gewoon JavaScript zonder JSON-import en zonder iets
+ * van de bundler, dus plain Node kan hem lezen — net als country-names.js, en om
+ * dezelfde reden. Een tabel met een reguliere expressie uitlezen zou hem controleren
+ * op zijn vorm en niet op zijn inhoud.
+ */
+import { GRAMMAR_LANGUAGES, articleNames } from '../src/lib/grammar.js';
 import { join, relative, sep } from 'node:path';
 
 const problems = [];
@@ -158,6 +170,43 @@ for (const lang of LOCALES) {
       if (!known.includes(lang)) {
         fail(`src/lib/country-names.js: '${lang}' staat in LOCALES maar niet in NAMES, dus localise() geeft die taal de namen van de standaardtaal. Voeg de import en de regel in NAMES toe.`);
       }
+    }
+  }
+}
+
+/**
+ * Kent de grammatica de taal ook?
+ *
+ * Dezelfde valkuil als bij NAMES hierboven, een laag dieper. `withArticle()` valt
+ * terug op de standaardtaal als een taal geen lidwoordtabel heeft, en dat is de juiste
+ * keuze — een ontbrekend lidwoord is beter dan een lege naam. Maar het is ook stil: op
+ * een Nederlandse pagina komt er dan "de Netherlands" te staan, of helemaal niets, en
+ * geen build klaagt daarover.
+ *
+ * De tweede controle vangt de typefout. De tabel staat op naam en niet op landcode,
+ * dus "Verenigde staten" met een kleine s doet precies niets en zegt niets. Elke naam
+ * in de tabel moet een naam zijn die het woordenbestand van die taal ook echt kent.
+ */
+{
+  for (const lang of LOCALES) {
+    if (!GRAMMAR_LANGUAGES.includes(lang)) {
+      fail(
+        `src/lib/grammar.js: '${lang}' staat in LOCALES maar heeft geen lidwoordtabel, ` +
+          'dus die taal krijgt de lidwoorden van de standaardtaal. Zet een regel in ARTICLES.',
+      );
+      continue;
+    }
+
+    const file = `src/locales/${lang}/countries.json`;
+    if (!existsSync(file)) continue; // al gemeld bij de woordenbestanden hierboven
+
+    const names = new Set(Object.values(JSON.parse(readFileSync(file, 'utf8'))));
+    const unknown = articleNames(lang).filter((name) => !names.has(name));
+    if (unknown.length) {
+      fail(
+        `src/lib/grammar.js: ARTICLES.${lang} noemt ${unknown.length} naam/namen die niet in ` +
+          `${file} voorkomen: ${unknown.join(', ')}. Zo'n regel doet niets en meldt niets.`,
+      );
     }
   }
 }

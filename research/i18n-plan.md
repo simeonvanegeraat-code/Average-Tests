@@ -513,3 +513,102 @@ Engels belandt zoekt "Nederlands", niet "Dutch".
   `894e21d`). Twee losse blokken met een regel ertussen gaven dus twee spaties waar er
   eerst één stond. Eén blok, vastgeplakt aan de `</a>` ervoor, en de HTML is weer bit
   voor bit gelijk aan `main`.
+
+## De tekstlaag: besloten op 3 november 2026
+
+Simeon koos "de tekstlaag" als volgende stap en antwoordde op drie vragen die de vorm
+bepalen. Dit zijn beslissingen, geen voorstellen meer.
+
+| Vraag | Antwoord |
+|---|---|
+| Hoe wordt het Nederlands beoordeeld? | **Pas als alles klaar is.** Eén preview met alle 21 pagina's Nederlands, niet per metriek |
+| Wie schrijft het Nederlands? | **Ik schrijf, Simeon corrigeert** |
+| Gaat het artikel op `/notes/` mee? | **Ja**, 30 alinea's lopende tekst, geen uitzondering in de taalkiezer |
+
+Het eerste antwoord heeft een gevolg voor de bouw: een toonwijziging komt pas aan het
+eind, dus mag hij niet langs ~500 fragmenten hoeven. Daarom staat terugkerende
+formulering in de zinsbouwers en niet uitgeschreven per pagina — "later dan het
+EU-cijfer" hoort één keer te bestaan.
+
+Het derde antwoord maakt een bevinding uit de review van PR #37 scherp: zodra
+`/nl/notes/eurostat-2021-series-break/` bestaat, wijst het `mainEntityOfPage.@id` van
+die pagina naar de **Engelse** pagina. Dat is nu een echt defect en niet langer
+theoretisch, dus de kleine JSON-LD-PR moet vóór de Nederlandse tekst landen.
+
+### Waar taalmateriaal woont
+
+Eén map per taal, zoals `countries.json` dat al doet:
+
+```
+src/locales/<taal>/
+  countries.json     staat er — 103 namen, uit CLDR
+  ui.json            vaste tekst uit pagina's, componenten, layout
+  metrics.json       de woorden uit src/lib/metrics/*.js
+  notes.json         titels en samenvattingen uit src/lib/notes.js
+  grammar.js         lidwoord, meervoud, rangtelwoord          ← staat er sinds stap 1
+  copy/*.js          de zinsbouwers per taal
+```
+
+De eerste drie zijn gegevens, de laatste twee code — een Nederlandse zin is niet een
+Engelse zin met andere woorden erin.
+
+**De grens is de hele truc, en hij kopieert wat twee keer eerder werkte** (`localise()`
+voor landnamen, `format.js` voor getallen): vul de woorden in vóórdat een component het
+object ziet, zodat geen enkele leesplek verandert. Dus `localiseMetric(metric, lang)`
+naast `localise(index, lang)`, aangeroepen waar `catalogue.js` nu al
+`{ ...metric, locale: lang }` doet — en elke `metric.words.low` in een component blijft
+staan. Hetzelfde voor vaste tekst via `ui(lang)`, naast de `const lang` die sinds #39 in
+elk paginabestand staat.
+
+### De browserhelft, nagemeten
+
+Twee zinsbouwers draaien óók in de browser, en dat is niet aangenomen:
+
+- `leaving-home-copy.js` → `ResultPanel.astro:46` en `StatHero.astro:101`
+- `metric-map.js` → `StageMap.astro:296`
+
+Plus losse strings in de scripts van `DotPlot`, `StageMap`, `RankTable` en `Globe`. Die
+krijgen hun taal uit `<html lang>`, zoals `format.js` dat al doet. De copy-modules staan
+in een register `{ en, nl }` dat op `document.documentElement.lang` kiest, en dat
+betekent dat het Nederlands meereist naar Engelse pagina's. Met twee talen is dat te
+verdedigen; loopt het uit de hand bij een derde, dan is de uitweg een dynamische import
+per taal.
+
+### Bouwvolgorde
+
+| # | Wat | Zichtbaar | Staat |
+|---|---|---|---|
+| 1 | `grammar.js` krijgt `lang` + het naamval-argument; Nederlandse tabel ernaast | Nee | **Gedaan** |
+| 2 | `ui.json`, `metrics.json`, `notes.json` + `localiseMetric()` en `ui()` | Nee | |
+| 3a | `leaving-home-copy.js` en `metric-map.js` gesplitst (de twee die de browser haalt) | Nee | |
+| 3b | De zeven server-only libs gesplitst | Nee | |
+| 4 | Het Nederlands: alle woordenbestanden, alle `copy/nl/`, het artikel; `nl` in `LOCALES`, `/nl/` op `noindex` | Ja, op `/nl/` | |
+
+### Wat stap 1 heeft opgeleverd
+
+Alle 56 pagina's en vaste bestanden byte voor byte gelijk aan `main`. Twee chunks
+verschillen van inhoud: `grammar` omdat hij herschreven is, en `format` omdat `grammar`
+nu `DEFAULT_LOCALE` importeert en Rollup die constante in de gedeelde chunk zet. Bundel
+54.301 → 54.773 bytes.
+
+De ~90 aanroepen van `withArticle()` zijn met opzet niet aangeraakt: ze staan in Engelse
+zinnen die in stap 2 en 3 tóch naar een taalmodule verhuizen, en daar staat de aanroep
+in Nederlandse code. Nu patchen betekent twee keer langs.
+
+### Twee bevindingen uit de proefrit van stap 1
+
+1. **`related.js` geeft Engelse landnamen op een Nederlandse pagina.** Op
+   `/nl/leaving-home/` staat "Croatia at 31.5 has 2.6 people per household". De oorzaak
+   is niet de taalgrens maar dat dit bestand hem overslaat: `related.js` importeert zijn
+   negen JSON-bestanden zélf en `related(metric)` krijgt geen taal, dus er komt nooit
+   een `localise()` aan te pas. In stap 3b wordt dat `related(metric, lang)`.
+2. **`euroArea.name: "I9"` is geen blokkade.** Correctie op wat hierboven staat:
+   nagekeken op 3 november, en geen enkele pagina toont dat veld uit
+   `data/wealth/index.json`. `/wealth/by-age/` toont `euroArea.name` wél, maar uit
+   `data/wealth-age/`, waar "Euro area" staat. Het blijft een latent pipelinedefect dat
+   `npm run wealth` vraagt, en dus Simeons beslissing — maar de Nederlandse
+   vermogenspagina hangt er niet op.
+
+Wat `/wealth/by-age/` wél nodig heeft, is dat zijn aggregaatrij zijn label uit `ui.json`
+haalt in plaats van uit `euroArea.name`. Dat is precies wat `country-names.js` voorspelde:
+een gebiedsnaam is een woord van de pagina, niet een landnaam.
