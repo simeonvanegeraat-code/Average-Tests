@@ -20,7 +20,7 @@ export const DEFAULT_LOCALE = 'en';
  * halfvertaalde pagina is precies de "content van weinig waarde" waarop AdSense deze
  * site op 25 oktober 2026 afwees.
  */
-export const LOCALES = ['en'];
+export const LOCALES = ['en', 'nl'];
 
 /** Het URL-voorvoegsel van een taal: '' voor de standaardtaal, '/nl' voor de rest. */
 export const prefixOf = (lang) => (lang === DEFAULT_LOCALE ? '' : `/${lang}`);

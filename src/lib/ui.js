@@ -30,13 +30,14 @@
 import { DEFAULT_LOCALE } from './locales.js';
 /** Met `with { type: 'json' }`, zodat plain Node deze grens kan testen. Zie country-names.js. */
 import en from '../locales/en/ui.json' with { type: 'json' };
+import nl from '../locales/nl/ui.json' with { type: 'json' };
 
 /**
  * Eén bestand per taal. Een taal erbij is de import hierboven en een sleutel hier, en
  * `validate-i18n.mjs` vergelijkt deze sleutels met LOCALES — want een taal die hier
  * niet staat krijgt zwijgend het Engels.
  */
-const TEXT = { en };
+const TEXT = { en, nl };
 
 /** Welke talen hier vaste tekst hebben. Alleen voor de poort. */
 export const UI_LANGUAGES = Object.keys(TEXT);

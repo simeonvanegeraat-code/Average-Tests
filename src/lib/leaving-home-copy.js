@@ -15,6 +15,7 @@ import { age, years, currentCountries, euAggregate, comparison } from './leaving
 import { decimal } from './format.js';
 import { DEFAULT_LOCALE } from './locales.js';
 import enCopy from '../locales/en/copy/leaving-home.js';
+import nlCopy from '../locales/nl/copy/leaving-home.js';
 
 /**
  * De zinnen per taal. Een taal erbij is de import hierboven en een sleutel hier;
@@ -24,7 +25,7 @@ import enCopy from '../locales/en/copy/leaving-home.js';
  * Dat is dezelfde truc als `cfg.locale` bij de kaart: de taal gaat met de gegevens die
  * de client toch al krijgt, zodat er geen tweede weg is waarlangs hij kan afwijken.
  */
-const COPY = { en: enCopy };
+const COPY = { en: enCopy, nl: nlCopy };
 
 const copyOf = (lang) => COPY[lang] ?? COPY[DEFAULT_LOCALE];
 

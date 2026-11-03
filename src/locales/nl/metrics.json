@@ -1,0 +1,390 @@
+{
+  "dwelling-size": {
+    "label": "Woonoppervlak",
+    "unit": "m²",
+    "unitOne": "m²",
+    "bands": [
+      "onder 80",
+      "80 tot 95",
+      "95 tot 105",
+      "105 tot 120",
+      "120 tot 140",
+      "140 en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Iedereen",
+        "who": "woningen"
+      }
+    },
+    "words": {
+      "legend": "Woonoppervlak per woning, in m²",
+      "low": "Kleinst",
+      "high": "Grootst",
+      "comparative": "kleinste",
+      "above": "groter",
+      "below": "kleiner",
+      "mapSubject": "hoeveel woonoppervlak de gemiddelde {who} heeft",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    },
+    "input": {
+      "label": "Jouw woning in vierkante meters",
+      "placeholder": "95",
+      "noun": "een oppervlak"
+    }
+  },
+  "first-child": {
+    "label": "Eerste kind",
+    "unit": "jaar",
+    "unitOne": "jaar",
+    "bands": [
+      "onder 27,5",
+      "27,5 tot 28,5",
+      "28,5 tot 29,5",
+      "29,5 tot 30,5",
+      "30,5 tot 31,5",
+      "31,5 en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Moeders",
+        "who": "moeders"
+      }
+    },
+    "words": {
+      "legend": "Leeftijd van de moeder bij haar eerste kind",
+      "low": "Jongst",
+      "high": "Oudst",
+      "comparative": "jongste",
+      "above": "later",
+      "below": "eerder",
+      "mapSubject": "hoe oud {who} zijn bij hun eerste kind",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    },
+    "input": {
+      "label": "Jouw leeftijd bij je eerste kind",
+      "placeholder": "29",
+      "noun": "een leeftijd"
+    }
+  },
+  "healthy-years": {
+    "label": "Gezonde jaren",
+    "unit": "jaar",
+    "unitOne": "jaar",
+    "bands": [
+      "onder 57",
+      "57 tot 61",
+      "61 tot 65",
+      "65 tot 69",
+      "69 tot 73",
+      "73 en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Iedereen",
+        "who": "mensen"
+      },
+      "men": {
+        "label": "Mannen",
+        "who": "mannen"
+      },
+      "women": {
+        "label": "Vrouwen",
+        "who": "vrouwen"
+      }
+    },
+    "words": {
+      "legend": "Levensjaren zonder beperkend gezondheidsprobleem",
+      "low": "Minst",
+      "high": "Meest",
+      "comparative": "minste",
+      "above": "meer",
+      "below": "minder",
+      "mapSubject": "hoeveel jaar {who} kunnen verwachten te leven zonder beperkend gezondheidsprobleem",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    },
+    "input": {
+      "label": "Jouw leeftijd",
+      "placeholder": "38",
+      "noun": "een leeftijd"
+    }
+  },
+  "household-size": {
+    "label": "Huishoudgrootte",
+    "unit": "personen",
+    "unitOne": "persoon",
+    "bands": [
+      "onder 2,0",
+      "2,0 tot 2,2",
+      "2,2 tot 2,4",
+      "2,4 tot 2,6",
+      "2,6 tot 2,9",
+      "2,9 en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Iedereen",
+        "who": "huishoudens"
+      }
+    },
+    "words": {
+      "legend": "Personen per huishouden",
+      "low": "Kleinst",
+      "high": "Grootst",
+      "comparative": "kleinste",
+      "above": "groter",
+      "below": "kleiner",
+      "mapSubject": "hoeveel mensen er in het gemiddelde {who} wonen",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    },
+    "input": {
+      "label": "Mensen in jouw huishouden",
+      "placeholder": "3",
+      "noun": "een aantal mensen"
+    }
+  },
+  "leaving-home": {
+    "label": "Het huis uit",
+    "unit": "jaar",
+    "unitOne": "jaar",
+    "bands": [
+      "onder 22",
+      "22 tot 24",
+      "24 tot 26",
+      "26 tot 28",
+      "28 tot 30",
+      "30 en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Iedereen",
+        "who": "jongeren"
+      },
+      "men": {
+        "label": "Mannen",
+        "who": "jonge mannen"
+      },
+      "women": {
+        "label": "Vrouwen",
+        "who": "jonge vrouwen"
+      }
+    },
+    "words": {
+      "legend": "Leeftijd waarop de helft het huis uit is",
+      "low": "Vroegst",
+      "high": "Laatst",
+      "comparative": "vroegste",
+      "above": "later",
+      "below": "eerder",
+      "mapSubject": "de leeftijd waarop de helft van {who} het ouderlijk huis uit is",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    },
+    "input": {
+      "label": "Leeftijd waarop jij het huis uit ging",
+      "placeholder": "21",
+      "noun": "een leeftijd"
+    }
+  },
+  "pension-age": {
+    "label": "Pensioenleeftijd",
+    "unit": "jaar",
+    "unitOne": "jaar",
+    "bands": [
+      "onder 60",
+      "60 tot 61",
+      "61 tot 62",
+      "62 tot 63",
+      "63 tot 64,5",
+      "64,5 en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Iedereen",
+        "who": "mensen"
+      },
+      "men": {
+        "label": "Mannen",
+        "who": "mannen"
+      },
+      "women": {
+        "label": "Vrouwen",
+        "who": "vrouwen"
+      }
+    },
+    "words": {
+      "legend": "Leeftijd waarop het ouderdomspensioen begon",
+      "low": "Vroegst",
+      "high": "Laatst",
+      "comparative": "vroegste",
+      "above": "later",
+      "below": "eerder",
+      "mapSubject": "op welke leeftijd {who} hun ouderdomspensioen begonnen op te nemen",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    },
+    "input": {
+      "label": "De leeftijd waarop je begon, of verwacht te beginnen",
+      "placeholder": "65",
+      "noun": "een leeftijd"
+    }
+  },
+  "unemployment-under25": {
+    "label": "Werkloosheid onder 25",
+    "unit": "procentpunt",
+    "unitOne": "procentpunt",
+    "unitShort": "%",
+    "bands": [
+      "onder 10%",
+      "10 tot 13%",
+      "13 tot 16%",
+      "16 tot 19%",
+      "19 tot 23%",
+      "23% en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Iedereen",
+        "who": "mensen"
+      },
+      "men": {
+        "label": "Mannen",
+        "who": "mannen"
+      },
+      "women": {
+        "label": "Vrouwen",
+        "who": "vrouwen"
+      }
+    },
+    "words": {
+      "legend": "Werkloos onder 25, als deel van de beroepsbevolking",
+      "low": "Laagst",
+      "high": "Hoogst",
+      "comparative": "laagste",
+      "above": "hoger",
+      "below": "lager",
+      "mapSubject": "welk deel van {who} onder 25 in de beroepsbevolking werkloos is",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    }
+  },
+  "unemployment": {
+    "label": "Werkloosheid",
+    "unit": "procentpunt",
+    "unitOne": "procentpunt",
+    "unitShort": "%",
+    "bands": [
+      "onder 4%",
+      "4 tot 5%",
+      "5 tot 6%",
+      "6 tot 8%",
+      "8 tot 10%",
+      "10% en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Iedereen",
+        "who": "mensen"
+      },
+      "men": {
+        "label": "Mannen",
+        "who": "mannen"
+      },
+      "women": {
+        "label": "Vrouwen",
+        "who": "vrouwen"
+      }
+    },
+    "words": {
+      "legend": "Werkloos, als deel van de beroepsbevolking",
+      "low": "Laagst",
+      "high": "Hoogst",
+      "comparative": "laagste",
+      "above": "hoger",
+      "below": "lager",
+      "mapSubject": "welk deel van {who} in de beroepsbevolking werkloos is",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    }
+  },
+  "working-hours": {
+    "label": "Werkuren",
+    "unit": "uur",
+    "unitOne": "uur",
+    "bands": [
+      "onder 35",
+      "35 tot 37",
+      "37 tot 39",
+      "39 tot 41",
+      "41 tot 43",
+      "43 en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Iedereen",
+        "who": "werkenden"
+      },
+      "men": {
+        "label": "Mannen",
+        "who": "werkende mannen"
+      },
+      "women": {
+        "label": "Vrouwen",
+        "who": "werkende vrouwen"
+      }
+    },
+    "words": {
+      "legend": "Gebruikelijke werkuren per week",
+      "low": "Kortst",
+      "high": "Langst",
+      "comparative": "kortste",
+      "above": "langer",
+      "below": "korter",
+      "mapSubject": "hoeveel uur per week {who} gebruikelijk in hun hoofdbaan werken",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    },
+    "input": {
+      "label": "Uren die je gebruikelijk werkt",
+      "placeholder": "36",
+      "noun": "een aantal uren"
+    }
+  },
+  "working-life": {
+    "label": "Werkzaam leven",
+    "unit": "jaar",
+    "unitOne": "jaar",
+    "bands": [
+      "onder 33",
+      "33 tot 36",
+      "36 tot 39",
+      "39 tot 42",
+      "42 tot 45",
+      "45 en meer"
+    ],
+    "lenses": {
+      "total": {
+        "label": "Iedereen",
+        "who": "mensen"
+      },
+      "men": {
+        "label": "Mannen",
+        "who": "mannen"
+      },
+      "women": {
+        "label": "Vrouwen",
+        "who": "vrouwen"
+      }
+    },
+    "words": {
+      "legend": "Verwachte jaren op de arbeidsmarkt",
+      "low": "Kortst",
+      "high": "Langst",
+      "comparative": "kortste",
+      "above": "langer",
+      "below": "korter",
+      "mapSubject": "hoeveel jaar {who} verwacht worden op de arbeidsmarkt door te brengen",
+      "euNote": "Het cijfer van Eurostat voor de Europese Unie."
+    },
+    "input": {
+      "label": "Jaren die je tot nu toe gewerkt hebt",
+      "placeholder": "12",
+      "noun": "een aantal jaren"
+    }
+  }
+}
