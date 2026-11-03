@@ -64,6 +64,23 @@ function merge(base, over) {
  * opgebouwd. Een Map op taal en niet een losse variabele: een variabele met "de
  * huidige taal" is de stilste bug die deze site kan hebben, zoals `format.js` uitlegt.
  */
+/**
+ * Een zin met gaten erin vullen: fill(t.averageVsMedian, { multiple: '3,5×' }).
+ *
+ * Dit bestaat omdat de zinnen op de metriekpagina's geen tekst zijn maar tekst mét een
+ * berekening erin: "The average is {multiple} the median". Zo'n zin kan niet als kale
+ * string in een woordenbestand, en een zinsbouwer per pagina is ervoor te zwaar: er zit
+ * geen opmaak om die getallen heen, alleen tekst eromheen. Waar de nadruk wél ín de zin
+ * valt, blijft de stukkenvorm van src/locales/<taal>/copy/ het juiste gereedschap.
+ *
+ * Een gat dat niet gevuld wordt blijft staan als {naam}, zichtbaar op de pagina. Dat is
+ * met opzet: een stille lege plek in een zin leest als een zin, en een zichtbaar gat
+ * niet. Zo vindt de eerste blik hem, en niet de bezoeker.
+ */
+export const fill = (template, values = {}) =>
+  String(template ?? "").replace(/\{(\w+)\}/g, (hit, naam) =>
+    values[naam] === undefined ? hit : String(values[naam]),
+  );
 const cache = new Map();
 
 export function ui(lang = DEFAULT_LOCALE) {
