@@ -581,7 +581,7 @@ per taal.
 | 1 | `grammar.js` krijgt `lang` + het naamval-argument; Nederlandse tabel ernaast | Nee | **Gedaan** |
 | 2a | `metrics.json` + `localiseMetric()`: de 244 metriekwoorden | Nee | **Gedaan** |
 | 2b | `ui.json` + `ui()`: de vaste tekst in de schil en de prozapagina's | Nee | **Gedaan** |
-| 3a | `leaving-home-copy.js` en `metric-map.js` gesplitst (de twee die de browser haalt) | Nee | |
+| 3a | `leaving-home-copy.js` en `metric-map.js` gesplitst (de twee die de browser haalt) | Nee | **Gedaan** |
 | 3b | De zeven server-only libs gesplitst | Nee | |
 | 4 | Het Nederlands: alle woordenbestanden, alle `copy/nl/`, het artikel; `nl` in `LOCALES`, `/nl/` op `noindex` | Ja, op `/nl/` | |
 
@@ -673,3 +673,42 @@ De maatstaf voor stap 2b en 3 is daarom **identiek ná normalisatie van witruimt
 entiteiten**. Dat is wat "niets verandert voor een bezoeker" echt betekent; byte voor byte
 was daar alleen een proxy voor, en die gaat hier niet op. Uitkomst: 40 van de 40 pagina's
 identiek, en de site werd 1556 bytes kleiner.
+
+### Wat stap 3a heeft opgeleverd
+
+De twee zinsbouwers die óók in de browser draaien zijn gesplitst: de logica blijft in
+`src/lib/`, de woorden staan in `src/locales/en/copy/metric-map.js` en
+`src/locales/en/copy/leaving-home.js`.
+
+**De nadrukpositie is meeverhuisd, en dat was het punt.** Een zin is hier een rij
+stukken, en `{ strong: '23,4' }` is zo'n stuk. Waar de nadruk valt is een eigenschap van
+de taal — het Engels zegt "In the Netherlands half had left by **23,4**" — dus zolang die
+rij in de logica stond, was de Engelse woordorde onderdeel van het rekenwerk. `strong()`
+en `em()` horen bij de woorden.
+
+**De taal reist met de gegevens.** Bij de kaart uit `cfg.locale`, bij `/leaving-home/`
+uit `clientData(index, lang)`. Beide zijn JSON-blokken die de browser toch al leest, dus
+server en client lezen dezelfde taal uit dezelfde bron. Dat kostte 12 bytes op
+`/leaving-home/`.
+
+**Hoe het nagemeten is, en waarom zo.** 923 gevallen oud tegen nieuw, letterlijk gelijk:
+`mapSummary` en `inspectFacts` over negen metrieken × elke lens × elk land plus de EU, en
+`youLine`, `resultCopy`, `ownAge` en `validAge` over elk land × zestien leeftijden
+inclusief `NaN` en de grenzen. De oude versie kwam uit `git archive main`, zodat beide
+echt naast elkaar draaiden.
+
+Voor zuivere functies is dat strenger dan een klik, want een klik dekt één geval. De
+koppeling is daarnaast wél echt gebruikt in een browser, want dat is het andere halve
+bewijs: de functie kan goed zijn en de draad eromheen los.
+
+### Een les over de paginacontrole, niet over de site
+
+Twee runs van `npm run check` faalden op "geen h1", op twee verschillende pagina's. Ik
+schreef dat eerst toe aan het controlescript. Dat was fout: `check-pages.mjs` serveert
+`dist/` over HTTP, en ik had tijdens beide runs `npm run build` gedraaid. Een pagina die
+halverwege het herschrijven wordt opgehaald komt zonder `<h1>` aan. De twee runs zonder
+herbouw eronder waren groen. De correlatie is exact.
+
+Dus: start die controle alleen als `dist/` stil ligt, en schrijf er niets onder tot hij
+meldt. Een valse melding stuurt je de site auditen in plaats van je eigen werkwijze — en
+een controle die je leert te wantrouwen, wordt uitgezet.
