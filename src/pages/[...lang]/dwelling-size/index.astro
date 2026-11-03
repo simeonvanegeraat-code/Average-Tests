@@ -11,6 +11,7 @@ import geo from '../../../../data/geo/europe.json';
 import rawIndex from '../../../../data/dwelling-size/index.json';
 import rawHouseholdData from '../../../../data/household-size/index.json';
 import baseMetric from '../../../lib/metrics/dwelling-size.js';
+import { localiseMetric } from '../../../lib/metric-names.js';
 import baseHouseholdMetric from '../../../lib/metrics/household-size.js';
 import { spacePerPerson } from '../../../lib/space-per-person.js';
 
@@ -23,8 +24,8 @@ import { spacePerPerson } from '../../../lib/space-per-person.js';
 const lang = localeOf(Astro.url.pathname);
 const index = localise(rawIndex, lang);
 const householdData = localise(rawHouseholdData, lang);
-const metric = { ...baseMetric, locale: lang };
-const householdMetric = { ...baseHouseholdMetric, locale: lang };
+const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
+const householdMetric = { ...localiseMetric(baseHouseholdMetric, lang), locale: lang };
 import {
   currentCountries,
   formatAmount,

@@ -19,6 +19,7 @@ import { euro, formatPeriod } from './wealth.js';
 import { STAGES } from './hue.js';
 import { DEFAULT_LOCALE } from './locales.js';
 import { localise } from './country-names.js';
+import { localiseMetric } from './metric-names.js';
 
 import leavingHome from './metrics/leaving-home.js';
 import workingLife from './metrics/working-life.js';
@@ -42,7 +43,13 @@ import unemploymentData from '../../data/unemployment/index.json';
 import wealthData from '../../data/wealth/index.json';
 
 /** Eén kaart uit een Eurostat-metriek, via de motor in metric.js. */
-function entry(metric, index, lang) {
+function entry(rawMetric, index, lang) {
+  /**
+   * De woorden van deze metriek in de taal van de pagina, vóórdat er iets uit gelezen
+   * wordt. `label` en `unitShort` hieronder gaan rechtstreeks het megamenu in, dus
+   * zonder deze regel blijft dat menu Engels op een Nederlandse pagina.
+   */
+  const metric = localiseMetric(rawMetric, lang);
   const cfg = { ...metric, locale: lang };
   const named = localise(index, lang);
   const { eu, countries, year } = headline(named);

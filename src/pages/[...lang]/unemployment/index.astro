@@ -11,6 +11,7 @@ import rawIndex from '../../../../data/unemployment/index.json';
 import rawYouthIndex from '../../../../data/unemployment-under25/index.json';
 import rawOlderIndex from '../../../../data/unemployment-25to74/index.json';
 import baseMetric from '../../../lib/metrics/unemployment.js';
+import { localiseMetric } from '../../../lib/metric-names.js';
 import { aggregatePair, pairs, rankShift, widerThanSpread } from '../../../lib/unemployment-age.js';
 import { periodLabel, periodNumber } from '../../../lib/period.js';
 
@@ -24,7 +25,7 @@ const lang = localeOf(Astro.url.pathname);
 const index = localise(rawIndex, lang);
 const youthIndex = localise(rawYouthIndex, lang);
 const olderIndex = localise(rawOlderIndex, lang);
-const metric = { ...baseMetric, locale: lang };
+const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
 import {
   currentCountries,
   formatAmount,

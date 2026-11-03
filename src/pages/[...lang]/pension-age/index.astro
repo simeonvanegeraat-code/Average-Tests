@@ -10,6 +10,7 @@ import geo from '../../../../data/geo/europe.json';
 import rawIndex from '../../../../data/pension-age/index.json';
 import rawExitIndex from '../../../../data/exit-age/index.json';
 import baseMetric from '../../../lib/metrics/pension-age.js';
+import { localiseMetric } from '../../../lib/metric-names.js';
 import { citation, exitAge, exitAgeRows } from '../../../lib/exit-age.js';
 
 /**
@@ -21,7 +22,7 @@ import { citation, exitAge, exitAgeRows } from '../../../lib/exit-age.js';
 const lang = localeOf(Astro.url.pathname);
 const index = localise(rawIndex, lang);
 const exitIndex = localise(rawExitIndex, lang);
-const metric = { ...baseMetric, locale: lang };
+const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
 import {
   count,
   currentCountries,

@@ -15,6 +15,7 @@ import rawIndex from '../../../../data/leaving-home/index.json';
 import { STAGES } from '../../../lib/hue.js';
 import { clientData } from '../../../lib/leaving-home-copy.js';
 import baseMetric from '../../../lib/metrics/leaving-home.js';
+import { localiseMetric } from '../../../lib/metric-names.js';
 import { age, years, headline, trend } from '../../../lib/leaving-home.js';
 
 /**
@@ -25,7 +26,7 @@ import { age, years, headline, trend } from '../../../lib/leaving-home.js';
  */
 const lang = localeOf(Astro.url.pathname);
 const index = localise(rawIndex, lang);
-const metric = { ...baseMetric, locale: lang };
+const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
 
 /**
  * Pagina 1 van het Europese cluster, in de vormtaal van 2026.
