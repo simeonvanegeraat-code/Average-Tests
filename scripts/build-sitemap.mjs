@@ -18,6 +18,19 @@ const DIST = new URL('../dist/', import.meta.url).pathname.replace(/^\/([A-Za-z]
 /** Pagina's die wel bereikbaar moeten zijn maar niet in de index horen. */
 const EXCLUDE = [/^404\.html$/, /^_astro\//];
 
+/**
+ * Een pagina die zichzelf op noindex zet, hoort niet in de sitemap.
+ *
+ * Dit is geen tweede lijst maar een vraag aan de pagina zelf, en dat is met opzet. Op
+ * 3 november stonden de veertig Nederlandse pagina's op noindex én in de sitemap, en dat
+ * levert in Search Console veertig "Submitted URL marked noindex"-fouten op — in het
+ * enige meetinstrument dat deze site heeft. Een tweede lijst hier zou precies die fout
+ * opnieuw mogelijk maken zodra het noindex ergens verandert.
+ *
+ * Zo niet: zodra BaseV2 het noindex eraf haalt, komen die URL's hier vanzelf weer in.
+ */
+const isNoindex = (html) => /<meta[^>]+name="robots"[^>]+content="[^"]*noindex/i.test(html);
+
 async function walk(dir, found = []) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
@@ -27,7 +40,15 @@ async function walk(dir, found = []) {
   return found;
 }
 
-const files = await walk(DIST);
+const all = await walk(DIST);
+
+/** Eén keer lezen, en daarna zowel voor de filter als voor lastmod gebruiken. */
+const noindex = new Set();
+for (const file of all) {
+  if (isNoindex(await readFile(file, 'utf8'))) noindex.add(file);
+}
+
+const files = all.filter((file) => !noindex.has(file));
 
 const urls = files
   .map((file) => relative(DIST, file).split('\\').join('/'))
@@ -63,4 +84,7 @@ await writeFile(join(DIST, 'sitemap.xml'), xml);
 
 // public/sitemap.xml blijft bestaan voor wie de repo leest, maar de build is leidend.
 const previous = await readFile(join(DIST, 'sitemap.xml'), 'utf8').catch(() => '');
-console.log(`sitemap.xml: ${urls.length} URL's (${previous ? 'geschreven' : 'fout'})`);
+console.log(
+  `sitemap.xml: ${urls.length} URL's (${previous ? 'geschreven' : 'fout'})` +
+    (noindex.size ? `, ${noindex.size} overgeslagen wegens noindex` : ''),
+);
