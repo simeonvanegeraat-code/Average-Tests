@@ -20,11 +20,11 @@
  * vóór de eerste verf gezet zodat er geen flits is. Schrijf het profiel dus altijd als
  * samenvoeging van wat er al staat, nooit als vervanging.
  */
-import { ui } from '../lib/ui.js';
+import { ui, fill } from '../lib/ui.js';
 import { hueStyle } from '../lib/hue.js';
 import { localeOf, prefixOf, alternatesOf, linkTo, languageName, DEFAULT_LOCALE } from '../lib/locales.js';
 import { catalogue } from '../lib/catalogue.js';
-import { NOTES, NOTES_LINK } from '../lib/notes.js';
+import { notes, NOTES_LINK } from '../lib/notes.js';
 
 interface Props {
   title: string;
@@ -53,6 +53,8 @@ const canonicalUrl = new URL(`${prefixOf(lang)}${canonical}`, Astro.site).href;
  * een constante kan geen taal kennen: zie de kop van catalogue().
  */
 const CATALOGUE = catalogue(lang);
+/** De artikelen in de taal van deze pagina. Zie src/lib/notes.js. */
+const NOTES = notes(lang);
 
 /** Leeg zolang er één taal is; zie alternatesOf() in src/lib/locales.js. */
 const alternates = alternatesOf(canonical);
@@ -286,7 +288,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
           }
 
           <a class="cat-card cat-method" href={linkTo('/method/', lang)} style={`--i:${CATALOGUE.length}`} data-method-card>
-            <span class="cue">How we read it</span>
+            <span class="cue">{t.howWeReadIt}</span>
             <span class="name">Sources, and the breaks we refuse to cross</span>
             <span class="go" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -301,7 +303,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
                 <div class="cat-notes">
                   {NOTES.slice(0, 1).map((note) => (
                     <a class="cat-note" href={linkTo(note.path, lang)} data-note-card>
-                      <span class="cue">Note</span>
+                      <span class="cue">{t.note}</span>
                       <span class="name">{note.card}</span>
                       <span class="go" aria-hidden="true">
                         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -319,8 +321,8 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
                     lijst. Op een telefoon bestond het overzicht dus niet.
                   */}
                   <a class="cat-note cat-note--all" href={linkTo(NOTES_LINK, lang)} data-note-card>
-                    <span class="cue">All</span>
-                    <span class="name">{NOTES.length === 1 ? 'Every note' : `All ${NOTES.length} notes`}</span>
+                    <span class="cue">{t.all}</span>
+                    <span class="name">{NOTES.length === 1 ? t.everyNote : fill(t.allNotesCount, { count: NOTES.length })}</span>
                     <span class="go" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h13M12 5l7 7-7 7"></path>

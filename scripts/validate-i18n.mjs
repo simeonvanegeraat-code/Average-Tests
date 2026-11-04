@@ -29,11 +29,13 @@
  *     het lang-attribuut — en daar ziet niemand hem, want er staat niets van op de
  *     pagina.
  *
- *   PAS BIJ FASE 3/4, als er Nederlandse pagina's zijn om tegen te meten
+ *   NU, sinds 4 november
  *   2. Engelse tekst op een Nederlandse pagina — mét de uitzondering voor de
  *      geciteerde definitie van de uitgever, die daar met opzet Engels is (besluit 1
  *      van 1 november 2026). Een poort die dat niet weet, blokkeert precies de tekst
  *      die er hoort te staan, en een poort die onterecht afgaat wordt uitgezet.
+ *
+ *   PAS BIJ FASE 4
  *   5. Een getal met een punt als decimaalteken op een Nederlandse pagina.
  *   6. Een geciteerde definitie zonder `lang`-attribuut.
  *   + Een interne link op een Nederlandse pagina die het taalvoorvoegsel mist. Staat
@@ -658,6 +660,67 @@ if (pages.length === 0) {
         fail(
           `${url}: ${mis.size} interne link(s) zonder het voorvoegsel "/${prefix}": ${sample}. ` +
             'Haal ze door linkTo(path, lang) in src/lib/locales.js.',
+        );
+      }
+    }
+
+    /**
+     * Punt 2 van het plan: Engelse tekst op een Nederlandse pagina.
+     *
+     * DIT IS DE ENIGE CONTROLE DIE "IS DEZE PAGINA AL VERTAALD" MEET
+     *
+     * De decimaaltekencontrole hieronder meet iets anders, en dat verschil heeft me op
+     * 4 november bijna een verkeerde conclusie laten trekken. Toen de legenda van de
+     * kaart zijn komma's kreeg, vielen vijf pagina's van die lijst af — terwijl hun
+     * tekst nog volledig Engels was. "Van de poortlijst" is dus geen "Nederlands", en
+     * zonder deze regel is er geen enkel cijfer dat zegt hoe ver de vertaling is.
+     *
+     * HOE HET GEMETEN WORDT, EN WAAROM ZO GROF
+     *
+     * Niet met taalherkenning maar met een lijst functiewoorden die in het Engels heel
+     * gewoon zijn en in het Nederlands niet bestaan. "of" en "is" staan er dus niet in,
+     * hoe Engels ze ook zijn: dat zijn ook Nederlandse woorden, en een poort die op
+     * goede tekst afgaat wordt uitgezet.
+     *
+     * De drempel is niet nul, en dat is met opzet. Een Nederlandse pagina draagt
+     * legitiem wat Engels: het label waarmee Eurostat zijn dataset noemt, de naam van
+     * een enquête, een DOI. Die zijn van de uitgever en worden niet vertaald. Boven de
+     * drempel gaat het niet meer om een label maar om een alinea.
+     *
+     * Het getal staat in de melding, zodat voortgang te zien is zonder de pagina te
+     * openen: van 115 naar 3 is af, van 115 naar 90 is begonnen.
+     */
+    if (prefix !== DEFAULT) {
+      /** Woorden die het Engels veel gebruikt en het Nederlands niet kent. */
+      const ENGLISH = [
+        'the', 'and', 'with', 'from', 'which', 'their', 'there', 'these', 'those',
+        'about', 'because', 'between', 'where', 'what', 'they', 'have', 'been',
+        'than', 'then', 'this', 'that', 'are', 'you', 'your', 'country', 'countries',
+      ];
+
+      const prose = html
+        .replace(/<script[\s\S]*?<\/script>/g, ' ')
+        .replace(/<style[\s\S]*?<\/style>/g, ' ')
+        .replace(new RegExp(`<(blockquote|p|span|q|div|dd|li|code)[^>]*\\slang="[^"]*"[^>]*>[\\s\\S]*?</\\1>`, 'g'), ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .toLowerCase();
+
+      const hits = ENGLISH.flatMap((word) => prose.match(new RegExp(`\\b${word}\\b`, 'g')) ?? []);
+
+      /** Boven dit aantal gaat het niet meer om een label van de uitgever. */
+      const ALLOWED = 6;
+
+      if (hits.length > ALLOWED) {
+        const telling = new Map();
+        for (const hit of hits) telling.set(hit, (telling.get(hit) ?? 0) + 1);
+        const top = [...telling.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([word, n]) => `${word} ${n}x`)
+          .join(', ');
+        fail(
+          `${url}: ${hits.length} Engelse functiewoorden op een "${prefix}"-pagina (${top}). ` +
+            'Deze pagina is nog niet vertaald.',
         );
       }
     }

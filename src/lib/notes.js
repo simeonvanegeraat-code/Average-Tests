@@ -15,23 +15,67 @@
  */
 
 import { monthName } from './period.js';
-export const NOTES = [
+import { DEFAULT_LOCALE } from './locales.js';
+
+/**
+ * De tekst van een artikel staat per taal, want dit is redactie en geen label.
+ *
+ * Tot 4 november 2026 stond `NOTES` als moduleconstante met alleen Engels erin, en dat
+ * stond dus ook op /nl/, in het megamenu, in de voet en op /nl/notes/. Zelfde fout als
+ * CATALOGUE, METHODOLOGY en related.js hadden: wat op moduleniveau staat kan geen taal
+ * kennen.
+ *
+ * De Nederlandse kop is geen vertaling van de Engelse. "Why you cannot compare Eurostat
+ * figures across 2021" is een bewering; het Nederlands wordt sterker als het de vraag
+ * stelt die de lezer zelf heeft.
+ */
+const ENTRIES = [
   {
     slug: 'eurostat-2021-series-break',
     path: '/notes/eurostat-2021-series-break/',
-    /** De volledige kop, voor de overzichtspagina en de voet. */
-    title: 'Why you cannot compare Eurostat figures across 2021',
-    /** Kort genoeg voor een kaart in het mega menu. */
-    card: 'Why 2021 breaks the series',
-    teaser:
-      'The European Labour Force Survey was rebuilt in 2021, and almost every series ' +
-      'breaks there. Eurostat flags it, but a flag does not stop anyone drawing a line ' +
-      'straight through it. What that does to a chart, and why a footnote was not enough.',
     /** De tint van de metriek waar het artikel over gaat, uit STAGES in hue.js. */
     hue: 262,
     published: '2026-10-25',
+    text: {
+      en: {
+        /** De volledige kop, voor de overzichtspagina en de voet. */
+        title: 'Why you cannot compare Eurostat figures across 2021',
+        /** Kort genoeg voor een kaart in het mega menu. */
+        card: 'Why 2021 breaks the series',
+        teaser:
+          'The European Labour Force Survey was rebuilt in 2021, and almost every series ' +
+          'breaks there. Eurostat flags it, but a flag does not stop anyone drawing a line ' +
+          'straight through it. What that does to a chart, and why a footnote was not enough.',
+      },
+      nl: {
+        title: 'Waarom je Eurostat-cijfers niet over 2021 heen kunt vergelijken',
+        card: 'Waarom 2021 de reeks breekt',
+        teaser:
+          'De Europese arbeidskrachtenenquête is in 2021 opnieuw opgebouwd, en vrijwel elke ' +
+          'reeks breekt daar. Eurostat markeert dat, maar een markering houdt niemand tegen ' +
+          'die er een lijn door trekt. Wat dat met een grafiek doet, en waarom een voetnoot ' +
+          'niet genoeg was.',
+      },
+    },
   },
 ];
+
+/**
+ * De artikelen in één taal, met hun tekst al op zijn plek.
+ *
+ * Een taal zonder eigen tekst valt terug op de standaardtaal — een Engelse kop is beter
+ * dan een lege, en `validate-i18n.mjs` is de plek die het gat hoort te melden.
+ */
+const perLang = new Map();
+
+export function notes(lang = DEFAULT_LOCALE) {
+  let found = perLang.get(lang);
+  if (!found) {
+    found = ENTRIES.map(({ text, ...rest }) => ({ ...rest, ...(text[lang] ?? text[DEFAULT_LOCALE]) }));
+    perLang.set(lang, found);
+  }
+  return found;
+}
 
 /** Waar "Notes" in de balk en in het paneel heen wijst. */
 export const NOTES_LINK = '/notes/';
