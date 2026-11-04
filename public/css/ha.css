@@ -243,6 +243,18 @@
     .lang-switch a { padding: 9px 10px; font-size: .88rem; letter-spacing: .02em; }
     .lang-switch .lang-long { display: none; }
     .lang-switch .lang-short { display: inline; }
+    /* Alleen de ándere taal, en dat is niet alleen een plaatsgebrek.
+
+       Het plaatsgebrek was echt: op 390px eindigde de balk op 398 van de 390, en de
+       themaknop stak eruit op alle veertig Nederlandse pagina's. Gevonden door
+       scripts/check-pages.mjs, niet door ernaar te kijken — op een breed scherm is er
+       niets van te zien.
+
+       Maar twee talen naast elkaar op een telefoon is ook gewoon overbodig: op een
+       Nederlandse pagina is "NL" informatie die de pagina zelf al geeft. De link die
+       overblijft zegt waar hij heen gaat, en dat is het enige wat een kiezer moet doen.
+       Zijn aria-label draagt de volledige naam, dus een schermlezer hoort "English". */
+    .lang-switch a[aria-current] { display: none; }
   }
 
   .catalogue { display: none; }
