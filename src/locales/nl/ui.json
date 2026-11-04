@@ -22,7 +22,8 @@
     "note": "Artikel",
     "all": "Alles",
     "everyNote": "Elk artikel",
-    "allNotesCount": "Alle {count} artikelen"
+    "allNotesCount": "Alle {count} artikelen",
+    "sourcesAndBreaks": "Bronnen, en de breuken waar we niet over heen rekenen"
   },
   "notFound": {
     "title": "Deze pagina staat hier niet",
@@ -56,7 +57,24 @@
     "everyFigureInTable": "Elk cijfer staat ook in die tabel."
   },
   "rankTable": {
-    "everyCountrySortableTable": "Elk land, sorteerbare tabel"
+    "everyCountrySortableTable": "Elk land, sorteerbare tabel",
+    "country": "Land",
+    "gap": "Verschil",
+    "gapBetween": "tussen mannen en vrouwen",
+    "trendColumn": "Trend {from}–{to}, met breuken",
+    "captionAt": "{count} landen op {period}",
+    "captionBehind": "{count} staan op hun meest recente {grain}.",
+    "trendFrom": "Trend {from} tot {to}.",
+    "breaksIn": "Reeksbreuken in {periods}.",
+    "gapExplained": "Het verschil is mannen min vrouwen, dus een positief getal betekent dat het cijfer hoger is voor mannen.",
+    "behindExplained": "Staat er een {grain} naast een land, dan heeft {publisher} daar geen cijfer voor {period} en toont de rij dat {grain}.",
+    "oneYearOnly": "{publisher} publiceert deze tabel alleen voor {period}, dus er is geen lijn te trekken en geen verleden om mee te vergelijken.",
+    "breaksExplained": "Trendlijnen worden niet door reeksbreuken heen getrokken (de kleine inkepingen): {broken} van de {of} landen dragen er een, in {periods}.",
+    "noBreaks": "{publisher} markeert hier geen reeksbreuk, dus elke lijn loopt van {from} tot {to} zonder inkeping.",
+    "everyone": "Iedereen",
+    "men": "Mannen",
+    "women": "Vrouwen",
+    "and": "en"
   },
   "statHero": {
     "nothingIsSentAnywhere": "Er wordt niets verstuurd.",
@@ -73,7 +91,12 @@
     "eyebrow": "Volgende vraag",
     "whatThisFigureSits": "Waar dit cijfer aan vastzit",
     "openIt": "Bekijk",
-    "readIt": "Lees het"
+    "readIt": "Lees het",
+    "theNote": "Het artikel",
+    "noteAllFlagged": "Elk van de {of} landen hier draagt een breukvlag in {year}, en een lijn die daar dwars door loopt betekent niets.",
+    "noteSomeFlagged": "{of} van de {countries} landen hier dragen een breukvlag in {year}, en een lijn die daar dwars door loopt betekent niets.",
+    "noteWhyItMatters": "Waarom de herziening van Eurostat in 2021 vrijwel elke reeks breekt, en wat wij daarmee doen.",
+    "noteOneFlagged": "{of} van de {countries} landen hier draagt een breukvlag in {year}, en een lijn die daar dwars door loopt betekent niets."
   },
   "resultPanel": {
     "eyebrow": "Jouw uitkomst"
@@ -183,7 +206,15 @@
     "whatWeWorkedOut": "Wat we onderweg uitzochten",
     "whereADatasetTurned": "Waar een dataset iets anders bleek te zeggen dan zijn titel, schrijven we dat op in plaats van er stil om heen te werken.",
     "whatThisIsNot": "Wat dit niet is",
-    "anAverageIsA": "Een gemiddelde is een slecht antwoord op een persoonlijke vraag"
+    "anAverageIsA": "Een gemiddelde is een slecht antwoord op een persoonlijke vraag",
+    "pageTitle": "HumanAverage — Europese cijfers, en waar jij valt",
+    "pageDescription": "{count} vragen over hoe Europeanen leven, elk beantwoord voor elk land met cijfers die Eurostat, de OESO en de ECB publiceren. Kies je land en zie alle {count} in één keer, op een kaart, met elk land erbij.",
+    "howWeReadIt": "Hoe we het lezen",
+    "sourcesAndBreaks": "Bronnen, en de breuken waar we niet over heen rekenen",
+    "pickHeading": "{count} vragen, beantwoord voor elk land",
+    "honestLead": "Waar een bron één cijfer per land publiceert — en dat is bijna altijd — zegt een pagina aan welke kant daarvan je zit, en zegt dat ook gewoon, in plaats van er een percentiel van te maken.",
+    "methodPageLink": "De methodepagina",
+    "honestTail": "heeft het hele betoog, per dataset."
   },
   "metricLabels": {
     "wealth": "Vermogen"

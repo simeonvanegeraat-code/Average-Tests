@@ -8,7 +8,7 @@
  * controleren in de tabel op beide pagina's. Dat is dezelfde lat als voor de pagina's
  * zelf: een berekening die nergens anders staat.
  */
-import { ui } from '../lib/ui.js';
+import { ui, fill } from '../lib/ui.js';
 import { localeOf, linkTo } from '../lib/locales.js';
 import { related, breakNote } from '../lib/related.js';
 
@@ -46,13 +46,12 @@ const note = breakNote(metric, lang);
 
           {note && (
             <a class="nextitem nextitem--note" href={linkTo(note.path, lang)}>
-              <span class="k mono">The note</span>
+              <span class="k mono">{t.theNote}</span>
               <p>
                 {note.of === note.countries
-                  ? `Every one of the ${note.countries} countries here carries a break flag in ${note.year}`
-                  : `${note.of} of the ${note.countries} countries here ${note.of === 1 ? 'carries' : 'carry'} a break flag in ${note.year}`}, and a
-                line drawn through it means nothing. Why Eurostat's 2021 revision breaks almost every
-                series, and what we do about it.
+                  ? fill(t.noteAllFlagged, { of: note.countries, year: note.year })
+                  : fill(note.of === 1 ? t.noteOneFlagged : t.noteSomeFlagged, { of: note.of, countries: note.countries, year: note.year })}
+                {' '}{t.noteWhyItMatters}{' '}
               </p>
               <span class="arr">{t.readIt}{' '}<span aria-hidden="true">→</span></span>
             </a>

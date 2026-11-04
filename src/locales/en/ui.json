@@ -22,7 +22,8 @@
     "note": "Note",
     "all": "All",
     "everyNote": "Every note",
-    "allNotesCount": "All {count} notes"
+    "allNotesCount": "All {count} notes",
+    "sourcesAndBreaks": "Sources, and the breaks we refuse to cross"
   },
   "notFound": {
     "title": "That page is not here",
@@ -56,7 +57,24 @@
     "everyFigureInTable": "Every figure is also in that table."
   },
   "rankTable": {
-    "everyCountrySortableTable": "Every country, sortable table"
+    "everyCountrySortableTable": "Every country, sortable table",
+    "country": "Country",
+    "gap": "Gap",
+    "gapBetween": "between men and women",
+    "trendColumn": "Trend {from}–{to}, with breaks",
+    "captionAt": "{count} countries at {period}",
+    "captionBehind": "{count} shown at their most recent {grain} instead.",
+    "trendFrom": "Trend {from} to {to}.",
+    "breaksIn": "Series breaks in {periods}.",
+    "gapExplained": "The gap is men minus women, so a positive number means the figure is higher for men.",
+    "behindExplained": "A {grain} next to a country means {publisher} has no {period} figure for it, and the row shows that {grain} instead.",
+    "oneYearOnly": "{publisher} publishes this table for {period} alone, so there is no line to draw and no past to compare with.",
+    "breaksExplained": "Trend lines are not drawn across series breaks (the small notches): {broken} of {of} countries carry one, in {periods}.",
+    "noBreaks": "{publisher} flags no series break here, so every line runs from {from} to {to} without a notch.",
+    "everyone": "Everyone",
+    "men": "Men",
+    "women": "Women",
+    "and": "and"
   },
   "statHero": {
     "nothingIsSentAnywhere": "Nothing is sent anywhere.",
@@ -73,7 +91,12 @@
     "eyebrow": "Next question",
     "whatThisFigureSits": "What this figure sits next to",
     "openIt": "Open it",
-    "readIt": "Read it"
+    "readIt": "Read it",
+    "theNote": "The note",
+    "noteAllFlagged": "Every one of the {of} countries here carries a break flag in {year}, and a line drawn through it means nothing.",
+    "noteSomeFlagged": "{of} of the {countries} countries here carry a break flag in {year}, and a line drawn through it means nothing.",
+    "noteWhyItMatters": "Why Eurostat's 2021 revision breaks almost every series, and what we do about it.",
+    "noteOneFlagged": "{of} of the {countries} countries here carries a break flag in {year}, and a line drawn through it means nothing."
   },
   "resultPanel": {
     "eyebrow": "Your result"
@@ -183,7 +206,15 @@
     "whatWeWorkedOut": "What we worked out along the way",
     "whereADatasetTurned": "Where a dataset turned out to say something other than its title, we write it down rather than quietly work around it.",
     "whatThisIsNot": "What this is not",
-    "anAverageIsA": "An average is a bad answer to a personal question"
+    "anAverageIsA": "An average is a bad answer to a personal question",
+    "pageTitle": "HumanAverage — European Figures, and Where You Fall",
+    "pageDescription": "{count} questions about how Europeans live, each answered for every country from figures published by Eurostat, the OECD and the ECB. Pick your country and see all {count} at once, on a map, with every country listed.",
+    "howWeReadIt": "How we read it",
+    "sourcesAndBreaks": "Sources, and the breaks we refuse to cross",
+    "pickHeading": "{count} questions, answered for every country",
+    "honestLead": "Where a source publishes one figure per country — which is almost always — a page tells you which side of it you are on, and says so plainly instead of dressing it up as a percentile.",
+    "methodPageLink": "The method page",
+    "honestTail": "has the whole argument, per dataset."
   },
   "metricLabels": {
     "wealth": "Wealth"
