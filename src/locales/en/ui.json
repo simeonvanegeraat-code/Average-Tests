@@ -17,7 +17,12 @@
     "contact": "Contact",
     "privacy": "Privacy",
     "allNotes": "All notes",
-    "disclaimer": "Not medical advice. Informational comparison only."
+    "disclaimer": "Not medical advice. Informational comparison only.",
+    "howWeReadIt": "How we read it",
+    "note": "Note",
+    "all": "All",
+    "everyNote": "Every note",
+    "allNotesCount": "All {count} notes"
   },
   "notFound": {
     "title": "That page is not here",
@@ -46,7 +51,9 @@
     "men": "Men",
     "women": "Women",
     "menWomen": "Men − women",
-    "latestFigureOlder": "Latest figure is older than"
+    "latestFigureOlder": "Latest figure is older than",
+    "hatchedNote": "Hatched countries have no figure for {period}; the map shows their most recent {grain} instead, and the table below names it.",
+    "everyFigureInTable": "Every figure is also in that table."
   },
   "rankTable": {
     "everyCountrySortableTable": "Every country, sortable table"

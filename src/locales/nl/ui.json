@@ -17,7 +17,12 @@
     "contact": "Contact",
     "privacy": "Privacy",
     "allNotes": "Alle artikelen",
-    "disclaimer": "Geen medisch advies. Alleen een informatieve vergelijking."
+    "disclaimer": "Geen medisch advies. Alleen een informatieve vergelijking.",
+    "howWeReadIt": "Hoe we het lezen",
+    "note": "Artikel",
+    "all": "Alles",
+    "everyNote": "Elk artikel",
+    "allNotesCount": "Alle {count} artikelen"
   },
   "notFound": {
     "title": "Deze pagina staat hier niet",
@@ -46,7 +51,9 @@
     "men": "Mannen",
     "women": "Vrouwen",
     "menWomen": "Mannen − vrouwen",
-    "latestFigureOlder": "Nieuwste cijfer is ouder dan"
+    "latestFigureOlder": "Nieuwste cijfer is ouder dan",
+    "hatchedNote": "Gearceerde landen hebben geen cijfer voor {period}; de kaart toont hun meest recente {grain}, en de tabel eronder noemt welk.",
+    "everyFigureInTable": "Elk cijfer staat ook in die tabel."
   },
   "rankTable": {
     "everyCountrySortableTable": "Elk land, sorteerbare tabel"

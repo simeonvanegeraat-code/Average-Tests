@@ -34,7 +34,7 @@
  * De gegevens voor de browser staan in één JSON-element in dit onderdeel (`data-map-data`).
  */
 import { localeOf } from '../lib/locales.js';
-import { ui } from '../lib/ui.js';
+import { ui, fill } from '../lib/ui.js';
 import { euAggregate, formatValue } from '../lib/metric.js';
 import { sparkline, sparkElements, SPARK_SIZES } from '../lib/sparkline.js';
 import { periodLabel, periodUnit } from '../lib/period.js';
@@ -209,8 +209,8 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
               pagina's onwaar — en zichtbaar, niet alleen voor een schermlezer. Nu uit de
               beschrijving van de metriek, net als de titel boven de legenda. */}
           {metric.words?.legend ?? metric.label}, {periodLabel(latestYear, { locale: lang })}.
-          {stale.length > 0 && <> Hatched countries have no figure for {periodLabel(latestYear, { locale: lang })}; the map shows their most recent {grain} instead, and the table below names it.</>}
-          Every figure is also in that table.
+          {stale.length > 0 && <>{' '}{fill(t.hatchedNote, { period: periodLabel(latestYear, { locale: lang }), grain })}</>}
+          {' '}{t.everyFigureInTable}
         </figcaption>
       </figure>
 

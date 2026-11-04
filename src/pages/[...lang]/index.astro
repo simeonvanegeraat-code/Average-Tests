@@ -10,7 +10,7 @@ import rawLeaving from '../../../data/leaving-home/index.json';
 import { headline, age } from '../../lib/leaving-home.js';
 import { catalogue } from '../../lib/catalogue.js';
 import { homeCountries } from '../../lib/home-countries.js';
-import { NOTES, NOTES_LINK, noteDate } from '../../lib/notes.js';
+import { notes, NOTES_LINK, noteDate } from '../../lib/notes.js';
 
 
 /**
@@ -33,6 +33,8 @@ import { NOTES, NOTES_LINK, noteDate } from '../../lib/notes.js';
  */
 
 const lang = localeOf(Astro.url.pathname);
+/** De artikelen in de taal van deze pagina. */
+const NOTES = notes(lang);
 
 /**
  * De identiteit van de site, uit src/lib/schema.js in plaats van hier uitgetypt.
