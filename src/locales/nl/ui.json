@@ -155,7 +155,14 @@
     "howItIsPaid": "Hoe het betaald wordt",
     "humanaverageIsFreeTo": "HumanAverage is gratis te gebruiken. Advertenties kunnen op termijn helpen de hosting en verdere ontwikkeling te dekken. Er staat nu geen advertentiecode op, en advertenties zouden nooit een berekening of een conclusie veranderen.",
     "corrections": "Correcties",
-    "thisSiteIsAn": "Deze site is een informatieve vergelijking. Het is geen medisch advies, geen diagnose, en geen beoordeling van jouw gezondheid."
+    "thisSiteIsAn": "Deze site is een informatieve vergelijking. Het is geen medisch advies, geen diagnose, en geen beoordeling van jouw gezondheid.",
+    "answeringTakes": "Dat beantwoorden vraagt het cijfer van elk land in plaats van dat van het geheel, de eerlijkheid om te zeggen aan welke kant je zit in plaats van een precisie te verzinnen die de bron niet draagt, en een controle dat de getallen de reis van het bureau naar de pagina hebben overleefd. Dat is wat deze site doet, en de",
+    "methodPageLink": "methodepagina",
+    "showsExactlyHow": "laat precies zien hoe.",
+    "siteIsIndependent": "Deze site is onafhankelijk.",
+    "notPartOfAny": "Ik hoor niet bij een overheid, een statistiekbureau, een universiteit of een instelling, niemand geeft er opdracht voor of kijkt mee wat erop komt, en ik heb geen band met de bureaus wiens cijfers ik gebruik — Eurostat, de OESO en de Europese Centrale Bank — behalve dat ik download wat zij voor iedereen publiceren.",
+    "ifYouCanShow": "Kun je aantonen dat hier iets fout staat, dan is dat echt nuttig en wordt het hersteld. Mail",
+    "forAQuestion": ". Bij een vraag over een specifieke uitkomst helpt het om te melden op welke pagina je was, welk land je koos en welk cijfer je invulde."
   },
   "privacy": {
     "privacy": "Privacy",
@@ -173,7 +180,13 @@
     "externalLinks": "Externe links",
     "weLinkToThe": "We linken naar de CDC, naar wetenschappelijke uitgevers en naar brondatasets. Zodra je er een opent, geldt het privacybeleid van die partij zelf. We geven de waarden die jij hebt ingevuld nooit mee in zo'n link.",
     "email": "E-mail",
-    "yourRights": "Jouw rechten"
+    "yourRights": "Jouw rechten",
+    "sharingAResult": "Een uitkomst delen.",
+    "whereAPageOffers": "Waar een pagina aanbiedt je uitkomst te kopiëren, komt er een kort stukje tekst op je klembord: je eigen cijfer, het gepubliceerde cijfer waarmee het vergeleken is, en het adres van de pagina. Geen enkele link draagt jouw waarden in het webadres, en er wordt niets verstuurd — het kopiëren gebeurt in je browser en houdt daar op. Wat je daarna plakt, en aan wie, is aan jou.",
+    "asWithVirtually": "Zoals bij vrijwel elke website verwerkt de hostingpartij technische gegevens van een verzoek: een IP-adres, het tijdstip, de opgevraagde pagina, browserinformatie en fouten. Dat is nodig om de site veilig te kunnen leveren. HumanAverage wordt gehost door",
+    "ifYouEmail": "Mail je naar",
+    "weReceiveYour": "dan ontvangen we je adres, je bericht en alles wat je er verder bij zet, en gebruiken we dat alleen om je vraag te behandelen. E-mail loopt via Gmail, dus het privacybeleid van Google geldt daar ook. Stuur geen wachtwoorden, medische gegevens of andere gevoelige informatie.",
+    "becauseWeNever": "Omdat we jouw metingen nooit ontvangen, kunnen we ze niet laten zien, verbeteren of verwijderen — er staat aan onze kant niets om iets mee te doen. Voor vragen over andere gegevens, over het verwijderen van een mail die je ons stuurde, of over dit beleid: schrijf naar"
   },
   "contact": {
     "contact": "Contact",
@@ -183,7 +196,19 @@
     "thereIsNoContact": "Er is geen contactformulier, want een formulier zou betekenen dat we jouw gegevens verzamelen op een site waarvan het hele punt is dat hij bijna niets verzamelt.",
     "whatHelps": "Wat helpt",
     "whatThisIsNot": "Wat dit niet is",
-    "humanaverageCannotAnswerMedical": "HumanAverage kan geen medische, psychologische of persoonlijke gezondheidsvragen beantwoorden, en niets hier is een diagnose. Als een meting je zorgen baart, is dat een gesprek voor een arts, die alles kan zien wat een cijfer op landniveau niet kan."
+    "humanaverageCannotAnswerMedical": "HumanAverage kan geen medische, psychologische of persoonlijke gezondheidsvragen beantwoorden, en niets hier is een diagnose. Als een meting je zorgen baart, is dat een gesprek voor een arts, die alles kan zien wat een cijfer op landniveau niet kan.",
+    "aboutASpecificResult": "Over een specifieke uitkomst:",
+    "specificResultBody": "de pagina, het land dat je koos, de waarde die je invulde en het antwoord dat je terugkreeg. Dat is genoeg om het precies na te doen.",
+    "aboutAWrongFigure": "Over een cijfer dat volgens jou fout is:",
+    "wrongFigureBody": "welk getal, en wat het volgens jou moet zijn. Met een bron erbij is het veel sneller na te kijken — en als je gelijk hebt, wordt het hersteld.",
+    "aboutSomethingBroken": "Over iets dat niet werkt:",
+    "brokenBody": "je apparaat, je browser, en wat je deed net voordat het stukging.",
+    "suggestingADataset": "Een dataset voorstellen:",
+    "datasetBody": "een link naar de data zelf, niet naar een artikel erover. Wat het beste werkt is een reeks die een bureau per land publiceert en blijft bijwerken.",
+    "backgroundOn": "Achtergrond over wie dit maakt en hoe het betaald wordt staat op de",
+    "aboutPageLink": "over-pagina",
+    "howNumbersProduced": ". Hoe de cijfers tot stand komen staat op de",
+    "methodPageLink": "methodepagina"
   },
   "notes": {
     "notes": "Artikelen",

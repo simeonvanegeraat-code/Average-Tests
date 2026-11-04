@@ -155,7 +155,14 @@
     "howItIsPaid": "How it is paid for",
     "humanaverageIsFreeTo": "HumanAverage is free to use. Advertising may eventually help cover hosting and further development. It currently carries no advertising code, and adverts would never change a calculation or a conclusion.",
     "corrections": "Corrections",
-    "thisSiteIsAn": "This site is an informational comparison. It is not medical advice, not a diagnosis, and not an assessment of your health."
+    "thisSiteIsAn": "This site is an informational comparison. It is not medical advice, not a diagnosis, and not an assessment of your health.",
+    "answeringTakes": "Answering that takes the figure for every country rather than the one for the whole, the honesty to say which side of it you fall on rather than inventing a precision the source does not support, and a check that the numbers survived the trip from the agency to the page. That is what this site does, and the",
+    "methodPageLink": "method page",
+    "showsExactlyHow": "shows exactly how.",
+    "siteIsIndependent": "This site is independent.",
+    "notPartOfAny": "I am not part of any government, statistical agency, university or institution, nobody commissions or reviews what goes on it, and I have no relationship with the agencies whose figures I use — Eurostat, the OECD and the European Central Bank — beyond downloading what they publish for anyone.",
+    "ifYouCanShow": "If you can show that something here is wrong, that is genuinely useful and it will be fixed. Email",
+    "forAQuestion": ". For a question about a specific result, mentioning which page you were on, the country you picked and the figure you entered helps."
   },
   "privacy": {
     "privacy": "Privacy",
@@ -173,7 +180,13 @@
     "externalLinks": "External links",
     "weLinkToThe": "We link to the CDC, to scientific publishers and to source datasets. Once you open one of those, that party's own privacy policy applies. We never pass your entered values along in such a link.",
     "email": "Email",
-    "yourRights": "Your rights"
+    "yourRights": "Your rights",
+    "sharingAResult": "Sharing a result.",
+    "whereAPageOffers": "Where a page offers to copy your result, what lands on your clipboard is a short piece of text: your own figure, the published figure it was compared against, and the address of the page. No link carries your values in the web address, and nothing is sent anywhere — the copy happens in your browser and stops there. What you then paste, and to whom, is yours to decide.",
+    "asWithVirtually": "As with virtually any website, the hosting provider processes technical request data: an IP address, the time, the page requested, browser information and errors. This is necessary to deliver the site securely. HumanAverage is hosted by",
+    "ifYouEmail": "If you email",
+    "weReceiveYour": "we receive your address, your message and anything else you choose to include, and use it only to handle your question. Email is processed through Gmail, so Google's privacy policy also applies. Please do not send passwords, medical records or other sensitive information.",
+    "becauseWeNever": "Because we never receive your measurements, we cannot show you, correct or delete them — there is nothing on our side to act on. For questions about other data, about deleting an email you sent us, or about this policy, write to"
   },
   "contact": {
     "contact": "Contact",
@@ -183,7 +196,19 @@
     "thereIsNoContact": "There is no contact form, because a form would mean collecting your details on a site whose whole point is that it collects almost nothing.",
     "whatHelps": "What helps",
     "whatThisIsNot": "What this is not",
-    "humanaverageCannotAnswerMedical": "HumanAverage cannot answer medical, psychological or personal health questions, and nothing here is a diagnosis. If a measurement worries you, that is a conversation for a doctor, who can see everything a country-level statistic cannot."
+    "humanaverageCannotAnswerMedical": "HumanAverage cannot answer medical, psychological or personal health questions, and nothing here is a diagnosis. If a measurement worries you, that is a conversation for a doctor, who can see everything a country-level statistic cannot.",
+    "aboutASpecificResult": "About a specific result:",
+    "specificResultBody": "the page, the country you chose, the value you entered and the answer you got back. That is enough to reproduce it exactly.",
+    "aboutAWrongFigure": "About a figure you think is wrong:",
+    "wrongFigureBody": "which number, and what you believe it should be. A source makes it far quicker to check — and if you are right, it gets corrected.",
+    "aboutSomethingBroken": "About something not working:",
+    "brokenBody": "your device, browser and what you did just before it broke.",
+    "suggestingADataset": "Suggesting a dataset:",
+    "datasetBody": "a link to the data itself, not to an article about it. What works best is a series an agency publishes per country and keeps updating.",
+    "backgroundOn": "Background on who runs this and how it is funded is on the",
+    "aboutPageLink": "about page",
+    "howNumbersProduced": ". How the numbers are produced is on the",
+    "methodPageLink": "method page"
   },
   "notes": {
     "notes": "Notes",

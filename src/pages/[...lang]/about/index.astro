@@ -85,21 +85,11 @@ const url = pageUrl('/about/', lang, Astro.site);
       <p>
         {t.searchForAEuropean}
       </p>
-      <p>
-        Answering that takes the figure for every country rather than the one for the whole, the
-        honesty to say which side of it you fall on rather than inventing a precision the source
-        does not support, and a check that the numbers survived the trip from the agency to the
-        page. That is what this site does, and the <a href={linkTo('/method/', lang)}>method page</a> shows
-        exactly how.
-      </p>
+      <p>{' '}{t.answeringTakes}{' '}<a href={linkTo('/method/', lang)}>{t.methodPageLink}</a>{' '}{t.showsExactlyHow}{' '}</p>
 
       <h2>{t.whoMakesItAnd}</h2>
       <p>
-        <strong>This site is independent.</strong> I am not part of any government, statistical
-        agency, university or institution, nobody commissions or reviews what goes on it, and I
-        have no relationship with the agencies whose figures I use — Eurostat, the OECD and the
-        European Central Bank — beyond downloading what they publish for anyone.
-      </p>
+        <strong>{t.siteIsIndependent}</strong>{' '}{t.notPartOfAny}{' '}</p>
       <p>
         {t.thereIsNoAnonymous}
       </p>
@@ -120,12 +110,7 @@ const url = pageUrl('/about/', lang, Astro.site);
       </p>
 
       <h2>{t.corrections}</h2>
-      <p>
-        If you can show that something here is wrong, that is genuinely useful and it will be
-        fixed. Email <a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>. For a
-        question about a specific result, mentioning which page you were on, the country you
-        picked and the figure you entered helps.
-      </p>
+      <p>{' '}{t.ifYouCanShow}{' '}<a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>{t.forAQuestion}{' '}</p>
 
       <div class="limits">
         <p>
