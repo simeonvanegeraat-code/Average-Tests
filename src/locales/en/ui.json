@@ -45,7 +45,8 @@
     "europeanUnion": "European Union",
     "men": "Men",
     "women": "Women",
-    "menWomen": "Men − women"
+    "menWomen": "Men − women",
+    "latestFigureOlder": "Latest figure is older than"
   },
   "rankTable": {
     "everyCountrySortableTable": "Every country, sortable table"

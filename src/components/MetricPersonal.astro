@@ -1,0 +1,138 @@
+---
+/**
+ * De persoonlijke laag van een metriekpagina: het antwoordvak, zijn bedrading en zijn
+ * vormgeving.
+ *
+ * WAAROM DIT BESTAAT
+ *
+ * Dit script van 71 regels stond acht keer gekopieerd in acht paginabestanden, elk met
+ * dezelfde `render()` van 23 regels en alleen een andere metrieksleutel en andere zinnen.
+ * Zolang er één pagina per metriek was viel dat nog mee. Sinds 3 november bestaat elke
+ * pagina per taal, en dan zou het zestien keer staan — zestien versies van hetzelfde
+ * gedrag die uiteen kunnen lopen.
+ *
+ * De zinnen staan in `src/locales/<taal>/copy/metric-personal.js`, per metriek. Alles
+ * hier is gedrag.
+ *
+ * DE TAAL KOMT UIT HET JSON-BLOK
+ *
+ * Niet uit `<html lang>`, hoewel dat ook zou kunnen. De pagina stuurt haar configuratie
+ * toch al mee in een `<script type="application/json">`, en sinds fase 2 draagt die zijn
+ * `locale` — dus server en client lezen dezelfde taal uit dezelfde bron. Dat is de regel
+ * die `format.js` uitlegt, en die hier gevolgd wordt.
+ */
+interface Props {
+  /** De sleutel van de metriek, zoals in src/lib/metrics/. */
+  metric: string;
+}
+
+const { metric } = Astro.props;
+---
+
+<output class="result" data-metric-result data-metric-key={metric} role="status" hidden></output>
+
+<script>
+  import { readProfile, mergeProfile } from '../lib/profile.js';
+  import { formatAmount, formatValue } from '../lib/metric.js';
+  import { grammarOf } from '../lib/grammar.js';
+  import { track, EVENTS } from '../lib/analytics.js';
+  import enCopy from '../locales/en/copy/metric-personal.js';
+  import nlCopy from '../locales/nl/copy/metric-personal.js';
+
+  const COPY: Record<string, any> = { en: enCopy, nl: nlCopy };
+
+  const holder = document.getElementById('metric-data');
+  const result = document.querySelector<HTMLElement>('[data-metric-result]');
+  const KEY = result?.dataset.metricKey ?? '';
+
+  if (holder && result && KEY) {
+    const data = JSON.parse(holder.textContent ?? '{}');
+    const lang = typeof data.locale === 'string' ? data.locale : 'en';
+    const cfg = { decimals: data.decimals, unit: data.unit, unitOne: data.unitOne, locale: lang };
+    const g = grammarOf(lang);
+    const copy = (COPY[lang] ?? COPY.en)[KEY] ?? COPY.en[KEY];
+    const send = (name: string, detail: object) =>
+      document.dispatchEvent(new CustomEvent(name, { detail }));
+
+    function render(code: string, own: number) {
+      const home = data.countries.find((country: any) => country.code === code);
+      const above = data.countries.filter((country: any) => own > country.total).length;
+      const of = data.countries.length;
+      const lines: string[] = [];
+
+      if (home) {
+        const diff = own - home.total;
+        lines.push(
+          Math.abs(diff) < 0.05
+            ? copy.exact({ own, name: home.name, g, words: data.words })
+            : copy.off({
+                own,
+                name: home.name,
+                amount: formatAmount(Math.abs(diff), cfg),
+                higher: diff > 0,
+                value: formatValue(home.total, cfg),
+                g,
+                words: data.words,
+              }),
+        );
+      }
+
+      lines.push(
+        above === of
+          ? copy.allAbove({ of, g, words: data.words })
+          : above === 0
+            ? copy.allBelow({ of, g, words: data.words })
+            : copy.some({ above, of, g, words: data.words }),
+      );
+
+      result.textContent = lines.join(' ');
+      result.hidden = false;
+    }
+
+    document.addEventListener('ha:country', (event) => {
+      const { code, source } = (event as CustomEvent<any>).detail ?? {};
+      if (!code || source === 'restore') return;
+      mergeProfile({ country: code });
+    });
+
+    document.addEventListener('ha:submit', (event) => {
+      const { code, age, source } = (event as CustomEvent<any>).detail ?? {};
+      if (!code || !Number.isFinite(age)) return;
+      render(code, age);
+      if (source === 'restore') return;
+      mergeProfile({ country: code, [KEY]: age });
+      track(EVENTS.valueSubmitted, { metric: KEY, country: code });
+    });
+
+    function restore() {
+      const saved = readProfile();
+      const code = typeof saved.country === 'string' ? saved.country : null;
+      if (!code) return;
+      send('ha:country', { code, source: 'restore' });
+      const own = Number(saved[KEY]);
+      if (Number.isFinite(own)) send('ha:submit', { code, age: own, source: 'restore' });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', restore, { once: true });
+    } else {
+      restore();
+    }
+  }
+
+  for (const link of document.querySelectorAll('[data-method-link]')) {
+    link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: KEY }));
+  }
+</script>
+
+<style>
+  .result {
+    display: block;
+    margin-top: 18px;
+    padding: 18px 22px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line-strong);
+    font-size: 1.04rem;
+    line-height: 1.6;
+  }
+</style>

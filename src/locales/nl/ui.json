@@ -45,7 +45,8 @@
     "europeanUnion": "Europese Unie",
     "men": "Mannen",
     "women": "Vrouwen",
-    "menWomen": "Mannen − vrouwen"
+    "menWomen": "Mannen − vrouwen",
+    "latestFigureOlder": "Nieuwste cijfer is ouder dan"
   },
   "rankTable": {
     "everyCountrySortableTable": "Elk land, sorteerbare tabel"
