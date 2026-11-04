@@ -216,7 +216,11 @@
     "theMetricPagesAnswer": "De metriekpagina's beantwoorden elk één vraag. Dit zijn de stukken die daar niet op passen: waar een dataset breekt, waar een definitie niet klopt met zijn eigen titel, en wat dat verandert aan het antwoord.",
     "theRule": "De regel",
     "whenSomethingGetsWritten": "Wanneer hier iets geschreven wordt",
-    "aPieceAppearsHere": "Een stuk komt hier wanneer een dataset iets doet dat zijn eigen pagina niet helemaal kan dragen. De metriekpagina's hebben ruimte voor een methodesectie, niet voor een betoog. Als het betoog het interessante deel is, verhuist het hierheen."
+    "aPieceAppearsHere": "Een stuk komt hier wanneer een dataset iets doet dat zijn eigen pagina niet helemaal kan dragen. De metriekpagina's hebben ruimte voor een methodesectie, niet voor een betoog. Als het betoog het interessante deel is, verhuist het hierheen.",
+    "whatDoesNotAppear": "Wat hier niet komt: alles wat de data niet kan dragen. Geen samenvattingen van wat anderen schreven, geen voorspellingen, en geen zin met een getal erin dat met de hand is ingetypt. Elk cijfer in elk stuk wordt tijdens de build berekend uit dezelfde bestanden die de metriekpagina's gebruiken, zodat een stuk niet stil kan verouderen als een bron opnieuw publiceert.",
+    "theMethodPage": "De methodepagina",
+    "listsThoseFiles": "noemt die bestanden per dataset.",
+    "ofTheDatasets": "Van de {datasets} datasets achter deze site dragen {broken} een reeksbreuk waar de code niet over heen wil rekenen. Dat is het soort ding dat een stuk waard is: op de grafiek is er niets van te zien, het draait een conclusie om, en bijna niemand controleert erop."
   },
   "home": {
     "eyebrow": "Eurostat · OESO · ECB · {count} vragen",
