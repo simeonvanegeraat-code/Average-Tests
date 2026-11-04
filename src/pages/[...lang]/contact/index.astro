@@ -42,23 +42,13 @@ export function getStaticPaths() {
       <h2>{t.whatHelps}</h2>
       <ul>
         <li>
-          <strong>About a specific result:</strong> the page, the country you chose, the value
-          you entered and the answer you got back. That is enough to reproduce it exactly.
-        </li>
+          <strong>{t.aboutASpecificResult}</strong>{' '}{t.specificResultBody}{' '}</li>
         <li>
-          <strong>About a figure you think is wrong:</strong> which number, and what you believe
-          it should be. A source makes it far quicker to check — and if you are right, it gets
-          corrected.
-        </li>
+          <strong>{t.aboutAWrongFigure}</strong>{' '}{t.wrongFigureBody}{' '}</li>
         <li>
-          <strong>About something not working:</strong> your device, browser and what you did
-          just before it broke.
-        </li>
+          <strong>{t.aboutSomethingBroken}</strong>{' '}{t.brokenBody}{' '}</li>
         <li>
-          <strong>Suggesting a dataset:</strong> a link to the data itself, not to an article
-          about it. What works best is a series an agency publishes per country and keeps
-          updating.
-        </li>
+          <strong>{t.suggestingADataset}</strong>{' '}{t.datasetBody}{' '}</li>
       </ul>
 
       <h2>{t.whatThisIsNot}</h2>
@@ -68,10 +58,7 @@ export function getStaticPaths() {
         </p>
       </div>
 
-      <p>
-        Background on who runs this and how it is funded is on the
-        <a href={linkTo('/about/', lang)}>about page</a>. How the numbers are produced is on the
-        <a href={linkTo('/method/', lang)}>method page</a>.
+      <p>{' '}{t.backgroundOn}{' '}<a href={linkTo('/about/', lang)}>{t.aboutPageLink}</a>{t.howNumbersProduced}{' '}<a href={linkTo('/method/', lang)}>{t.methodPageLink}</a>.
       </p>
     </div>
   </section>

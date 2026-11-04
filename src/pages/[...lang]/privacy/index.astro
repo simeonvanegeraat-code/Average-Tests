@@ -52,12 +52,7 @@ export function getStaticPaths() {
 
       <div class="limits">
         <p>
-          <strong>Sharing a result.</strong> Where a page offers to copy your result, what lands
-          on your clipboard is a short piece of text: your own figure, the published figure it was
-          compared against, and the address of the page. No link carries your values in the web
-          address, and nothing is sent anywhere — the copy happens in your browser and stops there.
-          What you then paste, and to whom, is yours to decide.
-        </p>
+          <strong>{t.sharingAResult}</strong>{' '}{t.whereAPageOffers}{' '}</p>
       </div>
 
       <h2>{t.analyticsAndCookies}</h2>
@@ -69,11 +64,7 @@ export function getStaticPaths() {
       </p>
 
       <h2>{t.technicallyNecessaryData}</h2>
-      <p>
-        As with virtually any website, the hosting provider processes technical request data:
-        an IP address, the time, the page requested, browser information and errors. This is
-        necessary to deliver the site securely. HumanAverage is hosted by
-        <a href="https://vercel.com/legal/privacy-policy" rel="noopener">Vercel</a>.
+      <p>{' '}{t.asWithVirtually}{' '}<a href="https://vercel.com/legal/privacy-policy" rel="noopener">Vercel</a>.
       </p>
       <p>
         {t.weDoAlsoUse}
@@ -85,20 +76,10 @@ export function getStaticPaths() {
       </p>
 
       <h2>{t.email}</h2>
-      <p>
-        If you email <a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a> we
-        receive your address, your message and anything else you choose to include, and use it
-        only to handle your question. Email is processed through Gmail, so Google's privacy
-        policy also applies. Please do not send passwords, medical records or other sensitive
-        information.
-      </p>
+      <p>{' '}{t.ifYouEmail}{' '}<a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>{' '}{t.weReceiveYour}{' '}</p>
 
       <h2>{t.yourRights}</h2>
-      <p>
-        Because we never receive your measurements, we cannot show you, correct or delete them —
-        there is nothing on our side to act on. For questions about other data, about deleting
-        an email you sent us, or about this policy, write to
-        <a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>.
+      <p>{' '}{t.becauseWeNever}{' '}<a href="mailto:firenature23@gmail.com">firenature23@gmail.com</a>.
       </p>
     </div>
   </section>
