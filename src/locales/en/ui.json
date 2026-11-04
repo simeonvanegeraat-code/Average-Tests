@@ -243,5 +243,30 @@
   },
   "metricLabels": {
     "wealth": "Wealth"
+  },
+  "metricPage": {
+    "method": "Method",
+    "howMeasured": "How this is measured",
+    "publishedByEurostat": "Published by Eurostat. Nothing here is estimated on top of what they publish.",
+    "whatTheFigureIs": "What the figure is",
+    "whatItIsNot": "What it is not",
+    "coverage": "Coverage",
+    "seriesBreaks": "Series breaks",
+    "dataset": "Dataset",
+    "series": "Series",
+    "lastUpdated": "Last updated by Eurostat",
+    "retrieved": "Retrieved",
+    "doi": "DOI",
+    "eurostatMetadata": "Eurostat metadata",
+    "explanatoryTexts": "explanatory texts",
+    "licence": "Licence: Eurostat data may be reused, including commercially, with attribution. How we handle data is on",
+    "theMethodPage": "the method page",
+    "europeanUnion": "European Union",
+    "eurostat": "Eurostat",
+    "everyCountry": "Every country",
+    "whatTheNumbersSay": "What the numbers say",
+    "yourTurn": "Your turn",
+    "compareYourself": "Compare yourself",
+    "nothingLeavesBrowser": "Nothing you type leaves your browser."
   }
 }

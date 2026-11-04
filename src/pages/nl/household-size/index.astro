@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localeOf, linkTo } from '../../../lib/locales.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
 import Related from '../../../components/Related.astro';
@@ -24,6 +25,8 @@ import { householdSizePage } from '../../../lib/pages/household-size.js';
  * Geen enkel cijfer staat hier met de hand, net als in de Engelse versie.
  */
 const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
 const { index, metric, h, movement, stale, euValue, ratio, small5, large5, bigOnes, fmt, clientJson } =
   householdSizePage(lang);
 
@@ -146,11 +149,11 @@ const description = `Het gemiddelde Europese huishouden telt ${euValue} personen
         </dl>
 
         <ul class="source-list">
-          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
           <li><strong>Reeks</strong> {index.years[0]} tot {index.years[index.years.length - 1]}</li>
           <li><strong>Laatst bijgewerkt door Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
           <li><strong>Opgehaald</strong> {index.source.fetchedOn.slice(0, 10)}</li>
-          <li><strong>DOI</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          <li><strong>{shared.doi}</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
           {index.source.metadata && (<li><strong>Metadata van Eurostat</strong><a href={index.source.metadata} data-method-link>toelichtende teksten</a></li>)}
         </ul>
 

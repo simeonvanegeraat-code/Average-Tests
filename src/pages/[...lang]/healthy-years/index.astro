@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import { decimal } from '../../../lib/format.js';
@@ -19,6 +20,8 @@ import { localiseMetric } from '../../../lib/metric-names.js';
  * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
  */
 const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
 const index = localise(rawIndex, lang);
 const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
 import {
@@ -83,11 +86,11 @@ export function getStaticPaths() {
       <p class="eyebrow mono">Eurostat · {h.countries} countries · {h.year}</p>
       <h1 data-reveal>Living longer and living well are not the same map.</h1>
       <span class="giant num">{euValue}</span>
-      <p class="unit mono">healthy years at birth · <b>European Union</b> · {h.year}</p>
+      <p class="unit mono">healthy years at birth · <b>{shared.europeanUnion}</b> · {h.year}</p>
       <p class="lead">A newborn in {withArticle(h.latest.name)} can expect {fmt(h.latest.total)} years free of any limiting health problem. In {withArticle(h.earliest.name)} it is {fmt(h.earliest.total)}. That is {amt(h.gap)} of difference inside one continent.</p>
       <div class="hero-cta">
-        <a class="btn" href="#compare">Compare yourself <span class="arr" aria-hidden="true">→</span></a>
-        <span class="hint">Nothing you type leaves your browser.</span>
+        <a class="btn" href="#compare">{shared.compareYourself}{' '}<span class="arr" aria-hidden="true">→</span></a>
+        <span class="hint">{shared.nothingLeavesBrowser}</span>
       </div>
       <p class="hero-note">This is not life expectancy. It counts only the years expected without a long-standing limitation in daily activity, so a country can add years of life without adding healthy ones. Several of the richest countries here sit below several of the poorest.</p>
     </div>
@@ -98,7 +101,7 @@ export function getStaticPaths() {
   <section class="block" id="compare" aria-labelledby="compare-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Your turn</p>
+        <p class="eyebrow mono">{shared.yourTurn}</p>
         <h2 id="compare-title">How many healthy years are left?</h2>
         <p>Enter your age and we will place it against what each country expects at birth.</p>
       </header>
@@ -116,7 +119,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="table-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Every country</p>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
         <h2 id="table-title">All {index.countries.length} countries, fewest to most</h2>
         <p>Sort by any column. The gap column is men minus women, so a positive number means men expect more healthy years.</p>
       </header>
@@ -127,7 +130,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="facts-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What the numbers say</p>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
         <h2 id="facts-title">The gap between the sexes almost closes here</h2>
       </header>
       <div data-reveal>
@@ -161,16 +164,16 @@ export function getStaticPaths() {
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">
       <header class="sec-head" data-reveal style="margin: 0">
-        <p class="eyebrow mono">Method</p>
-        <h2 id="method-title">How this is measured</h2>
-        <p>Published by Eurostat. Nothing here is estimated on top of what they publish.</p>
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
       </header>
       <div data-reveal>
         <dl>
-          <div><dt>What the figure is</dt><dd>The number of years a newborn can expect to live without a long-standing limitation in daily activity, combining life tables with the self-reported limitation question in EU-SILC.</dd></div>
-          <div><dt>What it is not</dt><dd>It is not life expectancy, not a measure of illness, and not a distribution. One number per country means no percentile is possible — only which side of it you fall on.</dd></div>
+          <div><dt>{shared.whatTheFigureIs}</dt><dd>The number of years a newborn can expect to live without a long-standing limitation in daily activity, combining life tables with the self-reported limitation question in EU-SILC.</dd></div>
+          <div><dt>{shared.whatItIsNot}</dt><dd>It is not life expectancy, not a measure of illness, and not a distribution. One number per country means no percentile is possible — only which side of it you fall on.</dd></div>
           <div>
-            <dt>Coverage</dt>
+            <dt>{shared.coverage}</dt>
             <dd>
               {h.countries} countries have a figure for {h.year}.
               {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} stopped reporting earlier and are shown at their most recent year, hatched on the map and labelled in the table.</>)}
@@ -178,7 +181,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>Series breaks</dt>
+            <dt>{shared.seriesBreaks}</dt>
             <dd>
               {movement
                 ? `None inside the window used here, ${movement.since} to ${movement.until}.`
@@ -188,17 +191,15 @@ export function getStaticPaths() {
         </dl>
 
         <ul class="source-list">
-          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
-          <li><strong>Series</strong> {index.years[0]} to {index.years[index.years.length - 1]}</li>
-          <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
-          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
-          <li><strong>DOI</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
-          {index.source.metadata && (<li><strong>Eurostat metadata</strong><a href={index.source.metadata} data-method-link>explanatory texts</a></li>)}
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.series}</strong> {index.years[0]} to {index.years[index.years.length - 1]}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.doi}</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          {index.source.metadata && (<li><strong>{shared.eurostatMetadata}</strong><a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a></li>)}
         </ul>
 
-        <p class="source-note">
-          Licence: Eurostat data may be reused, including commercially, with attribution. How we handle
-          data is on <a href={linkTo('/method/', lang)}>the method page</a>.
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
         </p>
       </div>
     </div>
