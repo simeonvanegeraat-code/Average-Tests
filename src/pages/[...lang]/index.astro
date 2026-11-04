@@ -69,11 +69,8 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
     .filter(Boolean)
     .join(';');
 
-const title = 'HumanAverage — European Figures, and Where You Fall';
-const description =
-  `${METRIC_COUNT} questions about how Europeans live, each answered for every country ` +
-  `from figures published by Eurostat, the OECD and the ECB. Pick your country and see ` +
-  `all ${METRIC_COUNT} at once, on a map, with every country listed.`;
+const title = t.pageTitle;
+const description = fill(t.pageDescription, { count: METRIC_COUNT });
 /** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
 export function getStaticPaths() {
   return localePaths();
@@ -155,7 +152,7 @@ export function getStaticPaths() {
       <header class="sec-head" data-reveal>
         <p class="eyebrow mono">{t.whatIsHere}</p>
         <h2 id="metrics-title">
-          <span data-pick-heading>{METRIC_COUNT} questions, answered for every country</span>
+          <span data-pick-heading>{fill(t.pickHeading, { count: METRIC_COUNT })}</span>
         </h2>
         <p>
           {t.eachOneIsA}
@@ -187,8 +184,8 @@ export function getStaticPaths() {
         }
 
         <a class="cat-card cat-method" href={linkTo('/method/', lang)} style={`--i:${CATALOGUE.length}`}>
-          <span class="cue">How we read it</span>
-          <span class="name">Sources, and the breaks we refuse to cross</span>
+          <span class="cue">{t.howWeReadIt}</span>
+          <span class="name">{t.sourcesAndBreaks}</span>
           <span class="go" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h13M12 5l7 7-7 7"></path>
@@ -236,10 +233,8 @@ export function getStaticPaths() {
         <p class="eyebrow mono">{t.whatThisIsNot}</p>
         <h2 id="honest-title">{t.anAverageIsA}</h2>
         <p>
-          Where a source publishes one figure per country — which is almost always — a page
-          tells you which side of it you are on, and says so plainly instead of dressing it up
-          as a percentile. <a href={linkTo('/method/', lang)}>The method page</a> has the whole argument, per
-          dataset.
+          {t.honestLead}{' '}
+          <a href={linkTo('/method/', lang)}>{t.methodPageLink}</a>{' '}{t.honestTail}
         </p>
       </header>
     </div>
