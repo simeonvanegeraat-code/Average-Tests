@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
@@ -20,6 +21,8 @@ import { citation, exitAge, exitAgeRows } from '../../../lib/exit-age.js';
  * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
  */
 const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
 const index = localise(rawIndex, lang);
 const exitIndex = localise(rawExitIndex, lang);
 const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
@@ -95,11 +98,11 @@ export function getStaticPaths() {
       <p class="eyebrow mono">Eurostat · {h.countries} countries · {h.year}</p>
       <h1 data-reveal>On average a pension starts {amt(h.gap)} earlier in {withArticle(h.earliest.name)} than in {withArticle(h.latest.name)}.</h1>
       <span class="giant num">{euValue}</span>
-      <p class="unit mono">age an old-age pension began · <b>European Union</b> · {h.year}</p>
+      <p class="unit mono">age an old-age pension began · <b>{shared.europeanUnion}</b> · {h.year}</p>
       <p class="lead">In {withArticle(h.earliest.name)} people started drawing one at {fmt(h.earliest.total)}, in {withArticle(h.latest.name)} at {fmt(h.latest.total)} — {amt(h.gap)} apart. The European figure sits at {euValue}.</p>
       <div class="hero-cta">
-        <a class="btn" href="#compare">Compare yourself <span class="arr" aria-hidden="true">→</span></a>
-        <span class="hint">Nothing you type leaves your browser.</span>
+        <a class="btn" href="#compare">{shared.compareYourself}{' '}<span class="arr" aria-hidden="true">→</span></a>
+        <span class="hint">{shared.nothingLeavesBrowser}</span>
       </div>
       <p class="hero-note"><b>This is not the statutory pension age.</b> Eurostat asked people who receive an old-age pension how old they were when it started, so the figure looks back over decades of different rules rather than describing today's. A country that has raised its legal age will show that only as those cohorts retire.</p>
     </div>
@@ -110,7 +113,7 @@ export function getStaticPaths() {
   <section class="block" id="compare" aria-labelledby="compare-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Your turn</p>
+        <p class="eyebrow mono">{shared.yourTurn}</p>
         <h2 id="compare-title">When did yours start?</h2>
         <p>Enter the age your old-age pension began, or the age you expect it to.</p>
       </header>
@@ -128,7 +131,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="table-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Every country</p>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
         <h2 id="table-title">All {index.countries.length} countries, earliest to latest</h2>
         <p>Sort by any column. Men and women are published separately and both are here.</p>
       </header>
@@ -139,7 +142,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="facts-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What the numbers say</p>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
         <h2 id="facts-title">The gap between men and women runs both ways</h2>
       </header>
       <div data-reveal>
@@ -339,17 +342,17 @@ export function getStaticPaths() {
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">
       <header class="sec-head" data-reveal style="margin: 0">
-        <p class="eyebrow mono">Method</p>
-        <h2 id="method-title">How this is measured</h2>
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
         <p>Two publishers, two questions. Nothing here is estimated on top of what they publish.</p>
       </header>
       <div data-reveal>
         <dl>
           <div><dt>What the figure at the top is</dt><dd>The average age at which a person started receiving an old-age pension, from a one-off module of the EU Labour Force Survey run in {h.year}. It is reported by the people drawing the pension, which is why it describes the past rather than current law. Eurostat also publishes a median; this page uses the mean.</dd></div>
-          <div><dt>What it is not</dt><dd>Not the statutory or legal pension age, not the earliest age at which a pension can be claimed, and not the age at which people stop working — that last one is the OECD figure further up this page. It is also not a distribution: one number per country, so there is no percentile to be had, only which side of the average you fall on.</dd></div>
+          <div><dt>{shared.whatItIsNot}</dt><dd>Not the statutory or legal pension age, not the earliest age at which a pension can be claimed, and not the age at which people stop working — that last one is the OECD figure further up this page. It is also not a distribution: one number per country, so there is no percentile to be had, only which side of the average you fall on.</dd></div>
           <div><dt>What the OECD figure is</dt><dd>The effective labour market exit age, from the OECD's {exitIndex.source.name} database. The OECD derives it from the share of each age group that is in work, so it describes this year's labour market rather than individual histories, and it exists for men and for women only — never for both together.</dd></div>
           <div>
-            <dt>Coverage</dt>
+            <dt>{shared.coverage}</dt>
             <dd>
               {h.countries} countries have a pension-start figure for {h.year}.
               {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} are shown at their most recent year.</>)}
@@ -359,7 +362,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>Series breaks</dt>
+            <dt>{shared.seriesBreaks}</dt>
             <dd>
               Eurostat flags none here, because a single year cannot break. The OECD flags none either:
               every observation it publishes for this measure carries the status "normal value", which is
@@ -370,11 +373,11 @@ export function getStaticPaths() {
         </dl>
 
         <ul class="source-list">
-          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
-          <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
-          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
-          <li><strong>DOI</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
-          {index.source.metadata && (<li><strong>Eurostat metadata</strong><a href={index.source.metadata} data-method-link>explanatory texts</a></li>)}
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.doi}</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          {index.source.metadata && (<li><strong>{shared.eurostatMetadata}</strong><a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a></li>)}
           <li><strong>Second dataset</strong> OECD <code>{exitIndex.source.dataset}</code>, measure <code>{exitIndex.source.measure}</code> — {exitIndex.source.label}</li>
           <li><strong>OECD series</strong> {exit.from} to {exit.until}, retrieved {exitIndex.source.fetchedOn.slice(0, 10)}</li>
           <li>
@@ -388,7 +391,7 @@ export function getStaticPaths() {
           allow the same — "even for commercial use" — on condition that the citation above is given; that
           is why it is printed here and not only in our notes.
           {cite.terms && (<> <a href={cite.terms} data-method-link>The OECD terms are here</a>.</>)}
-          {' '}How we handle data is on <a href={linkTo('/method/', lang)}>the method page</a>.
+          {' '}How we handle data is on <a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
         </p>
       </div>
     </div>

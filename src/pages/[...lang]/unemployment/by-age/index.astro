@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../../lib/ui.js';
 import { localeOf, localePaths, linkTo } from '../../../../lib/locales.js';
 import { localise } from '../../../../lib/country-names.js';
 import { decimal } from '../../../../lib/format.js';
@@ -21,6 +22,8 @@ import { formatAmount, formatValue, withArticle } from '../../../../lib/metric.j
  * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
  */
 const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
 const youthIndex = localise(rawYouthIndex, lang);
 const olderIndex = localise(rawOlderIndex, lang);
 const totalIndex = localise(rawTotalIndex, lang);
@@ -105,7 +108,7 @@ export function getStaticPaths() {
 
       <span class="giant num">{times(eu?.ratio ?? null)}</span>
       <p class="unit mono">
-        the under-25 rate against the 25-to-74 rate · <b>European Union</b> ·
+        the under-25 rate against the 25-to-74 rate · <b>{shared.europeanUnion}</b> ·
         {' '}{periodLabel(eu?.period ?? anchor, { locale: lang })}
       </p>
 
@@ -222,7 +225,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="facts-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What the numbers say</p>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
         <h2 id="facts-title">The same country, two different places</h2>
       </header>
 
@@ -328,9 +331,9 @@ export function getStaticPaths() {
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">
       <header class="sec-head" data-reveal style="margin: 0">
-        <p class="eyebrow mono">Method</p>
-        <h2 id="method-title">How this is measured</h2>
-        <p>Published by Eurostat. Nothing here is estimated on top of what they publish.</p>
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
       </header>
 
       <div data-reveal>
@@ -346,7 +349,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>What it is not</dt>
+            <dt>{shared.whatItIsNot}</dt>
             <dd>
               It is not the share of young people who are out of work. The denominator is the
               labour force, and most under-25s are in education and outside it. Eurostat publishes
@@ -367,33 +370,31 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>Series breaks</dt>
+            <dt>{shared.seriesBreaks}</dt>
             <dd>
               The two age groups do not carry the same flags: the under-25 series has one that the
               others do not. Nothing on this page is measured across a break — every statement here
               is about a single month — and the comparable window for each age group is worked out
               on its own series rather than shared, which is why{' '}
-              <a href={linkTo('/method/', lang)}>the method page</a> carries the under-25 series as an entry of its
+              <a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a> carries the under-25 series as an entry of its
               own, separate from the overall one.
             </dd>
           </div>
         </dl>
 
         <ul class="source-list">
-          <li><strong>Dataset</strong> Eurostat <code>{youthIndex.source.dataset}</code>, {youthIndex.source.label}</li>
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{youthIndex.source.dataset}</code>, {youthIndex.source.label}</li>
           <li><strong>Breakdown</strong> seasonally adjusted, percentage of the labour force, under 25 and 25 to 74</li>
-          <li><strong>Series</strong> {periodLabel(youthIndex.years[0], { locale: lang })} to {periodLabel(youthIndex.years[youthIndex.years.length - 1], { locale: lang })}</li>
-          <li><strong>Last updated by Eurostat</strong> {youthIndex.source.eurostatUpdated.slice(0, 10)}</li>
-          <li><strong>Retrieved</strong> {youthIndex.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.series}</strong> {periodLabel(youthIndex.years[0], { locale: lang })} to {periodLabel(youthIndex.years[youthIndex.years.length - 1], { locale: lang })}</li>
+          <li><strong>{shared.lastUpdated}</strong> {youthIndex.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {youthIndex.source.fetchedOn.slice(0, 10)}</li>
           <li>
-            <strong>DOI</strong>
+            <strong>{shared.doi}</strong>
             <a href={`https://doi.org/${youthIndex.source.doi}`} data-method-link>{youthIndex.source.doi}</a>
           </li>
         </ul>
 
-        <p class="source-note">
-          Licence: Eurostat data may be reused, including commercially, with attribution. How we
-          handle data is on <a href={linkTo('/method/', lang)}>the method page</a>.
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
         </p>
       </div>
     </div>

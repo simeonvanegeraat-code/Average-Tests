@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../lib/ui.js';
 import { localeOf, linkTo } from '../../lib/locales.js';
 import BaseV2 from '../../layouts/BaseV2.astro';
 import Related from '../../components/Related.astro';
@@ -22,6 +23,8 @@ import { householdSizePage } from '../../lib/pages/household-size.js';
  * bedrading zit in MetricPersonal. Geen cijfer staat hier met de hand ingetypt.
  */
 const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
 const { index, metric, h, movement, stale, euValue, ratio, small5, large5, bigOnes, fmt, clientJson } =
   householdSizePage(lang);
 
@@ -35,11 +38,11 @@ const description = `The average European household holds ${euValue} people — 
       <p class="eyebrow mono">Eurostat · {h.countries} countries · {h.year}</p>
       <h1 data-reveal>The largest households in Europe hold nearly twice as many people as the smallest.</h1>
       <span class="giant num">{euValue}</span>
-      <p class="unit mono">people per household · <b>European Union</b> · {h.year}</p>
+      <p class="unit mono">people per household · <b>{shared.europeanUnion}</b> · {h.year}</p>
       <p class="lead">In {withArticle(h.earliest.name)} the average household is {fmt(h.earliest.total)} people. In {withArticle(h.latest.name)} it is {fmt(h.latest.total)}. Not a gap of a few percent — one is {ratio} times the other.</p>
       <div class="hero-cta">
-        <a class="btn" href="#compare">Compare yourself <span class="arr" aria-hidden="true">→</span></a>
-        <span class="hint">Nothing you type leaves your browser.</span>
+        <a class="btn" href="#compare">{shared.compareYourself}{' '}<span class="arr" aria-hidden="true">→</span></a>
+        <span class="hint">{shared.nothingLeavesBrowser}</span>
       </div>
       <p class="hero-note">An average household is not a family. It counts everyone living at one address, so a country full of people living alone scores low whether they are students, divorced or widowed. The figure says how many people share a roof, and nothing about who they are to each other.</p>
     </div>
@@ -50,7 +53,7 @@ const description = `The average European household holds ${euValue} people — 
   <section class="block" id="compare" aria-labelledby="compare-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Your turn</p>
+        <p class="eyebrow mono">{shared.yourTurn}</p>
         <h2 id="compare-title">How big is your household?</h2>
         <p>Count everyone who lives at your address, including yourself.</p>
       </header>
@@ -68,7 +71,7 @@ const description = `The average European household holds ${euValue} people — 
   <section class="block" aria-labelledby="table-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Every country</p>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
         <h2 id="table-title">All {index.countries.length} countries, smallest to largest</h2>
         <p>Sort by any column. This dataset has no breakdown by sex, so those columns are empty.</p>
       </header>
@@ -79,7 +82,7 @@ const description = `The average European household holds ${euValue} people — 
   <section class="block" aria-labelledby="facts-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What the numbers say</p>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
         <h2 id="facts-title">A line runs from the north-west to the south-east</h2>
       </header>
       <div data-reveal>
@@ -115,16 +118,16 @@ const description = `The average European household holds ${euValue} people — 
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">
       <header class="sec-head" data-reveal style="margin: 0">
-        <p class="eyebrow mono">Method</p>
-        <h2 id="method-title">How this is measured</h2>
-        <p>Published by Eurostat. Nothing here is estimated on top of what they publish.</p>
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
       </header>
       <div data-reveal>
         <dl>
-          <div><dt>What the figure is</dt><dd>The average number of people living in a household, from EU-SILC, the European survey on income and living conditions. A household is everyone sharing an address and their living costs.</dd></div>
-          <div><dt>What it is not</dt><dd>It is not a family size and not a count of children. It is also not a distribution: Eurostat publishes one number per country, so there is no percentile to be had, only which side of the average you fall on.</dd></div>
+          <div><dt>{shared.whatTheFigureIs}</dt><dd>The average number of people living in a household, from EU-SILC, the European survey on income and living conditions. A household is everyone sharing an address and their living costs.</dd></div>
+          <div><dt>{shared.whatItIsNot}</dt><dd>It is not a family size and not a count of children. It is also not a distribution: Eurostat publishes one number per country, so there is no percentile to be had, only which side of the average you fall on.</dd></div>
           <div>
-            <dt>Coverage</dt>
+            <dt>{shared.coverage}</dt>
             <dd>
               {h.countries} countries have a figure for {h.year}.
               {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} stopped reporting earlier and are shown at their most recent year, hatched on the map and labelled in the table.</>)}
@@ -132,7 +135,7 @@ const description = `The average European household holds ${euValue} people — 
             </dd>
           </div>
           <div>
-            <dt>Series breaks</dt>
+            <dt>{shared.seriesBreaks}</dt>
             <dd>
               {movement
                 ? `None inside the window used here, ${movement.since} to ${movement.until}.`
@@ -142,17 +145,15 @@ const description = `The average European household holds ${euValue} people — 
         </dl>
 
         <ul class="source-list">
-          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
-          <li><strong>Series</strong> {index.years[0]} to {index.years[index.years.length - 1]}</li>
-          <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
-          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
-          <li><strong>DOI</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
-          {index.source.metadata && (<li><strong>Eurostat metadata</strong><a href={index.source.metadata} data-method-link>explanatory texts</a></li>)}
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.series}</strong> {index.years[0]} to {index.years[index.years.length - 1]}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.doi}</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          {index.source.metadata && (<li><strong>{shared.eurostatMetadata}</strong><a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a></li>)}
         </ul>
 
-        <p class="source-note">
-          Licence: Eurostat data may be reused, including commercially, with attribution. How we handle
-          data is on <a href={linkTo('/method/', lang)}>the method page</a>.
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
         </p>
       </div>
     </div>

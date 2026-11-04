@@ -243,5 +243,30 @@
   },
   "metricLabels": {
     "wealth": "Vermogen"
+  },
+  "metricPage": {
+    "method": "Methode",
+    "howMeasured": "Hoe dit gemeten is",
+    "publishedByEurostat": "Gepubliceerd door Eurostat. Er wordt hier niets bij geschat boven wat zij publiceren.",
+    "whatTheFigureIs": "Wat het cijfer is",
+    "whatItIsNot": "Wat het niet is",
+    "coverage": "Dekking",
+    "seriesBreaks": "Reeksbreuken",
+    "dataset": "Dataset",
+    "series": "Reeks",
+    "lastUpdated": "Laatst bijgewerkt door Eurostat",
+    "retrieved": "Opgehaald",
+    "doi": "DOI",
+    "eurostatMetadata": "Metadata van Eurostat",
+    "explanatoryTexts": "toelichtende teksten",
+    "licence": "Licentie: data van Eurostat mag hergebruikt worden, ook commercieel, met bronvermelding. Hoe wij met data omgaan staat op",
+    "theMethodPage": "de methodepagina",
+    "europeanUnion": "Europese Unie",
+    "eurostat": "Eurostat",
+    "everyCountry": "Elk land",
+    "whatTheNumbersSay": "Wat de cijfers zeggen",
+    "yourTurn": "Jouw beurt",
+    "compareYourself": "Vergelijk jezelf",
+    "nothingLeavesBrowser": "Niets van wat je typt verlaat je browser."
   }
 }

@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import { decimal } from '../../../lib/format.js';
@@ -22,6 +23,8 @@ import { periodLabel, periodNumber } from '../../../lib/period.js';
  * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
  */
 const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
 const index = localise(rawIndex, lang);
 const youthIndex = localise(rawYouthIndex, lang);
 const olderIndex = localise(rawOlderIndex, lang);
@@ -192,7 +195,7 @@ export function getStaticPaths() {
 
       <span class="giant num">{euValue}</span>
       <p class="unit mono">
-        % of the labour force · <b>European Union</b> · {periodLabel(h.year, { locale: lang })}
+        % of the labour force · <b>{shared.europeanUnion}</b> · {periodLabel(h.year, { locale: lang })}
       </p>
 
       <p class="lead">
@@ -229,7 +232,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="table-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Every country</p>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
         <h2 id="table-title">All {index.countries.length} countries, lowest to highest</h2>
         <p>
           Sort by any column. The gap column is men minus women, so a negative number means
@@ -250,7 +253,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="facts-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What the numbers say</p>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
         <h2 id="facts-title">A still average over moving countries</h2>
         <p>
           Everything in this section is measured inside the window where all {movement?.countries ?? h.countries}
@@ -451,15 +454,15 @@ export function getStaticPaths() {
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">
       <header class="sec-head" data-reveal style="margin: 0">
-        <p class="eyebrow mono">Method</p>
-        <h2 id="method-title">How this is measured</h2>
-        <p>Published by Eurostat. Nothing here is estimated on top of what they publish.</p>
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
       </header>
 
       <div data-reveal>
         <dl>
           <div>
-            <dt>What the figure is</dt>
+            <dt>{shared.whatTheFigureIs}</dt>
             <dd>
               The share of the labour force that is unemployed, seasonally adjusted, for one
               calendar month. Unemployed follows the ILO definition: 15 to 74 years old, not
@@ -470,7 +473,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>What it is not</dt>
+            <dt>{shared.whatItIsNot}</dt>
             <dd>
               It is not a count of people registered with a benefit agency. Eurostat says plainly
               that the two are not comparable: registration rules differ from country to country and
@@ -480,7 +483,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>Coverage</dt>
+            <dt>{shared.coverage}</dt>
             <dd>
               {h.countries} countries have a figure for {periodLabel(h.year, { locale: lang })}.
               {
@@ -525,7 +528,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>Series breaks</dt>
+            <dt>{shared.seriesBreaks}</dt>
             <dd>
               Eurostat says it adjusts the monthly series for breaks wherever it can, and on this
               dataset it mostly has: {unbroken.length} of the {current.length} countries carry no
@@ -537,28 +540,26 @@ export function getStaticPaths() {
         </dl>
 
         <ul class="source-list">
-          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
-          <li><strong>Series</strong> {periodLabel(index.years[0], { locale: lang })} to {periodLabel(index.years[index.years.length - 1], { locale: lang })}</li>
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.series}</strong> {periodLabel(index.years[0], { locale: lang })} to {periodLabel(index.years[index.years.length - 1], { locale: lang })}</li>
           <li><strong>Breakdown</strong> seasonally adjusted, all ages, percentage of the labour force</li>
-          <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
-          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
           <li>
-            <strong>DOI</strong>
+            <strong>{shared.doi}</strong>
             <a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a>
           </li>
           {
             index.source.metadata && (
               <li>
-                <strong>Eurostat metadata</strong>
-                <a href={index.source.metadata} data-method-link>explanatory texts</a>
+                <strong>{shared.eurostatMetadata}</strong>
+                <a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a>
               </li>
             )
           }
         </ul>
 
-        <p class="source-note">
-          Licence: Eurostat data may be reused, including commercially, with attribution. How we
-          handle data is on <a href={linkTo('/method/', lang)}>the method page</a>.
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
         </p>
       </div>
     </div>

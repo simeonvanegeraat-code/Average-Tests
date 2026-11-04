@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import { decimal } from '../../../lib/format.js';
@@ -22,6 +23,8 @@ import { spacePerPerson } from '../../../lib/space-per-person.js';
  * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
  */
 const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
 const index = localise(rawIndex, lang);
 const householdData = localise(rawHouseholdData, lang);
 const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
@@ -100,11 +103,11 @@ export function getStaticPaths() {
       <p class="eyebrow mono">Eurostat · {h.countries} countries · {h.year}</p>
       <h1 data-reveal>The largest homes in Europe are not where people have the most room.</h1>
       <span class="giant num">{euValue}</span>
-      <p class="unit mono">m² per home · <b>European Union</b> · {h.year}</p>
+      <p class="unit mono">m² per home · <b>{shared.europeanUnion}</b> · {h.year}</p>
       <p class="lead">A home in {withArticle(h.latest.name)} averages {fmt(h.latest.total)} m² and one in {withArticle(h.earliest.name)} {fmt(h.earliest.total)} — {ratio} times the difference. Divide by the number of people living in them and the order changes.</p>
       <div class="hero-cta">
-        <a class="btn" href="#compare">Compare yourself <span class="arr" aria-hidden="true">→</span></a>
-        <span class="hint">Nothing you type leaves your browser.</span>
+        <a class="btn" href="#compare">{shared.compareYourself}{' '}<span class="arr" aria-hidden="true">→</span></a>
+        <span class="hint">{shared.nothingLeavesBrowser}</span>
       </div>
       <p class="hero-note">This is floor space, averaged over every kind of home: owned and rented, flats and houses, every income group. It is the size of the dwelling, not the size of the plot, and not the size of newly built homes — those are younger and larger almost everywhere.</p>
     </div>
@@ -115,7 +118,7 @@ export function getStaticPaths() {
   <section class="block" id="compare" aria-labelledby="compare-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Your turn</p>
+        <p class="eyebrow mono">{shared.yourTurn}</p>
         <h2 id="compare-title">How big is your home?</h2>
         <p>Enter the floor area of your home in square metres — the whole dwelling, not one room.</p>
       </header>
@@ -133,7 +136,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="table-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Every country</p>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
         <h2 id="table-title">All {index.countries.length} countries, smallest to largest</h2>
         <p>Sort by any column. This dataset has no breakdown by sex, so those columns are empty.</p>
       </header>
@@ -222,7 +225,7 @@ export function getStaticPaths() {
                   ))}
                   {space.eu && (
                     <tr class="emphasis">
-                      <th scope="row">European Union</th>
+                      <th scope="row">{shared.europeanUnion}</th>
                       <td class="n">{fmt(space.eu.m2)}</td>
                       <td class="n">{formatValue(space.eu.people, householdMetric)}</td>
                       <td class="n strong">{fmt(space.eu.per)}</td>
@@ -240,7 +243,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="facts-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What the numbers say</p>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
         <h2 id="facts-title">Wealth explains less of this than you would think</h2>
       </header>
       <div data-reveal>
@@ -283,16 +286,16 @@ export function getStaticPaths() {
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">
       <header class="sec-head" data-reveal style="margin: 0">
-        <p class="eyebrow mono">Method</p>
-        <h2 id="method-title">How this is measured</h2>
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
         <p>Published by Eurostat. The only figure we calculate ourselves is floor space per person, and it is marked as ours.</p>
       </header>
       <div data-reveal>
         <dl>
-          <div><dt>What the figure is</dt><dd>The average useful floor area of a dwelling in square metres, from EU-SILC, the European survey on income and living conditions. Eurostat publishes it by income quintile and by tenure status; this page takes the total of both, which is the figure for all households in the country.</dd></div>
-          <div><dt>What it is not</dt><dd>It is not space per person — that calculation is further up this page and is ours, not Eurostat's. It is not the size of new homes, not a count of rooms, and not a distribution: Eurostat publishes one number per country, so there is no percentile to be had, only which side of the average you fall on.</dd></div>
+          <div><dt>{shared.whatTheFigureIs}</dt><dd>The average useful floor area of a dwelling in square metres, from EU-SILC, the European survey on income and living conditions. Eurostat publishes it by income quintile and by tenure status; this page takes the total of both, which is the figure for all households in the country.</dd></div>
+          <div><dt>{shared.whatItIsNot}</dt><dd>It is not space per person — that calculation is further up this page and is ours, not Eurostat's. It is not the size of new homes, not a count of rooms, and not a distribution: Eurostat publishes one number per country, so there is no percentile to be had, only which side of the average you fall on.</dd></div>
           <div>
-            <dt>Coverage</dt>
+            <dt>{shared.coverage}</dt>
             <dd>
               {h.countries} countries have a figure for {h.year}.
               {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} stopped reporting earlier and are shown at their most recent year, hatched on the map and labelled in the table.</>)}
@@ -300,7 +303,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>Series breaks</dt>
+            <dt>{shared.seriesBreaks}</dt>
             <dd>
               None, because there is nothing to break: {index.years.length === 1
                 ? `Eurostat has published this table for ${index.years[0]} only.`
@@ -311,18 +314,16 @@ export function getStaticPaths() {
         </dl>
 
         <ul class="source-list">
-          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
-          <li><strong>Series</strong> {index.years[0]}{index.years.length > 1 && ` to ${index.years[index.years.length - 1]}`}</li>
-          <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
-          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
-          <li><strong>DOI</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
-          {index.source.metadata && (<li><strong>Eurostat metadata</strong><a href={index.source.metadata} data-method-link>explanatory texts</a></li>)}
-          {space && (<li><strong>Household size</strong> Eurostat <code>{householdData.source.dataset}</code> at {space.year}, used only for the per-person calculation — <a href={linkTo('/household-size/', lang)}>its own page is here</a></li>)}
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.series}</strong> {index.years[0]}{index.years.length > 1 && ` to ${index.years[index.years.length - 1]}`}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.doi}</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          {index.source.metadata && (<li><strong>{shared.eurostatMetadata}</strong><a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a></li>)}
+          {space && (<li><strong>Household size</strong>{' '}{shared.eurostat}{' '}<code>{householdData.source.dataset}</code> at {space.year}, used only for the per-person calculation — <a href={linkTo('/household-size/', lang)}>its own page is here</a></li>)}
         </ul>
 
-        <p class="source-note">
-          Licence: Eurostat data may be reused, including commercially, with attribution. How we handle
-          data is on <a href={linkTo('/method/', lang)}>the method page</a>.
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
         </p>
       </div>
     </div>

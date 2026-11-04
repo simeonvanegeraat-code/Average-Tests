@@ -1,4 +1,5 @@
 ---
+import { ui } from '../../../lib/ui.js';
 import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
 import { localise } from '../../../lib/country-names.js';
 import BaseV2 from '../../../layouts/BaseV2.astro';
@@ -18,6 +19,8 @@ import { localiseMetric } from '../../../lib/metric-names.js';
  * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
  */
 const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
 const index = localise(rawIndex, lang);
 const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
 import {
@@ -90,7 +93,7 @@ export function getStaticPaths() {
 
       <span class="giant num">{euValue}</span>
       <p class="unit mono">
-        years in the labour market · <b>European Union</b> · {h.year}
+        years in the labour market · <b>{shared.europeanUnion}</b> · {h.year}
       </p>
 
       <p class="lead">
@@ -103,7 +106,7 @@ export function getStaticPaths() {
         <a class="btn" href="#compare">
           How do your years compare? <span class="arr" aria-hidden="true">→</span>
         </a>
-        <span class="hint">Nothing you type leaves your browser.</span>
+        <span class="hint">{shared.nothingLeavesBrowser}</span>
       </div>
 
       <p class="hero-note">
@@ -127,7 +130,7 @@ export function getStaticPaths() {
   <section class="block" id="compare" aria-labelledby="compare-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Your turn</p>
+        <p class="eyebrow mono">{shared.yourTurn}</p>
         <h2 id="compare-title">How many years have you worked?</h2>
         <p>
           Count the years you have been in work or looking for it. We will place that against what
@@ -155,7 +158,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="table-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">Every country</p>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
         <h2 id="table-title">All {index.countries.length} countries, shortest to longest</h2>
         <p>
           Sort by any column. The gap column is men minus women, so a positive number means men
@@ -172,7 +175,7 @@ export function getStaticPaths() {
   <section class="block" aria-labelledby="facts-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">What the numbers say</p>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
         <h2 id="facts-title">Working lives got longer almost everywhere</h2>
       </header>
 
@@ -272,15 +275,15 @@ export function getStaticPaths() {
   <section class="block" id="method" aria-labelledby="method-title">
     <div class="wrap method-grid">
       <header class="sec-head" data-reveal style="margin: 0">
-        <p class="eyebrow mono">Method</p>
-        <h2 id="method-title">How this is measured</h2>
-        <p>Published by Eurostat. Nothing here is estimated on top of what they publish.</p>
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
       </header>
 
       <div data-reveal>
         <dl>
           <div>
-            <dt>What the figure is</dt>
+            <dt>{shared.whatTheFigureIs}</dt>
             <dd>
               The number of years a 15-year-old can expect to spend in the labour market — working
               or looking for work — if today's participation rates by age stay as they are. It is
@@ -288,7 +291,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>What it is not</dt>
+            <dt>{shared.whatItIsNot}</dt>
             <dd>
               It is not a record of how long people actually worked, and not a retirement age. It
               is not a distribution either, so no percentile can be calculated from it: Eurostat
@@ -297,7 +300,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>Coverage</dt>
+            <dt>{shared.coverage}</dt>
             <dd>
               {h.countries} countries have a figure for {h.year}.
               {
@@ -314,7 +317,7 @@ export function getStaticPaths() {
             </dd>
           </div>
           <div>
-            <dt>Series breaks</dt>
+            <dt>{shared.seriesBreaks}</dt>
             <dd>
               {
                 movement
@@ -326,27 +329,25 @@ export function getStaticPaths() {
         </dl>
 
         <ul class="source-list">
-          <li><strong>Dataset</strong> Eurostat <code>{index.source.dataset}</code>, {index.source.label}</li>
-          <li><strong>Series</strong> {index.years[0]} to {index.years[index.years.length - 1]}</li>
-          <li><strong>Last updated by Eurostat</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
-          <li><strong>Retrieved</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.series}</strong> {index.years[0]} to {index.years[index.years.length - 1]}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
           <li>
-            <strong>DOI</strong>
+            <strong>{shared.doi}</strong>
             <a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a>
           </li>
           {
             index.source.metadata && (
               <li>
-                <strong>Eurostat metadata</strong>
-                <a href={index.source.metadata} data-method-link>explanatory texts</a>
+                <strong>{shared.eurostatMetadata}</strong>
+                <a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a>
               </li>
             )
           }
         </ul>
 
-        <p class="source-note">
-          Licence: Eurostat data may be reused, including commercially, with attribution. How we
-          handle data is on <a href={linkTo('/method/', lang)}>the method page</a>.
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
         </p>
       </div>
     </div>
