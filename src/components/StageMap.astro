@@ -180,13 +180,13 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
               {metric.bands.map((_: any, i: number) => <i style={`background:var(--r${i})`}></i>)}
             </div>
             <div class="legend-ticks">
-              {ticks.map((tick) => <span>{tick}</span>)}
+              {ticks.map((tick) => <span>{formatValue(tick, metric)}</span>)}
             </div>
           </div>
           {
             stale.length > 0 && (
               <span class="legend-nodata">
-                <i class="legend-stale"></i>Latest figure is older than {periodLabel(latestYear, { locale: lang })}
+                <i class="legend-stale"></i>{t.latestFigureOlder}{' '}{periodLabel(latestYear, { locale: lang })}
               </span>
             )
           }
