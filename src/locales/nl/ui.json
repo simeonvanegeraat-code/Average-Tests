@@ -271,6 +271,9 @@
     "whatTheNumbersSay": "Wat de cijfers zeggen",
     "yourTurn": "Jouw beurt",
     "compareYourself": "Vergelijk jezelf",
-    "nothingLeavesBrowser": "Niets van wat je typt verlaat je browser."
+    "nothingLeavesBrowser": "Niets van wat je typt verlaat je browser.",
+    "theMap": "De kaart",
+    "tapACountry": "Tik op een land voor zijn cijfers.",
+    "tapOrSwitch": "Tik op een land, of wissel tussen iedereen, mannen en vrouwen."
   }
 }
