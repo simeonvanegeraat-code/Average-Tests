@@ -30,6 +30,28 @@ export default {
       `Het is ouder dan het gemiddelde in ${above} van de ${of} landen, en jonger in ${of - above}.`,
   },
 
+  'healthy-years': {
+    exact: ({ own, name, value, g }) =>
+      `Met ${own} zit je precies op de verwachting voor een pasgeborene in ${g.withArticle(name)} (${value}).`,
+
+    /**
+     * Twee richtingen, en de zin verschilt echt: wie jonger is dan de verwachting
+     * heeft jaren te gaan, wie ouder is heeft ze voorbij. Eén "boven/onder" zou hier
+     * onduidelijk zijn.
+     */
+    off: ({ own, name, amount, higher, value, g }) =>
+      higher
+        ? `Met ${own} ben je de verwachting voor een pasgeborene in ${g.withArticle(name)} (${value}) al ${amount} voorbij.`
+        : `Met ${own} heeft de verwachting voor een pasgeborene in ${g.withArticle(name)} (${value}) nog ${amount} te gaan.`,
+
+    allAbove: ({ of }) => `Dat is voorbij de verwachting in elk van deze ${of} landen.`,
+
+    allBelow: ({ of }) => `Dat is onder de verwachting in alle ${of} landen hier.`,
+
+    some: ({ above, of }) =>
+      `Je bent er voorbij in ${above} van de ${of} landen, en nog niet in ${of - above}.`,
+  },
+
   'household-size': {
     exact: ({ own, name, g }) =>
       `Jouw huishouden van ${own} is precies het gemiddelde van ${g.withArticle(name)}.`,

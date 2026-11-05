@@ -1,0 +1,175 @@
+---
+import { ui } from '../../../lib/ui.js';
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import Related from '../../../components/Related.astro';
+import StageMap from '../../../components/StageMap.astro';
+import CompareForm from '../../../components/CompareForm.astro';
+import RankTable from '../../../components/RankTable.astro';
+import MetricPersonal from '../../../components/MetricPersonal.astro';
+import geo from '../../../../data/geo/europe.json';
+import { grammarOf } from '../../../lib/grammar.js';
+import { healthyYearsPage } from '../../../lib/pages/healthy-years.js';
+
+/**
+ * De Nederlandse /healthy-years/.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk komt uit
+ * `src/lib/pages/healthy-years.js`, de woorden staan hier.
+ *
+ * De kop is de scherpste zin van deze pagina en loopt in het Nederlands anders. "Living
+ * longer and living well are not the same map" leeft van de dubbelzinnigheid van "map";
+ * het Nederlands heeft die niet, dus staat er een zin die hetzelfde zegt met de kaart
+ * expliciet erin.
+ */
+const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
+const { index, metric, h, gender, movement, stale, euValue, bigOnes, fmt, amt, clientJson } =
+  healthyYearsPage(lang);
+
+const g = grammarOf(lang);
+
+const title = `Gezonde levensjaren per land in Europa (${h.year})`;
+const description = `Een pasgeborene in ${g.withArticle(h.latest.name)} kan ${fmt(h.latest.total)} jaar verwachten zonder beperkend gezondheidsprobleem; in ${g.withArticle(h.earliest.name)} is dat ${fmt(h.earliest.total)}. Vergelijk alle ${h.countries} landen op de kaart en zie hoeveel jaar jij nog hebt.`;
+---
+
+<BaseV2 title={title} description={description} canonical="/healthy-years/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Eurostat · {h.countries} landen · {h.year}</p>
+      <h1 data-reveal>Langer leven en gezond leven tekenen niet dezelfde kaart.</h1>
+      <span class="giant num">{euValue}</span>
+      <p class="unit mono">gezonde jaren bij geboorte · <b>{shared.europeanUnion}</b> · {h.year}</p>
+      <p class="lead">Een pasgeborene in {g.withArticle(h.latest.name)} kan {fmt(h.latest.total)} jaar verwachten zonder enig beperkend gezondheidsprobleem. In {g.withArticle(h.earliest.name)} is dat {fmt(h.earliest.total)}. Dat is {amt(h.gap)} verschil binnen één werelddeel.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#compare">{shared.compareYourself}{' '}<span class="arr" aria-hidden="true">→</span></a>
+        <span class="hint">{shared.nothingLeavesBrowser}</span>
+      </div>
+      <p class="hero-note">Dit is geen levensverwachting. Het telt alleen de jaren die verwacht worden zonder langdurige beperking in het dagelijks leven, dus een land kan levensjaren winnen zonder gezonde jaren te winnen. Verschillende van de rijkste landen hier staan onder verschillende van de armste.</p>
+    </div>
+  </section>
+
+  <StageMap geo={geo} index={index} metric={metric} eyebrow={shared.theMap} title="Waar de gezonde jaren het meest en het minst zijn" lede={shared.tapACountry} />
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.yourTurn}</p>
+        <h2 id="compare-title">Hoeveel gezonde jaren heb je nog?</h2>
+        <p>Vul je leeftijd in en we zetten die naast wat elk land bij geboorte verwacht.</p>
+      </header>
+      <div data-reveal>
+        <CompareForm index={index} metric={metric} />
+        <MetricPersonal metric="healthy-years" />
+        <div class="limits">
+          <b>Dit is een verwachting bij geboorte, geen voorspelling voor jou</b>
+          <p>Het cijfer beschrijft een pasgeborene van vandaag onder de huidige omstandigheden. Je eigen leeftijd daarvan aftrekken is rekenen, geen voorspelling: je eigen gezondheid, het land zoals het was toen jij geboren werd, en alles daarna liggen buiten wat dit getal weet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
+        <h2 id="table-title">Alle {index.countries.length} landen, van minst naar meest</h2>
+        <p>Sorteer op elke kolom. De verschilkolom is mannen min vrouwen, dus een positief getal betekent dat mannen meer gezonde jaren verwachten.</p>
+      </header>
+      <div data-reveal><RankTable index={index} metric={metric} /></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
+        <h2 id="facts-title">Hier valt het verschil tussen de seksen bijna weg</h2>
+      </header>
+      <div data-reveal>
+          <div class="bento">
+            <div class="tile s4 dark">
+              <div>
+                <h3>Vrouwen leven langer. Of ze gezonder leven is niet duidelijk.</h3>
+                <p>
+                  Bij levensverwachting lopen vrouwen in heel Europa voor, vaak jaren. Hier valt dat
+                  beeld uiteen: mannen verwachten meer gezonde jaren in {gender?.womenLower} van de {gender?.of} landen,
+                  en het gemiddelde verschil over alle landen is minder dan een jaar.
+                </p>
+              </div>
+              <span class="meta mono">{h.year}</span>
+            </div>
+            <div class="tile">
+              <div>
+                <b>{gender ? amt(Math.abs(gender.widestGap)) : ""}</b>
+                <p>het grootste verschil tussen mannen en vrouwen, in {gender ? g.withArticle(gender.widest.name) : ""}.</p>
+              </div>
+              <span class="meta mono">grootste verschil</span>
+            </div>
+          </div>
+        <div class="prose"><p>Rijkdom ordent deze lijst niet zoals hij levensverwachting ordent. De grote economieën komen uit op {bigOnes} — een paar ervan onder landen met een fractie van hun inkomen per hoofd. Wat gezonde jaren ook koopt, geld alleen is het niet, en een cijfer dat alleen nationaal inkomen volgde zou er anders uitzien.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <Related metric="healthy-years" />
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
+      </header>
+      <div data-reveal>
+        <dl>
+          <div><dt>{shared.whatTheFigureIs}</dt><dd>Het aantal jaren dat een pasgeborene kan verwachten te leven zonder langdurige beperking in het dagelijks leven, uit de combinatie van sterftetafels met de zelfgerapporteerde beperkingsvraag in EU-SILC.</dd></div>
+          <div><dt>{shared.whatItIsNot}</dt><dd>Het is geen levensverwachting, geen maat voor ziekte, en geen verdeling. Één getal per land betekent dat er geen percentiel mogelijk is — alleen aan welke kant ervan je zit.</dd></div>
+          <div>
+            <dt>{shared.coverage}</dt>
+            <dd>
+              {h.countries} landen hebben een cijfer voor {h.year}.
+              {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} stopten eerder met rapporteren en staan op hun meest recente jaar, gearceerd op de kaart en benoemd in de tabel.</>)}
+              {' '}{shared.notInDataset}
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.seriesBreaks}</dt>
+            <dd>
+              {movement
+                ? `Geen binnen het venster dat hier gebruikt wordt, ${movement.since} tot ${movement.until}.`
+                : `Eurostat markeert een breuk in ${index.lastBreak}, in of net vóór het laatste jaar, dus er staat op deze pagina geen vergelijking met het verleden. Een cijfer dat op een trend lijkt maar over een breuk heen loopt is erger dan geen trend.`}
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.series}</strong> {index.years[0]} tot {index.years[index.years.length - 1]}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.doi}</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          {index.source.metadata && (<li><strong>{shared.eurostatMetadata}</strong><a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a></li>)}
+        </ul>
+
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="metric-data" set:html={clientJson} />
+
+  <style>
+    .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .tile .meta { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
+    .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+    .prose p { margin: 0; line-height: 1.7; }
+    .source-list { list-style: none; padding: 0; }
+    .source-list li { padding: 0.35rem 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+    .source-list li:last-child { border-bottom: 0; }
+    .source-list strong { display: inline-block; min-width: 12rem; color: var(--text-2); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    @media (max-width: 540px) { .source-list strong { display: block; min-width: 0; } }
+  </style>
+</BaseV2>

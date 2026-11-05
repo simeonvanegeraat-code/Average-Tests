@@ -132,7 +132,7 @@ const description = `Mothers in ${withArticle(h.latest.name)} are ${fmt(h.latest
             <dd>
               {h.countries} countries have a figure for {h.year}.
               {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} stopped reporting earlier and are shown at their most recent year, hatched on the map and labelled in the table.</>)}
-              {' '}The United States, Canada and Australia are not in this dataset.
+              {' '}{shared.notInDataset}
             </dd>
           </div>
           <div>
