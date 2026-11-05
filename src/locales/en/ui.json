@@ -23,7 +23,9 @@
     "all": "All",
     "everyNote": "Every note",
     "allNotesCount": "All {count} notes",
-    "sourcesAndBreaks": "Sources, and the breaks we refuse to cross"
+    "sourcesAndBreaks": "Sources, and the breaks we refuse to cross",
+    "switchToDark": "Switch to dark theme",
+    "switchToLight": "Switch to light theme"
   },
   "notFound": {
     "title": "That page is not here",
@@ -85,7 +87,8 @@
   "compareForm": {
     "iLiveIn": "I live in",
     "andLeftHomeAt": "and left home at",
-    "nothingIsSentAnywhere": "Nothing is sent anywhere. Your answer is kept in this browser so the next page already knows it, and you can clear it at any time."
+    "nothingIsSentAnywhere": "Nothing is sent anywhere. Your answer is kept in this browser so the next page already knows it, and you can clear it at any time.",
+    "compareMe": "Compare me"
   },
   "related": {
     "eyebrow": "Next question",
@@ -276,5 +279,10 @@
     "tapACountry": "Tap a country to see its figures.",
     "tapOrSwitch": "Tap a country, or switch between everyone, men and women.",
     "notInDataset": "The United States, Canada and Australia are not in this dataset."
+  },
+  "periodUnits": {
+    "year": "year",
+    "quarter": "quarter",
+    "month": "month"
   }
 }

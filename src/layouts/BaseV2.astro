@@ -243,7 +243,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
           )
         }
 
-        <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label={t.switchTheme}>
+        <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label={t.switchTheme} data-to-dark={t.switchToDark} data-to-light={t.switchToLight}>
           <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
           </svg>
@@ -396,9 +396,16 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
       const currentTheme = () => (root.dataset.theme === 'dark' ? 'dark' : 'light');
       const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')];
 
+      /**
+       * De twee labels staan op de knop zelf, in de taal van deze pagina. Tot 5 november
+       * 2026 stonden ze hier in het Engels, en overschreven ze het vertaalde label dat de
+       * opmaak net had gezet.
+       */
       function labelButtons() {
-        const label = currentTheme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
-        for (const button of buttons) button.setAttribute('aria-label', label);
+        for (const button of buttons) {
+          const label = currentTheme() === 'dark' ? button.dataset.toLight : button.dataset.toDark;
+          if (label) button.setAttribute('aria-label', label);
+        }
       }
 
       labelButtons();

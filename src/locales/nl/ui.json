@@ -23,7 +23,9 @@
     "all": "Alles",
     "everyNote": "Elk artikel",
     "allNotesCount": "Alle {count} artikelen",
-    "sourcesAndBreaks": "Bronnen, en de breuken waar we niet over heen rekenen"
+    "sourcesAndBreaks": "Bronnen, en de breuken waar we niet over heen rekenen",
+    "switchToDark": "Naar het donkere thema",
+    "switchToLight": "Naar het lichte thema"
   },
   "notFound": {
     "title": "Deze pagina staat hier niet",
@@ -85,7 +87,8 @@
   "compareForm": {
     "iLiveIn": "Ik woon in",
     "andLeftHomeAt": "en ging het huis uit op",
-    "nothingIsSentAnywhere": "Er wordt niets verstuurd. Je antwoord blijft in deze browser, zodat de volgende pagina het al weet, en je kunt het op elk moment wissen."
+    "nothingIsSentAnywhere": "Er wordt niets verstuurd. Je antwoord blijft in deze browser, zodat de volgende pagina het al weet, en je kunt het op elk moment wissen.",
+    "compareMe": "Vergelijk mij"
   },
   "related": {
     "eyebrow": "Volgende vraag",
@@ -276,5 +279,10 @@
     "tapACountry": "Tik op een land voor zijn cijfers.",
     "tapOrSwitch": "Tik op een land, of wissel tussen iedereen, mannen en vrouwen.",
     "notInDataset": "De Verenigde Staten, Canada en Australië zitten niet in deze dataset."
+  },
+  "periodUnits": {
+    "year": "jaar",
+    "quarter": "kwartaal",
+    "month": "maand"
   }
 }
