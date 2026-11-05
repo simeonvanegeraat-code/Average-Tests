@@ -15,6 +15,21 @@
  */
 
 export default {
+  'first-child': {
+    exact: ({ name, value, g }) =>
+      `You were exactly the average age for ${g.withArticle(name)}: ${value}.`,
+
+    off: ({ own, name, amount, higher, value, g }) =>
+      `At ${own} you were ${amount} ${higher ? 'older' : 'younger'} than the average mother in ${g.withArticle(name)} (${value}).`,
+
+    allAbove: ({ of }) => `That is older than the average in every one of the ${of} countries here.`,
+
+    allBelow: ({ of }) => `That is younger than the average in all ${of} countries here.`,
+
+    some: ({ above, of }) =>
+      `It is older than the average in ${above} of ${of} countries, and younger in ${of - above}.`,
+  },
+
   'household-size': {
     exact: ({ own, name, g }) => `Your household of ${own} is exactly the average for ${g.withArticle(name)}.`,
 

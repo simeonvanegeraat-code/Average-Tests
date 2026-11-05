@@ -11,6 +11,25 @@
  */
 
 export default {
+  'first-child': {
+    exact: ({ name, value, g }) =>
+      `Je was precies de gemiddelde leeftijd van ${g.withArticle(name)}: ${value}.`,
+
+    /**
+     * "ouder dan de gemiddelde moeder" en niet "ouder dan het gemiddelde": het cijfer
+     * gaat over moeders, en die nuance staat in de Engelse zin ook.
+     */
+    off: ({ own, name, amount, higher, value, g }) =>
+      `Met ${own} was je ${amount} ${higher ? 'ouder' : 'jonger'} dan de gemiddelde moeder in ${g.withArticle(name)} (${value}).`,
+
+    allAbove: ({ of }) => `Dat is ouder dan het gemiddelde in elk van deze ${of} landen.`,
+
+    allBelow: ({ of }) => `Dat is jonger dan het gemiddelde in alle ${of} landen hier.`,
+
+    some: ({ above, of }) =>
+      `Het is ouder dan het gemiddelde in ${above} van de ${of} landen, en jonger in ${of - above}.`,
+  },
+
   'household-size': {
     exact: ({ own, name, g }) =>
       `Jouw huishouden van ${own} is precies het gemiddelde van ${g.withArticle(name)}.`,
