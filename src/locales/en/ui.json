@@ -216,7 +216,11 @@
     "theMetricPagesAnswer": "The metric pages answer one question each. These are the pieces that do not fit on them: where a dataset breaks, where a definition does not match its own title, and what that changes about the answer.",
     "theRule": "The rule",
     "whenSomethingGetsWritten": "When something gets written here",
-    "aPieceAppearsHere": "A piece appears here when a dataset does something that its own page cannot fully carry. The metric pages have room for a method section, not for an argument. When the argument is the interesting part, it moves here."
+    "aPieceAppearsHere": "A piece appears here when a dataset does something that its own page cannot fully carry. The metric pages have room for a method section, not for an argument. When the argument is the interesting part, it moves here.",
+    "whatDoesNotAppear": "What does not appear here: anything the data cannot carry. No round-ups of other people's reporting, no predictions, and no sentence with a number in it that was typed by hand. Every figure in every piece is computed from the same files the metric pages use, at build time, so a piece cannot quietly go stale when a source publishes again.",
+    "theMethodPage": "The method page",
+    "listsThoseFiles": "lists those files per dataset.",
+    "ofTheDatasets": "Of the {datasets} datasets behind this site, {broken} carry a series break that the code refuses to measure across. That is the kind of thing worth a piece: it is invisible on the chart, it reverses a conclusion, and almost nobody checks for it."
   },
   "home": {
     "eyebrow": "Eurostat · OECD · ECB · {count} questions",
@@ -267,6 +271,9 @@
     "whatTheNumbersSay": "What the numbers say",
     "yourTurn": "Your turn",
     "compareYourself": "Compare yourself",
-    "nothingLeavesBrowser": "Nothing you type leaves your browser."
+    "nothingLeavesBrowser": "Nothing you type leaves your browser.",
+    "theMap": "The map",
+    "tapACountry": "Tap a country to see its figures.",
+    "tapOrSwitch": "Tap a country, or switch between everyone, men and women."
   }
 }
