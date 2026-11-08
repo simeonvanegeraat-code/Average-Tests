@@ -1,95 +1,53 @@
 ---
-import { ui } from '../../../lib/ui.js';
-import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
-import { localise } from '../../../lib/country-names.js';
-import BaseV2 from '../../../layouts/BaseV2.astro';
-import Related from '../../../components/Related.astro';
-import StageMap from '../../../components/StageMap.astro';
-import CompareForm from '../../../components/CompareForm.astro';
-import RankTable from '../../../components/RankTable.astro';
-import geo from '../../../../data/geo/europe.json';
-import rawIndex from '../../../../data/pension-age/index.json';
-import rawExitIndex from '../../../../data/exit-age/index.json';
-import baseMetric from '../../../lib/metrics/pension-age.js';
-import { localiseMetric } from '../../../lib/metric-names.js';
-import { citation, exitAge, exitAgeRows } from '../../../lib/exit-age.js';
+import { ui } from '../../lib/ui.js';
+import { localeOf, linkTo } from '../../lib/locales.js';
+import BaseV2 from '../../layouts/BaseV2.astro';
+import Related from '../../components/Related.astro';
+import StageMap from '../../components/StageMap.astro';
+import CompareForm from '../../components/CompareForm.astro';
+import RankTable from '../../components/RankTable.astro';
+import MetricPersonal from '../../components/MetricPersonal.astro';
+import geo from '../../../data/geo/europe.json';
+import { count, withArticle } from '../../lib/metric.js';
+import { pensionAgePage } from '../../lib/pages/pension-age.js';
 
 /**
- * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
- * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
- * taal in voordat enig onderdeel de index ziet, en `locale` in de
- * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ * De Engelse /pension-age/.
+ *
+ * Eigen bestand per taal sinds 3 november 2026; `src/pages/nl/pension-age/index.astro`
+ * is de Nederlandse. Het rekenwerk van beide uitgevers staat in
+ * `src/lib/pages/pension-age.js`.
+ *
+ * Wat hier het meest misleidend kan zijn, staat in de kop: dit is niet de wettelijke
+ * pensioenleeftijd. Wie op "retirement age" zoekt bedoelt vaak dat, en vindt overal dat.
+ * Deze pagina gaat over wat er feitelijk gebeurd is.
  */
 const lang = localeOf(Astro.url.pathname);
 /** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
 const shared = ui(lang).metricPage;
-const index = localise(rawIndex, lang);
-const exitIndex = localise(rawExitIndex, lang);
-const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
-import {
-  count,
-  currentCountries,
-  formatAmount,
-  formatValue,
-  genderGap,
-  headline,
-  ranked,
-  staleCountries,
-  withArticle,
-} from '../../../lib/metric.js';
-
-/**
- * Metriekpagina: pension-age. De enige pagina met twee uitgevers.
- *
- * Boven: Eurostat `lfso_23pens03`, de leeftijd waarop mensen een ouderdomspensioen
- * zijn gaan ontvangen. Onder: de OECD, de leeftijd waarop mensen de arbeidsmarkt
- * verlaten. Twee vragen, geen twee metingen van hetzelfde — de pagina zegt dat
- * uitdrukkelijk en trekt ze niet van elkaar af. Zie src/lib/exit-age.js.
- *
- * Wat hier het meest misleidend kan zijn, staat daarom in de kop: dit is niet de
- * wettelijke pensioenleeftijd. Wie op "retirement age" zoekt bedoelt vaak dat, en
- * vindt overal dat. Deze pagina gaat over wat er feitelijk gebeurd is.
- */
-
-const h = headline(index);
-const gender = genderGap(index);
-const stale = staleCountries(index);
-const order = ranked(index);
-const current = currentCountries(index);
-const exit = exitAge(exitIndex);
-const exitRows = exitAgeRows(exitIndex);
-const cite = citation(exitIndex);
-
-const fmt = (value: number | null) => formatValue(value, metric);
-const amt = (value: number, options = {}) => formatAmount(value, metric, options);
-
-const euValue = h.eu ? fmt(h.eu.total) : fmt(order[Math.floor(order.length / 2)].total);
-const names = (list: any[]) => list.map((country) => country.name).join(', ');
-const early5 = names(order.slice(0, 5));
-const late5 = names(order.slice(-5).reverse());
-const bigOnes = current
-  .filter((country) => ['DE', 'FR', 'IT', 'ES', 'PL', 'NL'].includes(country.code))
-  .sort((a, b) => a.total - b.total)
-  .map((country) => `${country.name} ${fmt(country.total)}`)
-  .join(', ');
-
-/** De landen waar vrouwen later begonnen dan mannen: de helft van het verhaal dat niemand verwacht. */
-const womenLater = gender ? [...gender.exceptions].sort((a, b) => a.men - a.women - (b.men - b.women)) : [];
-
-const clientJson = JSON.stringify({
-  decimals: metric.decimals,
-  unit: metric.unit,
-  unitOne: metric.unitOne,
-  countries: current.map(({ code, name, total }) => ({ code, name, total })),
-}).replace(/</g, '\\u003c');
+const {
+  index,
+  exitIndex,
+  metric,
+  h,
+  gender,
+  stale,
+  exit,
+  exitRows,
+  cite,
+  euValue,
+  early5,
+  late5,
+  bigOnes,
+  womenLater,
+  names,
+  fmt,
+  amt,
+  clientJson,
+} = pensionAgePage(lang);
 
 const title = `Average Retirement Age by Country in Europe (${h.year})`;
 const description = `Across the European Union people started drawing an old-age pension at ${euValue} — ${fmt(h.earliest.total)} in ${withArticle(h.earliest.name)} and ${fmt(h.latest.total)} in ${withArticle(h.latest.name)}. Not the statutory age, but the age it actually happened, for all ${h.countries} countries.`;
-/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
-export function getStaticPaths() {
-  return localePaths();
-}
-
 ---
 
 <BaseV2 title={title} description={description} canonical="/pension-age/" hue={metric.hue}>
@@ -119,7 +77,7 @@ export function getStaticPaths() {
       </header>
       <div data-reveal>
         <CompareForm index={index} metric={metric} />
-        <output class="result" data-metric-result role="status" hidden></output>
+        <MetricPersonal metric="pension-age" />
         <div class="limits">
           <b>Why your own answer is hard to place</b>
           <p>The country figures describe people who are already drawing a pension — mostly people who retired years ago, under rules that have since changed. If you have not retired yet, you are comparing your expectation against their history, and in most countries the legal age has gone up since.</p>
@@ -275,7 +233,7 @@ export function getStaticPaths() {
                 added in {withArticle(exit.full.climbs[0].name)} since {exit.full.climbs[0].low.low}, the
                 steepest climb in the set — followed by {exit.full.climbs
                   .slice(1)
-                  .map((country: any) => `${country.name} (${formatAmount(country.low.risen, metric, { sign: true })} since ${country.low.low})`)
+                  .map((country: any) => `${country.name} (${amt(country.low.risen, { sign: true })} since ${country.low.low})`)
                   .join(', ')}.
               </p>
             </div>
@@ -313,7 +271,7 @@ export function getStaticPaths() {
                   <th scope="row">{row.name}</th>
                   <td class="n strong">{fmt(row.men)}</td>
                   <td class="n">{fmt(row.women)}</td>
-                  <td class="n">{formatAmount(row.gap, metric, { sign: true })}</td>
+                  <td class="n">{amt(row.gap, { sign: true })}</td>
                   <td class="n">{row.year}</td>
                 </tr>
               ))}
@@ -322,7 +280,7 @@ export function getStaticPaths() {
                   <th scope="row">{row.name}</th>
                   <td class="n strong">{fmt(row.men)}</td>
                   <td class="n">{fmt(row.women)}</td>
-                  <td class="n">{formatAmount(row.gap, metric, { sign: true })}</td>
+                  <td class="n">{amt(row.gap, { sign: true })}</td>
                   <td class="n">{row.year}</td>
                 </tr>
               ))}
@@ -399,84 +357,11 @@ export function getStaticPaths() {
 
   <script type="application/json" id="metric-data" set:html={clientJson} />
 
-  <script>
-    import { readProfile, mergeProfile } from '../../../lib/profile.js';
-    import { formatAmount, formatValue, withArticle } from '../../../lib/metric.js';
-    import { track, EVENTS } from '../../../lib/analytics.js';
-
-    /** De persoonlijke laag. De zinnen horen bij deze metriek en staan daarom hier. */
-    const holder = document.getElementById('metric-data');
-    const result = document.querySelector<HTMLElement>('[data-metric-result]');
-    const KEY = 'pension-age';
-
-    if (holder && result) {
-      const data = JSON.parse(holder.textContent ?? '{}');
-      const cfg = { decimals: data.decimals, unit: data.unit, unitOne: data.unitOne };
-      const send = (name: string, detail: object) => document.dispatchEvent(new CustomEvent(name, { detail }));
-
-      function render(code: string, own: number) {
-        const home = data.countries.find((country: any) => country.code === code);
-        const later = data.countries.filter((country: any) => own > country.total).length;
-        const of = data.countries.length;
-        const lines = [];
-        if (home) {
-          const diff = own - home.total;
-          lines.push(
-            Math.abs(diff) < 0.05
-              ? `${own} is exactly the average age in ${withArticle(home.name)}.`
-              : `${own} is ${formatAmount(Math.abs(diff), cfg)} ${diff > 0 ? 'later' : 'earlier'} than the average in ${withArticle(home.name)} (${formatValue(home.total, cfg)}).`,
-          );
-        }
-        lines.push(
-          later === of
-            ? `That is later than the average in every one of the ${of} countries here.`
-            : later === 0
-              ? `That is earlier than the average in all ${of} countries here.`
-              : `It is later than the average in ${later} of ${of} countries, and earlier in ${of - later}.`,
-        );
-        result.textContent = lines.join(' ');
-        result.hidden = false;
-      }
-
-      document.addEventListener('ha:country', (event) => {
-        const { code, source } = (event as CustomEvent<any>).detail ?? {};
-        if (!code || source === 'restore') return;
-        mergeProfile({ country: code });
-      });
-
-      document.addEventListener('ha:submit', (event) => {
-        const { code, age, source } = (event as CustomEvent<any>).detail ?? {};
-        if (!code || !Number.isFinite(age)) return;
-        render(code, age);
-        if (source === 'restore') return;
-        mergeProfile({ country: code, [KEY]: age });
-        track(EVENTS.valueSubmitted, { metric: KEY, country: code });
-      });
-
-      function restore() {
-        const saved = readProfile();
-        const code = typeof saved.country === 'string' ? saved.country : null;
-        if (!code) return;
-        send('ha:country', { code, source: 'restore' });
-        const own = Number(saved[KEY]);
-        if (Number.isFinite(own)) send('ha:submit', { code, age: own, source: 'restore' });
-      }
-
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restore, { once: true });
-      else restore();
-    }
-
-    for (const link of document.querySelectorAll('[data-method-link]')) {
-      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: KEY }));
-    }
-  </script>
-
   <style>
     .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
     .tile .meta { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
     .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
     .prose p { margin: 0; line-height: 1.7; }
-    .result { display: block; margin-top: 18px; padding: 18px 22px; border-radius: var(--radius-md); border: 1px solid var(--line-strong); font-size: 1.04rem; line-height: 1.6; }
     #exit-age .tablewrap { margin-top: 22px; }
     .table-note { margin-top: 12px; max-width: 70ch; color: var(--text-2); font-size: 0.88rem; line-height: 1.6; }
     .source-list { list-style: none; padding: 0; }

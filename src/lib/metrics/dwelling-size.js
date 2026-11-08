@@ -23,6 +23,14 @@ const dwellingSize = {
   sourceName: 'Eurostat',
 
   decimals: 1,
+
+  /**
+   * Wanneer twee oppervlakken "hetzelfde" zijn, voor de zin van de persoonlijke laag.
+   * Een halve vierkante meter is geen verschil; bij de andere metrieken is de
+   * standaard 0,05, want daar is een halve eenheid juist veel. Stond tot 8 november
+   * 2026 als 0.5 in het script van het paginabestand.
+   */
+  exactWithin: 0.5,
   unit: 'm²',
   unitOne: 'm²',
 

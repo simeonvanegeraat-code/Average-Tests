@@ -1,0 +1,369 @@
+---
+import { ui } from '../../../lib/ui.js';
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import Related from '../../../components/Related.astro';
+import StageMap from '../../../components/StageMap.astro';
+import CompareForm from '../../../components/CompareForm.astro';
+import RankTable from '../../../components/RankTable.astro';
+import MetricPersonal from '../../../components/MetricPersonal.astro';
+import geo from '../../../../data/geo/europe.json';
+import { grammarOf } from '../../../lib/grammar.js';
+import { workingLifePage } from '../../../lib/pages/working-life.js';
+
+/**
+ * De Nederlandse /working-life/.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk komt uit
+ * `src/lib/pages/working-life.js`, de woorden staan hier.
+ *
+ * "Working life" is het woord waar deze pagina om draait en het Nederlands heeft er geen
+ * kant-en-klare tegenhanger voor. "Arbeidsduur" is iets anders, "loopbaan" suggereert een
+ * afgeronde carrière — precies wat dit cijfer níet is. Er staat daarom "werkzaam leven",
+ * en de hero-noot legt meteen uit dat het een verwachting is en geen terugblik.
+ *
+ * Geen enkel cijfer staat hier met de hand.
+ */
+const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
+const { index, metric, h, gender, movement, stale, euValue, exceptions, fmt, amt, clientJson } =
+  workingLifePage(lang);
+
+const g = grammarOf(lang);
+
+const title = `Hoeveel jaar werken Europeanen? Per land vergeleken (${h.year})`;
+const description =
+  `Een werkzaam leven duurt ${euValue} jaar in de Europese Unie — ${fmt(h.latest.total)} in ` +
+  `${h.latest.name} en ${fmt(h.earliest.total)} in ${h.earliest.name}. Vergelijk alle ` +
+  `${h.countries} landen op de kaart en zie hoe jouw jaren ervoor staan.`;
+---
+
+<BaseV2 title={title} description={description} canonical="/working-life/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Eurostat · {h.countries} landen · {h.year}</p>
+
+      <h1 data-reveal>Een werkzaam leven duurt in sommige landen {amt(h.gap)} langer dan in andere.</h1>
+
+      <span class="giant num">{euValue}</span>
+      <p class="unit mono">
+        jaar op de arbeidsmarkt · <b>{shared.europeanUnion}</b> · {h.year}
+      </p>
+
+      <p class="lead">
+        Wie in {g.withArticle(h.latest.name)} vijftien wordt, kan {fmt(h.latest.total)} jaar werkzaam
+        leven verwachten. In {g.withArticle(h.earliest.name)} is dat {fmt(h.earliest.total)}. Dezelfde vraag,
+        {' '}{amt(h.gap)} verschil.
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn" href="#compare">
+          Hoe staan jouw jaren ervoor?{' '}<span class="arr" aria-hidden="true">→</span>
+        </a>
+        <span class="hint">{shared.nothingLeavesBrowser}</span>
+      </div>
+
+      <p class="hero-note">
+        Dit is een <em>verwachting</em>, geen terugblik op afgeronde loopbanen. Eurostat rekent het
+        uit aan de hand van hoeveel mensen van elke leeftijd nú op de arbeidsmarkt zijn, net zoals
+        levensverwachting uit de sterftecijfers van vandaag wordt opgebouwd. Er hoeft niemand
+        gepensioneerd te zijn om dit cijfer te laten bestaan.
+      </p>
+    </div>
+  </section>
+
+  <StageMap
+    geo={geo}
+    index={index}
+    metric={metric}
+    eyebrow={shared.theMap}
+    title="Waar de werkzame levens het langst zijn"
+    lede={shared.tapOrSwitch}
+  />
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.yourTurn}</p>
+        <h2 id="compare-title">Hoeveel jaar heb jij gewerkt?</h2>
+        <p>
+          Tel de jaren dat je aan het werk was of werk zocht. Wij zetten dat naast wat een volledig
+          werkzaam leven in elk land verwacht wordt te zijn.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <CompareForm index={index} metric={metric} />
+        <MetricPersonal metric="working-life" />
+
+        <div class="limits">
+          <b>Wat deze vergelijking niet is</b>
+          <p>
+            Jouw jaren zijn een telling van wat er gebeurd is. Het landcijfer is een verwachting
+            voor iemand die vandaag begint. Die twee naast elkaar zeggen hoe ver je bent in een
+            volledig werkzaam leven zoals dat er nu uitziet — niet of je voor of achter loopt op
+            iemand, en niet wat jouw eigen totaal wordt.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
+        <h2 id="table-title">Alle {index.countries.length} landen, van kortst naar langst</h2>
+        <p>
+          Sorteer op elke kolom. De verschilkolom is mannen min vrouwen, dus een positief getal
+          betekent dat mannen langer verwacht worden te werken.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <RankTable index={index} metric={metric} />
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
+        <h2 id="facts-title">Werkzame levens werden bijna overal langer</h2>
+      </header>
+
+      <div data-reveal>
+        {
+          movement && (
+            <div class="bento">
+              <div class="tile s4">
+                <div>
+                  <b>{movement.later.length}</b>
+                  <p>
+                    van de {movement.countries} landen deden er minstens {amt(movement.minimumMove)} bij
+                    tussen {movement.since} en {movement.until}. De grootste winst zat in{' '}
+                    {movement.later
+                      .slice(0, 3)
+                      .map((country: any) => `${country.name} (${amt(country.change, { sign: true })})`)
+                      .join(', ')}
+                    .
+                  </p>
+                </div>
+                <span class="meta mono">{movement.since}–{movement.until}, geen reeksbreuk</span>
+              </div>
+
+              <div class="tile">
+                <div>
+                  <b>{movement.earlier.length}</b>
+                  <p>
+                    {movement.earlier.length === 1
+                      ? `land ging de andere kant op: ${movement.earlier[0].name}, ${amt(Math.abs(movement.earlier[0].change))} eraf.`
+                      : 'landen gingen de andere kant op.'}
+                  </p>
+                </div>
+                <span class="meta mono">de uitzondering</span>
+              </div>
+            </div>
+          )
+        }
+
+        {
+          gender && (
+            <div class="bento" style="margin-top:14px">
+              <div class="tile">
+                <div>
+                  <b>{gender.womenLower}</b>
+                  <p>
+                    van de {gender.of} landen verwachten voor vrouwen een korter werkzaam leven dan
+                    voor mannen, gemiddeld {amt(gender.mean)}.
+                  </p>
+                </div>
+                <span class="meta mono">{h.year}</span>
+              </div>
+
+              <div class="tile s4 dark">
+                <div>
+                  <h3>
+                    {exceptions.length === 0
+                      ? 'Geen land draait het patroon om'
+                      : `${exceptions.map((c: any) => c.name).join(', ')} draaien het om`}
+                  </h3>
+                  <p>
+                    {
+                      exceptions.length === 0
+                        ? 'Mannen worden overal in de dataset langer op de arbeidsmarkt verwacht dan vrouwen.'
+                        : `In ${exceptions.length === 3 ? 'alle drie deze' : 'deze'} landen worden vrouwen langer op de arbeidsmarkt verwacht dan mannen. ` +
+                          `Overal elders loopt het verschil de andere kant op, het grootst in ${g.withArticle(gender.widest.name)} met ${amt(gender.widestGap)}.`
+                    }
+                  </p>
+                </div>
+                <span class="meta mono">de uitzondering op de regel</span>
+              </div>
+            </div>
+          )
+        }
+
+        {
+          movement && (
+            <div class="prose">
+              <p>
+                De spreiding tussen het kortste en het langste werkzame leven kromp van{' '}
+                {amt(movement.spreadThen)} naar {amt(movement.spreadNow)} in die {
+                  Number(movement.until) - Number(movement.since)
+                } jaar. Landen groeien niet naar één gedeeld getal toe; het zijn de achterblijvers
+                die inhalen: {movement.stable === 0
+                  ? 'geen enkel land bleef binnen een half jaar van waar het begon'
+                  : `${movement.stable} bleven binnen ${amt(movement.minimumMove)} van waar ze begonnen`}.
+              </p>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <Related metric="working-life" />
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
+      </header>
+
+      <div data-reveal>
+        <dl>
+          <div>
+            <dt>{shared.whatTheFigureIs}</dt>
+            <dd>
+              Het aantal jaren dat een vijftienjarige kan verwachten op de arbeidsmarkt door te
+              brengen — werkend of werk zoekend — als de participatiegraad per leeftijd blijft zoals
+              hij nu is. Het is opgebouwd zoals levensverwachting: uit de cijfers van vandaag, niet
+              uit afgeronde levens.
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.whatItIsNot}</dt>
+            <dd>
+              Het is geen vastlegging van hoe lang mensen werkelijk gewerkt hebben, en geen
+              pensioenleeftijd. Het is ook geen verdeling, dus er valt geen percentiel uit te
+              rekenen: Eurostat publiceert één getal per land, en dat verkopen we niet als een plek
+              tussen individuen.
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.coverage}</dt>
+            <dd>
+              {h.countries} landen hebben een cijfer voor {h.year}.
+              {
+                stale.length > 0 && (
+                  <>
+                    {' '}
+                    {stale.map((country: any) => `${country.name} (${country.year})`).join(', ')} stopten
+                    eerder met rapporteren en staan op hun meest recente jaar, gearceerd op de kaart
+                    en benoemd in de tabel.
+                  </>
+                )
+              }{' '}
+              {shared.notInDataset}
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.seriesBreaks}</dt>
+            <dd>
+              {
+                movement
+                  ? `Geen. Dit is de enige Eurostat-reeks achter deze site met een ononderbroken verloop — ${index.years[0]} tot ${index.latestYear} — en daarom kan deze pagina laten zien hoe het veranderde en de andere niet.`
+                  : `Eurostat markeert een breuk in ${index.lastBreak}, dus cijfers van vóór ${index.comparableSince} zijn niet vergelijkbaar met vandaag en er staat geen verandering over tijd.`
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.series}</strong> {index.years[0]} tot {index.years[index.years.length - 1]}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li>
+            <strong>{shared.doi}</strong>
+            <a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a>
+          </li>
+          {
+            index.source.metadata && (
+              <li>
+                <strong>{shared.eurostatMetadata}</strong>
+                <a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a>
+              </li>
+            )
+          }
+        </ul>
+
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="metric-data" set:html={clientJson} />
+
+  <style>
+    .tile h3 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    .tile .meta {
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-2);
+    }
+
+    .prose {
+      margin-top: 28px;
+      max-width: 70ch;
+      color: var(--text-2);
+    }
+
+    .prose p {
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    .source-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .source-list li {
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.92rem;
+    }
+
+    .source-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .source-list strong {
+      display: inline-block;
+      min-width: 12rem;
+      color: var(--text-2);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 540px) {
+      .source-list strong {
+        display: block;
+        min-width: 0;
+      }
+    }
+  </style>
+</BaseV2>

@@ -80,4 +80,68 @@ export default {
     some: ({ above, of }) =>
       `It is longer than the usual week in ${above} of ${of} countries, and shorter in ${of - above}.`,
   },
+
+  'working-life': {
+    exact: ({ ownValue, name, value, g }) =>
+      `You have worked ${ownValue} years, exactly what a full working life in ${g.withArticle(name)} ` +
+      `is expected to be (${value}).`,
+
+    /**
+     * Twee richtingen, en de zin verschilt echt: wie onder de verwachting zit heeft
+     * jaren te gaan, wie erboven zit is er voorbij. Woordelijk overgenomen uit het
+     * script dat tot 8 november 2026 in het paginabestand stond.
+     */
+    off: ({ ownValue, name, amount, higher, value, g }) =>
+      higher
+        ? `You have worked ${ownValue} years — ${amount} past what a full working life in ` +
+          `${g.withArticle(name)} is expected to be (${value}).`
+        : `You have worked ${ownValue} years. A full working life in ${g.withArticle(name)} is ` +
+          `expected to be ${value}, so you are ${amount} short of it.`,
+
+    allAbove: ({ of }) => `That is more than a full working life in all ${of} countries here.`,
+
+    allBelow: ({ of }) =>
+      `That is less than a full working life in every one of the ${of} countries here.`,
+
+    /**
+     * Deze metriek woordt de "minder"-kant, dus de uitersten hangen aan `below` en niet
+     * aan `above` — bij een getal dat precies gelijk is lopen die niet gelijk.
+     */
+    some: ({ below, of }) =>
+      below === 0
+        ? `That is more than a full working life in all ${of} countries here.`
+        : below === of
+          ? `That is less than a full working life in every one of the ${of} countries here.`
+          : `It is less than the expected working life in ${below} of ${of} countries, and more in ${of - below}.`,
+  },
+
+  'dwelling-size': {
+    exact: ({ own, name, g }) => `Your ${own} m² is the average home in ${g.withArticle(name)}.`,
+
+    off: ({ own, name, amount, higher, value, g }) =>
+      `Your ${own} m² is ${amount} ${higher ? 'above' : 'below'} the average home in ` +
+      `${g.withArticle(name)} (${value} m²).`,
+
+    allAbove: ({ of }) => `That is larger than the average home in every one of the ${of} countries here.`,
+
+    allBelow: ({ of }) => `That is smaller than the average home in all ${of} countries here.`,
+
+    some: ({ above, of }) =>
+      `It is larger than the average in ${above} of ${of} countries, and smaller in ${of - above}.`,
+  },
+
+  'pension-age': {
+    exact: ({ own, name, g }) => `${own} is exactly the average age in ${g.withArticle(name)}.`,
+
+    off: ({ own, name, amount, higher, value, g }) =>
+      `${own} is ${amount} ${higher ? 'later' : 'earlier'} than the average in ` +
+      `${g.withArticle(name)} (${value}).`,
+
+    allAbove: ({ of }) => `That is later than the average in every one of the ${of} countries here.`,
+
+    allBelow: ({ of }) => `That is earlier than the average in all ${of} countries here.`,
+
+    some: ({ above, of }) =>
+      `It is later than the average in ${above} of ${of} countries, and earlier in ${of - above}.`,
+  },
 };

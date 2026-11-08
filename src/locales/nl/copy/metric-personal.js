@@ -86,4 +86,80 @@ export default {
     some: ({ above, of }) =>
       `Het is langer dan de gebruikelijke week in ${above} van de ${of} landen, en korter in ${of - above}.`,
   },
+
+  'working-life': {
+    exact: ({ ownValue, name, value, g }) =>
+      `Je hebt ${ownValue} jaar gewerkt, precies wat een volledig werkzaam leven in ` +
+      `${g.withArticle(name)} verwacht wordt te zijn (${value}).`,
+
+    /**
+     * Het Engels zegt "short of it" en laat het onderwerp bij jou liggen. In het
+     * Nederlands leest "je bent er 4,0 jaar van verwijderd" stijf; "je hebt er nog
+     * 4,0 jaar te gaan" zegt hetzelfde en loopt wel.
+     */
+    off: ({ ownValue, name, amount, higher, value, g }) =>
+      higher
+        ? `Je hebt ${ownValue} jaar gewerkt — ${amount} meer dan wat een volledig werkzaam ` +
+          `leven in ${g.withArticle(name)} verwacht wordt te zijn (${value}).`
+        : `Je hebt ${ownValue} jaar gewerkt. Een volledig werkzaam leven in ` +
+          `${g.withArticle(name)} wordt verwacht ${value} te zijn, dus je hebt er nog ${amount} te gaan.`,
+
+    allAbove: ({ of }) => `Dat is meer dan een volledig werkzaam leven in alle ${of} landen hier.`,
+
+    allBelow: ({ of }) =>
+      `Dat is minder dan een volledig werkzaam leven in elk van deze ${of} landen.`,
+
+    /**
+     * Deze metriek woordt de "minder"-kant, dus de uitersten hangen aan `below` en niet
+     * aan `above` — bij een getal dat precies gelijk is lopen die niet gelijk.
+     */
+    some: ({ below, of }) =>
+      below === 0
+        ? `Dat is meer dan een volledig werkzaam leven in alle ${of} landen hier.`
+        : below === of
+          ? `Dat is minder dan een volledig werkzaam leven in elk van deze ${of} landen.`
+          : `Het is minder dan het verwachte werkzame leven in ${below} van de ${of} landen, en meer in ${of - below}.`,
+  },
+
+  'dwelling-size': {
+    exact: ({ own, name, g }) =>
+      `Jouw ${own} m² is precies de gemiddelde woning in ${g.withArticle(name)}.`,
+
+    /**
+     * "Groter/kleiner" en niet "meer/minder": het gaat over een woning, niet over een
+     * hoeveelheid. Het Engels kan hier met "above/below" weg omdat het over het getal
+     * gaat; het Nederlands leest dan als een verdieping hoger.
+     */
+    off: ({ own, name, amount, higher, value, g }) =>
+      `Jouw ${own} m² is ${amount} ${higher ? 'groter' : 'kleiner'} dan de gemiddelde woning in ` +
+      `${g.withArticle(name)} (${value} m²).`,
+
+    allAbove: ({ of }) => `Dat is groter dan de gemiddelde woning in elk van deze ${of} landen.`,
+
+    allBelow: ({ of }) => `Dat is kleiner dan de gemiddelde woning in alle ${of} landen hier.`,
+
+    some: ({ above, of }) =>
+      `Het is groter dan het gemiddelde in ${above} van de ${of} landen, en kleiner in ${of - above}.`,
+  },
+
+  'pension-age': {
+    /**
+     * Het Engels begint deze zinnen met het getal zelf ("64 is exactly…"). Dat kan in het
+     * Nederlands niet: een zin die met een cijfer begint leest als een opsomming. Vandaar
+     * "Op 64 begon…", met het voorzetsel dat het Engels hier weglaat.
+     */
+    exact: ({ own, name, g }) =>
+      `Op ${own} is het precies de gemiddelde leeftijd in ${g.withArticle(name)}.`,
+
+    off: ({ own, name, amount, higher, value, g }) =>
+      `Op ${own} is het ${amount} ${higher ? 'later' : 'eerder'} dan het gemiddelde in ` +
+      `${g.withArticle(name)} (${value}).`,
+
+    allAbove: ({ of }) => `Dat is later dan het gemiddelde in elk van deze ${of} landen.`,
+
+    allBelow: ({ of }) => `Dat is eerder dan het gemiddelde in alle ${of} landen hier.`,
+
+    some: ({ above, of }) =>
+      `Het is later dan het gemiddelde in ${above} van de ${of} landen, en eerder in ${of - above}.`,
+  },
 };
