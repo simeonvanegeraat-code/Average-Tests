@@ -1,0 +1,44 @@
+{
+  "groups": {
+    "B50": "Bottom 50%",
+    "Q1": "Bottom 20%",
+    "Q2": "2nd 20%",
+    "Q3": "Middle 20%",
+    "Q4": "4th 20%",
+    "Q5": "Top 20%",
+    "D6": "6th decile",
+    "D7": "7th decile",
+    "D8": "8th decile",
+    "D9": "9th decile",
+    "D10": "Top 10%"
+  },
+  "status": {
+    "HSO": "Homeowners",
+    "HST": "Renters",
+    "WSE": "Employees",
+    "WSR": "Retired",
+    "WSS": "Self-employed",
+    "WSU": "Unemployed",
+    "WSX": "Other"
+  },
+  "composition": {
+    "NUN": { "label": "Property and other non-financial assets", "short": "property" },
+    "NUB": { "label": "Business wealth", "short": "business" },
+    "F62": { "label": "Pensions and insurance", "short": "pensions" },
+    "F2M": { "label": "Cash and deposits", "short": "deposits" },
+    "F52": { "label": "Investment funds", "short": "funds" },
+    "F511": { "label": "Listed shares", "short": "listed shares" },
+    "F51M": { "label": "Unlisted shares and other equity", "short": "other equity" },
+    "F3": { "label": "Bonds", "short": "bonds" },
+    "F4B": { "label": "Debt secured on property", "short": "mortgage debt" },
+    "F4X": { "label": "Other debt", "short": "other debt" }
+  },
+  "bands": {
+    "16-34": "16 to 34",
+    "35-44": "35 to 44",
+    "45-54": "45 to 54",
+    "55-64": "55 to 64",
+    "65-74": "65 to 74",
+    "75+": "75 and over"
+  }
+}

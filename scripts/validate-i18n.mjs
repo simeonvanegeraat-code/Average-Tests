@@ -476,7 +476,12 @@ const ALLOWED = new Map([
   ['src/pages/404.astro', 'CSS custom property --at'],
   ['src/pages/[...lang]/index.astro', 'CSS custom property --at'],
   ['src/pages/[...lang]/wealth/index.astro', 'SVG-coördinaten en -breedtes'],
-  ['src/pages/[...lang]/wealth/[country].astro', 'SVG-breedte, net als wealth/index.astro'],
+  /**
+   * Sinds 8 november 2026 bestaat de landpagina per taal, dus twee bestanden met dezelfde
+   * reden. Het gaat om één `toFixed(1)` in een `width:`-waarde van de leeftijdsbalken.
+   */
+  ['src/pages/wealth/[country].astro', 'CSS-breedte van de leeftijdsbalken'],
+  ['src/pages/nl/wealth/[country].astro', 'CSS-breedte van de leeftijdsbalken'],
   ['src/lib/threshold-explorer.js', 'dode code: nul importeurs (nagekeken 1 november 2026)'],
   ['src/lib/leaving-home-map.js', 'dode code: nul importeurs (nagekeken 1 november 2026)'],
 ]);
@@ -748,6 +753,25 @@ if (pages.length === 0) {
         .formatToParts(1.5)
         .find((part) => part.type === 'decimal')?.value;
 
+      /**
+       * Het duizendteken van deze taal, en waarom het hier moet staan.
+       *
+       * In het Nederlands is dat een punt, dus `€137.374` is precies goed. De controle
+       * hieronder zoekt `\d+[.,]\d` en vond daar "137.3": 31 valse treffers per
+       * vermogenspagina, over getallen die niets mankeerden. Dat is de gevaarlijkste
+       * soort melding — een poort waar je aan gaat twijfelen wordt uitgezet.
+       *
+       * Een geldige groep is het scheidingsteken gevolgd door precies drie cijfers, en
+       * die halen we eruit vóórdat er naar decimalen gekeken wordt. Geen enkele pagina
+       * hier schrijft drie decimalen, dus dat patroon is nooit iets anders.
+       */
+      const group = new Intl.NumberFormat(prefix).formatToParts(1234567).find((part) => part.type === 'group')
+        ?.value;
+      const stripGroups = (text) =>
+        group
+          ? text.replace(new RegExp(`(?<=\\d)${group.replace(/[.,]/, '\\$&')}(?=\\d{3}(?!\\d))`, 'g'), '')
+          : text;
+
       const visible = html
         .replace(/<script[\s\S]*?<\/script>/g, ' ')
         .replace(/<style[\s\S]*?<\/style>/g, ' ')
@@ -777,7 +801,7 @@ if (pages.length === 0) {
        */
       const withoutDoi = visible.replace(/\b10\.\d{4,9}\/\S+/g, ' ');
 
-      const foreign = [...withoutDoi.matchAll(/\d+[.,]\d/g)]
+      const foreign = [...stripGroups(withoutDoi).matchAll(/\d+[.,]\d/g)]
         .map((hit) => hit[0])
         .filter((hit) => !hit.includes(point));
 

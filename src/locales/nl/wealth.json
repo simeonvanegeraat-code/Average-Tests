@@ -1,0 +1,44 @@
+{
+  "groups": {
+    "B50": "Onderste 50%",
+    "Q1": "Onderste 20%",
+    "Q2": "2e 20%",
+    "Q3": "Middelste 20%",
+    "Q4": "4e 20%",
+    "Q5": "Bovenste 20%",
+    "D6": "6e deciel",
+    "D7": "7e deciel",
+    "D8": "8e deciel",
+    "D9": "9e deciel",
+    "D10": "Bovenste 10%"
+  },
+  "status": {
+    "HSO": "Eigenaren",
+    "HST": "Huurders",
+    "WSE": "Werknemers",
+    "WSR": "Gepensioneerden",
+    "WSS": "Zelfstandigen",
+    "WSU": "Werklozen",
+    "WSX": "Overig"
+  },
+  "composition": {
+    "NUN": { "label": "Vastgoed en ander niet-financieel bezit", "short": "vastgoed" },
+    "NUB": { "label": "Bedrijfsvermogen", "short": "bedrijfsvermogen" },
+    "F62": { "label": "Pensioenen en verzekeringen", "short": "pensioenen" },
+    "F2M": { "label": "Contanten en deposito's", "short": "deposito's" },
+    "F52": { "label": "Beleggingsfondsen", "short": "fondsen" },
+    "F511": { "label": "Beursgenoteerde aandelen", "short": "beursgenoteerde aandelen" },
+    "F51M": { "label": "Niet-beursgenoteerde aandelen en ander eigen vermogen", "short": "ander eigen vermogen" },
+    "F3": { "label": "Obligaties", "short": "obligaties" },
+    "F4B": { "label": "Schuld met vastgoed als onderpand", "short": "hypotheekschuld" },
+    "F4X": { "label": "Overige schuld", "short": "overige schuld" }
+  },
+  "bands": {
+    "16-34": "16 tot 34",
+    "35-44": "35 tot 44",
+    "45-54": "45 tot 54",
+    "55-64": "55 tot 64",
+    "65-74": "65 tot 74",
+    "75+": "75 en ouder"
+  }
+}

@@ -1,0 +1,437 @@
+---
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import rawIndex from '../../../../data/wealth/index.json';
+import { grammarOf } from '../../../lib/grammar.js';
+import { STAGES } from '../../../lib/hue.js';
+import { wealthCountryPage } from '../../../lib/pages/wealth-country.js';
+
+/**
+ * De Nederlandse landpagina's onder /wealth/ — 21 stuks uit één bestand.
+ *
+ * Eigen pagina's, geen vertaling: het rekenwerk komt uit
+ * `src/lib/pages/wealth-country.js`, de woorden van de data uit
+ * `src/locales/nl/wealth.json`, en de zinnen staan hier.
+ *
+ * TWEE DINGEN LOPEN HIER ANDERS DAN IN HET ENGELS
+ *
+ * De kop: "is worth €218k" zet het bedrag áchter het werkwoord, het Nederlands zet
+ * "waard" erachter — "is €218k waard". Het posterformaat-getal staat dus midden in de
+ * zin en niet aan het eind.
+ *
+ * En de rangorde: "It ranks 5th of the 21 countries" werkt in het Nederlands niet met een
+ * los rangnummer ("Het staat 5e van de 21"). De zin is omgedraaid, zodat het rangnummer
+ * een plaats krijgt: "Van de 21 landen … staat het op de 5e plaats."
+ */
+export async function getStaticPaths() {
+  const files = import.meta.glob('../../../../data/wealth/*.json', { eager: true });
+
+  /**
+   * De rúwe index, niet de gelokaliseerde. getStaticPaths draait voordat de pagina
+   * bestaat en kent Astro.url dus niet, en heeft hier ook geen taal nodig: de paden komen
+   * uit `area`, een landcode, en die is in elke taal hetzelfde.
+   */
+  return rawIndex.countries.map((summary) => {
+    const key = Object.keys(files).find((p) => p.endsWith(`/${summary.area.toLowerCase()}.json`));
+    const country = files[key].default ?? files[key];
+    return { params: { country: summary.area.toLowerCase() }, props: { country } };
+  });
+}
+
+const lang = localeOf(Astro.url.pathname);
+const {
+  ageIndex,
+  c,
+  byCode,
+  owners,
+  renters,
+  housingGap,
+  yearChange,
+  meanToMedian,
+  ranked,
+  position,
+  euroArea,
+  middle,
+  biggest,
+  secondBiggest,
+  totalDebt,
+  bottomQuintile,
+  negativeBottom,
+  survey,
+  curve,
+  sharePeak,
+  steeperThan,
+  money,
+  times,
+  pct,
+  period,
+  fieldwork,
+} = wealthCountryPage(Astro.props.country, lang);
+
+const g = grammarOf(lang);
+const where = g.withArticle(c.name);
+const Where = g.withArticle(c.name, { capitalise: true });
+
+/** Bovenaan, onderaan, of een plaats ertussen. Zie de toelichting bovenaan dit bestand. */
+const rankPhrase =
+  position === 1 ? 'bovenaan' : position === ranked.length ? 'onderaan' : `op de ${g.ordinal(position)} plaats`;
+
+const title = `Huishoudvermogen in ${Where} — waar jij staat`;
+const description =
+  `Het middelste huishouden in ${where} is ${money(c.median)} waard. Zie de hele verdeling, ` +
+  'het verschil tussen koop en huur, en waar jouw eigen huishouden zou staan.';
+---
+
+<BaseV2
+  title={title}
+  description={description}
+  canonical={`/wealth/${c.area.toLowerCase()}/`}
+  hue={STAGES.money}
+>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <p class="eyebrow mono" data-reveal>
+        {c.name} · Europese Centrale Bank · {period}
+      </p>
+      <h1 id="hero-title" data-reveal>
+        Het middelste huishouden in {where} is
+        <span class="giant num">{money(c.median, { compact: true })}</span> waard
+      </h1>
+      <p class="unit mono" data-reveal>
+        Precies <b>{money(c.median)}</b> · {period}
+      </p>
+      <p class="lead" data-reveal>
+        Dat is het middelste huishouden — de helft van het land bezit meer, de helft minder. Van de
+        {' '}{ranked.length} landen die de Europese Centrale Bank meet staat het {rankPhrase}.
+      </p>
+      <div class="hero-cta" data-reveal>
+        <a class="btn" href={linkTo('/wealth/#compare', lang)}>
+          Vergelijk je eigen huishouden
+          <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
+        </a>
+        <span class="hint">Er wordt niets verstuurd.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="middle-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Het midden en het gemiddelde</p>
+        <h2 id="middle-title">Waarom die twee cijfers verschillen</h2>
+      </header>
+
+      <div data-reveal>
+        <div class="statrow">
+          <div class="statblock">
+            <span class="k">Middelste huishouden</span>
+            <b>{money(c.median)}</b>
+            {yearChange != null && (
+              <span class="d">
+                {yearChange >= 0 ? '▲' : '▼'} {pct(Math.abs(yearChange))}% over het jaar
+              </span>
+            )}
+          </div>
+          <div class="statblock">
+            <span class="k">Gemiddeld huishouden</span>
+            <b>{money(c.mean)}</b>
+            {meanToMedian && <span class="d">{times(meanToMedian)} de mediaan</span>}
+          </div>
+        </div>
+
+        <div class="prose">
+          <p>
+            Het gemiddelde is {meanToMedian ? times(meanToMedian) : ''} de mediaan, en dat verschil
+            is het hele verhaal van vermogensstatistiek. Gemiddelden worden omhooggetrokken door een
+            klein aantal zeer grote vermogens; de mediaan beschrijft het huishouden in het midden.
+            Een kop die het gemiddelde vermogen van een land noemt, beschrijft bijna niemand.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {
+    housingGap && (
+      <section class="block" aria-labelledby="housing-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">Koop tegenover huur</p>
+            <h2 id="housing-title">De scherpste scheidslijn in de data</h2>
+            <p>
+              In {where} is dit groter dan welk verschil tussen leeftijdsgroepen of beroepen ook.
+            </p>
+          </header>
+
+          <div data-reveal>
+            <div class="split">
+              <div class="split-side own">
+                <span class="k">{owners.label}</span>
+                <b>{money(owners.netWealth)}</b>
+              </div>
+              <div class="split-vs">{times(housingGap)}</div>
+              <div class="split-side rent">
+                <span class="k">{renters.label}</span>
+                <b>{money(renters.netWealth)}</b>
+              </div>
+            </div>
+
+            <div class="prose">
+              <p>
+                Een huishouden met een koopwoning in {where} bezit {times(housingGap)} wat een
+                huurder bezit. Jezelf vergelijken met het gemiddelde huishouden hier, zonder te
+                weten aan welke kant van die lijn je staat, zegt heel weinig.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="block" aria-labelledby="dist-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">De hele verdeling</p>
+        <h2 id="dist-title">Wat elk vijfde deel bezit</h2>
+        <p>
+          Dit zijn groepsgemiddelden, niet de grenzen tussen de groepen — de ECB publiceert het
+          eerste en niet het tweede.
+        </p>
+      </header>
+
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Nettovermogen per groep" data-reveal>
+        <table>
+          <caption class="vh">
+            Gemiddeld nettovermogen per huishouden per groep, {Where}, {period}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Groep</th>
+              <th scope="col" class="n">Gemiddeld nettovermogen</th>
+            </tr>
+          </thead>
+          <tbody>
+            {c.groups.filter((group) => group.kind === 'quintile').map((group) => (
+              <tr>
+                <th scope="row">{group.label}</th>
+                <td class:list={['n', group.netWealth < 0 && 'negative']}>{money(group.netWealth)}</td>
+              </tr>
+            ))}
+            {byCode.D10 && (
+              <tr class="emphasis">
+                <th scope="row">{byCode.D10.label}</th>
+                <td class="n">{money(byCode.D10.netWealth)}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {
+        negativeBottom && (
+          <div class="limits" data-reveal>
+            <b>Het onderste vijfde deel van de huishoudens in {where} heeft een negatief nettovermogen</b>
+            <p>
+              Gemiddeld {money(bottomQuintile.netWealth)}. Ze hebben meer schuld dan bezit. Dat is in
+              Europa niet ongewoon en het is geen afrondingsartefact: hypotheken, studieleningen en
+              consumptief krediet kunnen alles overtreffen wat een jong huishouden heeft kunnen
+              opbouwen.
+            </p>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  {
+    biggest && (
+      <section class="block" aria-labelledby="comp-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">Waar het midden zijn geld houdt</p>
+            <h2 id="comp-title">De balans van een middenhuishouden</h2>
+            <p>
+              Alles hieronder telt op tot het nettovermogen van een huishouden in het middelste
+              vijfde deel van {where} — eerst de bezittingen, dan wat daartegenover schuld is.
+            </p>
+          </header>
+
+          <div class="tablewrap" tabindex="0" role="region" aria-label="Balans van het middelste vijfde deel" data-reveal>
+            <table>
+              <caption class="vh">Middelste 20% van de huishoudens, gemiddeld per huishouden</caption>
+              <tbody>
+                {middle.map((part) => (
+                  <tr class={part.side === 'liability' ? 'liability' : undefined}>
+                    <th scope="row">{part.label}</th>
+                    <td class:list={['n', part.value < 0 && 'negative']}>{money(part.value)}</td>
+                  </tr>
+                ))}
+                <tr class="emphasis">
+                  <th scope="row">Nettovermogen</th>
+                  <td class="n">{money(byCode.Q3?.netWealth)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="prose" data-reveal>
+            {/*
+              Eén regel, geen regelafbrekingen tussen de stukken — zie de Engelse pagina:
+              een afbreking na </strong> wordt een spatie bovenop de {' '}, en een afbreking
+              vóór het tweede stuk een spatie vóór de komma. Op 21 pagina's tegelijk.
+            */}
+            <p>
+              Voor dit huishouden is de grootste post <strong>{biggest.label.toLowerCase()}</strong> met {money(biggest.value)}{secondBiggest && <>, gevolgd door {secondBiggest.label.toLowerCase()} met {money(secondBiggest.value)}</>}.{totalDebt > 0 && <> Daartegenover staat {money(totalDebt)} schuld.</>}
+            </p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    survey && curve && (
+      <section class="block" aria-labelledby="age-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">Leeftijd</p>
+            <h2 id="age-title">
+              {curve.flat
+                ? `In ${where} maakt leeftijd hier nauwelijks verschil`
+                : `In ${where} piekt vermogen bij ${curve.peak.label}`}
+            </h2>
+            <p>
+              Elk cijfer in deze sectie komt uit de huishoudenquête van de ECB, en dat is een andere
+              meting dan de rest van deze pagina: de waarde van publieke en bedrijfspensioenen zit
+              er niet in. De twee kunnen niet tegen elkaar gelezen worden, dus deze sectie
+              vergelijkt alleen binnen zichzelf.
+            </p>
+          </header>
+
+          <div data-reveal>
+            <ul class="agebars">
+              {curve.bands.map((band) => (
+                <li class:list={[{ 'is-peak': band.code === survey.peak }]}>
+                  <span class="k mono">{band.code}</span>
+                  <span class="bar">
+                    <i style={`width:${((band.median / curve.peak.median) * 100).toFixed(1)}%`} />
+                  </span>
+                  <span class="v num">{money(band.median, { compact: true })}</span>
+                  <span class="avg mono">gem. {money(band.mean, { compact: true })}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class="prose">
+              <p>
+                {curve.flat ? (
+                  <>
+                    Het middelste huishouden in {where} is {money(curve.youngest.median)} waard in de
+                    groep {curve.youngest.label} en {money(curve.peak.median)} op zijn hoogste punt,
+                    {' '}{curve.peak.label} — maar {times(curve.climb)} zoveel. Dat is een van de
+                    vlakste curves in deze enquête, en het betekent dat een nationaal cijfer hier een
+                    dertigjarige bijna even goed beschrijft als een zestigjarige. In de meeste landen
+                    is dat niet zo.
+                  </>
+                ) : (
+                  <>
+                    Het middelste huishouden klimt van {money(curve.youngest.median)} in de groep
+                    {' '}{curve.youngest.label} naar {money(curve.peak.median)} bij
+                    {' '}{curve.peak.label}, {times(curve.climb)} zoveel — steiler dan
+                    {steeperThan === ageIndex.countries.length - 1
+                      ? ' in elk ander land hier'
+                      : ` in ${steeperThan} van de andere ${ageIndex.countries.length - 1}`}.
+                    {curve.fall === null ? (
+                      <> Het buigt nooit terug naar beneden: de oudste groep is de hoogste.</>
+                    ) : (
+                      <> Na de piek zakt het terug naar {money(curve.oldest.median)} bij
+                      {' '}{curve.oldest.label}.</>
+                    )}
+                  </>
+                )}
+              </p>
+              <p>
+                {sharePeak === 1
+                  ? `${Where} is het enige land in deze enquête waarvan de hoogste groep ${curve.peak.label} is.`
+                  : `${sharePeak} van de ${ageIndex.countries.length} landen hier pieken bij ${curve.peak.label}.`}
+                {' '}Het gemiddelde van elke groep ligt overal boven het midden — in de groep
+                {' '}{curve.youngest.label} is het {times(curve.youngest.mean / curve.youngest.median)} het
+                midden, doordat een klein aantal grote vermogens het omhoogtrekt.
+                {' '}<a href={linkTo('/wealth/by-age/', lang)}>Alle {ageIndex.countries.length} landen naast elkaar</a>.
+              </p>
+            </div>
+
+            <p class="panel-source panel-source--light" style="margin-top:22px">
+              {ageIndex.source.publisher}, {ageIndex.source.survey}, golf {ageIndex.source.wave}.
+              Het veldwerk in {where} liep {fieldwork}. De leeftijd is die van de referentiepersoon
+              van het huishouden.
+            </p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">Methode</p>
+        <h2 id="method-title">Hoe dit gemeten is</h2>
+        <p>
+          Elk getal op deze pagina is gepubliceerd door de Europese Centrale Bank of geteld uit die
+          gepubliceerde getallen.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <dl>
+          <div>
+            <dt>Wat de cijfers zijn</dt>
+            <dd>
+              Nettovermogen is alle bezittingen min alle schulden, per huishouden. Groepscijfers zijn
+              gemiddelden binnen elke groep, niet de grenzen ertussen. Elke post op deze pagina sluit
+              aan op het nettovermogenstotaal dat de ECB zelf publiceert.
+            </dd>
+          </div>
+          {euroArea && (
+            <div>
+              <dt>Ter vergelijking</dt>
+              <dd>
+                Het middelste huishouden in de hele eurozone is {money(euroArea.median)} waard.
+              </dd>
+            </div>
+          )}
+        </dl>
+
+        <ul class="source-list">
+          <li>
+            <strong>Bron</strong>
+            <span>
+              <a href="https://data.ecb.europa.eu/" data-method-link>Europese Centrale Bank</a>,
+              Distributional Wealth Accounts, {period}
+            </span>
+          </li>
+          {survey && (
+            <li>
+              <strong>Alleen de leeftijdssectie</strong>
+              <span>
+                <a href={ageIndex.source.url} data-method-link>{ageIndex.source.survey}</a>, golf
+                {' '}{ageIndex.source.wave}, veldwerk {fieldwork}. Een aparte meting: publieke en
+                bedrijfspensioenen worden er niet in meegeteld.
+              </span>
+            </li>
+          )}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import { track, EVENTS } from '../../../lib/analytics.js';
+
+    for (const link of document.querySelectorAll('[data-method-link]')) {
+      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'wealth-country' }));
+    }
+  </script>
+</BaseV2>
