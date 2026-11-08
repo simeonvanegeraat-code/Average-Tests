@@ -120,4 +120,25 @@ export default {
           ? `Dat is minder dan een volledig werkzaam leven in elk van deze ${of} landen.`
           : `Het is minder dan het verwachte werkzame leven in ${below} van de ${of} landen, en meer in ${of - below}.`,
   },
+
+  'dwelling-size': {
+    exact: ({ own, name, g }) =>
+      `Jouw ${own} m² is precies de gemiddelde woning in ${g.withArticle(name)}.`,
+
+    /**
+     * "Groter/kleiner" en niet "meer/minder": het gaat over een woning, niet over een
+     * hoeveelheid. Het Engels kan hier met "above/below" weg omdat het over het getal
+     * gaat; het Nederlands leest dan als een verdieping hoger.
+     */
+    off: ({ own, name, amount, higher, value, g }) =>
+      `Jouw ${own} m² is ${amount} ${higher ? 'groter' : 'kleiner'} dan de gemiddelde woning in ` +
+      `${g.withArticle(name)} (${value} m²).`,
+
+    allAbove: ({ of }) => `Dat is groter dan de gemiddelde woning in elk van deze ${of} landen.`,
+
+    allBelow: ({ of }) => `Dat is kleiner dan de gemiddelde woning in alle ${of} landen hier.`,
+
+    some: ({ above, of }) =>
+      `Het is groter dan het gemiddelde in ${above} van de ${of} landen, en kleiner in ${of - above}.`,
+  },
 };

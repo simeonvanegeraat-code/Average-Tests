@@ -69,12 +69,12 @@ export function localeOfNumber(locale) {
  */
 const cache = new Map();
 
-function formatter(locale, decimals, grouping) {
-  const key = `${locale}|${decimals}|${grouping}`;
+function formatter(locale, decimals, grouping, minimum = decimals) {
+  const key = `${locale}|${decimals}|${grouping}|${minimum}`;
   let found = cache.get(key);
   if (!found) {
     found = new Intl.NumberFormat(locale, {
-      minimumFractionDigits: decimals,
+      minimumFractionDigits: minimum,
       maximumFractionDigits: decimals,
       useGrouping: grouping,
     });
@@ -94,6 +94,20 @@ export function decimal(value, decimals = 1, { locale } = {}) {
   if (value === null || value === undefined || !Number.isFinite(value)) return null;
   const rounded = Number(value.toFixed(decimals));
   return formatter(localeOfNumber(locale), decimals, false).format(rounded);
+}
+
+/**
+ * Een getal met *tot* zoveel decimalen, zonder nullen achteraan: `2.7` / `2,7`, en
+ * `1.25` / `1,25`.
+ *
+ * Bestaat voor verhoudingen. decimal() schrijft een vast aantal decimalen, dus
+ * decimal(2.7, 2) geeft "2.70". Wie een verhouding al afgerond heeft en hem alleen nog
+ * in de notatie van de taal wil zetten, heeft deze nodig — anders komt het getal rúw in
+ * de pagina, met een punt, ook op een Nederlandse pagina.
+ */
+export function upTo(value, decimals = 2, { locale } = {}) {
+  if (value === null || value === undefined || !Number.isFinite(value)) return null;
+  return formatter(localeOfNumber(locale), decimals, false, 0).format(value);
 }
 
 /**

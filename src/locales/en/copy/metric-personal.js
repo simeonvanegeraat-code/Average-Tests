@@ -114,4 +114,19 @@ export default {
           ? `That is less than a full working life in every one of the ${of} countries here.`
           : `It is less than the expected working life in ${below} of ${of} countries, and more in ${of - below}.`,
   },
+
+  'dwelling-size': {
+    exact: ({ own, name, g }) => `Your ${own} m² is the average home in ${g.withArticle(name)}.`,
+
+    off: ({ own, name, amount, higher, value, g }) =>
+      `Your ${own} m² is ${amount} ${higher ? 'above' : 'below'} the average home in ` +
+      `${g.withArticle(name)} (${value} m²).`,
+
+    allAbove: ({ of }) => `That is larger than the average home in every one of the ${of} countries here.`,
+
+    allBelow: ({ of }) => `That is smaller than the average home in all ${of} countries here.`,
+
+    some: ({ above, of }) =>
+      `It is larger than the average in ${above} of ${of} countries, and smaller in ${of - above}.`,
+  },
 };

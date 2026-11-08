@@ -63,12 +63,17 @@ const { metric } = Astro.props;
        */
       const below = data.countries.filter((country: any) => own < country.total).length;
       const of = data.countries.length;
+      /**
+       * Hoe dicht "precies gelijk" is, per metriek. dwelling-size rekent in vierkante
+       * meters en zet die op 0,5; overal elders is een halve eenheid juist veel.
+       */
+      const exactWithin = typeof data.exactWithin === 'number' ? data.exactWithin : 0.05;
       const lines: string[] = [];
 
       if (home) {
         const diff = own - home.total;
         lines.push(
-          Math.abs(diff) < 0.05
+          Math.abs(diff) < exactWithin
             ? copy.exact({
                 own,
                 ownValue: formatValue(own, cfg),

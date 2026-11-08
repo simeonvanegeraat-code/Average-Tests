@@ -1,100 +1,50 @@
 ---
-import { ui } from '../../../lib/ui.js';
-import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
-import { localise } from '../../../lib/country-names.js';
-import { decimal } from '../../../lib/format.js';
-import BaseV2 from '../../../layouts/BaseV2.astro';
-import Related from '../../../components/Related.astro';
-import StageMap from '../../../components/StageMap.astro';
-import CompareForm from '../../../components/CompareForm.astro';
-import RankTable from '../../../components/RankTable.astro';
-import geo from '../../../../data/geo/europe.json';
-import rawIndex from '../../../../data/dwelling-size/index.json';
-import rawHouseholdData from '../../../../data/household-size/index.json';
-import baseMetric from '../../../lib/metrics/dwelling-size.js';
-import { localiseMetric } from '../../../lib/metric-names.js';
-import baseHouseholdMetric from '../../../lib/metrics/household-size.js';
-import { spacePerPerson } from '../../../lib/space-per-person.js';
+import { ui } from '../../lib/ui.js';
+import { localeOf, linkTo } from '../../lib/locales.js';
+import BaseV2 from '../../layouts/BaseV2.astro';
+import Related from '../../components/Related.astro';
+import StageMap from '../../components/StageMap.astro';
+import CompareForm from '../../components/CompareForm.astro';
+import RankTable from '../../components/RankTable.astro';
+import MetricPersonal from '../../components/MetricPersonal.astro';
+import geo from '../../../data/geo/europe.json';
+import { ordinal, withArticle } from '../../lib/metric.js';
+import { dwellingSizePage } from '../../lib/pages/dwelling-size.js';
 
 /**
- * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
- * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
- * taal in voordat enig onderdeel de index ziet, en `locale` in de
- * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ * De Engelse /dwelling-size/.
+ *
+ * Eigen bestand per taal sinds 3 november 2026;
+ * `src/pages/nl/dwelling-size/index.astro` is de Nederlandse. Het rekenwerk staat in
+ * `src/lib/pages/dwelling-size.js`, de deling door de huishoudgrootte inbegrepen.
  */
 const lang = localeOf(Astro.url.pathname);
 /** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
 const shared = ui(lang).metricPage;
-const index = localise(rawIndex, lang);
-const householdData = localise(rawHouseholdData, lang);
-const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
-const householdMetric = { ...localiseMetric(baseHouseholdMetric, lang), locale: lang };
-import {
-  currentCountries,
-  formatAmount,
-  formatValue,
-  headline,
-  ordinal,
-  ranked,
-  staleCountries,
-  withArticle,
-} from '../../../lib/metric.js';
-
-/**
- * Metriekpagina: dwelling-size.
- *
- * Kaart, tabel en formulier zijn gedeelde componenten; kop, bevindingen en methode
- * zijn voor deze pagina geschreven. Geen cijfer staat hier met de hand ingetypt.
- *
- * Wat deze pagina heeft dat geen andere heeft: de deling door de huishoudgrootte.
- * Vierkante meters per woning en vierkante meters per persoon geven een andere
- * rangorde, en dat is het antwoord op een vraag die een tabel met woninggroottes
- * niet beantwoordt. De rekensom staat in src/lib/space-per-person.js, met de
- * beperking erbij: het is één gepubliceerd gemiddelde gedeeld door een ander.
- */
-
-const h = headline(index);
-const stale = staleCountries(index);
-const order = ranked(index);
-const current = currentCountries(index);
-const space = spacePerPerson(index, householdData);
-
-const fmt = (value: number | null) => formatValue(value, metric);
-const amt = (value: number, options = {}) => formatAmount(value, metric, options);
-const people = (value: number) => formatAmount(value, householdMetric);
-
-const euValue = h.eu ? fmt(h.eu.total) : fmt(order[Math.floor(order.length / 2)].total);
-const ratio = decimal(h.latest.total / h.earliest.total, 2);
-const names = (list: any[]) => list.map((country) => country.name).join(', ');
-const small5 = names(order.slice(0, 5));
-const large5 = names(order.slice(-5).reverse());
-const bigOnes = current
-  .filter((country) => ['DE', 'FR', 'IT', 'ES', 'PL', 'NL'].includes(country.code))
-  .sort((a, b) => a.total - b.total)
-  .map((country) => `${country.name} ${fmt(country.total)}`)
-  .join(', ');
-
-/** De landen die het meest van plaats veranderen zodra je door de huishoudgrootte deelt. */
-const movers = space
-  ? [...space.byArea]
-      .sort((a, b) => Math.abs(b.areaRank - b.personRank) - Math.abs(a.areaRank - a.personRank))
-      .slice(0, 3)
-  : [];
-
-const clientJson = JSON.stringify({
-  decimals: metric.decimals,
-  unit: metric.unit,
-  unitOne: metric.unitOne,
-  countries: current.map(({ code, name, total }) => ({ code, name, total })),
-}).replace(/</g, '\\u003c');
+const {
+  index,
+  householdData,
+  metric,
+  h,
+  stale,
+  space,
+  euValue,
+  ratio,
+  ratioArea,
+  ratioPerson,
+  small5,
+  large5,
+  bigOnes,
+  movers,
+  fmt,
+  amt,
+  people,
+  peopleValue,
+  clientJson,
+} = dwellingSizePage(lang);
 
 const title = `Average Home Size by Country in Europe (${h.year})`;
 const description = `The average home in the European Union is ${euValue} m² — ${fmt(h.earliest.total)} in ${withArticle(h.earliest.name)} and ${fmt(h.latest.total)} in ${withArticle(h.latest.name)}. Compare all ${h.countries} countries on a map, and see which countries have the most floor space per person.`;
-/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
-export function getStaticPaths() {
-  return localePaths();
-}
-
 ---
 
 <BaseV2 title={title} description={description} canonical="/dwelling-size/" hue={metric.hue}>
@@ -124,7 +74,7 @@ export function getStaticPaths() {
       </header>
       <div data-reveal>
         <CompareForm index={index} metric={metric} />
-        <output class="result" data-metric-result role="status" hidden></output>
+        <MetricPersonal metric="dwelling-size" />
         <div class="limits">
           <b>What a floor area does not say</b>
           <p>Two homes of the same size are not the same home. This figure ignores how many people live there, how the space is divided, whether there is outdoor space, and what it costs. A 90 m² flat in a capital city and a 90 m² house in a village are the same number here and nothing like each other.</p>
@@ -182,7 +132,7 @@ export function getStaticPaths() {
             <div class="prose">
               <p>
                 The spread widens when you do this. Measured by floor area the largest country is{' '}
-                {space.ratioArea} times the smallest; measured per person it is {space.ratioPerson} times.
+                {ratioArea} times the smallest; measured per person it is {ratioPerson} times.
                 Countries with large homes tend to have large households, and the two partly cancel out:
                 {movers.map((row, i) => (
                   <>
@@ -219,7 +169,7 @@ export function getStaticPaths() {
                     <tr>
                       <th scope="row">{row.name}</th>
                       <td class="n">{fmt(row.m2)}</td>
-                      <td class="n">{formatValue(row.people, householdMetric)}</td>
+                      <td class="n">{peopleValue(row.people)}</td>
                       <td class="n strong">{fmt(row.per)}</td>
                     </tr>
                   ))}
@@ -227,7 +177,7 @@ export function getStaticPaths() {
                     <tr class="emphasis">
                       <th scope="row">{shared.europeanUnion}</th>
                       <td class="n">{fmt(space.eu.m2)}</td>
-                      <td class="n">{formatValue(space.eu.people, householdMetric)}</td>
+                      <td class="n">{peopleValue(space.eu.people)}</td>
                       <td class="n strong">{fmt(space.eu.per)}</td>
                     </tr>
                   )}
@@ -331,85 +281,12 @@ export function getStaticPaths() {
 
   <script type="application/json" id="metric-data" set:html={clientJson} />
 
-  <script>
-    import { readProfile, mergeProfile } from '../../../lib/profile.js';
-    import { formatAmount, formatValue, withArticle } from '../../../lib/metric.js';
-    import { track, EVENTS } from '../../../lib/analytics.js';
-
-    /** De persoonlijke laag. De zinnen horen bij deze metriek en staan daarom hier. */
-    const holder = document.getElementById('metric-data');
-    const result = document.querySelector<HTMLElement>('[data-metric-result]');
-    const KEY = 'dwelling-size';
-
-    if (holder && result) {
-      const data = JSON.parse(holder.textContent ?? '{}');
-      const cfg = { decimals: data.decimals, unit: data.unit, unitOne: data.unitOne };
-      const send = (name: string, detail: object) => document.dispatchEvent(new CustomEvent(name, { detail }));
-
-      function render(code: string, own: number) {
-        const home = data.countries.find((country: any) => country.code === code);
-        const larger = data.countries.filter((country: any) => own > country.total).length;
-        const of = data.countries.length;
-        const lines = [];
-        if (home) {
-          const diff = own - home.total;
-          lines.push(
-            Math.abs(diff) < 0.5
-              ? `Your ${own} m² is the average home in ${withArticle(home.name)}.`
-              : `Your ${own} m² is ${formatAmount(Math.abs(diff), cfg)} ${diff > 0 ? 'above' : 'below'} the average home in ${withArticle(home.name)} (${formatValue(home.total, cfg)} m²).`,
-          );
-        }
-        lines.push(
-          larger === of
-            ? `That is larger than the average home in every one of the ${of} countries here.`
-            : larger === 0
-              ? `That is smaller than the average home in all ${of} countries here.`
-              : `It is larger than the average in ${larger} of ${of} countries, and smaller in ${of - larger}.`,
-        );
-        result.textContent = lines.join(' ');
-        result.hidden = false;
-      }
-
-      document.addEventListener('ha:country', (event) => {
-        const { code, source } = (event as CustomEvent<any>).detail ?? {};
-        if (!code || source === 'restore') return;
-        mergeProfile({ country: code });
-      });
-
-      document.addEventListener('ha:submit', (event) => {
-        const { code, age, source } = (event as CustomEvent<any>).detail ?? {};
-        if (!code || !Number.isFinite(age)) return;
-        render(code, age);
-        if (source === 'restore') return;
-        mergeProfile({ country: code, [KEY]: age });
-        track(EVENTS.valueSubmitted, { metric: KEY, country: code });
-      });
-
-      function restore() {
-        const saved = readProfile();
-        const code = typeof saved.country === 'string' ? saved.country : null;
-        if (!code) return;
-        send('ha:country', { code, source: 'restore' });
-        const own = Number(saved[KEY]);
-        if (Number.isFinite(own)) send('ha:submit', { code, age: own, source: 'restore' });
-      }
-
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restore, { once: true });
-      else restore();
-    }
-
-    for (const link of document.querySelectorAll('[data-method-link]')) {
-      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: KEY }));
-    }
-  </script>
-
   <style>
     .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
     .tile .meta { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
     .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
     .prose p { margin: 0 0 14px; line-height: 1.7; }
     .prose p:last-child { margin-bottom: 0; }
-    .result { display: block; margin-top: 18px; padding: 18px 22px; border-radius: var(--radius-md); border: 1px solid var(--line-strong); font-size: 1.04rem; line-height: 1.6; }
     #per-person .tablewrap { margin-top: 28px; }
     /* .split komt van de vermogenspagina's; daar heeft de toelichting geen eigen regel. */
     .split-side .d { display: block; margin-top: 10px; color: var(--text-2); font-size: 0.86rem; line-height: 1.5; }
