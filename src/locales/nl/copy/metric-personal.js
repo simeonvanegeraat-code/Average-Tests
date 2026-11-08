@@ -86,4 +86,38 @@ export default {
     some: ({ above, of }) =>
       `Het is langer dan de gebruikelijke week in ${above} van de ${of} landen, en korter in ${of - above}.`,
   },
+
+  'working-life': {
+    exact: ({ ownValue, name, value, g }) =>
+      `Je hebt ${ownValue} jaar gewerkt, precies wat een volledig werkzaam leven in ` +
+      `${g.withArticle(name)} verwacht wordt te zijn (${value}).`,
+
+    /**
+     * Het Engels zegt "short of it" en laat het onderwerp bij jou liggen. In het
+     * Nederlands leest "je bent er 4,0 jaar van verwijderd" stijf; "je hebt er nog
+     * 4,0 jaar te gaan" zegt hetzelfde en loopt wel.
+     */
+    off: ({ ownValue, name, amount, higher, value, g }) =>
+      higher
+        ? `Je hebt ${ownValue} jaar gewerkt — ${amount} meer dan wat een volledig werkzaam ` +
+          `leven in ${g.withArticle(name)} verwacht wordt te zijn (${value}).`
+        : `Je hebt ${ownValue} jaar gewerkt. Een volledig werkzaam leven in ` +
+          `${g.withArticle(name)} wordt verwacht ${value} te zijn, dus je hebt er nog ${amount} te gaan.`,
+
+    allAbove: ({ of }) => `Dat is meer dan een volledig werkzaam leven in alle ${of} landen hier.`,
+
+    allBelow: ({ of }) =>
+      `Dat is minder dan een volledig werkzaam leven in elk van deze ${of} landen.`,
+
+    /**
+     * Deze metriek woordt de "minder"-kant, dus de uitersten hangen aan `below` en niet
+     * aan `above` — bij een getal dat precies gelijk is lopen die niet gelijk.
+     */
+    some: ({ below, of }) =>
+      below === 0
+        ? `Dat is meer dan een volledig werkzaam leven in alle ${of} landen hier.`
+        : below === of
+          ? `Dat is minder dan een volledig werkzaam leven in elk van deze ${of} landen.`
+          : `Het is minder dan het verwachte werkzame leven in ${below} van de ${of} landen, en meer in ${of - below}.`,
+  },
 };

@@ -57,6 +57,11 @@ const { metric } = Astro.props;
     function render(code: string, own: number) {
       const home = data.countries.find((country: any) => country.code === code);
       const above = data.countries.filter((country: any) => own > country.total).length;
+      /**
+       * Strikt geteld en niet `of - above`: een land waar jouw getal precies gelijk is
+       * hoort aan geen van beide kanten. working-life rekent zijn zin hiermee.
+       */
+      const below = data.countries.filter((country: any) => own < country.total).length;
       const of = data.countries.length;
       const lines: string[] = [];
 
@@ -66,6 +71,7 @@ const { metric } = Astro.props;
           Math.abs(diff) < 0.05
             ? copy.exact({
                 own,
+                ownValue: formatValue(own, cfg),
                 name: home.name,
                 value: formatValue(home.total, cfg),
                 g,
@@ -73,6 +79,7 @@ const { metric } = Astro.props;
               })
             : copy.off({
                 own,
+                ownValue: formatValue(own, cfg),
                 name: home.name,
                 amount: formatAmount(Math.abs(diff), cfg),
                 higher: diff > 0,
@@ -85,10 +92,10 @@ const { metric } = Astro.props;
 
       lines.push(
         above === of
-          ? copy.allAbove({ of, g, words: data.words })
+          ? copy.allAbove({ of, above, below, g, words: data.words })
           : above === 0
-            ? copy.allBelow({ of, g, words: data.words })
-            : copy.some({ above, of, g, words: data.words }),
+            ? copy.allBelow({ of, above, below, g, words: data.words })
+            : copy.some({ above, below, of, g, words: data.words }),
       );
 
       result.textContent = lines.join(' ');

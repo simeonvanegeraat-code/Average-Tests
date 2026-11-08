@@ -80,4 +80,38 @@ export default {
     some: ({ above, of }) =>
       `It is longer than the usual week in ${above} of ${of} countries, and shorter in ${of - above}.`,
   },
+
+  'working-life': {
+    exact: ({ ownValue, name, value, g }) =>
+      `You have worked ${ownValue} years, exactly what a full working life in ${g.withArticle(name)} ` +
+      `is expected to be (${value}).`,
+
+    /**
+     * Twee richtingen, en de zin verschilt echt: wie onder de verwachting zit heeft
+     * jaren te gaan, wie erboven zit is er voorbij. Woordelijk overgenomen uit het
+     * script dat tot 8 november 2026 in het paginabestand stond.
+     */
+    off: ({ ownValue, name, amount, higher, value, g }) =>
+      higher
+        ? `You have worked ${ownValue} years — ${amount} past what a full working life in ` +
+          `${g.withArticle(name)} is expected to be (${value}).`
+        : `You have worked ${ownValue} years. A full working life in ${g.withArticle(name)} is ` +
+          `expected to be ${value}, so you are ${amount} short of it.`,
+
+    allAbove: ({ of }) => `That is more than a full working life in all ${of} countries here.`,
+
+    allBelow: ({ of }) =>
+      `That is less than a full working life in every one of the ${of} countries here.`,
+
+    /**
+     * Deze metriek woordt de "minder"-kant, dus de uitersten hangen aan `below` en niet
+     * aan `above` — bij een getal dat precies gelijk is lopen die niet gelijk.
+     */
+    some: ({ below, of }) =>
+      below === 0
+        ? `That is more than a full working life in all ${of} countries here.`
+        : below === of
+          ? `That is less than a full working life in every one of the ${of} countries here.`
+          : `It is less than the expected working life in ${below} of ${of} countries, and more in ${of - below}.`,
+  },
 };
