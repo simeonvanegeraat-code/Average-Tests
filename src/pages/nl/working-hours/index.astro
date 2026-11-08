@@ -1,0 +1,181 @@
+---
+import { ui } from '../../../lib/ui.js';
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import Related from '../../../components/Related.astro';
+import StageMap from '../../../components/StageMap.astro';
+import CompareForm from '../../../components/CompareForm.astro';
+import RankTable from '../../../components/RankTable.astro';
+import MetricPersonal from '../../../components/MetricPersonal.astro';
+import geo from '../../../../data/geo/europe.json';
+import { grammarOf } from '../../../lib/grammar.js';
+import { workingHoursPage } from '../../../lib/pages/working-hours.js';
+
+/**
+ * De Nederlandse /working-hours/.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk komt uit
+ * `src/lib/pages/working-hours.js`, de woorden staan hier.
+ *
+ * De kop van deze pagina is een bewering over élk land, en dat is in het Nederlands
+ * net zo hard te maken als in het Engels. De lead erónder loopt anders: "Not most
+ * countries. Not almost all." zijn twee losse brokken die het Engels aan elkaar kan
+ * rijgen zonder voegwoord. Het Nederlands heeft daar het voorzetsel bij nodig, anders
+ * valt de zin om.
+ *
+ * Geen enkel cijfer staat hier met de hand.
+ */
+const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
+const { index, metric, h, gender, movement, stale, euValue, bigOnes, fmt, amt, clientJson } =
+  workingHoursPage(lang);
+
+const g = grammarOf(lang);
+
+const title = `Gemiddelde werkweek per land in Europa (${h.year})`;
+const description = `Een gebruikelijke werkweek duurt ${euValue} uur in de Europese Unie — ${fmt(h.earliest.total)} in ${g.withArticle(h.earliest.name)} en ${fmt(h.latest.total)} in ${g.withArticle(h.latest.name)}. Vergelijk alle ${h.countries} landen en zie waar jouw week staat.`;
+---
+
+<BaseV2 title={title} description={description} canonical="/working-hours/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Eurostat · {h.countries} landen · {h.year}</p>
+      <h1 data-reveal>In elk gemeten land werken vrouwen minder betaalde uren dan mannen.</h1>
+      <span class="giant num">{euValue}</span>
+      <p class="unit mono">gebruikelijke uren per week, hoofdbaan · <b>{shared.europeanUnion}</b> · {h.year}</p>
+      <p class="lead">Niet in de meeste landen. Niet in bijna alle. In alle {gender?.of}, zonder één uitzondering — en dat geldt voor geen enkel ander cijfer op deze site.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#compare">{shared.compareYourself}{' '}<span class="arr" aria-hidden="true">→</span></a>
+        <span class="hint">{shared.nothingLeavesBrowser}</span>
+      </div>
+      <p class="hero-note">Dit zijn gebruikelijke uren in de hoofdbaan, en alleen betaald werk. Een tweede baan telt niet mee, onbetaald werk helemaal niet — en daar zit precies een groot deel van het verschil tussen mannen en vrouwen.</p>
+    </div>
+  </section>
+
+  <StageMap geo={geo} index={index} metric={metric} eyebrow={shared.theMap} title="Waar de werkweek het langst is" lede={shared.tapACountry} />
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.yourTurn}</p>
+        <h2 id="compare-title">Hoe lang is jouw week?</h2>
+        <p>Vul in hoeveel uur je gebruikelijk in je hoofdbaan werkt.</p>
+      </header>
+      <div data-reveal>
+        <CompareForm index={index} metric={metric} />
+        <MetricPersonal metric="working-hours" />
+        <div class="limits">
+          <b>Waarom dit verschil geen verschil in werk is</b>
+          <p>Dit telt betaalde uren in één baan. Tijdsbestedingsonderzoek vindt steevast dat de onbetaalde uren de andere kant op lopen, dus een kleiner getal hier betekent geen lichtere week. Die data staat niet op deze site, dus we doen ook niet alsof we het beslechten.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
+        <h2 id="table-title">Alle {index.countries.length} landen, van kortst naar langst</h2>
+        <p>Sorteer op elke kolom. De verschilkolom is mannen min vrouwen, en die is in elke rij positief.</p>
+      </header>
+      <div data-reveal><RankTable index={index} metric={metric} /></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
+        <h2 id="facts-title">Een regel zonder uitzonderingen, en één land apart</h2>
+      </header>
+      <div data-reveal>
+          <div class="bento">
+            <div class="tile s4 dark">
+              <div>
+                <h3>{gender?.of} van de {gender?.of}</h3>
+                <p>
+                  Elk land in de dataset meldt voor vrouwen een kortere gebruikelijke week dan voor
+                  mannen, gemiddeld {gender ? amt(Math.abs(gender.mean)) : ""}. Het grootst is het verschil in {gender ? g.withArticle(gender.widest.name) : ""}, met {gender ? amt(Math.abs(gender.widestGap)) : ""}. Geen andere
+                  uitsplitsing op deze site loopt overal dezelfde kant op.
+                </p>
+              </div>
+              <span class="meta mono">{h.year}</span>
+            </div>
+            <div class="tile">
+              <div>
+                <b>{fmt(h.earliest.total)}</b>
+                <p>
+                  uur in {g.withArticle(h.earliest.name)}, de kortste week van Europa en ruim een uur onder het
+                  volgende land.
+                </p>
+              </div>
+              <span class="meta mono">het buitenbeentje</span>
+            </div>
+          </div>
+        <div class="prose"><p>Van uiterste tot uiterste zit er {amt(h.gap)} tussen, en rijkdom verklaart dat niet: de grote economieën staan op {bigOnes}. De langste weken liggen in het zuidoosten, de kortste in het noordwesten — dezelfde lijn die door huishoudgrootte loopt, maar dan andersom.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <Related metric="working-hours" />
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
+      </header>
+      <div data-reveal>
+        <dl>
+          <div><dt>{shared.whatTheFigureIs}</dt><dd>Het aantal uren dat iemand gebruikelijk in zijn hoofdbaan werkt, voor werkenden van 20 tot 64 jaar, uit de Labour Force Survey van de Europese Unie. Gebruikelijke uren, niet de uren die in een bepaalde week daadwerkelijk gewerkt zijn.</dd></div>
+          <div><dt>{shared.whatItIsNot}</dt><dd>Het is niet het totaal aan gewerkte uren, een tweede baan zit er niet in, en onbetaald werk ook niet. Het is één getal per land, dus er zit geen percentiel in.</dd></div>
+          <div>
+            <dt>{shared.coverage}</dt>
+            <dd>
+              {h.countries} landen hebben een cijfer voor {h.year}.
+              {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} stopten eerder met rapporteren en staan op hun meest recente jaar, gearceerd op de kaart en benoemd in de tabel.</>)}
+              {' '}{shared.notInDataset}
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.seriesBreaks}</dt>
+            <dd>
+              {movement
+                ? `Geen binnen het venster dat hier gebruikt wordt, ${movement.since} tot ${movement.until}.`
+                : `Eurostat markeert een breuk in ${index.lastBreak}, in of net vóór het laatste jaar, dus er staat op deze pagina geen vergelijking met het verleden. Een cijfer dat op een trend lijkt maar over een breuk heen loopt is erger dan geen trend.`}
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.series}</strong> {index.years[0]} tot {index.years[index.years.length - 1]}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.doi}</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          {index.source.metadata && (<li><strong>{shared.eurostatMetadata}</strong><a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a></li>)}
+        </ul>
+
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="metric-data" set:html={clientJson} />
+
+  <style>
+    .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .tile .meta { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
+    .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+    .prose p { margin: 0; line-height: 1.7; }
+    .source-list { list-style: none; padding: 0; }
+    .source-list li { padding: 0.35rem 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+    .source-list li:last-child { border-bottom: 0; }
+    .source-list strong { display: inline-block; min-width: 12rem; color: var(--text-2); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    @media (max-width: 540px) { .source-list strong { display: block; min-width: 0; } }
+  </style>
+</BaseV2>

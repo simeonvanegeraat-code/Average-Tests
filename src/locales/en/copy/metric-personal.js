@@ -65,4 +65,19 @@ export default {
     some: ({ above, of }) =>
       `It is larger than the average in ${above} of ${of} countries, and smaller in ${of - above}.`,
   },
+
+  'working-hours': {
+    exact: ({ name, value, g }) =>
+      `Your week matches the usual week in ${g.withArticle(name)} exactly: ${value}.`,
+
+    off: ({ own, name, amount, higher, value, g }) =>
+      `Your ${own} hours are ${amount} ${higher ? 'above' : 'below'} the usual week in ${g.withArticle(name)} (${value}).`,
+
+    allAbove: ({ of }) => `That is longer than the usual week in every one of the ${of} countries here.`,
+
+    allBelow: ({ of }) => `That is shorter than the usual week in all ${of} countries here.`,
+
+    some: ({ above, of }) =>
+      `It is longer than the usual week in ${above} of ${of} countries, and shorter in ${of - above}.`,
+  },
 };
