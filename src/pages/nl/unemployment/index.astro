@@ -1,0 +1,556 @@
+---
+import { ui } from '../../../lib/ui.js';
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import Related from '../../../components/Related.astro';
+import StageMap from '../../../components/StageMap.astro';
+import RankTable from '../../../components/RankTable.astro';
+import CountryWiring from '../../../components/CountryWiring.astro';
+import geo from '../../../../data/geo/europe.json';
+import { grammarOf } from '../../../lib/grammar.js';
+import { periodLabel } from '../../../lib/period.js';
+import { unemploymentPage } from '../../../lib/pages/unemployment.js';
+
+/**
+ * De Nederlandse /unemployment/.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk komt uit
+ * `src/lib/pages/unemployment.js`, inclusief de twee vensters die deze pagina streng
+ * apart houdt.
+ *
+ * De kop hangt aan wat het Europese cijfer werkelijk deed en heeft daarom drie takken.
+ * In het Nederlands loopt die zin anders: het Engels zet "Europe's unemployment rate"
+ * vooraan als bezitsvorm, en het Nederlands moet daar "het werkloosheidscijfer van
+ * Europa" van maken — langer, dus de rest van de zin is strakker gehouden.
+ *
+ * Geen getal staat hier met de hand ingetypt, ook geen bijvoeglijk naamwoord dat uit een
+ * getal volgt.
+ */
+const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
+const {
+  index,
+  metric,
+  h,
+  gender,
+  movement,
+  longer,
+  stale,
+  current,
+  unbroken,
+  flagged,
+  agePair,
+  ageRank,
+  ageWider,
+  ageRatio,
+  fmt,
+  amt,
+  sign,
+  months,
+  euMove,
+  outran,
+  newestPeriod,
+  newestCount,
+  euValue,
+} = unemploymentPage(lang);
+
+const g = grammarOf(lang);
+
+const heading =
+  movement === null || euMove === null
+    ? `De werkloosheid loopt in Europa van ${fmt(h.earliest.total)}% tot ${fmt(h.latest.total)}%.`
+    : Math.abs(euMove) < 0.05
+      ? `Het werkloosheidscijfer van Europa bewoog in ${months} maanden niet — maar ${outran} van zijn ${movement.countries} landen wel.`
+      : `Het werkloosheidscijfer van Europa bewoog ${fmt(Math.abs(euMove))} punt in ${months} maanden — maar ${outran} van zijn ${movement.countries} landen ${outran === 1 ? 'bewoog' : 'bewogen'} verder.`;
+
+/**
+ * De drie met het grootste verschil in beide richtingen, als "Griekenland −1,7,
+ * Spanje −0,8". De eenheid staat één keer in de zin eromheen en niet drie keer in de
+ * opsomming.
+ */
+const movers = (rows: any[]) =>
+  rows.map((country: any) => `${country.name} ${sign(country.change)}`).join(', ');
+
+const topFalls = movement ? movers(movement.earlier.slice(0, 3)) : '';
+const topRises = movement ? movers(movement.later.slice(0, 3)) : '';
+
+/** "Griekenland 13,2 naar 7,4" — waar een land begon en waar het nu staat. */
+const movedFrom = (rows: any[]) =>
+  rows
+    .slice(0, 4)
+    .map((country: any) => `${country.name} ${fmt(country.began)} naar ${fmt(country.total)}`)
+    .join(', ');
+
+const flaggedNames = flagged.map((country: any) => country.name).join(' en ');
+
+/**
+ * De zin over die breuken als één string, niet als opmaak met expressies ertussen. Een
+ * zin die uit meerdere waarden bestaat hoort in de frontmatter opgebouwd te worden, want
+ * daar is hij te lezen als zin in plaats van als een rij fragmenten.
+ */
+const breakClause =
+  flagged.length === 0
+    ? ''
+    : `${flaggedNames} ${flagged.length === 1 ? 'draagt' : 'dragen'} daarvóór een reeksbreuk, en een ` +
+      `langer venster zou ${flagged.length === 1 ? 'dat land' : 'die landen'} vergelijken met cijfers ` +
+      'waarvan Eurostat zegt dat ze niet vergelijkbaar zijn.';
+
+/** Dezelfde reden, voor de methodesectie: welk land brak wanneer, en wat dat betekent. */
+const breakDetail =
+  flagged.length === 0
+    ? ''
+    : `De uitzondering${flagged.length === 1 ? ' is' : 'en zijn'} ` +
+      `${flagged.map((country: any) => `${country.name} (${country.breaks.map((p: string) => periodLabel(p, { locale: lang })).join(', ')})`).join(' en ')}. ` +
+      'Omdat een vergelijking tussen landen voor elk land erin moet gelden, begint het venster dat ' +
+      `daarvoor hierboven gebruikt wordt na de laatste van die breuken, in ${periodLabel(index.comparableSince, { locale: lang })}. ` +
+      'De eigen lijn van elk land in de tabel loopt de hele reeks en breekt simpelweg waar zijn vlag staat.';
+
+const title = `Werkloosheidscijfer per land in Europa (${periodLabel(h.year, { locale: lang })})`;
+const description =
+  `De werkloosheid is ${euValue}% in de Europese Unie — ${fmt(h.earliest.total)}% in ` +
+  `${h.earliest.name}, ${fmt(h.latest.total)}% in ${h.latest.name}. Alle ${h.countries} landen ` +
+  'op de kaart, uit de maandreeks van Eurostat.';
+---
+
+<BaseV2 title={title} description={description} canonical="/unemployment/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Eurostat · {h.countries} landen · {periodLabel(h.year, { locale: lang })}</p>
+
+      <h1 data-reveal>{heading}</h1>
+
+      <span class="giant num">{euValue}</span>
+      <p class="unit mono">
+        % van de beroepsbevolking · <b>{shared.europeanUnion}</b> · {periodLabel(h.year, { locale: lang })}
+      </p>
+
+      <p class="lead">
+        In {g.withArticle(h.earliest.name)} is {fmt(h.earliest.total)}% van de beroepsbevolking
+        werkloos en op zoek. In {g.withArticle(h.latest.name)} is dat {fmt(h.latest.total)}%. Zelfde
+        maat, zelfde maand, {amt(h.gap)} verschil.
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn" href="#map-section">
+          Zoek jouw land{' '}<span class="arr" aria-hidden="true">→</span>
+        </a>
+        <span class="hint">Bijgewerkt zodra Eurostat publiceert, ongeveer een maand erna.</span>
+      </div>
+
+      <p class="hero-note">
+        Dit telt mensen die <em>zoeken</em>, niet mensen die een uitkering aanvragen. Eurostat
+        gebruikt de ILO-definitie: 15 tot 74 jaar, geen baan in de referentieweek, in de afgelopen
+        vier weken actief naar werk gezocht, en binnen twee weken kunnen beginnen. Wie geen enkele
+        uitkering ontvangt maar wel zoekt telt hier mee; wie steun ontvangt en niet zoekt niet.
+      </p>
+    </div>
+  </section>
+
+  <StageMap
+    geo={geo}
+    index={index}
+    metric={metric}
+    eyebrow={shared.theMap}
+    title="Waar werk het moeilijkst te vinden is"
+    lede={shared.tapOrSwitch}
+  />
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
+        <h2 id="table-title">Alle {index.countries.length} landen, van laag naar hoog</h2>
+        <p>
+          Sorteer op elke kolom. De verschilkolom is mannen min vrouwen, dus een negatief getal
+          betekent dat de werkloosheid onder vrouwen hoger is{
+            gender && gender.womenAbove.length > gender.womenLower
+              ? ', en dat is op deze maat het vaker voorkomende geval'
+              : ''
+          }.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <RankTable index={index} metric={metric} />
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
+        <h2 id="facts-title">Een stilstaand gemiddelde over bewegende landen</h2>
+        <p>
+          Alles in deze sectie is gemeten binnen het venster waarin alle {movement?.countries ?? h.countries}
+          landen onderling vergelijkbaar zijn: {periodLabel(movement?.since ?? h.year, { locale: lang })} tot {periodLabel(h.year, { locale: lang })}.
+          {' '}
+          {breakClause}
+        </p>
+      </header>
+
+      <div data-reveal>
+        {
+          movement && (
+            <div class="bento">
+              <div class="tile s4">
+                <div>
+                  <b>{movement.earlier.length}</b>
+                  <p>
+                    van de {movement.countries} landen kwamen met minstens {amt(movement.minimumMove)}{' '}
+                    naar beneden sinds {periodLabel(movement.since, { locale: lang })}. De steilste
+                    dalingen, in procentpunten: {topFalls}.
+                  </p>
+                </div>
+                <span class="meta mono">{periodLabel(movement.since, { locale: lang })} – {periodLabel(movement.until, { locale: lang })}</span>
+              </div>
+
+              <div class="tile">
+                <div>
+                  <b>{movement.later.length}</b>
+                  <p>gingen evenveel of meer omhoog, aangevoerd door {topRises}.</p>
+                </div>
+                <span class="meta mono">de andere richting</span>
+              </div>
+
+              <div class="tile">
+                <div>
+                  <b>{movement.stable}</b>
+                  <p>bleven binnen {amt(movement.minimumMove)} van waar ze waren.</p>
+                </div>
+                <span class="meta mono">geen echte verandering</span>
+              </div>
+
+              <div class="tile s4">
+                <div>
+                  <h3>De spreiding kromp van {amt(movement.spreadThen)} naar {amt(movement.spreadNow)}</h3>
+                  <p>
+                    Dat is de afstand tussen het hoogste en het laagste land. Hij sloot zich terwijl
+                    het Europese cijfer van {fmt(movement.euThen)}% naar {fmt(movement.euNow)}% ging:
+                    {' '}{movement.earlier.length} omlaag, {movement.later.length} omhoog, en een
+                    gemiddelde dat ertussen bleef zitten zonder naar een van beide kanten getrokken
+                    te worden.
+                  </p>
+                </div>
+                <span class="meta mono">hoogste min laagste</span>
+              </div>
+            </div>
+          )
+        }
+
+        {
+          gender && gender.womenAbove.length > 0 && (
+            <div class="bento" style="margin-top:14px">
+              <div class="tile">
+                <div>
+                  <b>{gender.womenAbove.length}</b>
+                  <p>
+                    van de {gender.of} landen hebben een hogere werkloosheid onder vrouwen dan onder
+                    mannen. Het loopt de andere kant op in {gender.womenLower}{gender.tied > 0 ? `, en ${gender.tied} ${gender.tied === 1 ? 'staat' : 'staan'} gelijk tot op de eerste decimaal` : ''}.
+                  </p>
+                </div>
+                <span class="meta mono">{periodLabel(h.year, { locale: lang })}</span>
+              </div>
+
+              <div class="tile s4 dark">
+                <div>
+                  <h3>
+                    {g.withArticle(gender.widestOther.name, { capitalise: true })} heeft het grootste
+                    verschil op de kaart
+                  </h3>
+                  <p>
+                    {fmt(gender.widestOther.men)}% van de mannen daar is werkloos en{' '}
+                    {fmt(gender.widestOther.women)}% van de vrouwen — {amt(Math.abs(gender.widestOther.men - gender.widestOther.women))}{' '}
+                    verschil, in een land waarvan het totale cijfer ({fmt(gender.widestOther.total)}%) in
+                    het midden van deze tabel staat. Het grootste verschil de andere kant op is{' '}
+                    {g.withArticle(gender.widest.name)} met {amt(gender.widestGap)}.
+                  </p>
+                </div>
+                <span class="meta mono">mannen tegen vrouwen</span>
+              </div>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    longer && (
+      <section class="block" aria-labelledby="longer-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">Het langere beeld</p>
+            <h2 id="longer-title">Vijf jaar, één land per keer</h2>
+            <p>
+              Landen met elkaar vergelijken vraagt het korte venster hierboven. De vraag wat er
+              binnen één land gebeurde vraagt alleen dat de eigen reeks van dat land heel is — en{' '}
+              {longer.countries} van de {longer.countries + longer.excluded.length} zijn dat,
+              helemaal terug tot {periodLabel(longer.from, { locale: lang })}.{' '}
+              {longer.excluded.map((country: any) => country.name).join(' en ')} vallen buiten alles
+              in deze sectie.
+            </p>
+          </header>
+
+          <div class="prose" data-reveal>
+            <p>
+              Van die {longer.countries} staan er {longer.down} nu lager dan in {periodLabel(longer.from, { locale: lang })}
+              en {longer.up} hoger. De grootste dalingen:{' '}
+              {movedFrom(longer.fell)}. De grootste stijgingen: {movedFrom(longer.rose)}.
+            </p>
+            <p>
+              Het is verleidelijk om dat te lezen als de slechtst af zijnde landen die inlopen, en de
+              rekensom steunt dat maar half. Van de {longer.down} landen die omlaag gingen begonnen
+              er {longer.fellFromAbove} boven het Europese cijfer van {fmt(longer.euThen)}%; de
+              andere {longer.down - longer.fellFromAbove} zaten er al onder. Van de {longer.up} die
+              stegen begonnen er {longer.roseFromBelow} eronder. Beweging in beide richtingen, aan
+              beide kanten van het gemiddelde — en een gemiddelde dat van {fmt(longer.euThen)}% naar{' '}
+              {fmt(longer.euNow)}% ging terwijl dat allemaal gebeurde.
+            </p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    agePair && (
+      <section class="block" aria-labelledby="age-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">Leeftijd</p>
+            <h2 id="age-title">
+              Alles hierboven telt een 22-jarige en een 52-jarige als één land
+            </h2>
+            <p>
+              Dezelfde dataset splitst naar leeftijd, en het cijfer hierboven ligt tussen twee heel
+              verschillende: {fmt(agePair.youth)}% van de onder-25'ers in de Europese
+              beroepsbevolking is werkloos, tegenover {fmt(agePair.older)}% van iedereen van 25 tot
+              74.
+            </p>
+          </header>
+
+          <div data-reveal>
+            <div class="bento">
+              <div class="tile s4">
+                <div>
+                  <b>{ageRatio}×</b>
+                  <p>
+                    zo hoog onder de 25 als van 25 tot 74, in de Europese Unie.
+                    {ageWider && ageWider.countries.length > 0 && (
+                      <>
+                        {' '}In {ageWider.countries.length} van deze {ageWider.of} landen is de stap
+                        tussen de twee leeftijden groter dan de hele afstand van het laagste land op
+                        deze pagina tot het hoogste.
+                      </>
+                    )}
+                  </p>
+                </div>
+                <span class="meta mono">{periodLabel(agePair.period, { locale: lang })}</span>
+              </div>
+
+              <div class="tile">
+                <div>
+                  <b>{ageRank.unchanged === 0 ? `Alle ${ageRank.of}` : `${ageRank.of - ageRank.unchanged} van de ${ageRank.of}`}</b>
+                  <p>
+                    landen wisselen van plaats in de ranglijst als je alleen de onder-25'ers telt. De
+                    tabel hierboven is één antwoord op "waar is het het slechtst"; voor iemand die van
+                    school komt is het een ander.
+                  </p>
+                </div>
+                <span class="meta mono">een andere volgorde</span>
+              </div>
+            </div>
+
+            <p class="more" style="margin-top:22px">
+              <a class="btn btn--ghost" href={linkTo('/unemployment/by-age/', lang)}>
+                Beide leeftijdsgroepen, elk land
+                <span class="arr" aria-hidden="true">→</span>
+              </a>
+            </p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <Related metric="unemployment" />
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
+      </header>
+
+      <div data-reveal>
+        <dl>
+          <div>
+            <dt>{shared.whatTheFigureIs}</dt>
+            <dd>
+              Het aandeel van de beroepsbevolking dat werkloos is, seizoensgecorrigeerd, voor één
+              kalendermaand. Werkloos volgt de ILO-definitie: 15 tot 74 jaar oud, niet werkzaam in
+              de referentieweek, in de afgelopen vier weken actief op zoek naar werk, en binnen twee
+              weken kunnen beginnen. De beroepsbevolking — de noemer — is iedereen die werkt plus
+              iedereen die werkloos is, en daarom is dit geen aandeel van de bevólking en kan het
+              ook niet zo gelezen worden.
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.whatItIsNot}</dt>
+            <dd>
+              Het is geen telling van mensen die bij een uitkeringsinstantie staan ingeschreven.
+              Eurostat zegt onomwonden dat die twee niet vergelijkbaar zijn: inschrijvingsregels
+              verschillen per land en volgen de ILO-standaard niet, dus een nationaal
+              uitkeringscijfer komt niet met dit cijfer overeen en dat verschil is in geen van beide
+              een fout. Het is ook geen verdeling, dus er valt geen percentiel uit op te bouwen —
+              één getal per land per maand is alles wat er is.
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.coverage}</dt>
+            <dd>
+              {h.countries} landen hebben een cijfer voor {periodLabel(h.year, { locale: lang })}.
+              {
+                stale.length > 0 && (
+                  <>
+                    {' '}
+                    {stale.map((country: any) => `${country.name} (${periodLabel(country.year, { locale: lang })})`).join(', ')}{' '}
+                    publiceren later dan de rest en staan op hun meest recente maand, gearceerd op
+                    de kaart en benoemd in de tabel.
+                  </>
+                )
+              }{' '}
+              De enquête dekt mensen die gewoonlijk in elk land wonen en laat mensen in collectieve
+              of institutionele huishoudens buiten beschouwing. De Verenigde Staten en Japan zitten
+              bij Eurostat in deze dataset maar niet op deze pagina: hun copyrightmelding staat
+              commercieel hergebruik alleen toe voor de EU, de EFTA en de kandidaat-landen.
+            </dd>
+          </div>
+          <div>
+            <dt>Hoe vaak het verandert</dt>
+            <dd>
+              Eurostat publiceert een maand ongeveer 31 dagen na het einde, naar eigen zeggen, dus
+              de nieuwste maand hier is ruwweg een maand oud en eerdere maanden kunnen nog herzien
+              worden.
+              {newestPeriod !== h.year ? (
+                <>
+                  {' '}Daarom staat {periodLabel(newestPeriod, { locale: lang })} wel in de
+                  gedownloade reeks maar niet op deze pagina: slechts {newestCount}{' '}
+                  {newestCount === 1 ? 'land' : 'landen'} had er een cijfer voor toen deze pagina
+                  gebouwd werd, en een kaart van
+                  {' '}{newestCount === 1 ? 'dat ene land' : 'die landen'} alleen zou geen kaart van
+                  Europa zijn.
+                </>
+              ) : (
+                <>
+                  {' '}{periodLabel(newestPeriod, { locale: lang })} is de nieuwste maand die
+                  Eurostat gepubliceerd heeft en de maand die hier staat, met {newestCount} van de{' '}
+                  {index.countries.length} landen erin; de rest draagt zijn eigen meest recente
+                  maand.
+                </>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.seriesBreaks}</dt>
+            <dd>
+              Eurostat zegt dat het de maandreeksen corrigeert voor breuken waar het kan, en op deze
+              dataset is dat grotendeels gelukt: {unbroken.length} van de {current.length} landen
+              dragen geen enkele vlag over {periodLabel(index.years[0], { locale: lang })} tot {periodLabel(h.year, { locale: lang })}.
+              {' '}
+              {breakDetail}
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.series}</strong> {periodLabel(index.years[0], { locale: lang })} tot {periodLabel(index.years[index.years.length - 1], { locale: lang })}</li>
+          <li><strong>Uitsplitsing</strong> seizoensgecorrigeerd, alle leeftijden, percentage van de beroepsbevolking</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li>
+            <strong>{shared.doi}</strong>
+            <a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a>
+          </li>
+          {
+            index.source.metadata && (
+              <li>
+                <strong>{shared.eurostatMetadata}</strong>
+                <a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a>
+              </li>
+            )
+          }
+        </ul>
+
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CountryWiring metric="unemployment" />
+
+  <style>
+    .tile h3 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    .tile .meta {
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-2);
+    }
+
+    .prose {
+      max-width: 70ch;
+      color: var(--text-2);
+    }
+
+    .prose p {
+      margin: 0 0 1em;
+      line-height: 1.7;
+    }
+
+    .prose p:last-child {
+      margin-bottom: 0;
+    }
+
+    .source-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .source-list li {
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.92rem;
+    }
+
+    .source-list li:last-child {
+      border-bottom: 0;
+    }
+
+    .source-list strong {
+      display: inline-block;
+      min-width: 12rem;
+      color: var(--text-2);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 540px) {
+      .source-list strong {
+        display: block;
+        min-width: 0;
+      }
+    }
+  </style>
+</BaseV2>

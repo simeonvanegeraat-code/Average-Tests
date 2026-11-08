@@ -1,0 +1,42 @@
+---
+/**
+ * De bedrading van een pagina zónder invoerveld: de twee werkloosheidspagina's.
+ *
+ * Die vragen niets van je, want werkloosheid is geen getal dat je van jezelf weet — je
+ * bent het of je bent het niet. Wat er wel is: het land dat je in de kaart kiest blijft in
+ * het profiel staan, zodat de volgende metriek je niet opnieuw vraagt. En de links naar de
+ * bron worden geteld, net als op elke andere metriekpagina.
+ *
+ * Stond tot 8 november 2026 twee keer uitgeschreven in twee paginabestanden. Sinds elke
+ * pagina per taal bestaat zou dat vier keer zijn — vier versies van twintig regels gedrag
+ * die uiteen kunnen lopen. Er staat geen woord tekst in, dus dit onderdeel heeft geen
+ * tegenhanger in `src/locales/`.
+ */
+interface Props {
+  /** De sleutel van de metriek, zoals in src/lib/metrics/. Gaat mee in de meting. */
+  metric: string;
+}
+
+const { metric } = Astro.props;
+---
+
+<div data-country-wiring data-metric-key={metric} hidden></div>
+
+<script>
+  import { mergeProfile } from '../lib/profile.js';
+  import { track, EVENTS } from '../lib/analytics.js';
+
+  const holder = document.querySelector<HTMLElement>('[data-country-wiring]');
+  const KEY = holder?.dataset.metricKey ?? '';
+
+  /** `source === 'restore'` is de kaart die een eerdere keuze terugzet, geen keuze van nu. */
+  document.addEventListener('ha:country', (event) => {
+    const { code, source } = (event as CustomEvent<any>).detail ?? {};
+    if (!code || source === 'restore') return;
+    mergeProfile({ country: code });
+  });
+
+  for (const link of document.querySelectorAll('[data-method-link]')) {
+    link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: KEY }));
+  }
+</script>
