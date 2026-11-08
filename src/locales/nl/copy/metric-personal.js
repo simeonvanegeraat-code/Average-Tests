@@ -66,4 +66,24 @@ export default {
     some: ({ above, of }) =>
       `Het is groter dan het gemiddelde in ${above} van de ${of} landen, en kleiner in ${of - above}.`,
   },
+
+  'working-hours': {
+    exact: ({ name, value, g }) =>
+      `Jouw week is precies de gebruikelijke week in ${g.withArticle(name)}: ${value}.`,
+
+    /**
+     * Niet "jouw 36 uur is 1,0 uur meer dan", want dat is een getal dat iets is in
+     * plaats van iemand die iets doet. Het Nederlands zet hier liever het werkwoord
+     * neer: je wérkt langer of korter.
+     */
+    off: ({ own, name, amount, higher, value, g }) =>
+      `Met ${own} uur werk je ${amount} ${higher ? 'langer' : 'korter'} dan de gebruikelijke week in ${g.withArticle(name)} (${value}).`,
+
+    allAbove: ({ of }) => `Dat is langer dan de gebruikelijke week in elk van deze ${of} landen.`,
+
+    allBelow: ({ of }) => `Dat is korter dan de gebruikelijke week in alle ${of} landen hier.`,
+
+    some: ({ above, of }) =>
+      `Het is langer dan de gebruikelijke week in ${above} van de ${of} landen, en korter in ${of - above}.`,
+  },
 };
