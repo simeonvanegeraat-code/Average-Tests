@@ -91,7 +91,13 @@ const pick = (row: any) => ({
 const data = { latestYear, yearMin: index.years[0], eu: eu ? pick(eu) : null, rows: index.countries.map(pick), cfg: metric };
 
 /** 'year' bij de jaarreeksen, 'month' bij werkloosheid: alleen de woorden hangen ervan af. */
-const grain = periodUnit(latestYear);
+/**
+ * Het woord voor de periode-eenheid, in de taal van deze pagina. periodUnit() geeft
+ * een sleutel ('year' bij de jaarreeksen, 'month' bij werkloosheid) en ui.json geeft
+ * het woord — anders stond er "hun meest recente year" op een Nederlandse pagina, en
+ * dat stond er tot 5 november 2026 ook.
+ */
+const grain = ui(lang).periodUnits[periodUnit(latestYear)];
 const json = JSON.stringify(data).replace(/</g, '\\u003c');
 
 /** Contextlanden: vorm wel, data niet. Zonder die vormen is Europa een eiland. */

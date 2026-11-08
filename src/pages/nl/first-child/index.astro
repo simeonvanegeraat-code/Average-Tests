@@ -135,7 +135,7 @@ const description = `Moeders in ${g.withArticle(h.latest.name)} zijn ${fmt(h.lat
             <dd>
               {h.countries} landen hebben een cijfer voor {h.year}.
               {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} stopten eerder met rapporteren en staan op hun meest recente jaar, gearceerd op de kaart en benoemd in de tabel.</>)}
-              {' '}De Verenigde Staten, Canada en Australië zitten niet in deze dataset.
+              {' '}{shared.notInDataset}
             </dd>
           </div>
           <div>

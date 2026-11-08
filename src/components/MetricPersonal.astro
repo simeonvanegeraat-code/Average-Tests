@@ -64,7 +64,13 @@ const { metric } = Astro.props;
         const diff = own - home.total;
         lines.push(
           Math.abs(diff) < 0.05
-            ? copy.exact({ own, name: home.name, g, words: data.words })
+            ? copy.exact({
+                own,
+                name: home.name,
+                value: formatValue(home.total, cfg),
+                g,
+                words: data.words,
+              })
             : copy.off({
                 own,
                 name: home.name,
