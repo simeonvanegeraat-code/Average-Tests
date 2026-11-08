@@ -751,6 +751,15 @@ if (pages.length === 0) {
       const visible = html
         .replace(/<script[\s\S]*?<\/script>/g, ' ')
         .replace(/<style[\s\S]*?<\/style>/g, ' ')
+        /**
+         * Wat in <code> staat is een code en nooit een cijfer dat een lezer in zijn eigen
+         * notatie verwacht. De datasetcode van de OECD eindigt op een versienummer
+         * (`DSD_PAG@DF_PAG,1.0`) en werd daardoor op /nl/pension-age/ gemeld als een Engels
+         * geschreven getal — dezelfde soort valse treffer als de DOI hieronder, en met
+         * dezelfde reden om hem eruit te halen: een poort die je leert te wantrouwen wordt
+         * uitgezet.
+         */
+        .replace(/<code[^>]*>[\s\S]*?<\/code>/g, ' ')
         .replace(new RegExp(`<(blockquote|p|span|q|div|dd|li)[^>]*\\slang="[^"]*"[^>]*>[\\s\\S]*?</\\1>`, 'g'), ' ')
         .replace(/<[^>]+>/g, ' ');
 

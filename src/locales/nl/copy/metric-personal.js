@@ -141,4 +141,25 @@ export default {
     some: ({ above, of }) =>
       `Het is groter dan het gemiddelde in ${above} van de ${of} landen, en kleiner in ${of - above}.`,
   },
+
+  'pension-age': {
+    /**
+     * Het Engels begint deze zinnen met het getal zelf ("64 is exactly…"). Dat kan in het
+     * Nederlands niet: een zin die met een cijfer begint leest als een opsomming. Vandaar
+     * "Op 64 begon…", met het voorzetsel dat het Engels hier weglaat.
+     */
+    exact: ({ own, name, g }) =>
+      `Op ${own} is het precies de gemiddelde leeftijd in ${g.withArticle(name)}.`,
+
+    off: ({ own, name, amount, higher, value, g }) =>
+      `Op ${own} is het ${amount} ${higher ? 'later' : 'eerder'} dan het gemiddelde in ` +
+      `${g.withArticle(name)} (${value}).`,
+
+    allAbove: ({ of }) => `Dat is later dan het gemiddelde in elk van deze ${of} landen.`,
+
+    allBelow: ({ of }) => `Dat is eerder dan het gemiddelde in alle ${of} landen hier.`,
+
+    some: ({ above, of }) =>
+      `Het is later dan het gemiddelde in ${above} van de ${of} landen, en eerder in ${of - above}.`,
+  },
 };

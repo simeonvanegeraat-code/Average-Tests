@@ -129,4 +129,19 @@ export default {
     some: ({ above, of }) =>
       `It is larger than the average in ${above} of ${of} countries, and smaller in ${of - above}.`,
   },
+
+  'pension-age': {
+    exact: ({ own, name, g }) => `${own} is exactly the average age in ${g.withArticle(name)}.`,
+
+    off: ({ own, name, amount, higher, value, g }) =>
+      `${own} is ${amount} ${higher ? 'later' : 'earlier'} than the average in ` +
+      `${g.withArticle(name)} (${value}).`,
+
+    allAbove: ({ of }) => `That is later than the average in every one of the ${of} countries here.`,
+
+    allBelow: ({ of }) => `That is earlier than the average in all ${of} countries here.`,
+
+    some: ({ above, of }) =>
+      `It is later than the average in ${above} of ${of} countries, and earlier in ${of - above}.`,
+  },
 };

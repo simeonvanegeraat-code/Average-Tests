@@ -1,0 +1,392 @@
+---
+import { ui } from '../../../lib/ui.js';
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import Related from '../../../components/Related.astro';
+import StageMap from '../../../components/StageMap.astro';
+import CompareForm from '../../../components/CompareForm.astro';
+import RankTable from '../../../components/RankTable.astro';
+import MetricPersonal from '../../../components/MetricPersonal.astro';
+import geo from '../../../../data/geo/europe.json';
+import { grammarOf } from '../../../lib/grammar.js';
+import { pensionAgePage } from '../../../lib/pages/pension-age.js';
+
+/**
+ * De Nederlandse /pension-age/.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk van beide uitgevers komt uit
+ * `src/lib/pages/pension-age.js`, de woorden staan hier.
+ *
+ * Wat hier het meest misleidend kan zijn staat in de hero-noot, en in het Nederlands is
+ * dat risico gróter dan in het Engels: "pensioenleeftijd" betekent in het dagelijks
+ * gebruik bijna altijd de wéttelijke leeftijd (de AOW-leeftijd), terwijl deze pagina over
+ * de feitelijke leeftijd gaat. De noot zegt dat daarom in de eerste zin, vet.
+ *
+ * `count()` uit grammar.js gooit voor het Nederlands, want een meervoudsregel bestaat
+ * hier niet. De enkelvoud/meervoud-keuzes staan daarom uitgeschreven in de zinnen
+ * hieronder.
+ *
+ * Geen enkel cijfer staat hier met de hand.
+ */
+const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
+const {
+  index,
+  exitIndex,
+  metric,
+  h,
+  gender,
+  stale,
+  exit,
+  exitRows,
+  cite,
+  euValue,
+  early5,
+  late5,
+  bigOnes,
+  womenLater,
+  names,
+  fmt,
+  amt,
+  clientJson,
+} = pensionAgePage(lang);
+
+const g = grammarOf(lang);
+
+/**
+ * De OECD levert het decennium als Engels label ("1990s"). Het Nederlands zegt "jaren
+ * 1990", dus het cijfer eruit en het woord ervoor — in de data staat een label, niet een
+ * zin, en dus hoort deze keuze op de pagina.
+ */
+const peakDecade = `jaren ${String(exit.full.peak[0]).replace(/s$/, '')}`;
+
+const title = `Gemiddelde pensioenleeftijd per land in Europa (${h.year})`;
+const description = `In de Europese Unie gingen mensen op ${euValue} een ouderdomspensioen ontvangen — ${fmt(h.earliest.total)} in ${g.withArticle(h.earliest.name)} en ${fmt(h.latest.total)} in ${g.withArticle(h.latest.name)}. Niet de wettelijke leeftijd, maar de leeftijd waarop het werkelijk gebeurde, voor alle ${h.countries} landen.`;
+---
+
+<BaseV2 title={title} description={description} canonical="/pension-age/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">Eurostat · {h.countries} landen · {h.year}</p>
+      <h1 data-reveal>Gemiddeld begint een pensioen in {g.withArticle(h.earliest.name)} {amt(h.gap)} eerder dan in {g.withArticle(h.latest.name)}.</h1>
+      <span class="giant num">{euValue}</span>
+      <p class="unit mono">leeftijd waarop een ouderdomspensioen begon · <b>{shared.europeanUnion}</b> · {h.year}</p>
+      <p class="lead">In {g.withArticle(h.earliest.name)} gingen mensen er een ontvangen op {fmt(h.earliest.total)}, in {g.withArticle(h.latest.name)} op {fmt(h.latest.total)} — {amt(h.gap)} verschil. Het Europese cijfer staat op {euValue}.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#compare">{shared.compareYourself}{' '}<span class="arr" aria-hidden="true">→</span></a>
+        <span class="hint">{shared.nothingLeavesBrowser}</span>
+      </div>
+      <p class="hero-note"><b>Dit is niet de wettelijke pensioenleeftijd.</b> Eurostat vroeg mensen die een ouderdomspensioen ontvangen hoe oud ze waren toen het begon, dus het cijfer kijkt terug over decennia van verschillende regels in plaats van die van nu te beschrijven. Een land dat zijn wettelijke leeftijd verhoogd heeft, ziet dat pas terug zodra die cohorten met pensioen gaan.</p>
+    </div>
+  </section>
+
+  <StageMap geo={geo} index={index} metric={metric} eyebrow={shared.theMap} title="Waar pensioenen het vroegst beginnen" lede={shared.tapACountry} />
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.yourTurn}</p>
+        <h2 id="compare-title">Wanneer begon het jouwe?</h2>
+        <p>Vul de leeftijd in waarop je ouderdomspensioen begon, of de leeftijd waarop je dat verwacht.</p>
+      </header>
+      <div data-reveal>
+        <CompareForm index={index} metric={metric} />
+        <MetricPersonal metric="pension-age" />
+        <div class="limits">
+          <b>Waarom jouw eigen antwoord moeilijk te plaatsen is</b>
+          <p>De landcijfers beschrijven mensen die al een pensioen ontvangen — vooral mensen die jaren geleden stopten, onder regels die sindsdien veranderd zijn. Ben je nog niet met pensioen, dan vergelijk je jouw verwachting met hun geschiedenis, en in de meeste landen is de wettelijke leeftijd sindsdien gestegen.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.everyCountry}</p>
+        <h2 id="table-title">Alle {index.countries.length} landen, van vroegst naar laatst</h2>
+        <p>Sorteer op elke kolom. Mannen en vrouwen worden apart gepubliceerd en staan er beide.</p>
+      </header>
+      <div data-reveal><RankTable index={index} metric={metric} /></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
+        <h2 id="facts-title">Het verschil tussen mannen en vrouwen loopt twee kanten op</h2>
+      </header>
+      <div data-reveal>
+        <div class="bento">
+          <div class="tile s4">
+            <div>
+              <b>{amt(h.gap)}</b>
+              <p>
+                scheidt het vroegste land van het laatste — {g.withArticle(h.earliest.name)} op{' '}
+                {fmt(h.earliest.total)} en {g.withArticle(h.latest.name)} op {fmt(h.latest.total)}. De vijf
+                vroegste zijn {early5}; de vijf laatste {late5}.
+              </p>
+            </div>
+            <span class="meta mono">{h.year}</span>
+          </div>
+          <div class="tile dark">
+            <div>
+              <h3>Eén jaar, geen trend</h3>
+              <p>
+                Dit komt uit een eenmalige module van de arbeidskrachtenenquête, uitgevoerd in {h.year}. Er
+                is geen eerder jaar om mee te vergelijken, dus deze pagina laat er geen zien.
+              </p>
+            </div>
+            <span class="meta mono">waarom deze pagina geen historie heeft</span>
+          </div>
+        </div>
+
+        {
+          gender && (
+            <div class="bento" style="margin-top:14px">
+              <div class="tile">
+                <div>
+                  <b>{gender.womenLower}</b>
+                  <p>
+                    van de {gender.of} landen laten vrouwen eerder dan mannen met pensioen gaan, het
+                    grootst in {g.withArticle(gender.widest.name)} met {amt(gender.widestGap)}. Gemiddeld
+                    over alle {gender.of} komt het verschil op {amt(gender.mean)}, omdat de rest de andere
+                    kant op loopt.
+                  </p>
+                </div>
+                <span class="meta mono">{h.year}</span>
+              </div>
+
+              <div class="tile s4 dark">
+                <div>
+                  <h3>
+                    {womenLater.length === 0
+                      ? 'Geen land draait het patroon om'
+                      : `In ${womenLater.length} ${womenLater.length === 1 ? 'land' : 'landen'} is het omgekeerd`}
+                  </h3>
+                  <p>
+                    {womenLater.length === 0
+                      ? 'Vrouwen begonnen overal in de dataset eerder dan mannen.'
+                      : `Vrouwen begonnen later dan mannen in ${names(womenLater.slice(0, 4))}${womenLater.length > 4 ? ` en ${womenLater.length - 4} ${womenLater.length - 4 === 1 ? 'ander land' : 'andere landen'}` : ''}. ` +
+                        'Een lagere wettelijke leeftijd voor vrouwen, waar die bestaat of bestond, is maar een deel van wat dit cijfer meet: het hangt er ook van af wie lang genoeg gewerkt heeft om überhaupt pensioen te krijgen, en wie eerder stopte dan nodig was.'}
+                  </p>
+                </div>
+                <span class="meta mono">de helft die niemand verwacht</span>
+              </div>
+            </div>
+          )
+        }
+
+        <div class="prose">
+          <p>
+            De grote economieën zitten dicht bij elkaar in het midden: {bigOnes}. De spreiding zit aan de
+            randen — vroeg in het zuidoosten en in Oostenrijk, laat in de Noordse landen en{' '}
+            {g.withArticle(h.latest.name)}.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="exit-age" aria-labelledby="exit-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">OECD · {exit.of} landen · {exit.from}–{exit.until}</p>
+        <h2 id="exit-title">Een tweede cijfer: wanneer het werk echt stopt</h2>
+        <p>
+          De OECD meet iets anders — de leeftijd waarop mensen de arbeidsmarkt verlaten — voor{' '}
+          {exit.of} landen, {exit.beyond.length} daarvan buiten Europa, elk jaar sinds {exit.from}.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <div class="bento">
+          {exit.eu && (
+            <div class="tile s4">
+              <div>
+                <b>{fmt(exit.eu.men)} / {fmt(exit.eu.women)}</b>
+                <p>
+                  mannen en vrouwen in de Europese Unie, in {exit.eu.year}. Het daalde een generatie lang
+                  en klimt sindsdien: {fmt(exit.eu.low.start)} in {exit.eu.low.from}, naar{' '}
+                  {fmt(exit.eu.low.lowValue)} in {exit.eu.low.low}, en nu terug op {fmt(exit.eu.low.now)}.
+                </p>
+              </div>
+              <span class="meta mono">effectieve uittredingsleeftijd</span>
+            </div>
+          )}
+          <div class="tile dark">
+            <div>
+              <h3>Geen totaal, en dat is de keuze van de uitgever</h3>
+              <p>
+                De OECD publiceert dit cijfer voor mannen en voor vrouwen en nooit voor beide samen. Het
+                verschil is gemiddeld {amt(exit.meanGap)} en loopt op tot {amt(exit.widest.gap)} in{' '}
+                {g.withArticle(exit.widest.name)}, dus de twee gemiddeld nemen zou een getal verzinnen dat
+                niemand publiceerde. Deze pagina houdt ze apart.
+              </p>
+            </div>
+            <span class="meta mono">waarom er geen enkel cijfer is</span>
+          </div>
+        </div>
+
+        <div class="bento" style="margin-top:14px">
+          <div class="tile">
+            <div>
+              <b>{exit.full.risen} van de {exit.full.of}</b>
+              <p>
+                landen met een volledige reeks {exit.from}–{exit.until} staan boven hun eigen laagste punt,
+                gemiddeld {amt(exit.full.meanRise)} hoger. Dat laagste punt lag in de {peakDecade} voor{' '}
+                {exit.full.peak[1]} van ze.
+              </p>
+            </div>
+            <span class="meta mono">{exit.from}–{exit.until}</span>
+          </div>
+          <div class="tile s4">
+            <div>
+              <b>{amt(exit.full.climbs[0].low.risen)}</b>
+              <p>
+                erbij in {g.withArticle(exit.full.climbs[0].name)} sinds {exit.full.climbs[0].low.low}, de
+                steilste klim van de set — gevolgd door {exit.full.climbs
+                  .slice(1)
+                  .map((country: any) => `${country.name} (${amt(country.low.risen, { sign: true })} sinds ${country.low.low})`)
+                  .join(', ')}.
+              </p>
+            </div>
+            <span class="meta mono">mannen, sinds hun eigen laagste punt</span>
+          </div>
+        </div>
+
+        <div class="limits" style="margin-top:22px">
+          <b>Deze twee getallen kun je niet van elkaar aftrekken</b>
+          <p>
+            Het cijfer bovenaan deze pagina en het cijfer hier beantwoorden verschillende vragen en zijn
+            anders opgebouwd. Eurostat vroeg de pensioengerechtigden van vandaag wanneer hun pensioen
+            begon, dus het weerspiegelt beslissingen van decennia. De OECD leidt zijn cijfer af uit
+            hoeveel mensen van elke leeftijd dit jaar werken, en daarom kan het teruggaan tot{' '}
+            {exit.from} — en daarom is het een model van de huidige arbeidsmarkt en geen vastlegging van
+            wat iemand deed. Beide staan op deze pagina omdat mensen beide bedoelen als ze
+            "pensioenleeftijd" zeggen; geen van de twee is de ander min een paar jaar.
+          </p>
+        </div>
+
+        <div class="tablewrap" tabindex="0" role="region" aria-label="Effectieve uittredingsleeftijd per land">
+          <table>
+            <caption class="vh">Effectieve uittredingsleeftijd, mannen en vrouwen, meest recente jaar per land</caption>
+            <thead>
+              <tr>
+                <th scope="col">Land</th>
+                <th scope="col" class="n">Mannen</th>
+                <th scope="col" class="n">Vrouwen</th>
+                <th scope="col" class="n">Verschil</th>
+                <th scope="col" class="n">Jaar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {exitRows.map((row: any) => (
+                <tr>
+                  <th scope="row">{row.name}</th>
+                  <td class="n strong">{fmt(row.men)}</td>
+                  <td class="n">{fmt(row.women)}</td>
+                  <td class="n">{amt(row.gap, { sign: true })}</td>
+                  <td class="n">{row.year}</td>
+                </tr>
+              ))}
+              {exitIndex.aggregates.map((row: any) => (
+                <tr class="emphasis">
+                  <th scope="row">{row.name}</th>
+                  <td class="n strong">{fmt(row.men)}</td>
+                  <td class="n">{fmt(row.women)}</td>
+                  <td class="n">{amt(row.gap, { sign: true })}</td>
+                  <td class="n">{row.year}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">
+          Elk land draagt zijn eigen meest recente jaar waarin zowel mannen als vrouwen gepubliceerd zijn.
+          {exit.stale.length > 0 && ` ${exit.stale.map((country: any) => `${country.name} (${country.year})`).join(', ')} stopten eerder.`}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Related metric="pension-age" />
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>Twee uitgevers, twee vragen. Er wordt hier niets bij geschat boven wat zij publiceren.</p>
+      </header>
+      <div data-reveal>
+        <dl>
+          <div><dt>Wat het cijfer bovenaan is</dt><dd>De gemiddelde leeftijd waarop iemand een ouderdomspensioen is gaan ontvangen, uit een eenmalige module van de Europese arbeidskrachtenenquête uit {h.year}. Het wordt gerapporteerd door de mensen die het pensioen ontvangen, en daarom beschrijft het het verleden en niet de huidige wet. Eurostat publiceert ook een mediaan; deze pagina gebruikt het gemiddelde.</dd></div>
+          <div><dt>{shared.whatItIsNot}</dt><dd>Niet de wettelijke pensioenleeftijd, niet de vroegste leeftijd waarop een pensioen aangevraagd kan worden, en niet de leeftijd waarop mensen stoppen met werken — dat laatste is het OECD-cijfer hierboven. Het is ook geen verdeling: één getal per land, dus er valt geen percentiel te halen, alleen aan welke kant van het gemiddelde je zit.</dd></div>
+          <div><dt>Wat het OECD-cijfer is</dt><dd>De effectieve uittredingsleeftijd van de arbeidsmarkt, uit de database {exitIndex.source.name} van de OECD. De OECD leidt het af uit het aandeel van elke leeftijdsgroep dat werkt, dus het beschrijft de arbeidsmarkt van dit jaar en niet individuele geschiedenissen, en het bestaat alleen voor mannen en voor vrouwen — nooit voor beide samen.</dd></div>
+          <div>
+            <dt>{shared.coverage}</dt>
+            <dd>
+              {h.countries} landen hebben een cijfer voor de pensioenstart in {h.year}.
+              {stale.length > 0 && (<> {stale.slice(0, 6).map((country: any) => `${country.name} (${country.year})`).join(', ')} staan op hun meest recente jaar.</>)}
+              {' '}De OECD-reeks dekt {exit.of} landen, {exit.beyond.length} daarvan buiten Europa —
+              {' '}{names(exit.beyond.slice(0, 4))} daaronder — en is het enige cijfer op deze site dat
+              verder reikt dan Europa.
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.seriesBreaks}</dt>
+            <dd>
+              Eurostat markeert er hier geen, want één jaar kan niet breken. De OECD markeert er ook geen:
+              elke observatie die hij voor deze maat publiceert draagt de status <span lang="en">"normal
+              value"</span>, en dat is wat deze pagina toestaat om {exit.from} en {exit.until} in één zin
+              te noemen. De poort in <code>scripts/validate-oecd.mjs</code> faalt als dat ooit verandert.
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{index.source.dataset}</code>, {index.source.label}</li>
+          <li><strong>{shared.lastUpdated}</strong> {index.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {index.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>{shared.doi}</strong><a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+          {index.source.metadata && (<li><strong>{shared.eurostatMetadata}</strong><a href={index.source.metadata} data-method-link>{shared.explanatoryTexts}</a></li>)}
+          <li><strong>Tweede dataset</strong> OECD <code>{exitIndex.source.dataset}</code>, maat <code>{exitIndex.source.measure}</code> — {exitIndex.source.label}</li>
+          <li><strong>OECD-reeks</strong> {exit.from} tot {exit.until}, opgehaald {exitIndex.source.fetchedOn.slice(0, 10)}</li>
+          <li>
+            <strong>OECD-citatie</strong>
+            <span>{cite.before}<a href={cite.url} data-method-link>OECD Data Explorer</a>{cite.after}</span>
+          </li>
+        </ul>
+
+        <p class="source-note">
+          Licenties: data van Eurostat mag hergebruikt worden, ook commercieel, met bronvermelding. De
+          voorwaarden van de OECD staan hetzelfde toe — <span lang="en">"even for commercial use"</span> —
+          op voorwaarde dat de citatie hierboven gegeven wordt; daarom staat hij hier en niet alleen in
+          onze notities.
+          {cite.terms && (<> <a href={cite.terms} data-method-link>De voorwaarden van de OECD staan hier</a>.</>)}
+          {' '}Hoe wij met data omgaan staat op <a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="metric-data" set:html={clientJson} />
+
+  <style>
+    .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .tile .meta { font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-2); }
+    .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+    .prose p { margin: 0; line-height: 1.7; }
+    #exit-age .tablewrap { margin-top: 22px; }
+    .table-note { margin-top: 12px; max-width: 70ch; color: var(--text-2); font-size: 0.88rem; line-height: 1.6; }
+    .source-list { list-style: none; padding: 0; }
+    .source-list li { padding: 0.35rem 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+    .source-list li:last-child { border-bottom: 0; }
+    .source-list strong { display: inline-block; min-width: 12rem; color: var(--text-2); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .source-list li span { word-break: break-word; }
+    @media (max-width: 540px) { .source-list strong { display: block; min-width: 0; } }
+  </style>
+</BaseV2>
