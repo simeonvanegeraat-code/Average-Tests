@@ -57,18 +57,30 @@ export function localiseWealthCountry(country, lang) {
   return { ...country, groups, status, composition };
 }
 
-/** De leeftijdsbanden van de ECB-enquête, per land, in de taal van de pagina. */
+/**
+ * De leeftijdsbanden van de ECB-enquête in de taal van de pagina.
+ *
+ * **Op drie plekken, en dat is geen overdaad.** Dit bestand draagt dezelfde banden drie
+ * keer: als lijst bovenaan (`index.bands`, waar de tabelkoppen en `peaksByBand()` uit
+ * lezen), per land (`countries[].bands`, waar `curveOf()` uit leest) en nog eens voor de
+ * eurozone (`euroArea.bands`, waar de kop van /wealth/by-age/ aan hangt). Ik had alleen
+ * de landen gedaan, en het resultaat was één pagina met "16 tot 34" in de tabelkoppen en
+ * "55 to 64" in de kop erboven — half vertaald is erger dan niet vertaald, want dan lijkt
+ * het een keuze.
+ */
 export function localiseWealthAge(index, lang) {
   const words = wealthWords(lang);
 
+  const rename = (bands) =>
+    (bands ?? []).map((band) => ({ ...band, label: words.bands[band.code] ?? band.label }));
+
   return {
     ...index,
+    bands: rename(index.bands),
     countries: (index.countries ?? []).map((country) => ({
       ...country,
-      bands: (country.bands ?? []).map((band) => ({
-        ...band,
-        label: words.bands[band.code] ?? band.label,
-      })),
+      bands: rename(country.bands),
     })),
+    euroArea: index.euroArea ? { ...index.euroArea, bands: rename(index.euroArea.bands) } : index.euroArea,
   };
 }

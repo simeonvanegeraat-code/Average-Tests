@@ -1,84 +1,50 @@
 ---
-import { localeOf, localePaths, linkTo } from '../../../../lib/locales.js';
-import { localise } from '../../../../lib/country-names.js';
-import { grouped } from '../../../../lib/format.js';
-import BaseV2 from '../../../../layouts/BaseV2.astro';
-import rawAgeIndex from '../../../../../data/wealth-age/index.json';
-import validation from '../../../../../data/wealth-age-validation.json';
-import { euro, multiple, withArticle } from '../../../../lib/wealth.js';
-import { bySteepness, curveOf, fieldworkLabel, peaksByBand } from '../../../../lib/wealth-age.js';
-import { periodLabel } from '../../../../lib/period.js';
-import { STAGES } from '../../../../lib/hue.js';
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import AgeLensWiring from '../../../components/AgeLensWiring.astro';
+import { withArticle } from '../../../lib/wealth.js';
+import { STAGES } from '../../../lib/hue.js';
+import { wealthByAgePage } from '../../../lib/pages/wealth-by-age.js';
 
 /**
- * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
- * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
- * taal in voordat enig onderdeel de index ziet, en `locale` in de
- * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ * De Engelse /wealth/by-age/.
+ *
+ * Eigen bestand per taal sinds 3 november 2026;
+ * `src/pages/nl/wealth/by-age/index.astro` is de Nederlandse. Het rekenwerk staat in
+ * `src/lib/pages/wealth-by-age.js`, de woorden van de leeftijdsbanden in
+ * `src/locales/<taal>/wealth.json`.
  */
 const lang = localeOf(Astro.url.pathname);
-const ageIndex = localise(rawAgeIndex, lang);
+const {
+  ageIndex,
+  validation,
+  countries,
+  bands,
+  euroArea,
+  euroCurve,
+  steepest,
+  flattest,
+  steepestCurve,
+  flattestCurve,
+  peaks,
+  stillClimbing,
+  turnedDown,
+  firstMonth,
+  lastMonth,
+  fieldworkOf,
+  money,
+  times,
+  clientJson,
+} = wealthByAgePage(lang);
 
-/**
- * Vermogen per leeftijdsgroep, alle landen naast elkaar.
- *
- * Deze pagina staat volledig op de ECB-enquête en raakt de kwartaalrekeningen van
- * /wealth/ nergens aan. Dat is geen voorzichtigheid maar noodzaak: de enquête telt
- * publieke en bedrijfspensioenen niet mee, dus haar cijfers liggen op een ander
- * niveau. Eén tabel met beide erin zou een vergelijking suggereren die niet bestaat.
- *
- * Wat deze pagina beantwoordt en geen andere: hoe sterk leeftijd het vermogen van een
- * huishouden verschuift, en hoe verschillend dat per land is. Op /wealth/ staat de
- * vergelijking tussen landen op één moment; hier staat de vergelijking binnen een land
- * over een leven.
- */
-
-const countries = [...ageIndex.countries].sort((a, b) => a.name.localeCompare(b.name));
-const bands = ageIndex.bands;
-const euroArea = ageIndex.euroArea;
-const euroCurve = curveOf(euroArea);
-
-const steep = bySteepness(ageIndex.countries);
-const steepest = steep[0];
-const flattest = steep[steep.length - 1];
-const steepestCurve = curveOf(steepest);
-const flattestCurve = curveOf(flattest);
-
-const peaks = peaksByBand(ageIndex.countries, bands).sort((a, b) => b.countries.length - a.countries.length);
-
-/** Wie al over de top heen is in de oudste groep, en wie daar nog altijd klimt. */
-const oldestBand = bands[bands.length - 1].code;
-const stillClimbing = ageIndex.countries.filter((c) => c.peak === oldestBand);
-const turnedDown = ageIndex.countries.length - stillClimbing.length;
-
-/** De vroegste en laatste veldwerkmaand over alle landen: het venster van deze golf. */
-const alleMaanden = countries.flatMap((c) => [c.fieldwork.from, c.fieldwork.to]).sort();
-const venster = `${periodLabel(alleMaanden[0], { locale: lang })} to ${periodLabel(alleMaanden[alleMaanden.length - 1], { locale: lang })}`;
-
-/**
- * Alleen wat de browser nodig heeft om tussen middelpunt en gemiddelde te wisselen.
- * De eurozonerij hoort erbij: die staat als laatste rij in dezelfde tabel, en bleef
- * zonder deze regel op de medianen staan terwijl de rest omschakelde.
- */
-const clientJson = JSON.stringify({
-  bands: bands.map((b) => b.code),
-  rows: [...countries, euroArea].map((c) => ({
-    area: c.area,
-    median: c.bands.map((b) => b.median),
-    mean: c.bands.map((b) => b.mean),
-  })),
-}).replace(/</g, '\\u003c');
+/** Het venster van deze golf, met het voegwoord van deze taal ertussen. */
+const venster = `${firstMonth} to ${lastMonth}`;
 
 const title = 'Net Wealth by Age in Europe, Country by Country';
 const description =
-  `In the euro area the middle household climbs from ${euro(euroCurve.youngest.median)} under 35 to ` +
-  `${euro(euroCurve.peak.median)} at ${euroCurve.peak.label}. Every country, six age groups, ` +
+  `In the euro area the middle household climbs from ${money(euroCurve.youngest.median)} under 35 to ` +
+  `${money(euroCurve.peak.median)} at ${euroCurve.peak.label}. Every country, six age groups, ` +
   "median and average, from the ECB's household survey.";
-/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
-export function getStaticPaths() {
-  return localePaths();
-}
-
 ---
 
 <BaseV2 title={title} description={description} canonical="/wealth/by-age/" hue={STAGES.money}>
@@ -89,14 +55,14 @@ export function getStaticPaths() {
       </p>
 
       <h1 data-reveal>
-        The middle household is worth {multiple(euroCurve.climb)} as much at {euroCurve.peak.label}
+        The middle household is worth {times(euroCurve.climb)} as much at {euroCurve.peak.label}
         as it is under 35.
       </h1>
 
       {/* Het kopcijfer is de klim zelf en niet het bedrag: dat is wat deze pagina
           beantwoordt, en een bedrag als "€208k" loopt op een telefoon buiten het
           scherm — `.giant` erft buiten een h1 het bredere bodylettertype. */}
-      <span class="giant num">{multiple(euroCurve.climb)}</span>
+      <span class="giant num">{times(euroCurve.climb)}</span>
       <p class="unit mono">
         from {euroCurve.youngest.label} to {euroCurve.peak.label} · <b>euro area</b> · wave
         {' '}{ageIndex.source.wave}
@@ -104,9 +70,9 @@ export function getStaticPaths() {
 
       <p class="lead">
         Half of euro-area households with a reference person under 35 are worth less than
-        {' '}{euro(euroCurve.youngest.median)}. At {euroCurve.peak.label} that middle is
-        {' '}{euro(euroCurve.peak.median)}, and by {euroCurve.oldest.label} it has fallen back to
-        {' '}{euro(euroCurve.oldest.median)}. Comparing a household with a national figure without
+        {' '}{money(euroCurve.youngest.median)}. At {euroCurve.peak.label} that middle is
+        {' '}{money(euroCurve.peak.median)}, and by {euroCurve.oldest.label} it has fallen back to
+        {' '}{money(euroCurve.oldest.median)}. Comparing a household with a national figure without
         knowing which of those it belongs to tells you very little.
       </p>
 
@@ -163,7 +129,7 @@ export function getStaticPaths() {
                     <th scope="row">{country.name}</th>
                     {country.bands.map((band) => (
                       <td class:list={['n', { strong: band.code === country.peak }]} data-cell>
-                        {euro(band.median, { compact: true })}
+                        {money(band.median, { compact: true })}
                       </td>
                     ))}
                     <td class="peak mono">{country.peak}</td>
@@ -174,7 +140,7 @@ export function getStaticPaths() {
                 <th scope="row">{euroArea.name}</th>
                 {euroArea.bands.map((band) => (
                   <td class:list={['n', { strong: band.code === euroArea.peak }]} data-cell>
-                    {euro(band.median, { compact: true })}
+                    {money(band.median, { compact: true })}
                   </td>
                 ))}
                 <td class="peak mono">{euroArea.peak}</td>
@@ -203,11 +169,11 @@ export function getStaticPaths() {
         <div class="bento">
           <div class="tile s4">
             <div>
-              <b>{multiple(steepestCurve.climb)}</b>
+              <b>{times(steepestCurve.climb)}</b>
               <p>
-                in {withArticle(steepest.name)}, the steepest here: {euro(steepestCurve.youngest.median)}
+                in {withArticle(steepest.name)}, the steepest here: {money(steepestCurve.youngest.median)}
                 {' '}for the {steepestCurve.youngest.label} group against
-                {' '}{euro(steepestCurve.peak.median)} at {steepestCurve.peak.label}.
+                {' '}{money(steepestCurve.peak.median)} at {steepestCurve.peak.label}.
               </p>
             </div>
             <span class="meta mono">steepest climb</span>
@@ -215,7 +181,7 @@ export function getStaticPaths() {
 
           <div class="tile">
             <div>
-              <b>{multiple(flattestCurve.climb)}</b>
+              <b>{times(flattestCurve.climb)}</b>
               <p>
                 in {withArticle(flattest.name)}, the flattest. Age tells you little there.
               </p>
@@ -303,7 +269,7 @@ export function getStaticPaths() {
                   countries.map((country) => (
                     <li>
                       <span>{country.name}</span>
-                      <span class="mono">{fieldworkLabel(country.fieldwork, { locale: lang })}</span>
+                      <span class="mono">{fieldworkOf(country)}</span>
                     </li>
                   ))
                 }
@@ -347,46 +313,7 @@ export function getStaticPaths() {
 
   <script type="application/json" id="age-table-data" set:html={clientJson} />
 
-  <script>
-    import { track, EVENTS } from '../../../../lib/analytics.js';
-
-    /**
-     * Wisselen tussen middelpunt en gemiddelde. De tabel staat volledig in de HTML met
-     * de medianen erin; dit script vervangt alleen de getallen. Zonder JavaScript mis
-     * je de knop en niets anders.
-     */
-    const holder = document.getElementById('age-table-data');
-    const table = document.querySelector('[data-age-table]');
-
-    if (holder && table) {
-      const data = JSON.parse(holder.textContent ?? '{}');
-      const byArea = Object.fromEntries(data.rows.map((r: any) => [r.area, r]));
-
-      const compact = (value: number | null) =>
-        value === null ? '—' : `€${grouped(Math.abs(value) / 1000)}k`;
-
-      for (const button of document.querySelectorAll<HTMLButtonElement>('[data-lens]')) {
-        button.addEventListener('click', () => {
-          const lens = button.dataset.lens === 'mean' ? 'mean' : 'median';
-          for (const other of document.querySelectorAll('[data-lens]')) {
-            other.setAttribute('aria-pressed', String(other === button));
-          }
-          for (const row of table.querySelectorAll<HTMLTableRowElement>('tbody tr')) {
-            const figures = byArea[row.dataset.area ?? '']?.[lens];
-            if (!figures) continue;
-            row.querySelectorAll<HTMLTableCellElement>('[data-cell]').forEach((cell, i) => {
-              cell.textContent = compact(figures[i]);
-            });
-          }
-          track(EVENTS.secondMetricOpened, { metric: 'wealth-by-age', lens });
-        });
-      }
-    }
-
-    for (const link of document.querySelectorAll('[data-method-link]')) {
-      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'wealth-by-age' }));
-    }
-  </script>
+  <AgeLensWiring />
 
   <style>
     .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }

@@ -1,0 +1,360 @@
+---
+import { localeOf, linkTo } from '../../../../lib/locales.js';
+import BaseV2 from '../../../../layouts/BaseV2.astro';
+import AgeLensWiring from '../../../../components/AgeLensWiring.astro';
+import { grammarOf } from '../../../../lib/grammar.js';
+import { STAGES } from '../../../../lib/hue.js';
+import { wealthByAgePage } from '../../../../lib/pages/wealth-by-age.js';
+
+/**
+ * De Nederlandse /wealth/by-age/.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk komt uit
+ * `src/lib/pages/wealth-by-age.js`, de woorden van de leeftijdsbanden uit
+ * `src/locales/nl/wealth.json`, en de zinnen staan hier.
+ *
+ * De kop loopt anders. "is worth 5.6× as much at 55 to 64 as it is under 35" rijgt twee
+ * vergelijkingen aan elkaar met één werkwoord; het Nederlands moet "waard" achteraan
+ * zetten en de twee leeftijden daarvóór. Vandaar "is bij 55 tot 64 5,6× zoveel waard als
+ * onder de 35".
+ *
+ * De definitie van de uitgever blijft Engels en staat in een `<dd lang="en">`: besluit 1
+ * van 1 november. Dat markeert hem ook voor de poort, die tekst met een eigen `lang` niet
+ * meetelt.
+ */
+const lang = localeOf(Astro.url.pathname);
+const {
+  ageIndex,
+  validation,
+  countries,
+  bands,
+  euroArea,
+  euroCurve,
+  steepest,
+  flattest,
+  steepestCurve,
+  flattestCurve,
+  peaks,
+  stillClimbing,
+  turnedDown,
+  firstMonth,
+  lastMonth,
+  fieldworkOf,
+  money,
+  times,
+  clientJson,
+} = wealthByAgePage(lang);
+
+const g = grammarOf(lang);
+
+/** Het venster van deze golf, met het voegwoord van deze taal ertussen. */
+const venster = `${firstMonth} tot ${lastMonth}`;
+
+const title = 'Nettovermogen naar leeftijd in Europa, land voor land';
+const description =
+  `In de eurozone klimt het middelste huishouden van ${money(euroCurve.youngest.median)} onder de 35 ` +
+  `naar ${money(euroCurve.peak.median)} bij ${euroCurve.peak.label}. Elk land, zes ` +
+  'leeftijdsgroepen, middelpunt en gemiddelde, uit de huishoudenquête van de ECB.';
+---
+
+<BaseV2 title={title} description={description} canonical="/wealth/by-age/" hue={STAGES.money}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">
+        ECB-enquête · {countries.length} landen · golf {ageIndex.source.wave}
+      </p>
+
+      <h1 data-reveal>
+        Het middelste huishouden is bij {euroCurve.peak.label} {times(euroCurve.climb)} zoveel waard
+        als onder de 35.
+      </h1>
+
+      {/* Het kopcijfer is de klim zelf en niet het bedrag: dat is wat deze pagina
+          beantwoordt, en een bedrag als "€208k" loopt op een telefoon buiten het
+          scherm — `.giant` erft buiten een h1 het bredere bodylettertype. */}
+      <span class="giant num">{times(euroCurve.climb)}</span>
+      <p class="unit mono">
+        van {euroCurve.youngest.label} naar {euroCurve.peak.label} · <b>eurozone</b> · golf
+        {' '}{ageIndex.source.wave}
+      </p>
+
+      <p class="lead">
+        De helft van de huishoudens in de eurozone met een referentiepersoon onder de 35 is minder
+        dan {money(euroCurve.youngest.median)} waard. Bij {euroCurve.peak.label} is dat middelpunt
+        {' '}{money(euroCurve.peak.median)}, en bij {euroCurve.oldest.label} is het teruggezakt naar
+        {' '}{money(euroCurve.oldest.median)}. Een huishouden met een nationaal cijfer vergelijken
+        zonder te weten bij welke van die groepen het hoort, zegt heel weinig.
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn" href={linkTo('/wealth/#compare', lang)}>
+          Vul je eigen cijfer in{' '}<span class="arr" aria-hidden="true">→</span>
+        </a>
+        <span class="hint">Niets van wat je typt verlaat je browser.</span>
+      </div>
+
+      <p class="hero-note">
+        Dit is de huishoudenquête van de ECB, en die meet iets smaller dan de kwartaalrekeningen op
+        {' '}<a href={linkTo('/wealth/', lang)}>de hoofdpagina over vermogen</a>: de waarde van publieke en
+        bedrijfspensioenen zit er niet in. De twee reeksen cijfers zijn niet met elkaar
+        vergelijkbaar, dus niets op deze pagina staat ernaast.
+      </p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Elk land</p>
+        <h2 id="table-title">Alle {countries.length} landen, zes leeftijdsgroepen</h2>
+        <p>
+          De leeftijd is die van de referentiepersoon van het huishouden. Wissel tussen het
+          middelste huishouden en het gemiddelde — ze liggen ver uiteen, en dat verschil is het
+          grootst onder de jongeren.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <div class="seg" role="group" aria-label="Welk cijfer te tonen">
+          <button type="button" data-lens="median" aria-pressed="true">Middelpunt</button>
+          <button type="button" data-lens="mean" aria-pressed="false">Gemiddelde</button>
+        </div>
+
+        <div class="tablewrap" tabindex="0" role="region" aria-label="Nettovermogen naar leeftijd en land" data-reveal>
+          <table data-age-table>
+            <caption class="vh">
+              Nettovermogen van huishoudens naar leeftijd van de referentiepersoon,
+              {' '}{countries.length} landen, ECB-enquête golf {ageIndex.source.wave}.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Land</th>
+                {bands.map((band) => <th scope="col" class="n">{band.code}</th>)}
+                <th scope="col">Piekt bij</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                countries.map((country) => (
+                  <tr data-area={country.area}>
+                    <th scope="row">{country.name}</th>
+                    {country.bands.map((band) => (
+                      <td class:list={['n', { strong: band.code === country.peak }]} data-cell>
+                        {money(band.median, { compact: true })}
+                      </td>
+                    ))}
+                    <td class="peak mono">{country.peak}</td>
+                  </tr>
+                ))
+              }
+              <tr class="aggregate" data-area={euroArea.area}>
+                <th scope="row">{euroArea.name}</th>
+                {euroArea.bands.map((band) => (
+                  <td class:list={['n', { strong: band.code === euroArea.peak }]} data-cell>
+                    {money(band.median, { compact: true })}
+                  </td>
+                ))}
+                <td class="peak mono">{euroArea.peak}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="brk-foot">
+          Bedragen in duizenden euro's, afgerond. De vetgedrukte cel is de hoogste groep van elk
+          land. Het veldwerk liep tussen {venster}, en elk land draagt zijn eigen maanden — de
+          methodesectie hieronder noemt ze.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="shape-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Wat de cijfers zeggen</p>
+        <h2 id="shape-title">Dezelfde curve, in wild verschillende maten</h2>
+      </header>
+
+      <div data-reveal>
+        <div class="bento">
+          <div class="tile s4">
+            <div>
+              <b>{times(steepestCurve.climb)}</b>
+              <p>
+                in {g.withArticle(steepest.name)}, de steilste hier: {money(steepestCurve.youngest.median)}
+                {' '}voor de groep {steepestCurve.youngest.label} tegenover
+                {' '}{money(steepestCurve.peak.median)} bij {steepestCurve.peak.label}.
+              </p>
+            </div>
+            <span class="meta mono">steilste klim</span>
+          </div>
+
+          <div class="tile">
+            <div>
+              <b>{times(flattestCurve.climb)}</b>
+              <p>
+                in {g.withArticle(flattest.name)}, de vlakste. Leeftijd zegt daar weinig.
+              </p>
+            </div>
+            <span class="meta mono">vlakste</span>
+          </div>
+        </div>
+
+        <div class="bento" style="margin-top:14px">
+          {
+            peaks.map((group) => (
+              <div class="tile">
+                <div>
+                  <b>{group.countries.length}</b>
+                  <p>
+                    {group.countries.length === 1 ? 'land piekt' : 'landen pieken'} bij
+                    {' '}{group.band.label}: {group.countries.map((c) => c.name).join(', ')}.
+                  </p>
+                </div>
+                <span class="meta mono">{group.band.code}</span>
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="prose">
+          <p>
+            De vorm is niet overal dezelfde, en dat is het punt. In {turnedDown} van deze
+            {' '}{ageIndex.countries.length} landen is het middelpunt bij de oudste groep al
+            omgeslagen;
+            {stillClimbing.length > 0 && (
+              <> in {stillClimbing.map((c) => c.name).join(' en ')} is het nog altijd het hoogst bij
+              {' '}{bands[bands.length - 1].label.toLowerCase()}.</>
+            )}
+            {' '}De leeftijd waarop het piekt en de grootte van de klim verschillen genoeg dat één
+            Europese zin over "vermogen op je dertigste" in de meeste landen onwaar zou zijn. Dat is
+            het argument om naar je leeftijd te vragen voordat je antwoordt — en het is waarom deze
+            pagina geen Europees gemiddelde boven de tabel zet: de eurozonerij is een cijfer dat de
+            ECB zelfstandig publiceert, geen samenvatting van de rijen erboven.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">Methode</p>
+        <h2 id="method-title">Hoe dit gemeten is</h2>
+        <p>Gepubliceerd door de Europese Centrale Bank. Er wordt hier niets bij geschat.</p>
+      </header>
+
+      <div data-reveal>
+        <dl>
+          <div>
+            <dt>Wat het cijfer is</dt>
+            {/* De definitie van de uitgever, woordelijk en dus in het Engels. */}
+            <dd lang="en">{ageIndex.source.definition}</dd>
+          </div>
+          <div>
+            <dt>Wat het niet is</dt>
+            <dd>
+              Het is niet het cijfer op <a href={linkTo('/wealth/', lang)}>de hoofdpagina over vermogen</a>. Dat
+              komt uit de kwartaalrekeningen van de ECB, die pensioenaanspraken wél meetellen en
+              geen enkele leeftijdssplitsing dragen. Het is ook geen percentiel: de enquête
+              publiceert een middelpunt en een gemiddelde per groep, geen verdeling, dus er valt
+              geen plaats tussen individuen uit op te bouwen.
+            </dd>
+          </div>
+          <div>
+            <dt>Wiens leeftijd</dt>
+            <dd>
+              Die van de referentiepersoon van het huishouden, zoals de enquête die definieert —
+              niet een gemiddelde van iedereen in het huishouden. Een huishouden van twee
+              dertigjarigen en een huishouden van een dertigjarige die bij een ouder woont vallen in
+              verschillende groepen.
+            </dd>
+          </div>
+          <div>
+            <dt>Wanneer het verzameld is</dt>
+            <dd>
+              Het veldwerk voor deze golf liep tussen {venster}, en elk land heeft zijn eigen
+              venster. Eén jaartal boven alles zou onwaar zijn, dus ze staan hier allemaal:
+              <ul class="fieldwork">
+                {
+                  countries.map((country) => (
+                    <li>
+                      <span>{country.name}</span>
+                      <span class="mono">{fieldworkOf(country)}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </dd>
+          </div>
+          <div>
+            <dt>Dekking</dt>
+            <dd>
+              {countries.length} landen en de eurozone, elk zes leeftijdsgroepen, met een middelpunt
+              en een gemiddelde voor elk — {validation.figuresChecked} cijfers in totaal, elk
+              opnieuw berekend uit de gepubliceerde tabellen voordat deze pagina gebouwd werd.
+              {
+                ageIndex.notBuilt.length > 0 && (
+                  <>
+                    {' '}De enquête dekt ook {ageIndex.notBuilt.join(' en ')}, {ageIndex.notBuilt.length === 1 ? 'dat' : 'die'}{' '}
+                    hier niet staan: de kwartaalrekeningen achter de rest van deze site dekken
+                    alleen de eurozone, dus er zou geen cijfer van vandaag zijn om deze
+                    leeftijdsgroepen tegenaan te zetten.
+                  </>
+                )
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>Bron</strong> {ageIndex.source.publisher}, {ageIndex.source.survey}</li>
+          <li><strong>Golf</strong> {ageIndex.source.wave}</li>
+          <li><strong>Tabellen</strong> <a href={ageIndex.source.url} data-method-link>{ageIndex.source.tables}</a></li>
+          <li><strong>Opgehaald</strong> {ageIndex.source.fetchedOn.slice(0, 10)}</li>
+          <li><strong>Laatst gecontroleerd</strong> {validation.checkedOn}</li>
+        </ul>
+
+        <p class="source-note">
+          Hoe wij met data omgaan staat op <a href={linkTo('/method/', lang)}>de methodepagina</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script type="application/json" id="age-table-data" set:html={clientJson} />
+
+  <AgeLensWiring />
+
+  <style>
+    .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .tile .meta { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-2); }
+
+    .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+    .prose p { margin: 0; line-height: 1.7; }
+
+    .seg { margin-bottom: 16px; }
+
+    td.peak { color: var(--text-2); font-size: .82rem; }
+    tr.aggregate { border-top: 2px solid var(--line-strong); }
+    tr.aggregate th { font-style: italic; }
+
+    /* Eén kolom. Twee kolommen pasten op een breed scherm niet: "September 2024 to
+       March 2025" naast een landnaam is breder dan de helft van deze kolom, en dan
+       steekt de lijst buiten het blok. */
+    .fieldwork { list-style: none; margin: 12px 0 0; padding: 0; }
+    .fieldwork li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 14px; padding: .32rem 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
+    .fieldwork li span:last-child { color: var(--text-2); }
+
+    /* De bestandsnaam van de tabellen is één woord van vijftig tekens
+       ("HFCS_Statistical_Tables_Wave_2023_October_2026.xlsx") en duwde op een telefoon
+       de hele methodekolom breder dan het scherm. Hij mag breken. */
+    .source-list { list-style: none; padding: 0; overflow-wrap: anywhere; }
+    .source-list li { padding: .35rem 0; border-bottom: 1px solid var(--line); font-size: .92rem; }
+    .source-list li:last-child { border-bottom: 0; }
+    .source-list strong { display: inline-block; min-width: 12rem; color: var(--text-2); font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    @media (max-width: 540px) { .source-list strong { display: block; min-width: 0; } }
+  </style>
+</BaseV2>
