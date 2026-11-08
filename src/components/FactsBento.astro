@@ -8,13 +8,26 @@
  * dan ontbreken die tegels in plaats van dat er iets staat dat niets betekent.
  *
  * De sectiekop hoort bij de pagina; dit onderdeel levert alleen de tegels en de voetnoot.
+ *
+ * DE ZINNEN STAAN IN copy/, NIET IN ui.json, SINDS 8 NOVEMBER 2026
+ *
+ * Tot die dag stonden ze hier in het Engels en liepen ze mee naar /nl/leaving-home/. Ze
+ * horen niet in ui.json omdat het geen vaste teksten zijn maar zinnen die uit de data
+ * gerekend worden, met een enkelvoud/meervoud erin ("1 land ging" tegenover "4 landen
+ * gingen") en een opsomming die het Nederlands met "en" afsluit en het Engels niet.
+ *
+ * Dit onderdeel rekent en formatteert; `src/locales/<taal>/copy/leaving-home.js` verwoordt.
  */
 import { localeOf } from '../lib/locales.js';
-import { age, years, count, withArticle, genderGap, trend, headline } from '../lib/leaving-home.js';
+import { grammarOf } from '../lib/grammar.js';
+import { age, years, genderGap, trend, headline } from '../lib/leaving-home.js';
+import { copyOf } from '../lib/leaving-home-copy.js';
 import { decimal } from '../lib/format.js';
 
 /** De taal van de pagina waar dit onderdeel op staat; elk getal hieronder gaat erdoor. */
 const lang = localeOf(Astro.url.pathname);
+const copy = copyOf(lang).facts;
+const g = grammarOf(lang);
 
 interface Props {
   index: any;
@@ -26,7 +39,6 @@ const gender = genderGap(index);
 const movement = trend(index);
 
 const sign = (value: number) => (value > 0 ? '+' : '−');
-const names = (list: { name: string }[]) => list.map((country) => country.name).join(', ');
 
 /** De grootste verschuiving in beide richtingen, naar absolute grootte. */
 const biggest = movement
@@ -36,39 +48,58 @@ const biggest = movement
 const tiles = [
   gender && {
     className: 'tile s4 dark',
-    value: `${gender.womenEarlier} of ${gender.of}`,
-    text:
-      `countries where women reach the midpoint before men in ${h.year}, by ${years(gender.mean, { locale: lang })} on average.` +
-      (gender.exceptions.length === 0
-        ? ''
-        : ` The exception${gender.exceptions.length === 1 ? ' is' : 's are'} ${names(gender.exceptions)}.`),
+    value: copy.genderValue({ womenEarlier: gender.womenEarlier, of: gender.of }),
+    text: copy.gender({
+      year: h.year,
+      mean: years(gender.mean, { locale: lang }),
+      exceptions: gender.exceptions.map((country: { name: string }) => country.name),
+    }),
   },
   movement && {
     className: 'tile',
     value: [age(movement.spreadThen, { locale: lang }), age(movement.spreadNow, { locale: lang })],
-    text: `years between the earliest and the latest country, ${movement.since} versus ${movement.until}. Only the ${movement.countries} countries with a value in both years.`,
+    text: copy.spread({
+      since: movement.since,
+      until: movement.until,
+      countries: movement.countries,
+    }),
   },
   movement &&
     movement.euThen !== null &&
     movement.euNow !== null && {
       className: 'tile',
       value: [age(movement.euThen, { locale: lang }), age(movement.euNow, { locale: lang })],
-      text:
-        `the European Union figure, ${movement.since} to ${movement.until}. ` +
-        `${count(movement.earlier.length, 'country', 'countries')} moved earlier by at least ${years(movement.minimumMove, { locale: lang })}, ` +
-        `${movement.later.length} moved later.`,
+      text: copy.eu({
+        since: movement.since,
+        until: movement.until,
+        earlier: movement.earlier.length,
+        minimumMove: years(movement.minimumMove, { locale: lang }),
+        later: movement.later.length,
+      }),
     },
   biggest && {
     className: 'tile',
     // Het teken blijft van `sign` hierboven: die schrijft − bij nul, waar signed() in
     // metric.js niets schrijft. Alleen het getal gaat door de taalgrens.
     value: `${sign(biggest.change)}${decimal(Math.abs(biggest.change), 1, { locale: lang })}`,
-    text: `years: the biggest move since ${movement!.since}, in ${withArticle(biggest.name)} (${age(biggest.series[movement!.since], { locale: lang })} to ${age(biggest.series[movement!.until], { locale: lang })}).`,
+    text: copy.biggest({
+      since: movement!.since,
+      name: biggest.name,
+      from: age(biggest.series[movement!.since], { locale: lang }),
+      to: age(biggest.series[movement!.until], { locale: lang }),
+      g,
+    }),
   },
   gender && {
     className: 'tile',
     value: age(gender.widestGap, { locale: lang }),
-    text: `years: the widest gap between men and women in ${h.year}, in ${withArticle(gender.widest.name)} (men ${age(gender.widest.men, { locale: lang })}, women ${age(gender.widest.women, { locale: lang })}).`,
+    text: copy.widest({
+      year: h.year,
+      name: gender.widest.name,
+      men: age(gender.widest.men, { locale: lang }),
+      women: age(gender.widest.women, { locale: lang }),
+      g,
+    }),
   },
 ].filter(Boolean) as { className: string; value: string | string[]; text: string }[];
 ---
@@ -94,7 +125,7 @@ const tiles = [
 {
   movement && (
     <p class="brk-foot">
-      Comparisons over time start in {index.comparableSince}, the first year after Eurostat’s {index.lastBreak} series break, so they cover a short window.
+      {copy.breakFoot({ since: index.comparableSince, lastBreak: index.lastBreak })}
     </p>
   )
 }

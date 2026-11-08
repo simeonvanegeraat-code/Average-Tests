@@ -32,7 +32,10 @@ import {
   trend,
   withArticle,
 } from './metric.js';
-import { decimal } from './format.js';
+import { decimal, localeOfNumber } from './format.js';
+import { DEFAULT_LOCALE } from './locales.js';
+import enCopy from '../locales/en/copy/leaving-home.js';
+import nlCopy from '../locales/nl/copy/leaving-home.js';
 
 export { count, currentCountries, euAggregate, genderGap, headline, ranked, staleCountries, trend, withArticle };
 
@@ -48,6 +51,14 @@ export function age(value, { locale } = {}) {
   return decimal(value, 1, { locale }) ?? '—';
 }
 
+/**
+ * Het woord voor de eenheid, per taal. Stond hier tot 8 november 2026 als
+ * `'year' : 'years'` met de hand, dus ook op /nl/, waar "10,2 years verschil" stond.
+ * Het Nederlands heeft hier geen meervoud, dus een regel als "+s" zou niet werken: het
+ * is een woord per taal en het staat bij de andere woorden van deze pagina.
+ */
+const UNITS = { en: enCopy.units, nl: nlCopy.units };
+
 export function years(value, { sign = false, locale } = {}) {
   /**
    * Het woord komt uit het gétal, niet uit de opgemaakte tekst. Hier stond
@@ -55,7 +66,13 @@ export function years(value, { sign = false, locale } = {}) {
    * dat `'1,0'` en zou er altijd een meervoud staan.
    */
   const magnitude = Math.abs(value);
-  const unit = Number(magnitude.toFixed(1)) === 1 ? 'year' : 'years';
+  /**
+   * Dezelfde resolutie als decimal() gebruikt, en met opzet niet een eigen terugval:
+   * anders kiest het getal een andere taal dan het woord ernaast, en stond er
+   * "1,6 years later" — wat er tot 8 november 2026 ook stond.
+   */
+  const words = UNITS[localeOfNumber(locale)] ?? UNITS[DEFAULT_LOCALE];
+  const unit = Number(magnitude.toFixed(1)) === 1 ? words.one : words.many;
   const prefix = sign && value > 0 ? '+' : sign && value < 0 ? '−' : '';
   return `${prefix}${decimal(magnitude, 1, { locale })} ${unit}`;
 }
