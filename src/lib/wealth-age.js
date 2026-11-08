@@ -19,6 +19,7 @@
  * een middelpunt en een gemiddelde, geen verdeling; dezelfde reden als in wealth.js.
  */
 import { periodLabel } from './period.js';
+import { localeOfNumber } from './format.js';
 
 /** De groep waar een leeftijd in valt, of null buiten het bereik van de enquête. */
 export function bandForAge(age, bands) {
@@ -93,8 +94,17 @@ export function fieldworkLabel(fieldwork, { locale } = {}) {
   const tot = periodLabel(fieldwork.to, { locale });
   if (van === tot) return van;
 
+  /**
+   * Het woord tussen de twee maanden hoort bij de taal. Hier stond "to", dus op
+   * /nl/wealth/nl/ liep het veldwerk "mei to juni 2023" — twee Nederlandse maandnamen met
+   * een Engels voegwoord ertussen. `ui.json` is hier het verkeerde huis: deze functie
+   * draait ook in een clientscript dat `ui()` niet importeert, dus het woord staat waar
+   * de rest van de woorden van deze pagina staan.
+   */
+  const tussen = { en: 'to', nl: 'tot' }[localeOfNumber(locale)] ?? 'to';
+
   const zelfdeJaar = fieldwork.from.slice(0, 4) === fieldwork.to.slice(0, 4);
-  return zelfdeJaar ? `${van.split(' ')[0]} to ${tot}` : `${van} to ${tot}`;
+  return zelfdeJaar ? `${van.split(' ')[0]} ${tussen} ${tot}` : `${van} ${tussen} ${tot}`;
 }
 
 /**

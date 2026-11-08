@@ -1,109 +1,66 @@
 ---
-import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
-import { localise } from '../../../lib/country-names.js';
-import BaseV2 from '../../../layouts/BaseV2.astro';
-import rawIndex from '../../../../data/wealth/index.json';
-import rawAgeIndex from '../../../../data/wealth-age/index.json';
-import { euro, multiple, formatPeriod, percentChange, withArticle } from '../../../lib/wealth.js';
-import { decimal } from '../../../lib/format.js';
-import { curveOf, fieldworkLabel } from '../../../lib/wealth-age.js';
-import { STAGES } from '../../../lib/hue.js';
+import { localeOf, linkTo } from '../../lib/locales.js';
+import BaseV2 from '../../layouts/BaseV2.astro';
+import rawIndex from '../../../data/wealth/index.json';
+import { withArticle } from '../../lib/wealth.js';
+import { STAGES } from '../../lib/hue.js';
+import { wealthCountryPage } from '../../lib/pages/wealth-country.js';
 
 /**
- * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
- * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
- * taal in voordat enig onderdeel de index ziet, en `locale` in de
- * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
- */
-const lang = localeOf(Astro.url.pathname);
-const index = localise(rawIndex, lang);
-const ageIndex = localise(rawAgeIndex, lang);
-
-/**
- * Eén pagina per land.
+ * De Engelse landpagina's onder /wealth/ — 21 stuks uit één bestand.
  *
- * Deze pagina's zijn geen varianten van hetzelfde sjabloon met een ander cijfer:
- * landen verschillen werkelijk. Duitsland heeft een lagere mediaan dan Italië
- * ondanks een hoger inkomen, in Zuid-Europa zit het vermogen in stenen en in
- * Nederland in pensioen. De tekst hieronder leest die verschillen uit de data en
- * benoemt per land wat er opvalt.
- *
- * Omgezet naar de vormtaal van 2026. Dat was een restyle: elk cijfer en elke zin
- * komt nog uit dezelfde bron en dezelfde berekening als ervoor.
+ * Eigen bestand per taal sinds 3 november 2026; `src/pages/nl/wealth/[country].astro` is
+ * de Nederlandse. Het rekenwerk staat in `src/lib/pages/wealth-country.js`, en de woorden
+ * van de data (groepen, eigendomsvorm, balansposten, leeftijdsbanden) in
+ * `src/locales/<taal>/wealth.json`.
  */
-
 export async function getStaticPaths() {
-  const files = import.meta.glob('../../../../data/wealth/*.json', { eager: true });
+  const files = import.meta.glob('../../../data/wealth/*.json', { eager: true });
 
-  /**
-   * Het kruisproduct van taal en land. De landenlus hieronder is ongewijzigd; er komt
-   * alleen een taal om heen. Zolang Engels de enige taal is, is `lang` undefined en
-   * blijven dit precies de 21 paden die er altijd stonden.
-   */
   /**
    * De rúwe index, niet de gelokaliseerde. getStaticPaths draait voordat de pagina
-   * bestaat en kent Astro.url dus niet, en heeft hier ook geen taal nodig: de paden
-   * komen uit `area`, een landcode, en die is in elke taal hetzelfde.
+   * bestaat en kent Astro.url dus niet, en heeft hier ook geen taal nodig: de paden komen
+   * uit `area`, een landcode, en die is in elke taal hetzelfde.
    */
-  return localePaths().flatMap(({ params: { lang } }) =>
-    rawIndex.countries.map((summary) => {
-      const key = Object.keys(files).find((p) => p.endsWith(`/${summary.area.toLowerCase()}.json`));
-      const country = files[key].default ?? files[key];
-      return { params: { lang, country: summary.area.toLowerCase() }, props: { country } };
-    }),
-  );
+  return rawIndex.countries.map((summary) => {
+    const key = Object.keys(files).find((p) => p.endsWith(`/${summary.area.toLowerCase()}.json`));
+    const country = files[key].default ?? files[key];
+    return { params: { country: summary.area.toLowerCase() }, props: { country } };
+  });
 }
 
-const { country } = Astro.props;
-const c = country;
-
-const byCode = Object.fromEntries(c.groups.map((g) => [g.code, g]));
-const status = Object.fromEntries(c.status.map((s) => [s.code, s]));
-const owners = status.HSO;
-const renters = status.HST;
-const housingGap = owners && renters ? owners.netWealth / renters.netWealth : null;
-
-const yearChange = c.medianYearAgo ? percentChange(c.medianYearAgo.value, c.median) : null;
-const meanToMedian = c.mean ? c.mean / c.median : null;
-
-// Rangorde binnen Europa, uit de index in plaats van met de hand.
-const ranked = [...index.countries].sort((a, b) => b.median - a.median);
-const position = ranked.findIndex((x) => x.area === c.area) + 1;
-const euroArea = index.euroArea;
-
-// Waar zit het vermogen van de middenmoot in? Dit verschilt sterk per land en is
-// het punt waarop deze pagina's echt uiteenlopen.
-const middle = c.composition?.Q3 ?? [];
-const assets = middle.filter((p) => p.side === 'asset').sort((a, b) => b.value - a.value);
-const biggest = assets[0];
-const secondBiggest = assets[1];
-const debts = middle.filter((p) => p.side === 'liability');
-const totalDebt = debts.reduce((sum, d) => sum + Math.abs(d.value), 0);
-
-const bottomQuintile = byCode.Q1;
-const negativeBottom = bottomQuintile && bottomQuintile.netWealth < 0;
+const lang = localeOf(Astro.url.pathname);
+const {
+  ageIndex,
+  c,
+  byCode,
+  owners,
+  renters,
+  housingGap,
+  yearChange,
+  meanToMedian,
+  ranked,
+  position,
+  euroArea,
+  middle,
+  biggest,
+  secondBiggest,
+  totalDebt,
+  bottomQuintile,
+  negativeBottom,
+  survey,
+  curve,
+  sharePeak,
+  steeperThan,
+  money,
+  times,
+  pct,
+  period,
+  fieldwork,
+} = wealthCountryPage(Astro.props.country, lang);
 
 const where = withArticle(c.name);
 const Where = withArticle(c.name, { capitalise: true });
-
-/**
- * De leeftijdscurve van dit land, uit de ECB-enquête.
- *
- * Een tweede bron op dezelfde pagina, en dat vraagt om strengheid: de enquête telt
- * publieke en bedrijfspensioenen niet mee, dus haar middelpunt ligt op een ander
- * niveau dan het cijfer bovenaan deze pagina. Geen zin hieronder zet de twee naast
- * elkaar, en de sectie zegt zelf waar ze vandaan komt.
- *
- * Dit is ook wat deze landpagina's van elkaar onderscheidt: de piek ligt niet overal
- * bij dezelfde groep en de klim ernaartoe verschilt van 1,6x tot 31,6x.
- */
-const survey = ageIndex.countries.find((a) => a.area === c.area) ?? null;
-const curve = survey ? curveOf(survey) : null;
-/** Hoeveel andere landen hun hoogtepunt bij dezelfde groep hebben. */
-const sharePeak = survey ? ageIndex.countries.filter((a) => a.peak === survey.peak).length : 0;
-const steeperThan = survey
-  ? ageIndex.countries.filter((a) => Number.isFinite(a.climb) && a.climb < survey.climb).length
-  : 0;
 
 const rank =
   position === 1
@@ -114,7 +71,7 @@ const rank =
 
 const title = `Household Wealth in ${Where} — Where You Stand`;
 const description =
-  `The median household in ${where} is worth ${euro(c.median)}. See the full distribution, ` +
+  `The median household in ${where} is worth ${money(c.median)}. See the full distribution, ` +
   `the gap between owning and renting, and where your own household would sit.`;
 ---
 
@@ -127,14 +84,14 @@ const description =
   <section class="hero" aria-labelledby="hero-title">
     <div class="wrap">
       <p class="eyebrow mono" data-reveal>
-        {c.name} · European Central Bank · {formatPeriod(c.period)}
+        {c.name} · European Central Bank · {period}
       </p>
       <h1 id="hero-title" data-reveal>
         The median household in {where} is worth
-        <span class="giant num">{euro(c.median, { compact: true })}</span>
+        <span class="giant num">{money(c.median, { compact: true })}</span>
       </h1>
       <p class="unit mono" data-reveal>
-        Exactly <b>{euro(c.median)}</b> · {formatPeriod(c.period)}
+        Exactly <b>{money(c.median)}</b> · {period}
       </p>
       <p class="lead" data-reveal>
         That is the middle household — half of the country owns more, half owns less. It ranks
@@ -161,23 +118,23 @@ const description =
         <div class="statrow">
           <div class="statblock">
             <span class="k">Median household</span>
-            <b>{euro(c.median)}</b>
+            <b>{money(c.median)}</b>
             {yearChange != null && (
               <span class="d">
-                {yearChange >= 0 ? '▲' : '▼'} {decimal(Math.abs(yearChange), 1)}% over the year
+                {yearChange >= 0 ? '▲' : '▼'} {pct(Math.abs(yearChange))}% over the year
               </span>
             )}
           </div>
           <div class="statblock">
             <span class="k">Average household</span>
-            <b>{euro(c.mean)}</b>
-            {meanToMedian && <span class="d">{multiple(meanToMedian)} the median</span>}
+            <b>{money(c.mean)}</b>
+            {meanToMedian && <span class="d">{times(meanToMedian)} the median</span>}
           </div>
         </div>
 
         <div class="prose">
           <p>
-            The average is {meanToMedian ? multiple(meanToMedian) : ''} the median, and that gap is
+            The average is {meanToMedian ? times(meanToMedian) : ''} the median, and that gap is
             the whole story of wealth statistics. Averages are dragged upward by a small number of
             very large fortunes; the median describes the household in the middle. Whenever a
             headline quotes the average wealth of a country, it is describing almost nobody.
@@ -202,19 +159,19 @@ const description =
           <div data-reveal>
             <div class="split">
               <div class="split-side own">
-                <span class="k">Homeowners</span>
-                <b>{euro(owners.netWealth)}</b>
+                <span class="k">{owners.label}</span>
+                <b>{money(owners.netWealth)}</b>
               </div>
-              <div class="split-vs">{multiple(housingGap)}</div>
+              <div class="split-vs">{times(housingGap)}</div>
               <div class="split-side rent">
-                <span class="k">Renters</span>
-                <b>{euro(renters.netWealth)}</b>
+                <span class="k">{renters.label}</span>
+                <b>{money(renters.netWealth)}</b>
               </div>
             </div>
 
             <div class="prose">
               <p>
-                A homeowning household in {where} holds {multiple(housingGap)} what a renting
+                A homeowning household in {where} holds {times(housingGap)} what a renting
                 household holds. Comparing yourself to the average household here, without knowing
                 which side of that line you are on, tells you very little.
               </p>
@@ -239,7 +196,7 @@ const description =
       <div class="tablewrap" tabindex="0" role="region" aria-label="Net wealth by group" data-reveal>
         <table>
           <caption class="vh">
-            Average net wealth per household by group, {Where}, {formatPeriod(c.period)}
+            Average net wealth per household by group, {Where}, {period}
           </caption>
           <thead>
             <tr>
@@ -251,13 +208,13 @@ const description =
             {c.groups.filter((g) => g.kind === 'quintile').map((g) => (
               <tr>
                 <th scope="row">{g.label}</th>
-                <td class:list={['n', g.netWealth < 0 && 'negative']}>{euro(g.netWealth)}</td>
+                <td class:list={['n', g.netWealth < 0 && 'negative']}>{money(g.netWealth)}</td>
               </tr>
             ))}
             {byCode.D10 && (
               <tr class="emphasis">
-                <th scope="row">Top 10%</th>
-                <td class="n">{euro(byCode.D10.netWealth)}</td>
+                <th scope="row">{byCode.D10.label}</th>
+                <td class="n">{money(byCode.D10.netWealth)}</td>
               </tr>
             )}
           </tbody>
@@ -269,7 +226,7 @@ const description =
           <div class="limits" data-reveal>
             <b>The bottom fifth of households in {where} has negative net wealth</b>
             <p>
-              On average {euro(bottomQuintile.netWealth)}. They owe more than they own. This is not
+              On average {money(bottomQuintile.netWealth)}. They owe more than they own. This is not
               unusual across Europe and it is not a rounding artefact: mortgages, student loans and
               consumer credit can exceed everything a young household has managed to accumulate.
             </p>
@@ -299,12 +256,12 @@ const description =
                 {middle.map((p) => (
                   <tr class={p.side === 'liability' ? 'liability' : undefined}>
                     <th scope="row">{p.label}</th>
-                    <td class:list={['n', p.value < 0 && 'negative']}>{euro(p.value)}</td>
+                    <td class:list={['n', p.value < 0 && 'negative']}>{money(p.value)}</td>
                   </tr>
                 ))}
                 <tr class="emphasis">
                   <th scope="row">Net wealth</th>
-                  <td class="n">{euro(byCode.Q3?.netWealth)}</td>
+                  <td class="n">{money(byCode.Q3?.netWealth)}</td>
                 </tr>
               </tbody>
             </table>
@@ -318,7 +275,7 @@ const description =
               spatie vóór de komma. Op alle 21 landpagina's tegelijk.
             */}
             <p>
-              For this household the largest holding is <strong>{biggest.label.toLowerCase()}</strong> at {euro(biggest.value)}{secondBiggest && <>, followed by {secondBiggest.label.toLowerCase()} at {euro(secondBiggest.value)}</>}.{totalDebt > 0 && <> Against that sits {euro(totalDebt)} of debt.</>}
+              For this household the largest holding is <strong>{biggest.label.toLowerCase()}</strong> at {money(biggest.value)}{secondBiggest && <>, followed by {secondBiggest.label.toLowerCase()} at {money(secondBiggest.value)}</>}.{totalDebt > 0 && <> Against that sits {money(totalDebt)} of debt.</>}
             </p>
           </div>
         </div>
@@ -353,8 +310,8 @@ const description =
                   <span class="bar">
                     <i style={`width:${((band.median / curve.peak.median) * 100).toFixed(1)}%`} />
                   </span>
-                  <span class="v num">{euro(band.median, { compact: true })}</span>
-                  <span class="avg mono">avg {euro(band.mean, { compact: true })}</span>
+                  <span class="v num">{money(band.median, { compact: true })}</span>
+                  <span class="avg mono">avg {money(band.mean, { compact: true })}</span>
                 </li>
               ))}
             </ul>
@@ -363,24 +320,24 @@ const description =
               <p>
                 {curve.flat ? (
                   <>
-                    The middle household in {where} is worth {euro(curve.youngest.median)} in the
-                    {' '}{curve.youngest.label} group and {euro(curve.peak.median)} at its highest,
-                    {' '}{curve.peak.label} — only {multiple(curve.climb)} as much. That is one of the
+                    The middle household in {where} is worth {money(curve.youngest.median)} in the
+                    {' '}{curve.youngest.label} group and {money(curve.peak.median)} at its highest,
+                    {' '}{curve.peak.label} — only {times(curve.climb)} as much. That is one of the
                     flattest curves in this survey, and it means a national figure here describes a
                     30-year-old almost as well as a 60-year-old. In most countries it does not.
                   </>
                 ) : (
                   <>
-                    The middle household climbs from {euro(curve.youngest.median)} in the
-                    {' '}{curve.youngest.label} group to {euro(curve.peak.median)} at
-                    {' '}{curve.peak.label}, {multiple(curve.climb)} as much — steeper than
+                    The middle household climbs from {money(curve.youngest.median)} in the
+                    {' '}{curve.youngest.label} group to {money(curve.peak.median)} at
+                    {' '}{curve.peak.label}, {times(curve.climb)} as much — steeper than
                     {steeperThan === ageIndex.countries.length - 1
                       ? ' in every other country here'
                       : ` in ${steeperThan} of the other ${ageIndex.countries.length - 1}`}.
                     {curve.fall === null ? (
                       <> It never turns back down: the oldest group is the highest one.</>
                     ) : (
-                      <> After the peak it falls back to {euro(curve.oldest.median)} by
+                      <> After the peak it falls back to {money(curve.oldest.median)} by
                       {' '}{curve.oldest.label}.</>
                     )}
                   </>
@@ -391,7 +348,7 @@ const description =
                   ? `${Where} is the only country in this survey whose highest group is ${curve.peak.label}.`
                   : `${sharePeak} of the ${ageIndex.countries.length} countries here peak at ${curve.peak.label}.`}
                 {' '}The average for each group sits above the middle everywhere — in the
-                {' '}{curve.youngest.label} group it is {multiple(curve.youngest.mean / curve.youngest.median)} the
+                {' '}{curve.youngest.label} group it is {times(curve.youngest.mean / curve.youngest.median)} the
                 middle, because a small number of large fortunes pull it up.
                 {' '}<a href={linkTo('/wealth/by-age/', lang)}>All {ageIndex.countries.length} countries side by side</a>.
               </p>
@@ -399,7 +356,7 @@ const description =
 
             <p class="panel-source panel-source--light" style="margin-top:22px">
               {ageIndex.source.publisher}, {ageIndex.source.survey}, wave {ageIndex.source.wave}.
-              Fieldwork in {where} ran {fieldworkLabel(survey.fieldwork, { locale: lang })}. Age is that of the
+              Fieldwork in {where} ran {fieldwork}. Age is that of the
               household's reference person.
             </p>
           </div>
@@ -433,7 +390,7 @@ const description =
             <div>
               <dt>For context</dt>
               <dd>
-                The median household across the whole euro area is worth {euro(euroArea.median)}.
+                The median household across the whole euro area is worth {money(euroArea.median)}.
               </dd>
             </div>
           )}
@@ -444,7 +401,7 @@ const description =
             <strong>Source</strong>
             <span>
               <a href="https://data.ecb.europa.eu/" data-method-link>European Central Bank</a>,
-              Distributional Wealth Accounts, {formatPeriod(c.period)}
+              Distributional Wealth Accounts, {period}
             </span>
           </li>
           {survey && (
@@ -452,7 +409,7 @@ const description =
               <strong>Age section only</strong>
               <span>
                 <a href={ageIndex.source.url} data-method-link>{ageIndex.source.survey}</a>, wave
-                {' '}{ageIndex.source.wave}, fieldwork {fieldworkLabel(survey.fieldwork, { locale: lang })}. A separate
+                {' '}{ageIndex.source.wave}, fieldwork {fieldwork}. A separate
                 measure: public and occupational pensions are not counted in it.
               </span>
             </li>
@@ -463,7 +420,7 @@ const description =
   </section>
 
   <script>
-    import { track, EVENTS } from '../../../lib/analytics.js';
+    import { track, EVENTS } from '../../lib/analytics.js';
 
     for (const link of document.querySelectorAll('[data-method-link]')) {
       link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'wealth-country' }));
