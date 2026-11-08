@@ -1,93 +1,54 @@
 ---
-import { ui } from '../../../lib/ui.js';
-import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
-import { localise } from '../../../lib/country-names.js';
-import { decimal } from '../../../lib/format.js';
-import BaseV2 from '../../../layouts/BaseV2.astro';
-import Related from '../../../components/Related.astro';
-import StageMap from '../../../components/StageMap.astro';
-import RankTable from '../../../components/RankTable.astro';
-import geo from '../../../../data/geo/europe.json';
-import rawIndex from '../../../../data/unemployment/index.json';
-import rawYouthIndex from '../../../../data/unemployment-under25/index.json';
-import rawOlderIndex from '../../../../data/unemployment-25to74/index.json';
-import baseMetric from '../../../lib/metrics/unemployment.js';
-import { localiseMetric } from '../../../lib/metric-names.js';
-import { aggregatePair, pairs, rankShift, widerThanSpread } from '../../../lib/unemployment-age.js';
-import { periodLabel, periodNumber } from '../../../lib/period.js';
+import { ui } from '../../lib/ui.js';
+import { localeOf, linkTo } from '../../lib/locales.js';
+import BaseV2 from '../../layouts/BaseV2.astro';
+import Related from '../../components/Related.astro';
+import StageMap from '../../components/StageMap.astro';
+import RankTable from '../../components/RankTable.astro';
+import CountryWiring from '../../components/CountryWiring.astro';
+import geo from '../../../data/geo/europe.json';
+import { withArticle } from '../../lib/metric.js';
+import { periodLabel } from '../../lib/period.js';
+import { unemploymentPage } from '../../lib/pages/unemployment.js';
 
 /**
- * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
- * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
- * taal in voordat enig onderdeel de index ziet, en `locale` in de
- * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
+ * De Engelse /unemployment/.
+ *
+ * Eigen bestand per taal sinds 3 november 2026; `src/pages/nl/unemployment/index.astro`
+ * is de Nederlandse. Het rekenwerk staat in `src/lib/pages/unemployment.js`, inclusief
+ * de twee vensters die deze pagina streng apart houdt.
+ *
+ * Geen getal staat hier met de hand ingetypt, ook geen bijvoeglijk naamwoord dat uit een
+ * getal volgt: de kop hieronder hangt aan wat het Europese cijfer werkelijk deed.
  */
 const lang = localeOf(Astro.url.pathname);
 /** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
 const shared = ui(lang).metricPage;
-const index = localise(rawIndex, lang);
-const youthIndex = localise(rawYouthIndex, lang);
-const olderIndex = localise(rawOlderIndex, lang);
-const metric = { ...localiseMetric(baseMetric, lang), locale: lang };
-import {
-  currentCountries,
-  formatAmount,
-  formatValue,
-  genderGap,
-  headline,
-  ranked,
-  signed,
-  staleCountries,
-  trend,
-  unbrokenRun,
-  withArticle,
-} from '../../../lib/metric.js';
-
-/**
- * Metriekpagina negen: hoeveel van de beroepsbevolking werk zoekt en het niet heeft.
- *
- * De eerste pagina op een bron die per maand publiceert, en de eerste zonder
- * invoerformulier. Dat laatste is een keuze en geen vergetelheid: de andere acht vragen
- * om een getal dat je van jezelf weet, en werkloosheid heeft dat niet — je bent het of
- * je bent het niet. De persoonlijke laag is hier de landenkiezer in de kaart.
- *
- * De pagina rekent in twee vensters en houdt die streng apart. `trend()` geeft het
- * venster waarin alle dertig landen onderling vergelijkbaar zijn; dat is maar achttien
- * maanden breed, omdat Malta en Denemarken een reeksbreuk dragen. `unbrokenRun()` geeft
- * de volle vijf jaar, maar alleen per land en alleen voor de achtentwintig landen die er
- * ononderbroken door lopen. Welk venster een zin gebruikt staat in die zin.
- *
- * Geen getal staat hier met de hand ingetypt, ook geen bijvoeglijk naamwoord dat uit een
- * getal volgt: de kop hangt aan wat het Europese cijfer werkelijk deed.
- */
-
-const h = headline(index);
-const gender = genderGap(index);
-const movement = trend(index);
-const longer = unbrokenRun(index);
-const stale = staleCountries(index);
-const order = ranked(index);
-const current = currentCountries(index);
-
-const fmt = (value: number | null) => formatValue(value, metric);
-const amt = (value: number, options = {}) => formatAmount(value, metric, options);
-
-const euValue = h.eu ? fmt(h.eu.total) : fmt(order[Math.floor(order.length / 2)].total);
-
-/** De breedte van het vergelijkbare venster, in maanden, uit de perioden zelf. */
-const months = movement ? Math.round((periodNumber(movement.until) - periodNumber(movement.since)) * 12) : 0;
-
-/**
- * Wat het Europese cijfer in dat venster deed, en hoeveel landen méér verschoven dan
- * dat. Dat is de kop van de pagina, en hij moet van het cijfer afhangen: staat het stil,
- * dan is het stilstaan het nieuws; beweegt het, dan die beweging. Zo kan de kop volgende
- * maand niet onwaar worden zonder dat er iets aan verandert.
- */
-const euMove = movement ? movement.euNow - movement.euThen : null;
-const outran =
-  movement && euMove !== null
-    ? movement.moved.filter((country) => Math.abs(country.change) > Math.abs(euMove)).length
-    : 0;
+const {
+  index,
+  metric,
+  h,
+  gender,
+  movement,
+  longer,
+  stale,
+  current,
+  unbroken,
+  flagged,
+  agePair,
+  ageRank,
+  ageWider,
+  ageRatio,
+  fmt,
+  amt,
+  sign,
+  months,
+  euMove,
+  outran,
+  newestPeriod,
+  newestCount,
+  euValue,
+} = unemploymentPage(lang);
 
 const heading =
   movement === null || euMove === null
@@ -99,11 +60,10 @@ const heading =
 /**
  * De drie met het grootste verschil in beide richtingen, als "Greece −1.7, Spain −0.8".
  * De eenheid staat één keer in de zin eromheen en niet drie keer in de opsomming; met
- * `formatAmount()` werd het "Greece (−1.7 percentage points), Spain (−0.8 percentage
- * points), Croatia (−0.7 percentage points)".
+ * `amt()` werd het "Greece (−1.7 percentage points), Spain (−0.8 percentage points)".
  */
 const movers = (rows: any[]) =>
-  rows.map((country: any) => `${country.name} ${signed(country.change, metric)}`).join(', ');
+  rows.map((country: any) => `${country.name} ${sign(country.change)}`).join(', ');
 
 const topFalls = movement ? movers(movement.earlier.slice(0, 3)) : '';
 const topRises = movement ? movers(movement.later.slice(0, 3)) : '';
@@ -115,28 +75,15 @@ const movedFrom = (rows: any[]) =>
     .map((country: any) => `${country.name} ${fmt(country.began)} to ${fmt(country.total)}`)
     .join(', ');
 
-/** Landen zonder enkele vlag in hun reeks, en de landen die er wel een dragen, met naam. */
-const unbroken = current.filter((country) => country.breaks.length === 0);
-const flagged = current.filter((country) => country.breaks.length > 0);
-const flaggedNames = flagged.map((country) => country.name).join(' and ');
+const flaggedNames = flagged.map((country: any) => country.name).join(' and ');
 
 /**
  * De zin over die breuken als één string, niet als opmaak met expressies ertussen.
  *
- * Hier stond dat Astro een losse spatie tussen twee expressies laat vallen, met "Malta
- * and Denmarkcarry" als bewijs. **Dat is niet waar**, nagemeten op 1 november 2026 en op
- * twee manieren bevestigd: byte voor byte op een gebouwde pagina, en rechtstreeks uit
- * @astrojs/compiler over negen patronen. De compiler bewaart de bronwitruimte letterlijk,
- * regeleinde en inspringing incluis, en de HTML-compressie maakt daar één spatie van —
- * nooit nul. Een regeleinde tussen twee expressies kost dus géén spatie.
- *
- * De echte oorzaak van "Denmarkcarry" was `{names}{verb}` met in de bron helemaal geen
- * witruimte ertussen. Een eigen ontbrekende spatie dus, geen eigenaardigheid van het
- * framework. `{' '}` is om dezelfde reden bijna nooit nodig.
- *
- * De keuze blijft wel staan, alleen om een andere reden: een zin die uit meerdere waarden
- * bestaat hoort in de frontmatter opgebouwd te worden en niet in de HTML, want daar is hij
- * te lezen als zin in plaats van als een rij fragmenten.
+ * Een zin die uit meerdere waarden bestaat hoort in de frontmatter opgebouwd te worden
+ * en niet in de HTML, want daar is hij te lezen als zin in plaats van als een rij
+ * fragmenten. Dat is ook waarom hij niet in ui.json staat: hij verschilt per taal in
+ * meer dan zijn woorden.
  */
 const breakClause =
   flagged.length === 0
@@ -145,45 +92,21 @@ const breakClause =
       `longer window would compare ${flagged.length === 1 ? 'it' : 'them'} with figures Eurostat says ` +
       'are not comparable.';
 
-/** Dezelfde reden, voor de methodesectie: welk land brak wanneer, en wat dat voor het venster betekent. */
+/** Dezelfde reden, voor de methodesectie: welk land brak wanneer, en wat dat betekent. */
 const breakDetail =
   flagged.length === 0
     ? ''
     : `The ${flagged.length === 1 ? 'exception is' : 'exceptions are'} ` +
-      `${flagged.map((country) => `${country.name} (${country.breaks.map((p) => periodLabel(p, { locale: lang })).join(', ')})`).join(' and ')}. ` +
+      `${flagged.map((country: any) => `${country.name} (${country.breaks.map((p: string) => periodLabel(p, { locale: lang })).join(', ')})`).join(' and ')}. ` +
       'Because a comparison between countries has to hold for every country in it, the window used for ' +
       `that above starts after the later of those breaks, in ${periodLabel(index.comparableSince, { locale: lang })}. ` +
       "Each country's own line in the table runs the full series and simply breaks where its flag is.";
-
-/**
- * De nieuwste periode in het gedownloade venster is bijna leeg: Eurostat publiceert een
- * maand ongeveer 31 dagen na het einde, dus het laatste vakje vult zich nog. De bouwer
- * kiest daarom de nieuwste maand die genoeg landen heeft, en de methodesectie legt uit
- * welke maand daarmee buiten de pagina valt en met hoeveel landen.
- */
-/**
- * De leeftijdssectie, uit dezelfde dataset met een andere doorsnede. Dat is hier geen
- * tweede bron zoals bij vermogen: zelfde definitie, zelfde maand, alleen `age` anders.
- * Het verschil is daarom wél in één zin te zetten, en dat is precies wat deze sectie doet.
- */
-const agePair = aggregatePair(youthIndex, olderIndex);
-const agePairs = pairs(youthIndex, olderIndex).matched;
-const ageRank = rankShift(agePairs, index);
-const ageWider = widerThanSpread(agePairs, index);
-
-const newestPeriod = index.years[index.years.length - 1];
-const newestCount = index.countries.filter((country: any) => country.series[newestPeriod] !== undefined).length;
 
 const title = `Unemployment Rate by Country in Europe (${periodLabel(h.year, { locale: lang })})`;
 const description =
   `Unemployment is ${euValue}% across the European Union — ${fmt(h.earliest.total)}% in ` +
   `${h.earliest.name}, ${fmt(h.latest.total)}% in ${h.latest.name}. All ${h.countries} countries ` +
   "on a map, from Eurostat's monthly series.";
-/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
-export function getStaticPaths() {
-  return localePaths();
-}
-
 ---
 
 <BaseV2 title={title} description={description} canonical="/unemployment/" hue={metric.hue}>
@@ -409,7 +332,7 @@ export function getStaticPaths() {
             <div class="bento">
               <div class="tile s4">
                 <div>
-                  <b>{decimal(agePair.ratio, 1)}×</b>
+                  <b>{ageRatio}×</b>
                   <p>
                     as high under 25 as from 25 to 74, across the European Union.
                     {ageWider && ageWider.countries.length > 0 && (
@@ -514,7 +437,7 @@ export function getStaticPaths() {
               {newestPeriod !== h.year ? (
                 <>
                   {' '}That is why {periodLabel(newestPeriod, { locale: lang })} is in the downloaded series but not on
-                  this page: only {newestCount} {newestCount === 1 ? 'country' : 'countries'} had a
+                  this page: only {newestCount}{' '}{newestCount === 1 ? 'country' : 'countries'} had a
                   figure for it when this page was built, and a map of
                   {' '}{newestCount === 1 ? 'one' : 'those'} alone would not be a map of Europe.
                 </>
@@ -565,26 +488,7 @@ export function getStaticPaths() {
     </div>
   </section>
 
-  <script>
-    import { mergeProfile } from '../../../lib/profile.js';
-    import { track, EVENTS } from '../../../lib/analytics.js';
-
-    /**
-     * Deze pagina heeft geen invoerveld, dus geen `ha:submit` en geen resultaatregel. Wat
-     * er wel is: het land dat je in de kaart kiest blijft in het profiel staan, zodat de
-     * volgende metriek je niet opnieuw vraagt. `source === 'restore'` is de kaart die een
-     * eerdere keuze terugzet en geen keuze van nu.
-     */
-    document.addEventListener('ha:country', (event) => {
-      const { code, source } = (event as CustomEvent<any>).detail ?? {};
-      if (!code || source === 'restore') return;
-      mergeProfile({ country: code });
-    });
-
-    for (const link of document.querySelectorAll('[data-method-link]')) {
-      link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'unemployment' }));
-    }
-  </script>
+  <CountryWiring metric="unemployment" />
 
   <style>
     .tile h3 {

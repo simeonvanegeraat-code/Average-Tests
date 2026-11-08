@@ -1,0 +1,393 @@
+---
+import { ui } from '../../../../lib/ui.js';
+import { localeOf, linkTo } from '../../../../lib/locales.js';
+import BaseV2 from '../../../../layouts/BaseV2.astro';
+import StageMap from '../../../../components/StageMap.astro';
+import CountryWiring from '../../../../components/CountryWiring.astro';
+import geo from '../../../../../data/geo/europe.json';
+import { grammarOf } from '../../../../lib/grammar.js';
+import { periodLabel, periodShort } from '../../../../lib/period.js';
+import { unemploymentByAgePage } from '../../../../lib/pages/unemployment-by-age.js';
+
+/**
+ * De Nederlandse /unemployment/by-age/.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk komt uit
+ * `src/lib/pages/unemployment-by-age.js`, de woorden staan hier.
+ *
+ * De kop is de bevinding en hangt dus aan het cijfer: blijkt er ooit wél een land op zijn
+ * plek te blijven, dan verandert de zin mee in plaats van onwaar te worden.
+ *
+ * Geen enkel cijfer staat hier met de hand.
+ */
+const lang = localeOf(Astro.url.pathname);
+/** De sjabloontekst die elke metriekpagina deelt. Zie src/lib/ui.js. */
+const shared = ui(lang).metricPage;
+const {
+  youthIndex,
+  metric,
+  matched,
+  skipped,
+  eu,
+  rank,
+  gaps,
+  sexes,
+  wider,
+  anchor,
+  behind,
+  fmt,
+  amt,
+  times,
+  worse,
+  better,
+  bigMovers,
+} = unemploymentByAgePage(lang);
+
+const g = grammarOf(lang);
+
+/**
+ * "A, B en C", maar met een komma vóór "en" zodra er drie of meer in staan. Het
+ * Nederlands zet die komma normaal niet, en hier moet hij toch: een van de landen heet
+ * "Bosnië en Herzegovina", en zonder komma leest de opsomming als twee landen in plaats
+ * van drie. Dezelfde reden als de Oxford-komma op de Engelse pagina.
+ */
+const list = (items: string[]) =>
+  items.length < 3 ? items.join(' en ') : `${items.slice(0, -1).join(', ')}, en ${items[items.length - 1]}`;
+
+const heading =
+  rank.unchanged === 0
+    ? "Rangschik Europa op werkloosheid, dan op de onder-25'ers, en niet één land blijft staan waar het stond."
+    : `Rangschik Europa op werkloosheid, dan op de onder-25'ers, en ${rank.of - rank.unchanged} van de ${rank.of} landen verschuiven.`;
+
+const title = `Jeugdwerkloosheid per land in Europa (${periodLabel(anchor, { locale: lang })})`;
+const description =
+  `De werkloosheid onder de 25 is ${fmt(eu?.youth ?? null)}% in de Europese Unie, tegenover ` +
+  `${fmt(eu?.older ?? null)}% voor iedereen van 25 tot 74. Elk land, beide leeftijdsgroepen, ` +
+  'en hoe de ranglijst daardoor verandert.';
+---
+
+<BaseV2 title={title} description={description} canonical="/unemployment/by-age/" hue={metric.hue}>
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">
+        Eurostat · {matched.length} landen · {periodLabel(anchor, { locale: lang })}
+      </p>
+
+      <h1 data-reveal>{heading}</h1>
+
+      <span class="giant num">{times(eu?.ratio ?? null)}</span>
+      <p class="unit mono">
+        het cijfer onder de 25 tegen het cijfer van 25 tot 74 · <b>{shared.europeanUnion}</b> ·
+        {' '}{periodLabel(eu?.period ?? anchor, { locale: lang })}
+      </p>
+
+      <p class="lead">
+        {fmt(eu?.youth ?? null)}% van de onder-25'ers in de Europese beroepsbevolking is werkloos.
+        Voor iedereen van 25 tot 74 is dat {fmt(eu?.older ?? null)}%.
+        {wider && wider.countries.length > 0 && (
+          <>
+            {' '}In {wider.countries.length} van deze {wider.of} landen is die stap groter dan de
+            hele afstand van het laagste totaalcijfer van Europa tot het hoogste.
+          </>
+        )}
+      </p>
+
+      <div class="hero-cta">
+        <a class="btn" href="#table">
+          Zoek jouw land{' '}<span class="arr" aria-hidden="true">→</span>
+        </a>
+        <span class="hint">Bijgewerkt zodra Eurostat publiceert, ongeveer een maand erna.</span>
+      </div>
+
+      <p class="hero-note">
+        Dit is een aandeel van de <em>beroepsbevolking</em>, niet van alle jongeren. De meeste
+        onder-25'ers volgen een opleiding en zoeken geen werk, dus die tellen in geen van beide
+        helften van deze breuk mee. Een jeugdwerkloosheid van {fmt(eu?.youth ?? null)}% betekent
+        niet dat {fmt(eu?.youth ?? null)}% van de Europese jongeren thuiszit — het betekent dat van
+        wie werkt of zoekt, dat aandeel het niet gevonden heeft.
+      </p>
+    </div>
+  </section>
+
+  <StageMap
+    geo={geo}
+    index={youthIndex}
+    metric={metric}
+    eyebrow={shared.theMap}
+    title="Waar het het moeilijkst is om te beginnen"
+    lede={shared.tapOrSwitch}
+  />
+
+  <section class="block" id="table" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Beide leeftijdsgroepen</p>
+        <h2 id="table-title">Alle {matched.length} landen, voor de onder-25'ers het slechtst eerst</h2>
+        <p>
+          De laatste twee kolommen zijn de plaats van hetzelfde land in twee verschillende
+          ranglijsten: op het totale cijfer, wat <a href={linkTo('/unemployment/', lang)}>de hoofdpagina</a> toont, en op
+          het cijfer onder de 25. Ze verschillen voor elk land hier, en voor {bigMovers} ervan met
+          vijf plaatsen of meer.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <div class="tablewrap" tabindex="0" role="region" aria-label="Werkloosheid naar leeftijd en land">
+          <table>
+            <caption class="vh">
+              Werkloosheid onder de 25 en van 25 tot 74, {matched.length} landen,
+              {' '}{periodLabel(anchor, { locale: lang })}.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Land</th>
+                <th scope="col" class="n">Onder 25</th>
+                <th scope="col" class="n">25 tot 74</th>
+                <th scope="col" class="n">Keer</th>
+                <th scope="col" class="n">Rang totaal</th>
+                <th scope="col" class="n">Rang onder 25</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                matched.map((row) => {
+                  const place = rank.shifts.find((shift) => shift.code === row.code);
+                  return (
+                    <tr>
+                      <th scope="row">
+                        {row.name}
+                        {row.period !== anchor && <span class="stale-year">{periodShort(row.period, { locale: lang })}</span>}
+                      </th>
+                      <td class="n strong">{fmt(row.youth)}</td>
+                      <td class="n">{fmt(row.older)}</td>
+                      <td class="n">{times(row.ratio)}</td>
+                      <td class="n muted">{place ? place.rankTotal : '—'}</td>
+                      <td class:list={['n', { up: place && place.shift > 0, down: place && place.shift < 0 }]}>
+                        {place ? place.rankYouth : '—'}
+                      </td>
+                    </tr>
+                  );
+                })
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <p class="brk-foot">
+          {behind.length > 0 && (
+            <>Een maand naast een land betekent dat Eurostat er geen cijfer voor {periodLabel(anchor, { locale: lang })} heeft,
+            en dat beide kolommen van die maand zijn. </>
+          )}
+          {skipped.length > 0 && (
+            <>
+              {list(skipped.map((row) => row.name))}{' '}{skipped.length === 1 ? 'is' : 'zijn'}{' '}
+              weggelaten: de twee leeftijdsgroepen van Eurostat vallen voor{' '}
+              {skipped.length === 1 ? 'dat land' : 'die landen'} op verschillende maanden, en een
+              verhouding tussen twee verschillende maanden is geen verhouding.
+            </>
+          )}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{shared.whatTheNumbersSay}</p>
+        <h2 id="facts-title">Hetzelfde land, twee verschillende plaatsen</h2>
+      </header>
+
+      <div data-reveal>
+        <div class="bento">
+          <div class="tile s4">
+            <div>
+              <b>{rank.unchanged === 0 ? `Alle ${rank.of}` : `${rank.of - rank.unchanged} van de ${rank.of}`}</b>
+              <p>
+                landen staan in de twee ranglijsten op een andere plek. {rank.of < matched.length && (
+                  <>
+                    De vergelijking loopt over {rank.of} van de {matched.length} in de tabel: de rest
+                    heeft ook in de totaalreeks geen cijfer voor {periodLabel(anchor, { locale: lang })}, dus er is
+                    geen plaats om vanaf te verschuiven.{' '}
+                  </>
+                )}
+                {worse.length > 0 && (
+                  <>
+                    {' '}De scherpste stijgingen zijn{' '}
+                    {worse.map((row) => `${row.name} (${row.rankTotal} naar ${row.rankYouth})`).join(', ')}
+                    {' '}— slechter voor de jongeren dan hun totaalcijfer doet vermoeden.
+                  </>
+                )}
+                {better.length > 0 && (
+                  <>
+                    {' '}De scherpste dalingen zijn{' '}
+                    {better.map((row) => `${row.name} (${row.rankTotal} naar ${row.rankYouth})`).join(', ')}.
+                  </>
+                )}
+              </p>
+            </div>
+            <span class="meta mono">totaal tegen onder 25</span>
+          </div>
+
+          {
+            gaps && (
+              <div class="tile">
+                <div>
+                  <b>{times(gaps.widest.ratio)}</b>
+                  <p>
+                    in {g.withArticle(gaps.widest.name)}, het grootste leeftijdsverschil hier:
+                    {' '}{fmt(gaps.widest.youth)}% tegen {fmt(gaps.widest.older)}%.
+                  </p>
+                </div>
+                <span class="meta mono">grootste verschil</span>
+              </div>
+            )
+          }
+
+          {
+            gaps && (
+              <div class="tile">
+                <div>
+                  <b>{times(gaps.narrowest.ratio)}</b>
+                  <p>
+                    in {g.withArticle(gaps.narrowest.name)}, het kleinste. Het middelste land staat op
+                    {' '}{times(gaps.middle.ratio)}.
+                  </p>
+                </div>
+                <span class="meta mono">kleinste verschil</span>
+              </div>
+            )
+          }
+        </div>
+
+        {
+          sexes && (
+            <div class="bento" style="margin-top:14px">
+              <div class="tile s4 dark">
+                <div>
+                  <h3>
+                    {Math.abs(sexes.youth.gap) > Math.abs(sexes.everyone.gap)
+                      ? 'Het verschil tussen mannen en vrouwen is groter onder de jongeren'
+                      : 'Het verschil tussen mannen en vrouwen is kleiner onder de jongeren'}
+                  </h3>
+                  <p>
+                    Onder de 25'ers in de Europese Unie is {fmt(sexes.youth.men)}% van de mannen en
+                    {' '}{fmt(sexes.youth.women)}% van de vrouwen werkloos — {amt(Math.abs(sexes.youth.gap))}
+                    {' '}verschil. Over de hele beroepsbevolking is het {fmt(sexes.everyone.men)}% tegen
+                    {' '}{fmt(sexes.everyone.women)}%, {amt(Math.abs(sexes.everyone.gap))} verschil. Beide
+                    cijfers zijn voor {periodLabel(sexes.period, { locale: lang })}.
+                  </p>
+                </div>
+                <span class="meta mono">mannen tegen vrouwen</span>
+              </div>
+            </div>
+          )
+        }
+
+        <div class="prose">
+          <p>
+            Een ranglijst van landen op werkloosheid wordt gelezen als een ranglijst van
+            arbeidsmarkten, en dat is het ook — voor mensen die er al in zitten. Voor iemand die van
+            school komt beschrijft hij een ander land. Dat is geen kleine correctie: het verschuift
+            {' '}{rank.movers[0].name} met {Math.abs(rank.movers[0].shift)} plaatsen, en {bigMovers} van
+            de {rank.of} met vijf of meer.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">{shared.method}</p>
+        <h2 id="method-title">{shared.howMeasured}</h2>
+        <p>{shared.publishedByEurostat}</p>
+      </header>
+
+      <div data-reveal>
+        <dl>
+          <div>
+            <dt>Wat de cijfers zijn</dt>
+            <dd>
+              Dezelfde maat als <a href={linkTo('/unemployment/', lang)}>de hoofdpagina over werkloosheid</a>,
+              uitgesplitst naar leeftijd in plaats van opgeteld: het aandeel van de beroepsbevolking
+              dat werkloos is, seizoensgecorrigeerd, voor één kalendermaand. Werkloos volgt de
+              ILO-definitie — geen baan in de referentieweek, in de afgelopen vier weken actief op
+              zoek, binnen twee weken kunnen beginnen.
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.whatItIsNot}</dt>
+            <dd>
+              Het is niet het aandeel jongeren dat zonder werk zit. De noemer is de
+              beroepsbevolking, en de meeste onder-25'ers volgen een opleiding en vallen daarbuiten.
+              Eurostat publiceert voor die vraag een aparte <span lang="en">"youth unemployment
+              ratio"</span>; dit is die niet. Het is ook geen verdeling, dus er valt geen percentiel
+              uit op te bouwen.
+            </dd>
+          </div>
+          <div>
+            <dt>
+              {skipped.length === 0
+                ? 'Dekking'
+                : `Waarom ${skipped.length === 1 ? 'één land ontbreekt' : `${skipped.length} landen ontbreken`}`}
+            </dt>
+            <dd>
+              {skipped.length === 0
+                ? 'Elk land in de dataset komt in beide leeftijdsgroepen op dezelfde maand voor.'
+                : `${list(skipped.map((row) => row.name))} publiceren hun twee leeftijdsgroepen op verschillende maanden, en een verhouding over twee maanden is geen verhouding. Hun cijfers staan op de hoofdpagina; alleen de vergelijking hier heeft nodig dat beide gelijk lopen.`}
+            </dd>
+          </div>
+          <div>
+            <dt>{shared.seriesBreaks}</dt>
+            <dd>
+              De twee leeftijdsgroepen dragen niet dezelfde vlaggen: de reeks onder de 25 heeft er
+              een die de andere niet hebben. Niets op deze pagina is over een breuk heen gemeten —
+              elke uitspraak hier gaat over één maand — en het vergelijkbare venster van elke
+              leeftijdsgroep wordt op zijn eigen reeks bepaald en niet gedeeld. Daarom draagt{' '}
+              <a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a> de reeks onder de 25 als een eigen regel, los
+              van de totaalreeks.
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li><strong>{shared.dataset}</strong>{' '}{shared.eurostat}{' '}<code>{youthIndex.source.dataset}</code>, {youthIndex.source.label}</li>
+          <li><strong>Uitsplitsing</strong> seizoensgecorrigeerd, percentage van de beroepsbevolking, onder 25 en 25 tot 74</li>
+          <li><strong>{shared.series}</strong> {periodLabel(youthIndex.years[0], { locale: lang })} tot {periodLabel(youthIndex.years[youthIndex.years.length - 1], { locale: lang })}</li>
+          <li><strong>{shared.lastUpdated}</strong> {youthIndex.source.eurostatUpdated.slice(0, 10)}</li>
+          <li><strong>{shared.retrieved}</strong> {youthIndex.source.fetchedOn.slice(0, 10)}</li>
+          <li>
+            <strong>{shared.doi}</strong>
+            <a href={`https://doi.org/${youthIndex.source.doi}`} data-method-link>{youthIndex.source.doi}</a>
+          </li>
+        </ul>
+
+        <p class="source-note">{' '}{shared.licence}{' '}<a href={linkTo('/method/', lang)}>{shared.theMethodPage}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CountryWiring metric="unemployment-by-age" />
+
+  <style>
+    .tile h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    .tile .meta { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-2); }
+
+    .prose { margin-top: 28px; max-width: 70ch; color: var(--text-2); }
+    .prose p { margin: 0; line-height: 1.7; }
+
+    td.muted { color: var(--text-2); }
+    /* Hoger in de jeugdlijst dan in de totaallijst is slechter voor jongeren, en andersom. */
+    td.up { color: var(--data-on-tint, var(--text)); font-weight: 700; }
+    td.down { color: var(--text-2); }
+
+    .source-list { list-style: none; padding: 0; overflow-wrap: anywhere; }
+    .source-list li { padding: .35rem 0; border-bottom: 1px solid var(--line); font-size: .92rem; }
+    .source-list li:last-child { border-bottom: 0; }
+    .source-list strong { display: inline-block; min-width: 12rem; color: var(--text-2); font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    @media (max-width: 540px) { .source-list strong { display: block; min-width: 0; } }
+  </style>
+</BaseV2>
