@@ -8,8 +8,20 @@
  * (de definitie van Eurostat, niet zijn label). De getallen in de tekst komen uit de
  * bibliotheek en uit de gegevens. De links naar de bron dragen `data-method-link`, de haak
  * waarmee de pagina de gebeurtenis `methodology_opened` meet.
+ *
+ * ELKE ZIN KOMT UIT ui.json, SINDS 8 NOVEMBER 2026
+ *
+ * De groep `methodBlock` had al tien sleutels, maar drie van de vijf blokken stonden met
+ * de hand in het Engels in dit bestand — dekking, reeksbreuken en de bronlijst. Op
+ * /nl/leaving-home/ stond daardoor "31 countries have a figure for 2025" onder het kopje
+ * "Dekking".
+ *
+ * Een paar van deze teksten staan ook in `metricPage`, met net andere woorden ("Read how
+ * we handle data on" tegenover "How we handle data is on"). Ze zijn hier niet
+ * samengevoegd: dat zou de Engelse pagina veranderen, en die moet identiek blijven aan
+ * live. Dit onderdeel staat op precies één paginapaar.
  */
-import { ui } from '../lib/ui.js';
+import { ui, fill } from '../lib/ui.js';
 import { localeOf, linkTo } from '../lib/locales.js';
 import { staleCountries, headline } from '../lib/leaving-home.js';
 
@@ -54,43 +66,49 @@ const lastYear = index.years[index.years.length - 1];
         <div>
           <dt>{t.coverage}</dt>
           <dd>
-            {h.countries} countries have a figure for {h.year}.
+            {fill(t.coverageBody, { countries: h.countries, year: h.year })}
             {
               stale.length > 0 && (
                 <>
                   {' '}
-                  {stale.map((country: { name: string; year: string }) => `${country.name} (${country.year})`).join(', ')} stopped reporting
-                  earlier and are shown at their most recent year, hatched on the map and labeled in the table.
+                  {fill(t.coverageStale, {
+                    names: stale
+                      .map((country: { name: string; year: string }) => `${country.name} (${country.year})`)
+                      .join(', '),
+                  })}
                 </>
               )
             }{' '}
-            The United States, Canada and Australia are not in this dataset, because Eurostat does not cover them.
+            {t.coverageNotInDataset}
           </dd>
         </div>
         <div>
           <dt>{t.seriesBreaks}</dt>
           <dd>
-            In {index.lastBreak} Eurostat flags a break in the series: the European Labour Force Survey was reorganized, and {withBreak} of
-            {' '}{index.countries.length} countries carry the flag for that year. The break year itself is transitional, so figures before {index.comparableSince}
-            exist in the source but are not comparable with today. Comparisons over time on this page start in {index.comparableSince}.
+            {fill(t.breakBody, {
+              break: index.lastBreak,
+              withBreak,
+              all: index.countries.length,
+              since: index.comparableSince,
+            })}
           </dd>
         </div>
         <div>
           <dt>{t.source}</dt>
           <dd>
             <ul class="source-list">
-              <li><b>Dataset</b> <span>Eurostat <code>{index.source.dataset}</code>, {index.source.label}</span></li>
-              <li><b>Series</b> <span>{first} to {lastYear}</span></li>
-              <li><b>Last updated by Eurostat</b> <span>{index.source.eurostatUpdated.slice(0, 10)}</span></li>
-              <li><b>Retrieved</b> <span>{index.source.fetchedOn.slice(0, 10)}</span></li>
-              <li><b>DOI</b> <a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
-              <li><b>Metadata</b> <a href={index.source.metadata} data-method-link>explanatory texts</a></li>
+              <li><b>{t.dataset}</b> <span>Eurostat <code>{index.source.dataset}</code>, {index.source.label}</span></li>
+              <li><b>{t.series}</b> <span>{fill(t.seriesRange, { first, last: lastYear })}</span></li>
+              <li><b>{t.lastUpdated}</b> <span>{index.source.eurostatUpdated.slice(0, 10)}</span></li>
+              <li><b>{t.retrieved}</b> <span>{index.source.fetchedOn.slice(0, 10)}</span></li>
+              <li><b>{t.doi}</b> <a href={`https://doi.org/${index.source.doi}`} data-method-link>{index.source.doi}</a></li>
+              <li><b>{t.metadata}</b> <a href={index.source.metadata} data-method-link>{t.explanatoryTexts}</a></li>
             </ul>
           </dd>
         </div>
       </dl>
       <p class="legal">
-        Licence: Eurostat data may be reused, including commercially, with attribution. Read how we handle data on <a href={linkTo('/method/', lang)}>our method page</a>.
+        {t.licence}{' '}<a href={linkTo('/method/', lang)}>{t.ourMethodPage}</a>.
       </p>
     </div>
   </div>

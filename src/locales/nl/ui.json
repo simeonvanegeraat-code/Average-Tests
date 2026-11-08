@@ -43,7 +43,21 @@
     "whatItIsNotBody": "Het is geen verdeling, dus er valt geen percentiel uit te rekenen. Het is geen telling van mensen. En het is een cijfer op landniveau: het beschrijft een cohort, niet iemand daarin.",
     "coverage": "Dekking",
     "seriesBreaks": "Reeksbreuken",
-    "source": "Bron"
+    "source": "Bron",
+    "coverageBody": "{countries} landen hebben een cijfer voor {year}.",
+    "coverageStale": "{names} stopten eerder met rapporteren en staan op hun meest recente jaar, gearceerd op de kaart en benoemd in de tabel.",
+    "coverageNotInDataset": "De Verenigde Staten, Canada en Australië zitten niet in deze dataset, omdat Eurostat ze niet dekt.",
+    "breakBody": "In {break} markeert Eurostat een breuk in de reeks: de Europese Labour Force Survey is herzien, en {withBreak} van de {all} landen dragen de vlag voor dat jaar. Het breukjaar is zelf een overgangsjaar, dus cijfers van vóór {since} staan wel in de bron maar zijn niet vergelijkbaar met vandaag. Vergelijkingen over tijd beginnen op deze pagina in {since}.",
+    "dataset": "Dataset",
+    "series": "Reeks",
+    "lastUpdated": "Laatst bijgewerkt door Eurostat",
+    "retrieved": "Opgehaald",
+    "doi": "DOI",
+    "metadata": "Metadata",
+    "explanatoryTexts": "toelichtende teksten",
+    "licence": "Licentie: data van Eurostat mag hergebruikt worden, ook commercieel, met bronvermelding. Hoe wij met data omgaan staat op",
+    "ourMethodPage": "onze methodepagina",
+    "seriesRange": "{first} tot {last}"
   },
   "stageMap": {
     "showFiguresFor": "Toon cijfers voor",
@@ -56,7 +70,9 @@
     "menWomen": "Mannen − vrouwen",
     "latestFigureOlder": "Nieuwste cijfer is ouder dan",
     "hatchedNote": "Gearceerde landen hebben geen cijfer voor {period}; de kaart toont hun meest recente {grain}, en de tabel eronder noemt welk.",
-    "everyFigureInTable": "Elk cijfer staat ook in die tabel."
+    "everyFigureInTable": "Elk cijfer staat ook in die tabel.",
+    "defaultEyebrow": "De kaart",
+    "defaultLede": "Tik op een land, of wissel tussen iedereen, mannen en vrouwen."
   },
   "rankTable": {
     "everyCountrySortableTable": "Elk land, sorteerbare tabel",
@@ -82,7 +98,23 @@
     "nothingIsSentAnywhere": "Er wordt niets verstuurd.",
     "whereDoYouLive": "Waar woon je?",
     "chooseYourCountry": "Kies je land",
-    "chooseYourCountryTo": "Kies je land om te zien waar het valt."
+    "chooseYourCountryTo": "Kies je land om te zien waar het valt.",
+    "eyebrow": "Eurostat · {countries} landen · {year}",
+    "h1": "De helft van de Europese jongeren is het huis uit op",
+    "unit": "Jaar oud · Europese Unie ·",
+    "versus": "t.o.v.",
+    "lead": "In {low} is dat punt bereikt op {lowAge}. In {high} pas op {highAge} — {gap} verschil voor dezelfde stap in een leven. Dit vergelijkt Europese landen met elkaar, niet met de Verenigde Staten.",
+    "whereDoYouFit": "Waar pas jij?",
+    "note": "In zoekopdrachten heet dit cijfer bijna altijd de {term}. Een gemiddelde is het niet: Eurostat meet de leeftijd waarop de helft van de jongeren niet meer bij de ouders woont. {link}",
+    "noteTerm": "gemiddelde leeftijd waarop je het huis uit gaat",
+    "noteLink": "Wat dat voor de lezing betekent.",
+    "everyCountry": "Elk land · {year}",
+    "apart": "{gap} verschil",
+    "women": "Vrouwen",
+    "men": "Mannen",
+    "countries": "Landen",
+    "plotLabel": "Stippengrafiek van {countries} landen naar de leeftijd waarop de helft van de jongeren het huis uit is, van {lowAge} in {low} tot {highAge} in {high}",
+    "plotLabelEu": ". Het cijfer voor de Europese Unie is {euAge}."
   },
   "compareForm": {
     "iLiveIn": "Ik woon in",
@@ -102,7 +134,11 @@
     "noteOneFlagged": "{of} van de {countries} landen hier draagt een breukvlag in {year}, en een lijn die daar dwars door loopt betekent niets."
   },
   "resultPanel": {
-    "eyebrow": "Jouw uitkomst"
+    "eyebrow": "Jouw uitkomst",
+    "note": "Dit vergelijkt jouw leeftijd met {midpoint}, niet met individuele mensen. Eurostat publiceert één getal per land en niet de spreiding eromheen, dus een percentiel kan niet gegeven worden.",
+    "noteMidpoint": "het middelpunt van elk land",
+    "plotLabel": "Stippengrafiek van {countries} landen naar de leeftijd waarop de helft van de jongeren het huis uit is, met jouw leeftijd erin gemarkeerd.",
+    "you": "jij"
   },
   "method": {
     "method": "Methode",

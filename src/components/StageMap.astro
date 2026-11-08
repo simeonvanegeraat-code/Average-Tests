@@ -69,9 +69,15 @@ const {
   geo,
   index,
   metric,
-  eyebrow = 'The map',
-  title = 'Where is it earliest, where is it latest?',
-  lede = 'Tap a country, or switch between everyone, men and women.',
+  /**
+   * Tot 8 november 2026 stonden deze drie in het Engels in dit bestand, en
+   * /leaving-home/ was de enige pagina die ze gebruikte — met Engels op /nl/ als
+   * gevolg. De titel staat nu op de pagina zelf, want die hoorde nooit een
+   * standaardwaarde te zijn: hij ging over één metriek.
+   */
+  eyebrow = t.defaultEyebrow,
+  title = metric.words?.legend ?? metric.label,
+  lede = t.defaultLede,
 } = Astro.props;
 
 const latestYear: string = index.latestYear;

@@ -27,7 +27,12 @@ import nlCopy from '../locales/nl/copy/leaving-home.js';
  */
 const COPY = { en: enCopy, nl: nlCopy };
 
-const copyOf = (lang) => COPY[lang] ?? COPY[DEFAULT_LOCALE];
+/**
+ * Geëxporteerd sinds 8 november 2026, want FactsBento draait op de server en moet
+ * de zinnen van zijn eigen pagina kunnen pakken. In de browser kiest dit bestand de
+ * taal zelf uit `data.lang`; op de server geeft het onderdeel hem mee.
+ */
+export const copyOf = (lang) => COPY[lang] ?? COPY[DEFAULT_LOCALE];
 
 /** Welke talen hier zinnen hebben. Alleen voor de poort. */
 export const COPY_LANGUAGES = Object.keys(COPY);
@@ -83,7 +88,7 @@ export function youLine(data, code) {
   if (!home) return null;
 
   const copy = copyOf(data.lang);
-  const base = { name: home.name, value: age(home.total) };
+  const base = { name: home.name, value: age(home.total, { locale: data.lang }) };
 
   if (data.eu === null) return copy.youLine({ ...base, eu: null });
 
@@ -92,7 +97,7 @@ export function youLine(data, code) {
 
   return copy.youLine({
     ...base,
-    eu: { amount: years(Math.abs(difference)), later: difference > 0 },
+    eu: { amount: years(Math.abs(difference), { locale: data.lang }), later: difference > 0 },
   });
 }
 
@@ -115,12 +120,12 @@ export function resultCopy(data, { code, age: own }) {
     const year = home.year !== data.latestYear ? ` (${home.year})` : '';
     sub =
       Math.abs(difference) < 0.05
-        ? copy.exactLine({ name: home.name, value: age(home.total) })
+        ? copy.exactLine({ name: home.name, value: age(home.total, { locale: data.lang }) })
         : copy.homeLine({
             name: home.name,
-            value: age(home.total),
+            value: age(home.total, { locale: data.lang }),
             year,
-            distance: years(Math.abs(difference)),
+            distance: years(Math.abs(difference), { locale: data.lang }),
             after: difference >= 0,
           });
   }
@@ -128,11 +133,11 @@ export function resultCopy(data, { code, age: own }) {
   return {
     head: copy.head({ own: mine, verdict }),
     sub,
-    closest: copy.closest({ name: closest.name, value: age(closest.total) }),
+    closest: copy.closest({ name: closest.name, value: age(closest.total, { locale: data.lang }) }),
     chips: [
       [copy.chips.own, mine],
-      ...(data.eu === null ? [] : [[copy.chips.eu, age(data.eu)]]),
-      ...(home ? [[home.name, age(home.total)]] : []),
+      ...(data.eu === null ? [] : [[copy.chips.eu, age(data.eu, { locale: data.lang })]]),
+      ...(home ? [[home.name, age(home.total, { locale: data.lang })]] : []),
     ],
     home,
     own,

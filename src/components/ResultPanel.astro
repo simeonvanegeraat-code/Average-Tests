@@ -14,7 +14,7 @@
  * tekst bevatten, en dit blok bevat een kop, een grafiek en een paneel.
  */
 import { localeOf } from '../lib/locales.js';
-import { ui } from '../lib/ui.js';
+import { ui, fill } from '../lib/ui.js';
 import DotPlot from './DotPlot.astro';
 import { age, ranked, headline } from '../lib/leaving-home.js';
 
@@ -29,7 +29,7 @@ interface Props {
 const { index } = Astro.props;
 const h = headline(index);
 const rows = ranked(index).map(({ code, name, total }) => ({ code, name, total }));
-const label = `Dot plot of ${h.countries} countries by the age by which half of young people have left home, with your age marked.`;
+const label = fill(t.plotLabel, { countries: h.countries });
 ---
 
 <div class="result" data-compare-result role="status" hidden>
@@ -41,10 +41,11 @@ const label = `Dot plot of ${h.countries} countries by the age by which half of 
     <div class="panel-foot" data-result-chips></div>
   </figure>
   <p class="closest" data-result-closest></p>
-  <p class="note">
-    This compares your age with <b>each country’s midpoint</b>, not with individual people. Eurostat publishes one number per country, not
-    the spread around it, so no percentile can be given.
-  </p>
+  {/*
+    De noot draagt opmaak in het midden, dus hij gaat via set:html. Wat erin gevuld
+    wordt is een vaste term uit ui.json, nooit invoer van een bezoeker.
+  */}
+  <p class="note" set:html={fill(t.note, { midpoint: `<b>${t.noteMidpoint}</b>` })} />
   <slot name="share" />
 </div>
 

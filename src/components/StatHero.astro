@@ -12,6 +12,18 @@
  * JavaScript; de browser voegt alleen toe wat een keuze oplevert: de zin onder de kiezer
  * en de markering in de grafiek.
  *
+ * ELKE ZIN KOMT UIT ui.json, SINDS 8 NOVEMBER 2026
+ *
+ * Tot die dag stond alle tekst hier in het Engels, ook op /nl/leaving-home/ — het
+ * paginabestand was Nederlands, dit onderdeel niet, en dat liep dóór een zin heen:
+ * "In Kroatië it does not arrive until 31,5". De groep `statHero` stond al klaar en was
+ * leeg op vier sleutels na.
+ *
+ * Drie zinnen dragen opmaak in het midden (de twee vetgezette landnamen, de cursieve
+ * zoekterm, de link naar de methode) en worden daarom met `set:html` gezet. Wat erin
+ * gevuld wordt komt uit onze eigen data — landnamen uit CLDR en getallen uit de
+ * bibliotheek — nooit uit invoer van een bezoeker.
+ *
  * Contract met de pagina: de pagina rendert `<script type="application/json"
  * id="leaving-home-data">` met `clientData(index)` (src/lib/leaving-home-copy.js).
  * De kiezer stuurt `ha:country` op `document` en luistert ernaar, zodat hij gelijk
@@ -19,14 +31,16 @@
  * is aan de pagina, niet aan dit onderdeel.
  */
 import { localeOf } from '../lib/locales.js';
-import { ui } from '../lib/ui.js';
+import { ui, fill } from '../lib/ui.js';
+import { grammarOf } from '../lib/grammar.js';
 import DotPlot from './DotPlot.astro';
-import { age, years, withArticle, headline, ranked, currentCountries } from '../lib/leaving-home.js';
+import { age, years, headline, ranked, currentCountries } from '../lib/leaving-home.js';
 import { euChange } from '../lib/leaving-home-copy.js';
 
 /** De taal van deze pagina, en de vaste tekst erin. Zie src/lib/ui.js. */
 const lang = localeOf(Astro.url.pathname);
 const t = ui(lang).statHero;
+const g = grammarOf(lang);
 
 interface Props {
   index: any;
@@ -36,52 +50,71 @@ const { index } = Astro.props;
 
 const h = headline(index);
 const order = ranked(index);
-const euValue = h.eu ? age(h.eu.total, { locale: lang }) : age(order[Math.floor(order.length / 2)].total);
+/** De locale hoorde ook op dit terugvalpad: zonder EU-rij schreef het "26.3" op /nl/. */
+const euValue = age(
+  (h.eu ? h.eu : order[Math.floor(order.length / 2)]).total,
+  { locale: lang },
+);
 const change = euChange(index);
 
 const rows = order.map(({ code, name, total }) => ({ code, name, total }));
 const options = [...currentCountries(index)].sort((a, b) => a.name.localeCompare(b.name));
 
+const low = g.withArticle(h.earliest.name);
+const high = g.withArticle(h.latest.name);
+const lowAge = age(h.earliest.total, { locale: lang });
+const highAge = age(h.latest.total, { locale: lang });
+const gap = years(h.gap, { locale: lang });
+
 const plotLabel =
-  `Dot plot of ${h.countries} countries by the age by which half of young people have left home, ` +
-  `from ${age(h.earliest.total, { locale: lang })} in ${h.earliest.name} to ${age(h.latest.total, { locale: lang })} in ${h.latest.name}` +
-  (h.eu ? `. The European Union figure is ${age(h.eu.total, { locale: lang })}.` : '.');
+  fill(t.plotLabel, { countries: h.countries, lowAge, low: h.earliest.name, highAge, high: h.latest.name }) +
+  (h.eu ? fill(t.plotLabelEu, { euAge: age(h.eu.total, { locale: lang }) }) : '.');
 ---
 
 <section class="hero" aria-labelledby="hero-title">
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <p class="eyebrow mono" data-reveal>
-        Eurostat · {h.countries} countries · {h.year}
+        {fill(t.eyebrow, { countries: h.countries, year: h.year })}
       </p>
       <h1 id="hero-title" data-reveal>
-        Half of young Europeans have left home by age <span class="giant num">{euValue}</span>
+        {t.h1} <span class="giant num">{euValue}</span>
       </h1>
       <p class="unit mono" data-reveal>
-        Years old · European Union · <b>{h.year}</b>{change && <> · {years(change.delta, { sign: true, locale: lang })} vs {change.previousYear}</>}
+        {t.unit} <b>{h.year}</b>{change && <> · {years(change.delta, { sign: true, locale: lang })}{' '}{t.versus}{' '}{change.previousYear}</>}
       </p>
-      <p class="lead" data-reveal>
-        In <b>{withArticle(h.earliest.name)}</b> that point arrives at {age(h.earliest.total, { locale: lang })}. In <b>{withArticle(h.latest.name)}</b> it does
-        not arrive until {age(h.latest.total, { locale: lang })}, a gap of {years(h.gap, { locale: lang })} for the same step in life. This compares European countries with each
-        other, not with the United States.
-      </p>
+      <p
+        class="lead"
+        data-reveal
+        set:html={fill(t.lead, {
+          low: `<b>${low}</b>`,
+          lowAge,
+          high: `<b>${high}</b>`,
+          highAge,
+          gap,
+        })}
+      />
       <div class="hero-cta" data-reveal>
         <a class="btn" href="#compare">
-          Where do you fit?
+          {t.whereDoYouFit}
           <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
         </a>
         <span class="hint">{t.nothingIsSentAnywhere}</span>
       </div>
-      <p class="hero-note" data-reveal>
-        Searches for this figure usually call it the <em>average age of leaving home</em>. It is not quite an average: Eurostat measures the
-        age by which half of young people no longer live with their parents. <a href="#method">How that changes the reading.</a>
-      </p>
+      <p
+        class="hero-note"
+        data-reveal
+        set:html={fill(t.note, {
+          term: `<em>${t.noteTerm}</em>`,
+          link: `<a href="#method">${t.noteLink}</a>`,
+        })}
+      />
     </div>
 
     <figure class="panel hued" data-reveal aria-labelledby="hero-panel-label">
       <div class="panel-head mono">
-        <span id="hero-panel-label">Every country · {h.year}</span>
-        <span class="delta num">{years(h.gap, { locale: lang })} apart</span>
+        <span id="hero-panel-label">{fill(t.everyCountry, { year: h.year })}</span>
+        <span class="delta num">{fill(t.apart, { gap })}</span>
       </div>
       <div class="picker">
         <label class="mono" for="hero-country">{t.whereDoYouLive}</label>
@@ -95,9 +128,9 @@ const plotLabel =
       <p class="you-line" data-hero-you aria-live="polite">{t.chooseYourCountryTo}</p>
       <DotPlot rows={rows} eu={h.eu ? h.eu.total : null} mode="hero" label={plotLabel} />
       <div class="panel-foot">
-        {h.eu && h.eu.women !== null && <span class="chip">Women <b>{age(h.eu.women, { locale: lang })}</b></span>}
-        {h.eu && h.eu.men !== null && <span class="chip">Men <b>{age(h.eu.men, { locale: lang })}</b></span>}
-        <span class="chip">Countries <b>{h.countries}</b></span>
+        {h.eu && h.eu.women !== null && <span class="chip">{t.women} <b>{age(h.eu.women, { locale: lang })}</b></span>}
+        {h.eu && h.eu.men !== null && <span class="chip">{t.men} <b>{age(h.eu.men, { locale: lang })}</b></span>}
+        <span class="chip">{t.countries} <b>{h.countries}</b></span>
       </div>
     </figure>
   </div>

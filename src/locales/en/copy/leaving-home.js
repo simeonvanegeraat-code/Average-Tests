@@ -26,6 +26,8 @@ const strong = (text) => ({ strong: text });
 const em = (text) => ({ em: text });
 
 export default {
+  units: { one: 'year', many: 'years' },
+
   /**
    * De regel onder de landkiezer in de kop.
    *
@@ -83,4 +85,34 @@ export default {
 
   /** De labels van de drie kerncijfers onder het antwoord. Het derde is een landnaam. */
   chips: { own: 'Your age', eu: 'EU' },
+
+  facts: {
+    genderValue: ({ womenEarlier, of }) => `${womenEarlier} of ${of}`,
+
+    gender: ({ year, mean, exceptions }) =>
+      `countries where women reach the midpoint before men in ${year}, by ${mean} on average.` +
+      (exceptions.length === 0
+        ? ''
+        : ` The exception${exceptions.length === 1 ? ' is' : 's are'} ${exceptions.join(', ')}.`),
+
+    spread: ({ since, until, countries }) =>
+      `years between the earliest and the latest country, ${since} versus ${until}. ` +
+      `Only the ${countries} countries with a value in both years.`,
+
+    eu: ({ since, until, earlier, minimumMove, later }) =>
+      `the European Union figure, ${since} to ${until}. ` +
+      `${earlier} ${earlier === 1 ? 'country' : 'countries'} moved earlier by at least ${minimumMove}, ` +
+      `${later} moved later.`,
+
+    biggest: ({ since, name, from, to, g }) =>
+      `years: the biggest move since ${since}, in ${g.withArticle(name)} (${from} to ${to}).`,
+
+    widest: ({ year, name, men, women, g }) =>
+      `years: the widest gap between men and women in ${year}, in ${g.withArticle(name)} ` +
+      `(men ${men}, women ${women}).`,
+
+    breakFoot: ({ since, lastBreak }) =>
+      `Comparisons over time start in ${since}, the first year after Eurostat’s ${lastBreak} ` +
+      `series break, so they cover a short window.`,
+  },
 };
