@@ -1,0 +1,478 @@
+---
+import { ui } from '../../../lib/ui.js';
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import { periodLabel } from '../../../lib/period.js';
+import { methodPage } from '../../../lib/pages/method.js';
+
+/**
+ * De Nederlandse /method/.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk komt uit `src/lib/pages/method.js`, de
+ * woorden staan hier.
+ *
+ * Dit is de langste prozapagina van de site en de enige die over de site zélf gaat. Twee
+ * dingen lopen daardoor anders:
+ *
+ *  - **`count()` gooit voor het Nederlands**, met opzet: een meervoudsregel bestaat hier
+ *    niet. "statistical agency / agencies" staat daarom uitgeschreven, net als elke
+ *    andere enkelvoud/meervoud-keuze op deze pagina.
+ *  - **De beloftes onderaan zijn beloftes**, en die moeten in het Nederlands even hard
+ *    klinken als in het Engels. "We will not invent a statistic" is in het Engels een
+ *    toekomstige weigering; het Nederlands maakt daar een tegenwoordige van ("We
+ *    verzinnen geen statistiek"), want "we zullen geen statistiek verzinnen" klinkt als
+ *    een voornemen in plaats van een regel.
+ */
+const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).method;
+const {
+  sets: METHODOLOGY,
+  leaving,
+  wealth,
+  exitAge,
+  wealthCheck,
+  maxDeviation,
+  h,
+  stale,
+  unbroken,
+  definitions,
+  publishers,
+  wealthPeriod,
+} = methodPage(lang);
+
+/** Dezelfde formulering als de h1 uit ui.json: daar staat 'we', niet 'wij'. */
+const title = 'Hoe we aan deze cijfers komen | HumanAverage';
+const description =
+  'Waar elk cijfer op deze site vandaan komt, wat het wel en niet zegt, en de poort die elk ' +
+  'getal passeert voordat het verschijnt. Eurostat, de ECB, en niets erbij geschat.';
+---
+
+<BaseV2 title={title} description={description} canonical="/method/">
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow mono">{t.method}</p>
+      <h1 data-reveal>{t.howWeGetThese}</h1>
+      <p class="lead">
+        {t.shortVersionWeDo}
+      </p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="kind-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{t.whatYouAreLooking}</p>
+        <h2 id="kind-title">{t.aFigureIsNot}</h2>
+      </header>
+
+      <div class="prose" data-reveal>
+        <p>
+          {t.mostStatisticalAgenciesPublish}
+        </p>
+        <p>
+          Daarom zeggen de pagina's hier <b>aan welke kant van een cijfer je valt</b> in plaats
+          van je een percentiel te geven. Een percentiel heeft de individuele records nodig — één
+          rij per persoon — en de bronnen achter deze pagina's publiceren die niet. Komt er ooit
+          een bron die dat wel doet, dan zegt de pagina dat en geeft je de echte positie.
+        </p>
+        <p>
+          Twee concrete gevallen, beide op hun eigen pagina uitgelegd. De vermogenspagina's
+          kunnen geen percentiel geven omdat de ECB het <em>gemiddelde van elke groep</em>
+          publiceert en niet waar de groepen beginnen: we weten wat het zevende deciel gemiddeld
+          bezit, niet waar het zevende deciel begint. De pagina over het huis uit gaan kan het
+          ook niet, omdat Eurostat de leeftijd publiceert waarop de helft vertrokken is — een
+          middelpunt, geen verdeling.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="source-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{t.sources}</p>
+        <h2 id="source-title">{t.whereTheDataComes}</h2>
+        <p>
+          {publishers.length} {publishers.length === 1 ? 'statistisch bureau' : 'statistische bureaus'},
+          allemaal openbaar publicerend, elk per dataset vastgelegd in de repository met zijn code,
+          dekking, licentie en de datum waarop we hem ophaalden.
+        </p>
+      </header>
+
+      <div class="bento" data-reveal>
+        <div class="tile">
+          <div>
+            <h3>{t.eurostat}</h3>
+            <p>
+              <b class="code">{leaving.source.dataset}</b> — {leaving.source.label}. Afgeleid uit
+              de arbeidskrachtenenquête van de EU, reeks {leaving.years[0]} tot {
+                leaving.years[leaving.years.length - 1]
+              }, laatst bijgewerkt door Eurostat op {leaving.source.eurostatUpdated.slice(0, 10)}.
+            </p>
+          </div>
+          <span class="meta mono">{h.countries} landen in {h.year}</span>
+        </div>
+
+        <div class="tile">
+          <div>
+            <h3>{t.europeanCentralBank}</h3>
+            <p>
+              {wealth.source}. Per kwartaal, openbaar beschikbaar via het dataportaal van de ECB,
+              over {wealth.countries.length} landen tot en met {wealthPeriod}.
+            </p>
+          </div>
+          <span class="meta mono">{wealthCheck.quarters} kwartalen</span>
+        </div>
+
+        <div class="tile">
+          <div>
+            <h3>{t.oecd}</h3>
+            <p>
+              <b class="code">{exitAge.source.measure}</b> — {exitAge.source.label}, uit de database{' '}
+              {exitAge.source.name}. Het verste bereik van alles hier: {exitAge.countries.length}{' '}
+              landen, {exitAge.years[0]} tot {exitAge.years[exitAge.years.length - 1]}, en de enige
+              reeks die buiten Europa komt.
+            </p>
+          </div>
+          <span class="meta mono">{t.menAndWomenNever}</span>
+        </div>
+
+        <div class="tile">
+          <div>
+            <h3>{t.naturalEarth}</h3>
+            <p>
+              {t.theCountryOutlinesOn}
+            </p>
+          </div>
+          <span class="meta mono">{t.reproducible}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="datasets-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{t.everyDatasetLineBy}</p>
+        <h2 id="datasets-title">{t.whatEachSourcePublishes}</h2>
+        <p>
+          {t.oneBlockPerDataset}
+        </p>
+        <p>
+          Waar een uitgever zijn eigen definitie opschrijft, wordt die definitie geciteerd in
+          plaats van samengevat, want het gat tussen de titel van een dataset en zijn definitie is
+          waar deze site eerder fout zat. {definitions.length} van deze {METHODOLOGY.length}{' '}
+          datasets komen met zo'n definitie en de rest niet, dus de regel ontbreekt waar de
+          woorden van ons hadden moeten zijn.
+        </p>
+        <p>
+          De regel over vergelijken over tijd is degene die het meest kost als je hem verkeerd
+          doet. Er is een langer stuk over:{' '}
+          <a href={linkTo('/notes/eurostat-2021-series-break/', lang)}>waarom je Eurostat-cijfers niet over 2021
+          heen kunt vergelijken</a>.
+        </p>
+      </header>
+
+      <div class="datasets" data-reveal>
+        {
+          METHODOLOGY.map((set) => (
+            <article class="dataset hued" id={`ds-${set.key}`} style={`--h:${set.hue}`}>
+              <header class="dataset-head">
+                <h3><a href={linkTo(set.path, lang)}>{set.label}</a></h3>
+                <p class="mono who">
+                  {set.publisher}
+                  {set.dataset && <> · {set.dataset}</>}
+                </p>
+              </header>
+
+              <dl>
+                {/* De eigen titel van de uitgever, woordelijk en dus in zijn eigen taal. */}
+                {set.sourceLabel && (
+                  <div class="wide">
+                    <dt>{t.whatThePublisherCalls}</dt>
+                    <dd lang="en">{set.sourceLabel}</dd>
+                  </div>
+                )}
+
+                {/* De definitie van de uitgever, woordelijk en dus in zijn eigen taal. */}
+                {set.definition && (
+                  <div class="wide">
+                    <dt>{t.itsOwnDefinition}</dt>
+                    <dd class="quote" lang="en">{set.definition}</dd>
+                  </div>
+                )}
+
+                <div>
+                  <dt>{t.coverage}</dt>
+                  <dd>
+                    {set.countries} landen in {set.year}
+                    {set.firstYear && <> · reeks {set.firstYear}–{set.lastYear}</>}
+                    {set.quarters && <> · {set.quarters} kwartalen</>}
+                    {set.stale.length > 0 && (
+                      <> · {set.stale.length} achter ({set.stale.map((c) => `${c.name} ${c.year}`).join(', ')})</>
+                    )}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt>{t.comparingAcrossTime}</dt>
+                  <dd>
+                    {set.comparability.kind === 'since' && (
+                      <>
+                        Vergelijkbaar sinds {set.comparability.since}.{' '}
+                        {set.comparability.broken === set.countries
+                          ? `Alle ${set.countries} landen dragen`
+                          : `${set.comparability.broken} van de ${set.countries} landen ${set.comparability.broken === 1 ? 'draagt' : 'dragen'}`}{' '}
+                        een breukvlag in {set.comparability.year}, en <code>trend()</code> weigert
+                        daar overheen te meten.
+                        {/* Werkloosheid breekt per land in plaats van voor iedereen tegelijk, en dan
+                            vertelt een telling op de laatste breuk maar de helft. */}
+                        {set.comparability.others > 0 && (
+                          <>
+                            {' '}
+                            {set.comparability.others}{' '}
+                            {set.comparability.others === 1 ? 'ander land draagt' : 'andere landen dragen'} er
+                            een op een andere datum ({set.comparability.otherYears}), en daarom begint
+                            het vergelijkbare venster na de laatste daarvan.
+                          </>
+                        )}
+                      </>
+                    )}
+                    {set.comparability.kind === 'break-at-end' && (
+                      <>
+                        De laatste breuk valt in {set.comparability.year}, het meest recente jaar zelf
+                        ({set.comparability.broken} van de {set.countries} landen), dus er is geen
+                        venster over om verandering in te meten. De ranglijst houdt stand; een trend
+                        niet.
+                      </>
+                    )}
+                    {set.comparability.kind === 'single-year' && (
+                      <>
+                        {set.publisher} publiceert deze tabel alleen voor {set.comparability.year}. In
+                        één jaar kan niets breken, en er valt ook niets over één jaar te vergelijken —
+                        dus draagt de pagina een ranglijst en geen trend.
+                      </>
+                    )}
+                    {set.comparability.kind === 'unbroken' && (
+                      <>
+                        {set.publisher} markeert geen breuk in deze reeks, dus de hele reeks
+                        {set.comparability.from && <> vanaf {set.comparability.from}</>} is
+                        vergelijkbaar.
+                        {unbroken.length === 1
+                          ? ' Het is de enige van onze bronnen die je van begin tot eind kunt lezen.'
+                          : ` ${unbroken.length} van onze ${METHODOLOGY.length} bronnen zijn van begin tot eind te lezen; de meeste niet.`}
+                      </>
+                    )}
+                    {set.comparability.kind === 'none' && (
+                      <>Deze rekeningen dragen geen reeksbreuken; de ECB herziet in plaats daarvan de hele reeks.</>
+                    )}
+                    {/* Een enquêtegolf is geen reeks: er valt niets te breken, en er valt ook
+                        niets mee te vergelijken. Het veldwerk per land loopt bovendien uiteen. */}
+                    {set.comparability.kind === 'survey-wave' && (
+                      <>
+                        Eén enquêtegolf, geen reeks. Het veldwerk over de
+                        {' '}{set.comparability.countries} landen liep tussen
+                        {' '}{periodLabel(set.comparability.from, { locale: lang })} en {periodLabel(set.comparability.to, { locale: lang })},
+                        en elk land draagt zijn eigen venster, dus geen enkel jaartal beschrijft ze
+                        allemaal. Golven vergelijken kan in principe wel, maar wordt hier niet gedaan.
+                      </>
+                    )}
+                  </dd>
+                </div>
+
+                <div>
+                  <dt>{t.whatWeReadPer}</dt>
+                  <dd>{set.lenses.length ? set.lenses.join(' · ') : 'Eén cijfer per land'}</dd>
+                </div>
+
+                <div>
+                  <dt>{t.lastRefreshed}</dt>
+                  <dd>
+                    {set.published && <>Gepubliceerd {set.published} · </>}
+                    Opgehaald {set.fetched}
+                    {set.checked && <> · gecontroleerd {set.checked}</>}
+                  </dd>
+                </div>
+
+                <div class="wide">
+                  <dt>{t.lookItUpYourself}</dt>
+                  <dd>
+                    {set.doi && <>DOI <code>{set.doi}</code> · </>}
+                    {set.metadata && (
+                      <>
+                        <a href={set.metadata} rel="noopener" data-method-link>Metadata van de uitgever</a>
+                        {set.api && <> · </>}
+                      </>
+                    )}
+                    {set.api && <a href={set.api} rel="noopener" data-method-link>de exacte query die wij uitvoeren</a>}
+                  </dd>
+                </div>
+              </dl>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="pipeline-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{t.pipeline}</p>
+        <h2 id="pipeline-title">{t.whatWeDoTo}</h2>
+      </header>
+
+      <div class="prose" data-reveal>
+        <ol>
+          <li>
+            <b>Ophalen.</b> Een script trekt de bron naar een map die niet in git staat en schrijft
+            op wat het kreeg: het exacte verzoek, de eigen bijwerkstempel van het bureau, de
+            perioden en de gebieden. Geen checksum op het antwoord zelf, want deze bureaus
+            publiceren volgens een schema en een veranderend antwoord is juist gedrag. In plaats
+            daarvan controleert het script het <em>label</em> van de dataset, zodat een stil
+            opnieuw toegewezen code de bouw laat falen in plaats van stilletjes een getal op de
+            site te veranderen.
+          </li>
+          <li>
+            <b>Bouwen.</b> Een tweede script maakt daar een compact JSON-bestand van dat in de
+            repository staat. Aggregaten zoals het EU-totaal worden apart gehouden van landen, want
+            ze staan bij de bron in dezelfde dimensie en zijn geen land. Elk land draagt zijn eigen
+            referentiejaar in plaats van in een gedeeld jaar geduwd te worden.
+          </li>
+          <li>
+            <b>Valideren.</b> Een poort rekent elk gepubliceerd cijfer terug uit het ruwe antwoord.
+            Faalt hij, dan wordt er niets gepubliceerd.
+          </li>
+        </ol>
+        <p>
+          {t.thePagesThemselvesCalculate}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="check-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{t.checks}</p>
+        <h2 id="check-title">{t.howWeCheckOurselves}</h2>
+        <p>
+          {t.theGateDoesNot}
+        </p>
+      </header>
+
+      <div class="prose" data-reveal>
+        <p>
+          <b>Voor de vermogensdata</b> is de scherpste controle die er is dat de balans moet
+          sluiten: elke gepubliceerde post, met schulden negatief geteld, moet optellen tot het
+          gepubliceerde nettovermogen. Ontbreekt er een post, wordt een subtotaal dubbel geteld, of
+          staat een schaal verkeerd, dan klopt de som niet. Alle drie zijn op de pagina zelf
+          onzichtbaar. Laatst gedraaid op {wealthCheck.checkedOn}, over {wealthCheck.countries}{' '}
+          landen en {wealthCheck.quarters} kwartalen, was de grootste afwijking{' '}
+          <b>{maxDeviation}%</b>.
+        </p>
+        <p>
+          <b>Voor de Eurostat-data</b> wordt elk cijfer en elke reeksbreukvlag teruggerekend uit
+          het ruwe antwoord. Dat tweede deel is belangrijker dan het klinkt. Eurostat herzag de
+          arbeidskrachtenenquête in {leaving.lastBreak} en markeert de breuk; het breukjaar zelf is
+          een overgang, dus zelfs eruit meten is fout. Vergeleken met 2005 lijkt de kloof tussen
+          landen te groeien. Vergeleken over jaren die werkelijk vergelijkbaar zijn, krimpt hij. De
+          code weigert de eerste versie te berekenen in plaats van hem met een voetnoot af te
+          drukken, en het vergelijkbare venster begint in {leaving.comparableSince}.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="limits-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{t.limits}</p>
+        <h2 id="limits-title">{t.whatWeWillNot}</h2>
+      </header>
+
+      <div class="prose" data-reveal>
+        <p>
+          <b>We verzinnen geen statistiek.</b> Niet uit ons hoofd, niet uit een zoekresultaat, niet
+          als plaatshouder om een pagina af te krijgen. Is een cijfer niet terug te voeren op een
+          dataset, dan komt het niet op de site, en blijft de lege plek zichtbaar in plaats van
+          opgevuld.
+        </p>
+        <p>
+          <b>We noemen iets geen percentiel als het dat niet is.</b> Zie de bovenkant van deze
+          pagina. Het zou beter lezen en het zou onwaar zijn.
+        </p>
+
+        <div class="limits">
+          <b>{t.whatTheseFiguresCannot}</b>
+          <p>
+            Ze zijn op landniveau. Ze beschrijven een bevolking, niet iemand daarin, en de
+            spreiding binnen een land is vrijwel altijd groter dan het verschil tussen landen. De
+            dekking is Europees: de Verenigde Staten, Canada en Australië zitten niet in deze
+            datasets.
+            {
+              stale.length > 0 && (
+                <>
+                  {' '}
+                  En sommige landen stoppen met rapporteren — {
+                    stale.map((country: { name: string; year: string }) => `${country.name} (${country.year})`).join(', ')
+                  } staan op hun meest recente jaar, gemarkeerd op de kaart en benoemd in de tabel
+                  in plaats van stilletjes tussen de rest gemengd.
+                </>
+              )
+            }
+          </p>
+        </div>
+
+        <p class="note">
+          Elke dataset is vastgelegd in <code>data/sources.md</code> in de repository, met zijn
+          code, dekking, licentie en ophaaldatum. De repository is openbaar.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseV2>
+
+<style>
+  .tile h3 {
+    margin: 0 0 10px;
+    font-size: 1.15rem;
+  }
+
+  .tile .code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    color: var(--data);
+  }
+
+  .tile .meta {
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .prose ol {
+    margin: 0 0 1.1em;
+    padding-left: 1.3em;
+  }
+
+  .prose ol li {
+    margin-bottom: 0.9em;
+    line-height: 1.7;
+  }
+
+  .prose b {
+    color: var(--text);
+  }
+
+  .prose .note {
+    margin-top: 1.6em;
+    font-size: 0.92rem;
+  }
+
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+</style>

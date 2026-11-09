@@ -1,10 +1,12 @@
 {
-  "checkedOn": "2026-10-31",
+  "checkedOn": "2026-11-09",
   "latestPeriod": "2026-Q1",
   "countries": 21,
   "quarters": 13,
   "meanToMedianRange": [
     "1.43",
     "3.73"
-  ]
+  ],
+  "maxDeviation": 0.11,
+  "maxDeviationAt": "LT/B50"
 }

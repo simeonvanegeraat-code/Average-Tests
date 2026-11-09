@@ -117,6 +117,17 @@ if (failures.length === 0) {
       countries: countries.length,
       quarters: Math.max(...countries.map((a) => a.medianHistory.length)),
       meanToMedianRange: [Math.min(...ratios).toFixed(2), worstRatio.toFixed(2)],
+      /**
+       * De grootste afwijking van de balanscontrole, en waar hij zit.
+       *
+       * Deze poort rekende dat al uit en schreef het alleen naar stdout, dus stond het op
+       * /method/ met de hand ingetypt: "the largest deviation was 0.11%". Regel 5 uit
+       * CLAUDE.md zegt dat geen enkel getal met de hand in een pagina staat, en die regel
+       * bestaat precies hiervoor — bij de volgende verversing was dat getal achtergebleven
+       * zonder dat iemand het ziet.
+       */
+      maxDeviation: Number((worstGap * 100).toFixed(2)),
+      maxDeviationAt: worstAt,
     }, null, 2) + '\n',
   );
   console.log('\nAlle controles geslaagd. data/wealth-validation.json bijgewerkt.');
