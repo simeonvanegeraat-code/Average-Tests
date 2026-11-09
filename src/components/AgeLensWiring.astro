@@ -1,0 +1,60 @@
+---
+/**
+ * De knop die op /wealth/by-age/ wisselt tussen het middelpunt en het gemiddelde.
+ *
+ * De tabel staat volledig in de HTML met de medianen erin; dit script vervangt alleen de
+ * getallen. Zonder JavaScript mis je de knop en niets anders.
+ *
+ * WAAROM DIT EEN ONDERDEEL IS, EN WAT ERMEE GEREPAREERD IS
+ *
+ * Het stond in het paginabestand, en sinds elke pagina per taal bestaat zou het er twee
+ * keer staan. Belangrijker: het was **stuk**, en live. Het script riep `grouped()` aan
+ * zonder die te importeren — de frontmatter van de pagina importeerde hem, maar een
+ * Astro-`<script>` is een eigen bundel en erft die import niet. In de console stond
+ * `Uncaught ReferenceError: grouped is not defined`, en de knop zette wél zijn
+ * `aria-pressed` op true. Hij zag er dus uit alsof hij werkte en deed niets.
+ *
+ * Het rekent nu niet zelf meer: `euro(value, { compact: true })` is precies de functie die
+ * de server voor de begincellen gebruikt, dus de omgeschakelde cellen kunnen er niet meer
+ * van afwijken. En die functie leest zijn taal uit `<html lang>` als er geen meegegeven
+ * wordt, wat op de pagina de waarheid is.
+ *
+ * Er staat geen woord tekst in, dus dit onderdeel heeft geen tegenhanger in src/locales/.
+ * De haken zitten in de pagina: `[data-age-table]`, `[data-lens]`, `[data-cell]` en het
+ * JSON-blok `#age-table-data`.
+ */
+---
+
+<script>
+  import { track, EVENTS } from '../lib/analytics.js';
+  import { euro } from '../lib/wealth.js';
+
+  const holder = document.getElementById('age-table-data');
+  const table = document.querySelector('[data-age-table]');
+
+  if (holder && table) {
+    const data = JSON.parse(holder.textContent ?? '{}');
+    const byArea = Object.fromEntries(data.rows.map((r: any) => [r.area, r]));
+
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-lens]')) {
+      button.addEventListener('click', () => {
+        const lens = button.dataset.lens === 'mean' ? 'mean' : 'median';
+        for (const other of document.querySelectorAll('[data-lens]')) {
+          other.setAttribute('aria-pressed', String(other === button));
+        }
+        for (const row of table.querySelectorAll<HTMLTableRowElement>('tbody tr')) {
+          const figures = byArea[row.dataset.area ?? '']?.[lens];
+          if (!figures) continue;
+          row.querySelectorAll<HTMLTableCellElement>('[data-cell]').forEach((cell, i) => {
+            cell.textContent = euro(figures[i], { compact: true });
+          });
+        }
+        track(EVENTS.secondMetricOpened, { metric: 'wealth-by-age', lens });
+      });
+    }
+  }
+
+  for (const link of document.querySelectorAll('[data-method-link]')) {
+    link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'wealth-by-age' }));
+  }
+</script>
