@@ -1,0 +1,443 @@
+---
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import Related from '../../../components/Related.astro';
+import WealthCompare from '../../../components/WealthCompare.astro';
+import { STAGES } from '../../../lib/hue.js';
+import { wealthIndexPage } from '../../../lib/pages/wealth-index.js';
+
+/**
+ * De Nederlandse /wealth/ — het hoofdinstrument: waar staat jouw huishouden.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk komt uit
+ * `src/lib/pages/wealth-index.js`, de berekening in de browser uit
+ * `src/components/WealthCompare.astro` met zijn zinnen in
+ * `src/locales/nl/copy/wealth.js`, en de woorden hier.
+ *
+ * De lead van deze pagina is de scherpste zin van de site en loopt in het Nederlands
+ * anders. "Money is the one number people will not compare out loud" leunt op "out loud"
+ * als bijwoordelijke bepaling achteraan; het Nederlands zet "hardop" vóór het werkwoord,
+ * en dan valt de nadruk op een andere plek. Er staat nu "het ene getal dat mensen niet
+ * hardop vergelijken".
+ *
+ * Geen enkel cijfer staat hier met de hand.
+ */
+const lang = localeOf(Astro.url.pathname);
+const {
+  index,
+  ageIndex,
+  validation,
+  countries,
+  richest,
+  poorest,
+  euroArea,
+  spread,
+  widestGap,
+  concentrated,
+  sourceGap,
+  steepest,
+  flattest,
+  steepestCurve,
+  flattestCurve,
+  surveySpread,
+  middleClimb,
+  steeperThanEurope,
+  peaks,
+  money,
+  times,
+  period,
+  euroPeriod,
+} = wealthIndexPage(lang);
+
+const title = 'Waar staat jouw huishouden? — Vermogen in Europa';
+const description =
+  'Vul in wat je huishouden waard is en hoe oud je bent, en zie waar dat ligt tussen de ' +
+  'huishoudens in 21 Europese landen. Officiële cijfers van de ECB.';
+---
+
+<BaseV2 title={title} description={description} canonical="/wealth/" hue={STAGES.money}>
+  <Fragment slot="head">
+    <script type="application/json" id="wealth-index" set:html={JSON.stringify(index)} is:inline />
+    {/* Een eigen blok, niet samengevoegd met het blok hierboven: de twee bronnen mogen
+        in de browser net zo min door elkaar lopen als op de pagina. */}
+    <script type="application/json" id="wealth-age" set:html={JSON.stringify(ageIndex)} is:inline />
+  </Fragment>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <p class="eyebrow mono" data-reveal>
+        Europese Centrale Bank · {countries.length} landen · {period}
+      </p>
+      <h1 id="hero-title" data-reveal>
+        Het middelste huishouden in Europa bezit
+        <span class="giant num">{money(euroArea.median, { compact: true })}</span>
+      </h1>
+      <p class="unit mono" data-reveal>
+        Mediaan huishouden · eurozone · <b>{money(euroArea.median)}</b> · {euroPeriod}
+      </p>
+      <p class="lead" data-reveal>
+        Niemand vertelt je waar je staat. Geld is het ene getal dat mensen niet hardop
+        vergelijken, dus hier staat het tegenover officiële cijfers: vul in wat je huishouden
+        waard is, en zie waar dat je zet tussen {countries.length} Europese landen.
+      </p>
+      <div class="hero-cta" data-reveal>
+        <a class="btn" href="#compare">
+          Laat zien waar ik sta
+          <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
+        </a>
+        <span class="hint">Er wordt niets verstuurd.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Jouw beurt</p>
+        <h2 id="compare-title">Waar staat jouw huishouden?</h2>
+        <p>
+          Alles wat je bezit min alles wat je schuldig bent — huis, spaargeld, beleggingen en
+          pensioenpot, min hypotheek en andere schuld. Een ruwe schatting is genoeg.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <form class="madlib" id="wealth-form" novalidate>
+          <label for="country">Ik woon in</label>
+          <span class="select">
+            <select id="country" name="country">
+              {countries.map((c) => (
+                <option value={c.area} selected={c.area === 'NL'}>{c.name}</option>
+              ))}
+            </select>
+          </span>
+          <label for="age">, ik ben</label>
+          <span class="years">
+            <input
+              id="age"
+              type="number"
+              name="age"
+              inputmode="numeric"
+              min="16"
+              max="110"
+              step="1"
+              placeholder="38"
+              aria-describedby="age-hint"
+            />
+            <i aria-hidden="true">jaar oud</i>
+          </span>
+          <label for="amount">en mijn huishouden is ongeveer waard</label>
+          <span class="euro">
+            <i aria-hidden="true">€</i>
+            <input
+              id="amount"
+              type="number"
+              name="amount"
+              inputmode="numeric"
+              step="1000"
+              placeholder="250000"
+              required
+              aria-describedby="form-error"
+            />
+          </span>
+          <button class="btn" type="submit">
+            Laat zien
+            <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
+          </button>
+        </form>
+        <p class="field-error" id="form-error" role="alert" hidden></p>
+        <p class="field-hint" id="age-hint">
+          Jouw cijfer wordt nooit ergens naartoe gestuurd. Alles wordt in je browser berekend — en
+          daarom komen je land en leeftijd de volgende keer terug maar het bedrag nooit. Leeftijd
+          is optioneel: laat het leeg en je krijgt alleen de landenvergelijking.
+          {' '}<button type="button" class="linkbtn" id="try-example" hidden></button>
+        </p>
+
+
+        {/*
+          Twee panelen, en het leeftijdspaneel staat boven.
+          Wie zijn leeftijd invult, vraagt in de eerste plaats of hij er goed voor staat,
+          en daar is de leeftijdsgroep het eerlijke antwoord op; het landcijfer is de
+          context daarna. Zonder leeftijd blijft dit paneel verborgen en begint de
+          bezoeker gewoon bij het landcijfer.
+
+          Dat het er twee zijn en geen paneel met een extra regel is geen opmaakkeuze:
+          hier staat de enquête, hieronder de kwartaalrekeningen, en die meten niet
+          hetzelfde — publieke en bedrijfspensioenen tellen hierboven niet mee. Eén
+          paneel met beide cijfers erin zou dat verschil onzichtbaar maken.
+        */}
+        <figure class="panel hued panel--survey" id="age-result" hidden aria-labelledby="age-label">
+          <div class="panel-head mono">
+            <span id="age-label">Vergeleken met mensen van jouw leeftijd</span>
+            <span class="delta num" id="age-gap"></span>
+          </div>
+
+          <p class="result-head" id="age-headline"></p>
+          <p class="result-lead" id="age-lead"></p>
+
+          <div class="panel-foot">
+            <span class="chip"><b id="age-you"></b> jouw huishouden</span>
+            <span class="chip"><b id="age-median"></b> mediaan, jouw leeftijd</span>
+            <span class="chip"><b id="age-mean"></b> gemiddelde, jouw leeftijd</span>
+          </div>
+
+          <p class="bracket" id="age-curve"></p>
+
+          <figure class="chart-figure">
+            <svg id="age-chart" viewBox="0 0 640 220" role="img" aria-labelledby="age-chart-title"></svg>
+            <figcaption id="age-caption"></figcaption>
+          </figure>
+
+          <p class="panel-source" id="age-source"></p>
+        </figure>
+        <figure class="panel hued" id="result" hidden aria-labelledby="result-label">
+          <div class="panel-head mono">
+            <span id="result-label">Vergeleken met jouw land</span>
+            <span class="delta num" id="stat-gap"></span>
+          </div>
+
+          <p class="result-head" id="headline"></p>
+          <p class="result-lead" id="lead-line"></p>
+
+          <div class="panel-foot">
+            <span class="chip"><b id="stat-you"></b> jouw huishouden</span>
+            <span class="chip"><b id="stat-median"></b> mediaan huishouden</span>
+          </div>
+
+          <p class="bracket" id="bracket"></p>
+
+          <figure class="chart-figure">
+            <svg id="country-chart" viewBox="0 0 640 460" role="img" aria-labelledby="chart-title"></svg>
+            <figcaption id="chart-caption"></figcaption>
+          </figure>
+
+          <div class="sharebar">
+            <button class="btn btn--light" type="button" id="share">Kopieer mijn uitkomst</button>
+            <a class="btn btn--ghost" href="#countries" id="see-country">
+              Bekijk mijn land volledig
+              <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
+            </a>
+          </div>
+
+          {/* Nu het leeftijdspaneel erboven staat met een eigen bronregel, hoort dit
+              paneel die ook te hebben. Anders leest de bovenste bronregel als de bron
+              van allebei, en dat is precies de verwarring die we willen voorkomen. */}
+          <p class="panel-source">
+            {index.source}, {period}. Dit zijn kwartaalrekeningen uit de nationale rekeningen, en
+            die tellen pensioenaanspraken wél mee — wat de enquête hierboven niet doet.
+          </p>
+        </figure>
+
+        <div class="limits">
+          <b>Eén ding vertellen we je met opzet niet</b>
+          <p>
+            De ECB publiceert het <em>gemiddelde</em> van elke vermogensgroep, niet de
+            <em>grens</em> tussen de groepen. We kunnen je dus precies zeggen hoe je je verhoudt
+            tot het middelste huishouden — dat cijfer is gepubliceerd — en tussen welke twee
+            groepsgemiddelden jouw bedrag valt. We kunnen je niet zeggen dat je "in het 63e
+            percentiel" zit, want dat getal bestaat niet in de data. Sites die het je wél geven,
+            schatten en zeggen dat niet.
+          </p>
+        </div>
+
+        <div class="limits">
+          <b>Waarom de twee antwoorden hierboven andere cijfers gebruiken</b>
+          <p>
+            Leeftijd komt uit een andere bron van de ECB, en dat moet ook. De kwartaalrekeningen
+            achter het eerste paneel kennen geen enkele leeftijdssplitsing. De enquête achter het
+            tweede wel, maar die laat de waarde van publieke en bedrijfspensioenen buiten
+            beschouwing — dus haar nationale mediaan is niet hetzelfde cijfer. Over de
+            {' '}{sourceGap.of} landen hier verschillen de twee {times(sourceGap.middle.ratio)} in
+            het middelste geval, van {times(sourceGap.lowest.ratio)} in {sourceGap.lowest.name} tot
+            {' '}{times(sourceGap.highest.ratio)} in {sourceGap.highest.name}. Daarom vergelijkt elk
+            paneel je alleen met cijfers uit zijn eigen bron, en daarom zet geen enkele zin op deze
+            pagina de een naast de ander.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Wat de cijfers zeggen</p>
+        <h2 id="facts-title">Drie dingen vallen op voordat je iets invult</h2>
+        <p>Alle drie komen rechtstreeks uit de kwartaalrekeningen van de ECB.</p>
+      </header>
+
+      <div class="bento" data-reveal>
+        <div class="tile">
+          <b>{times(spread)}</b>
+          <p>
+            tussen de hoogste en de laagste mediaan in de unie — {richest.name}
+            op {money(richest.median)} tegenover {poorest.name} op {money(poorest.median)}.
+          </p>
+        </div>
+        <div class="tile">
+          <b>{times(widestGap.gap)}</b>
+          <p>
+            het verschil tussen eigenaren en huurders in {widestGap.name}, het grootste dat er is:
+            {money(widestGap.homeowners)} tegenover {money(widestGap.renters)}.
+          </p>
+        </div>
+        <div class="tile">
+          <b>{concentrated} van de {countries.length}</b>
+          <p>
+            landen waar het gemiddelde huishouden meer dan twee keer de mediaan waard is — het
+            kenmerk van vermogen dat zich aan de top concentreert.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="age-facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Leeftijd</p>
+        <h2 id="age-facts-title">In welk land je woont maakt uit. Wanneer je geboren bent maakt meer uit.</h2>
+        <p>
+          Deze cijfers komen uit de huishoudenquête van de ECB, niet uit de kwartaalrekeningen
+          hierboven, en ze zijn er niet mee vergelijkbaar: de enquête laat publieke en
+          bedrijfspensioenen buiten beschouwing. Alles in deze sectie is binnen de enquête alleen
+          gemeten.
+        </p>
+      </header>
+
+      <div class="bento" data-reveal>
+        <div class="tile">
+          <b>{times(middleClimb)}</b>
+          <p>
+            tussen de jongste leeftijdsgroep en de piek, in het middelste land. De nationale
+            medianen van diezelfde enquête verschillen {times(surveySpread)} van het ene uiteinde
+            van Europa tot het andere — en in {steeperThanEurope.length} van deze landen
+            ({steeperThanEurope.map((c) => c.name).join(', ')}) verschuift leeftijd het cijfer
+            verder dan het hele werelddeel doorkruisen.
+          </p>
+        </div>
+        <div class="tile">
+          <b>{times(steepestCurve.climb)}</b>
+          <p>
+            in {steepest.name}, de steilste klim hier: {money(steepestCurve.youngest.median)} voor de
+            groep {steepestCurve.youngest.label} tegenover {money(steepestCurve.peak.median)} bij
+            {' '}{steepestCurve.peak.label}. In {flattest.name} is diezelfde stap
+            {' '}{times(flattestCurve.climb)}.
+          </p>
+        </div>
+        <div class="tile">
+          <b>{peaks[0].countries.length} van de {ageIndex.countries.length}</b>
+          <p>
+            landen bereiken hun hoogste punt bij {peaks[0].band.label}. De rest niet:
+            {' '}{peaks.slice(1).map((p) => `${p.countries.length} bij ${p.band.label}`).join(', ')}.
+            Waar vermogen piekt is zelf een verschil tussen landen.
+          </p>
+        </div>
+      </div>
+
+      <p class="more" data-reveal>
+        <a class="btn btn--ghost" href={linkTo('/wealth/by-age/', lang)}>
+          Elk land, elke leeftijdsgroep
+          <span class="arr" aria-hidden="true">→</span>
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <section class="block" id="countries" aria-labelledby="table-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Elk land</p>
+        <h2 id="table-title">Alle {countries.length} landen</h2>
+        <p>
+          Mediaan nettovermogen per huishouden, en het verschil tussen koop en huur. Elk land
+          heeft een eigen pagina met de volledige uitsplitsing.
+        </p>
+      </header>
+
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Nettovermogen van huishoudens per land" data-reveal>
+        <table>
+          <caption class="vh">Nettovermogen van huishoudens, {period}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Land</th>
+              <th scope="col" class="n">Mediaan</th>
+              <th scope="col" class="n">Eigenaren</th>
+              <th scope="col" class="n">Huurders</th>
+            </tr>
+          </thead>
+          <tbody>
+            {countries.map((c) => (
+              <tr>
+                <th scope="row"><a href={linkTo(`/wealth/${c.area.toLowerCase()}/`, lang)}>{c.name}</a></th>
+                <td class="n strong">{money(c.median)}</td>
+                <td class="n">{c.homeowners ? money(c.homeowners) : '—'}</td>
+                <td class="n">{c.renters ? money(c.renters) : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <Related metric="wealth" />
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">Methode</p>
+        <h2 id="method-title">Hoe dit berekend wordt</h2>
+        <p>
+          Elk getal op deze pagina is gepubliceerd door de Europese Centrale Bank of geteld uit die
+          gepubliceerde getallen. Er wordt niets bij geschat.
+        </p>
+      </header>
+
+      <div data-reveal>
+        <dl>
+          <div>
+            <dt>Wat de cijfers zijn</dt>
+            <dd>
+              De <strong>Distributional Wealth Accounts</strong> van de Europese Centrale Bank
+              splitsen het huishoudvermogen uit naar positie, woonsituatie en werk, voor elk land
+              in de eurozone. Nettovermogen is het totaal aan bezittingen min het totaal aan
+              schulden per huishouden. Ze worden per kwartaal gepubliceerd; deze pagina toont
+              {' '}{period}.
+            </dd>
+          </div>
+          <div>
+            <dt>Wat ze niet zijn</dt>
+            <dd>
+              Geen percentiel. De gepubliceerde groepen zijn gemiddelden van elk een vijfde van de
+              huishoudens, niet de grenzen ertussen, dus de enige exacte vergelijking op deze
+              pagina is die met de mediaan — en die is onomwonden gepubliceerd.
+            </dd>
+          </div>
+          <div>
+            <dt>Hoe ver het reikt</dt>
+            <dd>
+              {validation.countries} landen over {validation.quarters} kwartalen. Onze pipeline
+              sluit elke gepubliceerde post aan op het gepubliceerde nettovermogenstotaal voordat
+              er hier iets verschijnt.
+            </dd>
+          </div>
+        </dl>
+
+        <ul class="source-list">
+          <li>
+            <strong>Bron</strong>
+            <span>
+              <a href="https://data.ecb.europa.eu/" data-method-link>Europese Centrale Bank</a>,
+              Distributional Wealth Accounts, {period}
+            </span>
+          </li>
+          <li><strong>Opgehaald</strong> <span>{index.generated}</span></li>
+          <li><strong>Laatst gecontroleerd</strong> <span>{validation.checkedOn}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <WealthCompare />
+</BaseV2>

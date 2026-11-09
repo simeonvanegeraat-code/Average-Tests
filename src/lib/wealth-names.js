@@ -54,7 +54,37 @@ export function localiseWealthCountry(country, lang) {
     ]),
   );
 
-  return { ...country, groups, status, composition };
+  /**
+   * Alleen de velden teruggeven die er ook waren.
+   *
+   * De landen in `data/wealth/index.json` dragen geen `status` en geen `composition` —
+   * alleen de losse landbestanden doen dat. Een onvoorwaardelijke `{ ...country, status,
+   * composition }` zette daar `"status":[],"composition":{}` bij, en dat bestand gaat in
+   * zijn geheel de browser in: 609 bytes aan leegte in elke paginalading van /wealth/, in
+   * beide talen.
+   */
+  return {
+    ...country,
+    groups,
+    ...(country.status ? { status } : {}),
+    ...(country.composition ? { composition } : {}),
+  };
+}
+
+/**
+ * `data/wealth/index.json` in de taal van de pagina.
+ *
+ * Dit bestand draagt per land een `groups`-lijst met dezelfde Engelse labels, en het gaat
+ * in zijn geheel de browser in: /wealth/ serialiseert het in een JSON-blok en rekent de
+ * vergelijking daar. Zonder deze lus las de uitkomstzin "It sits between what the bottom
+ * 20% of households own" — op een Nederlandse pagina, berekend in de browser.
+ */
+export function localiseWealthIndex(index, lang) {
+  return {
+    ...index,
+    countries: (index.countries ?? []).map((country) => localiseWealthCountry(country, lang)),
+    euroArea: index.euroArea ? localiseWealthCountry(index.euroArea, lang) : index.euroArea,
+  };
 }
 
 /**
