@@ -1,0 +1,369 @@
+---
+/**
+ * Het vergelijkingsformulier van /wealth/: de hele berekening, in de browser.
+ *
+ * De bezoeker vult een bedrag in en de vergelijking over 21 landen gebeurt hier, zonder
+ * server. Het bedrag gaat nergens heen, ook niet naar localStorage — land en leeftijd wel,
+ * zodat de volgende pagina er niet opnieuw om vraagt.
+ *
+ * WAAROM DIT EEN ONDERDEEL IS
+ *
+ * Het stond uitgeschreven in het paginabestand, 350 regels, en sinds elke pagina per taal
+ * bestaat zou het er twee keer staan — twee versies van hetzelfde gedrag die uiteen
+ * kunnen lopen. De zinnen staan in `src/locales/<taal>/copy/wealth.js` en dit bestand
+ * kiest de taal uit `<html lang>`, net als `MetricPersonal` en `leaving-home-copy` doen.
+ *
+ * Elke copy-functie krijgt opgemaakte tekst: bedragen zijn al door `euro()` gegaan,
+ * verhoudingen door `multiple()`, met de locale van de pagina. Zo kan de notatie van een
+ * getal in een zin niet afwijken van de notatie eromheen.
+ *
+ * TWEE BRONNEN, STRENG APART
+ *
+ * `index` is de kwartaalrekening (met pensioenaanspraken), `ageIndex` de enquête (zonder
+ * publieke en bedrijfspensioenen). Nergens worden ze samengevoegd, en de twee panelen
+ * dragen elk hun eigen bronregel. Les 5 uit CLAUDE.md.
+ *
+ * De haken zitten in de pagina: `#wealth-form`, `#result`, `#age-result`, de velden en
+ * de id's van elke regel die gevuld wordt, en de twee JSON-blokken `#wealth-index` en
+ * `#wealth-age`.
+ */
+---
+
+<script>
+  import { placeAmount, rankAcrossCountries, euro, multiple, formatPeriod } from '../lib/wealth.js';
+  import { bandForAge, curveOf, fieldworkLabel, placeInBand } from '../lib/wealth-age.js';
+  import { readProfile, mergeProfile } from '../lib/profile.js';
+  import { grammarOf } from '../lib/grammar.js';
+  import { localeOfNumber } from '../lib/format.js';
+  import { track, EVENTS } from '../lib/analytics.js';
+  import enCopy from '../locales/en/copy/wealth.js';
+  import nlCopy from '../locales/nl/copy/wealth.js';
+
+  /** Een taal erbij is de import hierboven en een sleutel hier. */
+  const COPY: Record<string, any> = { en: enCopy, nl: nlCopy };
+
+  const lang = localeOfNumber();
+  const copy = COPY[lang] ?? COPY.en;
+  const g = grammarOf(lang);
+
+  const el = (id: string) => document.getElementById(id)!;
+  const index = JSON.parse(el('wealth-index').textContent ?? '{}');
+  /** Twee bestanden, twee variabelen. Nergens worden ze samengevoegd; zie de panelen. */
+  const ageIndex = JSON.parse(el('wealth-age').textContent ?? '{}');
+  const form = el('wealth-form') as HTMLFormElement;
+  const result = el('result');
+  const ageResult = el('age-result');
+  const errorNote = el('form-error');
+
+  const byArea = Object.fromEntries(index.countries.map((c: any) => [c.area, c]));
+  const ageByArea = Object.fromEntries(ageIndex.countries.map((c: any) => [c.area, c]));
+
+  /** Opmaak in de taal van deze pagina, zodat elke zin dezelfde notatie draagt. */
+  const money = (value: number | null, options = {}) => euro(value, { ...options, locale: lang });
+  const times = (value: number | null) => multiple(value, { locale: lang });
+
+  /** Een verschil met zijn teken, maar nul krijgt er geen: "+€0" leest als een afrondingsfout. */
+  const signedEuro = (value: number) =>
+    value === 0 ? money(0) : `${value > 0 ? '+' : '−'}${money(Math.abs(value))}`;
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    errorNote.hidden = true;
+
+    const area = (el('country') as HTMLSelectElement).value;
+    const field = el('amount') as HTMLInputElement;
+    const amount = Number(field.value);
+    const typed = (el('age') as HTMLInputElement).value.trim();
+    const age = typed === '' ? null : Number(typed);
+
+    if (!Number.isFinite(amount) || field.value.trim() === '') {
+      return fail(copy.errors.amountMissing);
+    }
+    if (amount < -5_000_000 || amount > 100_000_000) {
+      return fail(copy.errors.amountRange);
+    }
+    // Leeftijd is optioneel, maar een ingevulde leeftijd moet kloppen: de enquête begint
+    // bij 16, en een tikfout van 380 hoort niet stil in de oudste groep te vallen.
+    if (age !== null && (!Number.isInteger(age) || age < 16 || age > 110)) {
+      return fail(copy.errors.ageRange);
+    }
+
+    render(area, amount);
+    renderAge(area, amount, age);
+    mergeProfile(age === null ? { country: area } : { country: area, age });
+    track(EVENTS.valueSubmitted, { metric: 'wealth', country: area });
+
+    // Naar het bovenste paneel dat werkelijk zichtbaar is. Zonder leeftijd is dat het
+    // landcijfer, met leeftijd het leeftijdscijfer — en dat staat boven.
+    const eerste = [ageResult, result].find((paneel) => !paneel.hidden);
+    eerste?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  function fail(message: string) {
+    errorNote.textContent = message;
+    errorNote.hidden = false;
+    result.hidden = true;
+    ageResult.hidden = true;
+  }
+
+  function render(area: string, amount: number) {
+    const country = byArea[area];
+    const placed = placeAmount(country, amount);
+    const ranked = rankAcrossCountries(index.countries, amount);
+
+    /**
+     * Drie gevallen en niet twee. `aboveMedian` is `>=`, dus een bedrag dat precies op de
+     * mediaan ligt las als "boven" met een verschil van €0 — en sinds de voorbeeldknop
+     * die mediaan invult is dat één klik ver.
+     */
+    el('headline').textContent = copy.country.headline({
+      name: country.name,
+      exact: placed.differenceFromMedian === 0,
+      above: placed.aboveMedian,
+      g,
+    });
+
+    el('lead-line').textContent = copy.country.lead({
+      times: times(placed.timesMedian),
+      aboveIn: ranked.aboveIn,
+      total: ranked.total,
+      above: placed.aboveMedian,
+    });
+
+    el('stat-you').textContent = money(amount);
+    el('stat-median').textContent = money(placed.median);
+    el('stat-gap').textContent = signedEuro(placed.differenceFromMedian);
+
+    el('bracket').textContent = copy.country.bracket({
+      beyond: Boolean(placed.beyondLadder && placed.below),
+      belowLabel: placed.below ? placed.below.label.toLowerCase() : null,
+      belowValue: placed.below ? money(placed.below.netWealth) : null,
+      aboveLabel: placed.above ? placed.above.label.toLowerCase() : null,
+      aboveValue: placed.above ? money(placed.above.netWealth) : null,
+      name: country.name,
+      g,
+    });
+
+    el('see-country').setAttribute('href', `/wealth/${area.toLowerCase()}/`);
+
+    el('chart-caption').textContent = copy.country.caption({
+      period: formatPeriod(index.latestPeriod),
+    });
+
+    drawChart(ranked, amount);
+    result.hidden = false;
+  }
+
+  /**
+   * De staafgrafiek staat in `.panel`, dus op een donker vlak: de kleuren hieronder zijn
+   * de donkere tokens van ha.css en niet die van de oude stylesheet.
+   */
+  function drawChart(ranked: any, amount: number) {
+    const svg = el('country-chart');
+    const rows = [...ranked.countries].sort((a: any, b: any) => b.median - a.median);
+    const W = 640, rowH = 19, padTop = 8, padLeft = 118, padRight = 76;
+    const H = padTop + rows.length * rowH + 26;
+    const max = Math.max(...rows.map((r: any) => r.median), amount) * 1.05;
+    const x = (v: number) => padLeft + (Math.max(v, 0) / max) * (W - padLeft - padRight);
+
+    const bars = rows.map((r: any, i: number) => {
+      const y = padTop + i * rowH;
+      const width = Math.max(x(r.median) - padLeft, 1);
+      const above = amount >= r.median;
+      return `
+          <text x="${padLeft - 8}" y="${y + 12}" text-anchor="end" font-size="11"
+                fill="${above ? 'currentColor' : 'var(--text-2)'}">${r.name}</text>
+          <rect x="${padLeft}" y="${y + 3}" width="${width.toFixed(1)}" height="${rowH - 7}" rx="2"
+                fill="${above ? 'var(--data)' : 'oklch(1 0 0 / .14)'}" />
+          <text x="${(x(r.median) + 6).toFixed(1)}" y="${y + 12}" font-size="10"
+                fill="var(--text-2)">${money(r.median, { compact: true })}</text>`;
+    }).join('');
+
+    const markerX = x(amount).toFixed(1);
+    svg.innerHTML = `
+        <title id="chart-title">${copy.country.chartTitle}</title>
+        ${bars}
+        <line x1="${markerX}" y1="${padTop - 2}" x2="${markerX}" y2="${padTop + rows.length * rowH + 2}"
+              stroke="#fff" stroke-width="2" />
+        <text x="${markerX}" y="${H - 8}" text-anchor="middle" font-size="11"
+              font-weight="700" fill="var(--glow)">${copy.you} · ${money(amount, { compact: true })}</text>`;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  }
+
+  /**
+   * Het tweede paneel: jouw bedrag tegenover je eigen leeftijdsgroep.
+   *
+   * Elke waarde hier komt uit `ageIndex` en geen enkele uit `index`. Dat is geen netheid
+   * maar noodzaak: de enquête telt publieke en bedrijfspensioenen niet mee, dus haar
+   * middelpunt ligt op een ander niveau dan dat van het paneel erboven.
+   */
+  function renderAge(area: string, amount: number, age: number | null) {
+    const country = ageByArea[area];
+    const band = age === null ? null : bandForAge(age, ageIndex.bands);
+    const slot = band && country ? country.bands.find((b: any) => b.code === band.code) : null;
+
+    if (!slot || slot.median === null) {
+      ageResult.hidden = true;
+      return;
+    }
+
+    const placed = placeInBand(slot, amount);
+    const curve = curveOf(country);
+
+    el('age-label').textContent = copy.age.label({ band: slot.label, name: country.name, g });
+    el('age-headline').textContent = copy.age.headline({ above: placed.aboveMedian });
+    el('age-lead').textContent = copy.age.lead({
+      name: country.name,
+      band: slot.label,
+      median: money(slot.median),
+      times: placed.timesMedian === null ? null : times(placed.timesMedian),
+      aboveMean: placed.aboveMean,
+      mean: money(slot.mean),
+      margin: placed.margin ? money(placed.margin) : null,
+      g,
+    });
+
+    el('age-you').textContent = money(amount);
+    el('age-median').textContent = money(slot.median);
+    el('age-mean').textContent = money(slot.mean);
+    el('age-gap').textContent = signedEuro(placed.differenceFromMedian);
+
+    el('age-curve').textContent = curve
+      ? copy.age.curve({
+          flat: curve.flat,
+          name: country.name,
+          peakLabel: curve.peak.label,
+          peakValue: money(curve.peak.median),
+          climb: times(curve.climb),
+          youngestLabel: curve.youngest.label,
+          youngestValue: money(curve.youngest.median),
+          falls: curve.fall !== null,
+          oldestLabel: curve.oldest.label,
+          oldestValue: money(curve.oldest.median),
+          g,
+        })
+      : '';
+
+    el('age-caption').textContent = copy.age.caption({ name: country.name, g });
+    el('age-source').textContent = copy.age.source({
+      wave: ageIndex.source.wave,
+      name: country.name,
+      fieldwork: fieldworkLabel(country.fieldwork, { locale: lang }),
+      g,
+    });
+
+    drawAgeChart(country, amount, slot);
+    ageResult.hidden = false;
+  }
+
+  function drawAgeChart(country: any, amount: number, slot: any) {
+    const svg = el('age-chart');
+    const rows = country.bands.filter((b: any) => b.median !== null);
+    const W = 640, rowH = 30, padTop = 10, padLeft = 86, padRight = 84;
+    const H = padTop + rows.length * rowH + 28;
+    const max = Math.max(...rows.map((r: any) => Math.max(r.median, r.mean ?? 0)), amount) * 1.05;
+    const x = (v: number) => padLeft + (Math.max(v, 0) / max) * (W - padLeft - padRight);
+
+    const bars = rows.map((r: any, i: number) => {
+      const y = padTop + i * rowH;
+      const mine = r.code === slot.code;
+      const width = Math.max(x(r.median) - padLeft, 1);
+      const meanX = r.mean === null ? null : x(r.mean).toFixed(1);
+      return `
+          <text x="${padLeft - 8}" y="${y + 17}" text-anchor="end" font-size="11"
+                font-weight="${mine ? 700 : 400}"
+                fill="${mine ? 'currentColor' : 'var(--text-2)'}">${r.code}</text>
+          <rect x="${padLeft}" y="${y + 5}" width="${width.toFixed(1)}" height="${rowH - 13}" rx="2"
+                fill="${mine ? 'var(--data)' : 'oklch(1 0 0 / .14)'}" />
+          ${meanX === null ? '' : `<line x1="${meanX}" y1="${y + 2}" x2="${meanX}" y2="${y + rowH - 6}"
+                stroke="var(--text-2)" stroke-width="2" stroke-dasharray="2 2" />`}
+          <text x="${(x(r.median) + 6).toFixed(1)}" y="${y + 17}" font-size="10"
+                fill="var(--text-2)">${money(r.median, { compact: true })}</text>`;
+    }).join('');
+
+    const markerX = x(amount).toFixed(1);
+    svg.innerHTML = `
+        <title id="age-chart-title">${copy.age.chartTitle}</title>
+        ${bars}
+        <line x1="${markerX}" y1="${padTop - 2}" x2="${markerX}" y2="${padTop + rows.length * rowH + 2}"
+              stroke="#fff" stroke-width="2" />
+        <text x="${markerX}" y="${H - 8}" text-anchor="middle" font-size="11"
+              font-weight="700" fill="var(--glow)">${copy.you} · ${money(amount, { compact: true })}</text>`;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  }
+
+  /**
+   * Land en leeftijd uit het profiel, als de bezoeker die elders op de site al heeft
+   * ingevuld. Het bedrag staat er bewust niet in: dat blijft in dit formulier en gaat
+   * nergens heen, ook niet naar localStorage.
+   */
+  (function restore() {
+    const saved = readProfile();
+    const select = el('country') as HTMLSelectElement;
+    if (typeof saved.country === 'string' && [...select.options].some((o) => o.value === saved.country)) {
+      select.value = saved.country;
+    }
+    if (Number.isFinite(saved.age)) (el('age') as HTMLInputElement).value = String(saved.age);
+  })();
+
+  /**
+   * De plaatshouder in het bedragveld ("250000") zag eruit als een ingevuld voorbeeld en
+   * deed niets. Dat viel pas op toen land en leeftijd wél uit het profiel terugkwamen:
+   * twee velden gevuld, het derde grijs, en "Show me" gaf een foutmelding. Het bedrag
+   * bewaren we bewust niet — het hoort nergens heen te gaan — dus doet deze knop wat die
+   * plaatshouder leek te beloven, met een cijfer uit de data in plaats van een verzonnen
+   * rond bedrag.
+   */
+  const tryButton = el('try-example');
+
+  function refreshExample() {
+    const country = byArea[(el('country') as HTMLSelectElement).value];
+    if (!country || !Number.isFinite(country.median)) {
+      tryButton.hidden = true;
+      return;
+    }
+    tryButton.textContent = copy.tryExample({
+      name: country.name,
+      amount: money(country.median),
+      g,
+    });
+    tryButton.hidden = false;
+  }
+
+  tryButton.addEventListener('click', () => {
+    const country = byArea[(el('country') as HTMLSelectElement).value];
+    if (!country) return;
+    (el('amount') as HTMLInputElement).value = String(Math.round(country.median));
+    form.requestSubmit();
+  });
+
+  el('country').addEventListener('change', refreshExample);
+  refreshExample();
+
+  el('share').addEventListener('click', async () => {
+    const area = (el('country') as HTMLSelectElement).value;
+    const amount = Number((el('amount') as HTMLInputElement).value);
+    const ranked = rankAcrossCountries(index.countries, amount);
+    const country = byArea[area];
+    const text = copy.share
+      .lines({
+        aboveIn: ranked.aboveIn,
+        total: ranked.total,
+        name: country.name,
+        median: money(country.median),
+        g,
+      })
+      .join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      el('share').textContent = copy.share.copied;
+      track(EVENTS.resultShared, { metric: 'wealth' });
+    } catch {
+      window.prompt(copy.share.prompt, text);
+    }
+  });
+
+  for (const link of document.querySelectorAll('[data-method-link]')) {
+    link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'wealth' }));
+  }
+</script>

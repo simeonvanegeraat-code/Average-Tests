@@ -475,7 +475,11 @@ const ALLOWED = new Map([
   ['src/layouts/BaseV2.astro', 'CSS custom property --at'],
   ['src/pages/404.astro', 'CSS custom property --at'],
   ['src/pages/[...lang]/index.astro', 'CSS custom property --at'],
-  ['src/pages/[...lang]/wealth/index.astro', 'SVG-coördinaten en -breedtes'],
+  /**
+   * Sinds 9 november 2026 staat de berekening van /wealth/ in een onderdeel, en de
+   * SVG-coördinaten dus ook. De pagina's zelf maken geen getal meer zelf op.
+   */
+  ['src/components/WealthCompare.astro', 'SVG-coördinaten en -breedtes'],
   /**
    * Sinds 8 november 2026 bestaat de landpagina per taal, dus twee bestanden met dezelfde
    * reden. Het gaat om één `toFixed(1)` in een `width:`-waarde van de leeftijdsbalken.
