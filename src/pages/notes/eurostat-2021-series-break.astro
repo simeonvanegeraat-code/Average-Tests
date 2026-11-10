@@ -1,57 +1,52 @@
 ---
-import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
-import { siteIdentity, pageUrl } from '../../../lib/schema.js';
-import { decimal } from '../../../lib/format.js';
-import BaseV2 from '../../../layouts/BaseV2.astro';
-import { STAGES } from '../../../lib/hue.js';
-import { methodology } from '../../../lib/methodology.js';
+import { localeOf, linkTo } from '../../lib/locales.js';
+import { siteIdentity, pageUrl } from '../../lib/schema.js';
+import BaseV2 from '../../layouts/BaseV2.astro';
+import { STAGES } from '../../lib/hue.js';
+import { noteBreakPage } from '../../lib/pages/note-break.js';
 
-/** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
+/**
+ * Het eerste artikel, in het Engels. Onderwerp: de reeksbreuk van 2021 in de Europese
+ * arbeidskrachtenenquête, en waarom een voetnoot daar niet genoeg voor is.
+ *
+ * Eigen bestand per taal sinds 3 november 2026;
+ * `src/pages/nl/notes/eurostat-2021-series-break.astro` is de Nederlandse. Het rekenwerk
+ * staat in `src/lib/pages/note-break.js`.
+ *
+ * Geen enkel getal staat hier met de hand. Eurostat publiceert bij, en een achtergebleven
+ * getal in een zin is precies de fout die niemand ziet.
+ *
+ * Er is nog geen index op /notes/: één artikel achter een overzichtspagina is de dunne
+ * pagina die we niet willen. Hij wordt gevonden via /leaving-home/, via /method/ en via de
+ * sitemap. Bij een derde artikel volgt de index.
+ */
 const lang = localeOf(Astro.url.pathname);
-/** De dertien datasets in de taal van deze pagina. Zie src/lib/methodology.js. */
-const METHODOLOGY = methodology(lang);
-import {
-  spreadAt,
+const {
+  years,
+  source,
+  sharpest,
   jumps,
   bigJumps,
   flagged,
   transition,
-  sharpest,
-  years,
   comparable,
-  source,
-} from '../../../lib/break-story.js';
-
-/**
- * Het eerste artikel. Onderwerp: de reeksbreuk van 2021 in de Europese
- * arbeidskrachtenenquête, en waarom een voetnoot daar niet genoeg voor is.
- *
- * Geen enkel getal staat hier met de hand. Alles komt uit src/lib/break-story.js,
- * dat rekent uit data/leaving-home/index.json. Eurostat publiceert bij, en een
- * achtergebleven getal in een zin is precies de fout die niemand ziet.
- *
- * Er is nog geen index op /notes/: één artikel achter een overzichtspagina is de
- * dunne pagina die we niet willen. Hij wordt gevonden via /leaving-home/, via
- * /method/ en via de sitemap. Bij een derde artikel volgt de index.
- */
+  before,
+  at,
+  early,
+  now,
+  elsewhere,
+  unbroken,
+  num,
+  loose,
+  shift,
+} = noteBreakPage(lang);
 
 const published = '2026-10-25';
-
-const before = spreadAt(years.before);
-const at = spreadAt(years.break);
-const early = spreadAt('2005');
-const now = spreadAt(years.last);
-
-/** De metrieken met een eigen breuk, voor de sectie over waar het nog meer bijt. */
-const elsewhere = METHODOLOGY.filter(
-  (set) => set.comparability.kind === 'since' || set.comparability.kind === 'break-at-end',
-);
-const unbroken = METHODOLOGY.filter((set) => set.comparability.kind === 'unbroken');
 
 const title = 'Why You Cannot Compare Eurostat Figures Across 2021';
 const description =
   `In ${years.before} Eurostat put half of young Swedes out of the parental home by ` +
-  `${decimal(sharpest.before, 1)}. In ${years.break} it said ${decimal(sharpest.after, 1)}. Nothing happened to Swedish ` +
+  `${num(sharpest.before)}. In ${years.break} it said ${num(sharpest.after)}. Nothing happened to Swedish ` +
   `teenagers that year — the survey changed. What the ${years.break} series break is, how far it ` +
   `reaches, and why a footnote is not enough.`;
 
@@ -61,18 +56,12 @@ const canonical = '/notes/eurostat-2021-series-break/';
  * De site en de eigen URL van deze pagina, in de taal van deze pagina.
  *
  * Dit blok rekende `mainEntityOfPage` uit als de oorsprong plus `canonical` zónder
- * taalvoorvoegsel. Zodra /nl/notes/eurostat-2021-series-break/ bestaat — en die gaat
- * bestaan, want het artikel gaat mee in het Nederlands — zou die pagina in zijn
- * structured data zeggen dat hij over de Engelse pagina gaat. Dat is een andere fout
- * dan een verkeerde `inLanguage`: hier wijst de pagina een andere pagina aan.
+ * taalvoorvoegsel. Nu /nl/notes/eurostat-2021-series-break/ bestaat zou die pagina in zijn
+ * structured data zeggen dat hij over de Engelse pagina gaat. Dat is een andere fout dan
+ * een verkeerde `inLanguage`: hier wijst de pagina een andere pagina aan.
  */
 const site = siteIdentity(lang, Astro.site);
 const url = pageUrl(canonical, lang, Astro.site);
-/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
-export function getStaticPaths() {
-  return localePaths();
-}
-
 ---
 
 <BaseV2 title={title} description={description} canonical={canonical} hue={STAGES.leave}>
@@ -111,8 +100,8 @@ export function getStaticPaths() {
       </p>
       <p class="lead" data-reveal>
         In {years.before} Eurostat said half of young Swedes had left the parental home by
-        {' '}<b>{decimal(sharpest.before, 1)}</b>. In {years.break} it said <b>{decimal(sharpest.after, 1)}</b>. That is a
-        jump of {Math.abs(sharpest.shift)} years in twelve months, and it is not a thing that can
+        {' '}<b>{num(sharpest.before)}</b>. In {years.break} it said <b>{num(sharpest.after)}</b>. That is a
+        jump of {loose(Math.abs(sharpest.shift))} years in twelve months, and it is not a thing that can
         happen to a country.
       </p>
     </div>
@@ -158,7 +147,7 @@ export function getStaticPaths() {
         <p>
           Here is a sentence you could write from this dataset without inventing anything. Between
           2005 and {years.last}, the gap between the earliest and the latest country in Europe grew
-          from <b>{early.spread} years</b> to <b>{now.spread} years</b>. Young Europeans, you might
+          from <b>{loose(early.spread)} years</b> to <b>{loose(now.spread)} years</b>. Young Europeans, you might
           conclude, are drifting apart.
         </p>
         <p>
@@ -172,8 +161,8 @@ export function getStaticPaths() {
           Measure inside a window where the definition held still, and the direction reverses.
           Between {comparable.since} and {comparable.until}, across the
           {' '}{comparable.countries} countries that report in both years, the spread
-          {' '}<b>narrowed</b> from {Math.round(comparable.spreadThen * 10) / 10} years to
-          {' '}{Math.round(comparable.spreadNow * 10) / 10}. Same dataset. Opposite conclusion.
+          {' '}<b>narrowed</b> from {loose(comparable.spreadThen)} years to
+          {' '}{loose(comparable.spreadNow)}. Same dataset. Opposite conclusion.
         </p>
 
         <div class="limits">
@@ -202,19 +191,19 @@ export function getStaticPaths() {
           transition, with countries switching over at different moments and in different ways.
         </p>
         <p>
-          {transition.name} is the clearest case. It reads <b>{transition.before}</b> in
-          {' '}{years.before}, jumps to <b>{transition.at}</b> in {years.break}, and settles at
-          {' '}<b>{transition.after}</b> the year after. By {years.last} it is back to
-          {' '}{transition.latest}. Whatever {transition.at} measures, it is not the age at which
-          half of young {transition.name === 'Portugal' ? 'Portuguese' : transition.name} people
+          {transition.name} is the clearest case. It reads <b>{loose(transition.before)}</b> in
+          {' '}{years.before}, jumps to <b>{loose(transition.at)}</b> in {years.break}, and settles at
+          {' '}<b>{loose(transition.after)}</b> the year after. By {years.last} it is back to
+          {' '}{loose(transition.latest)}. Whatever {loose(transition.at)} measures, it is not the age at which
+          half of young {transition.code === 'PT' ? 'Portuguese' : transition.name} people
           had left home that year.
         </p>
         <p>
           The same thing shows up in the spread across all countries. In {years.before} the
-          distance between the lowest and the highest country was <b>{before.spread} years</b>. In
-          {' '}{years.break} it was <b>{at.spread}</b>. Europe did not converge by
-          {' '}{Math.round((before.spread - at.spread) * 10) / 10} years in one year; the bottom of
-          the range simply moved, from {before.low} to {at.low}, when the definition did.
+          distance between the lowest and the highest country was <b>{loose(before.spread)} years</b>. In
+          {' '}{years.break} it was <b>{loose(at.spread)}</b>. Europe did not converge by
+          {' '}{loose(before.spread - at.spread)} years in one year; the bottom of
+          the range simply moved, from {loose(before.low)} to {loose(at.low)}, when the definition did.
         </p>
       </div>
     </div>
@@ -249,10 +238,10 @@ export function getStaticPaths() {
             {jumps.map((row) => (
               <tr>
                 <th scope="row">{row.name}</th>
-                <td class="n">{decimal(row.before, 1)}</td>
-                <td class="n">{decimal(row.after, 1)}</td>
+                <td class="n">{num(row.before)}</td>
+                <td class="n">{num(row.after)}</td>
                 <td class:list={['n', Math.abs(row.shift) >= 1 && 'strong']}>
-                  {row.shift > 0 ? '+' : row.shift < 0 ? '−' : ''}{decimal(Math.abs(row.shift), 1)}
+                  {shift(row.shift)}
                 </td>
               </tr>
             ))}
