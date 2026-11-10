@@ -1,65 +1,42 @@
 ---
-import { ui } from '../../../lib/ui.js';
-import { localeOf, localePaths, linkTo } from '../../../lib/locales.js';
-import { localise } from '../../../lib/country-names.js';
-import BaseV2 from '../../../layouts/BaseV2.astro';
-import rawLeaving from '../../../../data/leaving-home/index.json';
-import rawWealth from '../../../../data/wealth/index.json';
-import wealthCheck from '../../../../data/wealth-validation.json';
-import rawExitAge from '../../../../data/exit-age/index.json';
-import { headline, staleCountries } from '../../../lib/leaving-home.js';
-import { periodLabel } from '../../../lib/period.js';
-import { formatPeriod } from '../../../lib/wealth.js';
-import { methodology } from '../../../lib/methodology.js';
-import { count } from '../../../lib/metric.js';
+import { ui } from '../../lib/ui.js';
+import { localeOf, linkTo } from '../../lib/locales.js';
+import BaseV2 from '../../layouts/BaseV2.astro';
+import { periodLabel } from '../../lib/period.js';
+import { count } from '../../lib/metric.js';
+import { methodPage } from '../../lib/pages/method.js';
 
 /**
- * De taal van deze pagina, uit het pad. Alles wat een landnaam of een getal
- * draagt gaat hieronder door de grens: localise() vult de namen in de juiste
- * taal in voordat enig onderdeel de index ziet, en `locale` in de
- * metriekbeschrijving zegt format.js hoe een getal eruit moet zien.
- */
-const lang = localeOf(Astro.url.pathname);
-/** De dertien datasets in de taal van deze pagina. Zie src/lib/methodology.js. */
-const METHODOLOGY = methodology(lang);
-const t = ui(lang).method;
-const leaving = localise(rawLeaving, lang);
-const wealth = localise(rawWealth, lang);
-const exitAge = localise(rawExitAge, lang);
-
-/**
- * De methodepagina. Elke metriekpagina verwijst hierheen voor het volledige verhaal.
+ * De Engelse /method/.
+ *
+ * Eigen bestand per taal sinds 3 november 2026; `src/pages/nl/method/index.astro` is de
+ * Nederlandse. Het rekenwerk staat in `src/lib/pages/method.js`.
  *
  * Herschreven op 24 oktober 2026. De vorige versie ging volledig over NHANES en
- * percentielen uit microdata; die data en die pagina's zijn eraf. Wat blijft is de
- * belofte eronder, en die geldt onverminderd voor de Europese bronnen.
- *
- * Elk getal komt uit de gebouwde databestanden of uit de validatiebestanden die de
- * poorten bij elke geslaagde run wegschrijven.
+ * percentielen uit microdata; die data en die pagina's zijn eraf. Wat blijft is de belofte
+ * eronder, en die geldt onverminderd voor de Europese bronnen.
  */
-
-const h = headline(leaving);
-const stale = staleCountries(leaving);
-
-/**
- * Twee tellingen die vroeger vaste tekst waren. "This is the only one of our Eurostat
- * sources that is" klopte zolang alleen working-life een onafgebroken reeks had; met
- * de OECD-reeks erbij zijn het er twee, en met een derde zou de zin drie keer onwaar
- * zijn. En het aantal uitgevers stond als "two statistical agencies" in de tekst.
- */
-const unbroken = METHODOLOGY.filter((set) => set.comparability.kind === 'unbroken');
-const definitions = METHODOLOGY.filter((set) => set.definition);
-const publishers = [...new Set(METHODOLOGY.map((set) => set.publisher))];
+const lang = localeOf(Astro.url.pathname);
+const t = ui(lang).method;
+const {
+  sets: METHODOLOGY,
+  leaving,
+  wealth,
+  exitAge,
+  wealthCheck,
+  maxDeviation,
+  h,
+  stale,
+  unbroken,
+  definitions,
+  publishers,
+  wealthPeriod,
+} = methodPage(lang);
 
 const title = 'How We Get These Numbers | HumanAverage';
 const description =
   'Where each figure on this site comes from, what it does and does not say, and the gate ' +
   'every number passes before it appears. Eurostat, the ECB, and nothing estimated on top.';
-/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
-export function getStaticPaths() {
-  return localePaths();
-}
-
 ---
 
 <BaseV2 title={title} description={description} canonical="/method/">
@@ -132,7 +109,7 @@ export function getStaticPaths() {
             <h3>{t.europeanCentralBank}</h3>
             <p>
               {wealth.source}. Quarterly, openly available through the ECB data portal, covering
-              {wealth.countries.length} countries through {formatPeriod(wealth.latestPeriod)}.
+              {wealth.countries.length} countries through {wealthPeriod}.
             </p>
           </div>
           <span class="meta mono">{wealthCheck.quarters} quarters</span>
@@ -377,7 +354,7 @@ export function getStaticPaths() {
           scale is wrong, the sum breaks. All three are invisible on the page itself. Last run
           on {wealthCheck.checkedOn}, across {wealthCheck.countries} countries and {
             wealthCheck.quarters
-          } quarters, the largest deviation was <b>0.11%</b>.
+          } quarters, the largest deviation was <b>{maxDeviation}%</b>.
         </p>
         <p>
           <b>For the Eurostat data</b>, every figure and every series-break flag is recomputed

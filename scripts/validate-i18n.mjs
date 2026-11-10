@@ -805,7 +805,17 @@ if (pages.length === 0) {
        */
       const withoutDoi = visible.replace(/\b10\.\d{4,9}\/\S+/g, ' ');
 
-      const foreign = [...stripGroups(withoutDoi).matchAll(/\d+[.,]\d/g)]
+      /**
+       * En de datasetcode van de OECD is ook geen decimaalgetal.
+       *
+       * `OECD.ELS.SPD,DSD_PAG@DF_PAG,1.0` eindigt op een versienummer en matcht dus
+       * `\d+[.,]\d`. Op /method/ staat die code in de `who`-regel en niet in een `<code>`,
+       * dus de uitzondering daarvoor ving hem niet. Zelfde reden als bij de DOI: een
+       * identificatie van de uitgever verandert niet per taal.
+       */
+      const withoutCodes = withoutDoi.replace(/\bOECD\.[A-Z0-9_.,@]+/g, ' ');
+
+      const foreign = [...stripGroups(withoutCodes).matchAll(/\d+[.,]\d/g)]
         .map((hit) => hit[0])
         .filter((hit) => !hit.includes(point));
 
