@@ -1,0 +1,392 @@
+---
+import { localeOf, linkTo } from '../../../lib/locales.js';
+import { siteIdentity, pageUrl } from '../../../lib/schema.js';
+import BaseV2 from '../../../layouts/BaseV2.astro';
+import { STAGES } from '../../../lib/hue.js';
+import { noteBreakPage } from '../../../lib/pages/note-break.js';
+
+/**
+ * Het eerste artikel, in het Nederlands. Onderwerp: de reeksbreuk van 2021 in de Europese
+ * arbeidskrachtenenquête, en waarom een voetnoot daar niet genoeg voor is.
+ *
+ * Eigen pagina, geen vertaling: het rekenwerk komt uit `src/lib/pages/note-break.js`, de
+ * woorden staan hier. Dertig alinea's lopende tekst, en dit is de enige pagina op de site
+ * zonder kaart, tabel-component of formulier — dus de enige waar niets dan de taal het
+ * werk doet.
+ *
+ * DRIE DINGEN DIE HIER ANDERS LOPEN
+ *
+ *  - De kop. "Nothing happened to Swedish teenagers in 2021" zet het onderwerp achteraan
+ *    en leeft van die omkering. Het Nederlands heeft een plaatsonderwerp nodig: "Er
+ *    gebeurde in 2021 niets met Zweedse tieners."
+ *  - "It is not a thing that can happen to a country" — "a thing that can happen" is in
+ *    het Nederlands geen vaste wending. Er staat "en dat is geen ding dat een land kan
+ *    overkomen", met het werkwoord dat het Nederlands daarvoor heeft.
+ *  - De letter `b` staat voor het Engelse *break*. Dat blijft zo, want het is de letter
+ *    die Eurostat in zijn eigen tabellen zet; de zin zegt nu waar hij voor staat.
+ *
+ * Geen enkel getal staat hier met de hand.
+ */
+const lang = localeOf(Astro.url.pathname);
+const {
+  years,
+  source,
+  sharpest,
+  jumps,
+  bigJumps,
+  flagged,
+  transition,
+  comparable,
+  before,
+  at,
+  early,
+  now,
+  elsewhere,
+  unbroken,
+  num,
+  loose,
+  shift,
+} = noteBreakPage(lang);
+
+const published = '2026-10-25';
+
+const title = 'Waarom je Eurostat-cijfers niet over 2021 heen kunt vergelijken';
+const description =
+  `In ${years.before} zette Eurostat de helft van de Zweedse jongeren het ouderlijk huis uit op ` +
+  `${num(sharpest.before)}. In ${years.break} zei het ${num(sharpest.after)}. Er gebeurde dat jaar niets met ` +
+  `Zweedse tieners — de enquête veranderde. Wat de reeksbreuk van ${years.break} is, hoe ver hij ` +
+  'reikt, en waarom een voetnoot niet genoeg is.';
+
+const canonical = '/notes/eurostat-2021-series-break/';
+
+/**
+ * De site en de eigen URL van deze pagina, in de taal van deze pagina. Dit blok rekende
+ * `mainEntityOfPage` uit zónder taalvoorvoegsel; deze pagina zou dan in zijn structured
+ * data zeggen dat hij over de Engelse pagina gaat.
+ */
+const site = siteIdentity(lang, Astro.site);
+const url = pageUrl(canonical, lang, Astro.site);
+---
+
+<BaseV2 title={title} description={description} canonical={canonical} hue={STAGES.leave}>
+  <Fragment slot="head">
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: title,
+        description,
+        datePublished: published,
+        dateModified: published,
+        inLanguage: lang,
+        isPartOf: site.website,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+        author: site.organisation,
+        publisher: site.organisation,
+        about: {
+          '@type': 'Dataset',
+          name: source.label ?? 'Eurostat yth_demo_030',
+          identifier: source.dataset ?? 'yth_demo_030',
+          creator: { '@type': 'Organization', name: 'Eurostat' },
+        },
+      })}
+    />
+  </Fragment>
+
+  <section class="hero" aria-labelledby="note-title">
+    <div class="wrap">
+      <p class="eyebrow mono" data-reveal>Artikel · {published}</p>
+      <h1 id="note-title" data-reveal>Er gebeurde in {years.break} niets met Zweedse tieners</h1>
+      <p class="unit mono" data-reveal>
+        Eurostat · {source.dataset} · reeks {years.first}–{years.last}
+      </p>
+      <p class="lead" data-reveal>
+        In {years.before} zei Eurostat dat de helft van de Zweedse jongeren het ouderlijk huis uit
+        was op {' '}<b>{num(sharpest.before)}</b>. In {years.break} zei het <b>{num(sharpest.after)}</b>. Dat is
+        een sprong van {loose(Math.abs(sharpest.shift))} jaar in twaalf maanden, en dat is geen ding
+        dat een land kan overkomen.
+      </p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="what-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Wat er werkelijk veranderde</p>
+        <h2 id="what-title">De enquête werd herbouwd, niet het land</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          De cijfers achter deze pagina komen uit de arbeidskrachtenenquête van de Europese Unie.
+          In {years.break} is die enquête herzien: nieuwe regelgeving, nieuwe definities van wie
+          als thuiswonend telt, nieuwe steekproeven in meerdere lidstaten. De getallen van vóór en
+          die van ná zijn beide juist. Ze zijn alleen geen metingen van hetzelfde.
+        </p>
+        <p>
+          Eurostat verbergt dat niet. Het hangt een vlag aan de betrokken observaties — de letter
+          {' '}<code>b</code>, van het Engelse <i lang="en">break</i>. In deze dataset dragen
+          {' '}<b>{flagged.count} van de {flagged.of}</b> landen die vlag voor {years.break}. Het is
+          geen randgeval dat één land raakt. Het is bijna de hele tabel.
+        </p>
+        <p>
+          Het probleem is wat een vlag wel en niet doet. Hij markeert de data. Hij houdt niemand
+          tegen die er een lijn dwars door trekt, en een lijn door een breuk ziet er precies uit als
+          een lijn door een trend.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="footnote-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Waarom een voetnoot niet genoeg is</p>
+        <h2 id="footnote-title">Dezelfde data, twee tegengestelde verhalen</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          Hier is een zin die je uit deze dataset kunt schrijven zonder iets te verzinnen. Tussen
+          2005 en {years.last} groeide de kloof tussen het vroegste en het laatste land van Europa
+          van <b>{loose(early.spread)} jaar</b> naar <b>{loose(now.spread)} jaar</b>. Europese
+          jongeren, zou je kunnen concluderen, drijven uit elkaar.
+        </p>
+        <p>
+          Er zijn twee dingen mis met die zin. Het eerste is de breuk. Het tweede is stiller en
+          erger: 2005 dekt <b>{early.countries} landen</b> en {years.last} dekt
+          {' '}<b>{now.countries}</b>. De landen die er tussentijds bij kwamen zijn geen
+          willekeurige steekproef — het zijn vooral de landen aan de uiteinden van het bereik. Een
+          deel van die "groeiende kloof" is simpelweg dat er meer landen gemeten worden.
+        </p>
+        <p>
+          Meet binnen een venster waarin de definitie stil stond, en de richting draait om. Tussen
+          {' '}{comparable.since} en {comparable.until}, over de {comparable.countries} landen die in
+          beide jaren rapporteren, <b>kromp</b> de spreiding van {loose(comparable.spreadThen)} jaar
+          naar {loose(comparable.spreadNow)}. Dezelfde dataset. De omgekeerde conclusie.
+        </p>
+
+        <div class="limits">
+          <b>Daarom is de vlag niet genoeg</b>
+          <p>
+            Een voetnoot vertelt een oplettende lezer dat er iets gebeurd is. Hij houdt de grafiek
+            erboven niet tegen om fout te zijn, en bijna niemand leest de voetnoot voordat hij de
+            lijn leest.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="year-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Het breukjaar zelf</p>
+        <h2 id="year-title">{years.break} is noch de oude meting noch de nieuwe</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          De voor de hand liggende oplossing — het breukjaar weglaten en de twee uiteinden aan
+          elkaar knopen — werkt ook niet, want het breukjaar is geen middenweg tussen de oude en de
+          nieuwe definitie. Het is een overgang, waarbij landen op verschillende momenten en op
+          verschillende manieren omschakelen.
+        </p>
+        <p>
+          {transition.name} is het duidelijkste geval. Het leest <b>{loose(transition.before)}</b> in
+          {' '}{years.before}, springt naar <b>{loose(transition.at)}</b> in {years.break}, en komt
+          het jaar erna uit op <b>{loose(transition.after)}</b>. Tegen {years.last} staat het weer op
+          {' '}{loose(transition.latest)}. Wat {loose(transition.at)} ook meet, het is niet de
+          leeftijd waarop de helft van de {transition.code === 'PT' ? 'Portugese' : transition.name}
+          {' '}jongeren dat jaar het huis uit was.
+        </p>
+        <p>
+          Hetzelfde zie je in de spreiding over alle landen. In {years.before} was de afstand tussen
+          het laagste en het hoogste land <b>{loose(before.spread)} jaar</b>. In {years.break} was
+          dat <b>{loose(at.spread)}</b>. Europa kwam niet in één jaar
+          {' '}{loose(before.spread - at.spread)} jaar nader tot elkaar; de onderkant van het bereik
+          verschoof simpelweg, van {loose(before.low)} naar {loose(at.low)}, toen de definitie dat
+          deed.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="size-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Hoe groot is het</p>
+        <h2 id="size-title">Zes landen verschuiven meer dan een heel jaar</h2>
+        <p>
+          De verschuiving tussen {years.before} en {years.break} voor elk land dat in beide jaren
+          rapporteert. Dit is geen verandering over tijd — het is de afstand tussen twee
+          verschillende metingen.
+        </p>
+      </header>
+
+      <div class="tablewrap" tabindex="0" role="region" aria-label="Verschuiving over de breuk per land" data-reveal>
+        <table>
+          <caption class="vh">
+            Verschuiving tussen {years.before} en {years.break}, {jumps.length} landen
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Land</th>
+              <th scope="col" class="n">{years.before}</th>
+              <th scope="col" class="n">{years.break}</th>
+              <th scope="col" class="n">Verschuiving</th>
+            </tr>
+          </thead>
+          <tbody>
+            {jumps.map((row) => (
+              <tr>
+                <th scope="row">{row.name}</th>
+                <td class="n">{num(row.before)}</td>
+                <td class="n">{num(row.after)}</td>
+                <td class:list={['n', Math.abs(row.shift) >= 1 && 'strong']}>
+                  {shift(row.shift)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          <b>{bigJumps.length} van de {jumps.length}</b> landen verschuiven een jaar of meer. Voor
+          een cijfer dat in een normaal jaar een tiende of twee opschuift is dat enorm. En de
+          verschuivingen wijzen niet dezelfde kant op: {bigJumps.filter((row) => row.shift > 0).length} gaan
+          omhoog en {bigJumps.filter((row) => row.shift < 0).length} omlaag, en dat is wat je van een
+          definitiewijziging verwacht en niet van iets dat er in Europa gebeurde.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="do-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Wat deze site doet</p>
+        <h2 id="do-title">De code weigert, in plaats van de voetnoot die waarschuwt</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <p>
+          Elke pagina hier die verandering over tijd laat zien vraagt één functie om het antwoord,
+          en die functie controleert eerst of er een breuk in het venster valt. Vindt hij er een,
+          dan geeft hij niets terug en rendert de sectie niet. Er is geen mogelijkheid om dat te
+          overrulen en geen voetnootvariant, want de voetnoot is wat gefaald heeft.
+        </p>
+        <p>
+          Daarom draagt <a href={linkTo('/leaving-home/', lang)}>het huis uit</a> een trend die vanaf
+          {' '}{comparable.since} gemeten is en niet vanaf {years.first}, ook al gaat de data zo ver
+          terug. En daarom dragen sommige pagina's helemaal geen trend.
+        </p>
+
+        <h2>Waar het nog meer bijt</h2>
+        <p>
+          De herziening van {years.break} gold niet voor één indicator, en andere bronnen hebben
+          hun eigen breuken. Over de datasets achter deze site:
+        </p>
+        <ul>
+          {elsewhere.map((set) => (
+            <li>
+              <a href={linkTo(set.path, lang)}>{set.label}</a> — {set.comparability.kind === 'since' ? (
+                <>vergelijkbaar sinds {set.comparability.since}, met een breuk in {set.comparability.year}</>
+              ) : (
+                <>
+                  de breuk valt in {set.comparability.year}, het laatste jaar zelf, dus er is
+                  helemaal geen venster om over te meten
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+        {unbroken.length > 0 && (
+          <p>
+            {unbroken.map((set) => set.label).join(' en ')} {unbroken.length === 1 ? 'is' : 'zijn'}
+            {' '}de uitzondering: er is geen breuk gemarkeerd, dus de hele reeks is vergelijkbaar.
+            Het is de enige pagina hier die eerlijk twee decennia op één lijn kan laten zien.
+          </p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="faq-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Vragen</p>
+        <h2 id="faq-title">Redelijke tegenwerpingen</h2>
+      </header>
+
+      <div class="wrap prose" data-reveal style="padding: 0">
+        <h3>Dus niets van de data van vóór {years.break} is bruikbaar?</h3>
+        <p>
+          Bruikbaar is het wel, alleen niet in dezelfde zin als de data erna. De oudere reeks is op
+          zijn eigen voorwaarden een prima reeks: je kunt landen binnen 2015 vergelijken, of één
+          land volgen van {years.first} tot {years.before}. Wat je niet kunt doen is een getal van de
+          ene kant van de breuk aftrekken van een getal aan de andere kant.
+        </p>
+
+        <h3>Waarom corrigeert Eurostat de oude cijfers niet gewoon?</h3>
+        <p>
+          Twintig jaar enquête-antwoorden reconstrueren onder een definitie die niet bestond toen ze
+          verzameld werden zou schatten betekenen, en Eurostat publiceert wat het gemeten heeft. De
+          breuk markeren is de eerlijke optie die ze hebben. Het gat zit niet in hun statistiek; het
+          zit in wat lezers ermee doen.
+        </p>
+
+        <h3>Hoe controleer ik of een andere dataset een breuk heeft?</h3>
+        <p>
+          In de eigen browser van Eurostat dragen gevlagde observaties een kleine <code>b</code>.
+          Via de API komt de vlag in het <code>status</code>-blok naast de waarden. Onze pipeline
+          leest dat blok in plaats van de gepubliceerde tabel, en dat is de enige manier om zeker te
+          weten dat de vlag er onderweg niet is afgevallen — het volledige verhaal staat op
+          {' '}<a href={linkTo('/method/', lang)}>de methodepagina</a>.
+        </p>
+
+        <h3>Beïnvloedt dit de vergelijking die ik krijg als ik mijn eigen leeftijd invul?</h3>
+        <p>
+          Nee. Die vergelijking gebruikt één jaar — het meest recente dat elk land rapporteert — dus
+          hij kruist nooit een breuk. Breuken doen alleen mee als je naar verandering over tijd
+          kijkt, en dat is precies waar deze site het zorgvuldigst is en de meeste andere pagina's
+          niet.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="src-title">
+    <div class="wrap method-grid">
+      <header class="sec-head" data-reveal style="margin: 0">
+        <p class="eyebrow mono">Bron</p>
+        <h2 id="src-title">Alles hierboven, na te gaan</h2>
+      </header>
+      <div data-reveal>
+        <ul class="source-list">
+          <li>
+            <strong>Dataset</strong>
+            <span>
+              <a href={source.metadata} rel="noopener" data-method-link>
+                Eurostat {source.dataset}
+              </a>{source.label && <> — <span lang="en">{source.label}</span></>}
+            </span>
+          </li>
+          {source.doi && <li><strong>DOI</strong> <span><code>{source.doi}</code></span></li>}
+          <li><strong>Opgehaald</strong> <span>{String(source.fetchedOn ?? '').slice(0, 10)}</span></li>
+          <li>
+            <strong>Elk cijfer hier</strong>
+            <span>
+              is bij de bouw uit dat bestand berekend — zie <a href={linkTo('/method/#datasets-title', lang)}>de
+              datasetblokken</a> voor de rest.
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseV2>
