@@ -32,6 +32,7 @@ import { euro } from './wealth.js';
 import { catalogue } from './catalogue.js';
 import { DEFAULT_LOCALE, linkTo } from './locales.js';
 import { localise } from './country-names.js';
+import { withArticle } from './grammar.js';
 
 import leavingHome from './metrics/leaving-home.js';
 import householdSize from './metrics/household-size.js';
@@ -168,12 +169,18 @@ function build(lang) {
     /**
      * Wat de browser krijgt. Klein gehouden: alleen naam, cijfers en balkposities, en
      * de balkpositie op één decimaal. Gemeten op 40 landen is dit een paar kilobyte.
+     *
+     * `n` is de naam **zoals hij in een zin staat**, dus met zijn lidwoord waar de taal
+     * er een heeft. De voordeur gebruikt hem alleen midden in een zin ("… figures cover
+     * the Netherlands"), en daar stond "cover Netherlands". De keuzelijst leest
+     * `countries[].name` en houdt de kale naam. Het lidwoord komt hier op de server uit
+     * grammar.js, zodat de browser alleen tekst verzet en zelf geen grammatica kent.
      */
     countryData: Object.fromEntries(
       countries.map((country) => [
         country.code,
         {
-          n: country.name,
+          n: withArticle(country.name, { lang }),
           have: country.have,
           m: Object.fromEntries(
             Object.entries(country.values).map(([key, cell]) => [
