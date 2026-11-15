@@ -12,12 +12,12 @@ const t = ui(lang).privacy;
  * zijn. Verandert er iets aan de verwerking — analytics, advertenties — dan gaat
  * deze pagina eerst om, en pas daarna de code.
  */
-const updated = '25 October 2026';
+const updated = '15 November 2026';
 
 const title = 'Privacy — HumanAverage';
 const description =
   'What HumanAverage does and does not collect. No accounts, no analytics, no advertising ' +
-  'code, and your measurements never leave your browser.';
+  'code, and what you enter never leaves your browser.';
 /** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
 export function getStaticPaths() {
   return localePaths();
@@ -47,7 +47,7 @@ export function getStaticPaths() {
 
       <h3>{t.whatYourBrowserRemembers}</h3>
       <p>
-        {t.onTheEuropeanComparison}
+        {t.soThatYouDo}
       </p>
 
       <div class="limits">
