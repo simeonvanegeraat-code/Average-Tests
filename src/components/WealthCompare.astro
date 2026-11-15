@@ -3,8 +3,9 @@
  * Het vergelijkingsformulier van /wealth/: de hele berekening, in de browser.
  *
  * De bezoeker vult een bedrag in en de vergelijking over 21 landen gebeurt hier, zonder
- * server. Het bedrag gaat nergens heen, ook niet naar localStorage — land en leeftijd wel,
- * zodat de volgende pagina er niet opnieuw om vraagt.
+ * server. Het bedrag gaat nergens heen, ook niet naar localStorage — land en leeftijd wel:
+ * het land zodat de volgende pagina er niet opnieuw om vraagt, de leeftijd zodat dit
+ * formulier hem bij een volgend bezoek al weet.
  *
  * WAAROM DIT EEN ONDERDEEL IS
  *
@@ -55,6 +56,17 @@
   const ageResult = el('age-result');
   const errorNote = el('form-error');
 
+  /**
+   * De leeftijd van de bezoeker staat in het profiel onder een naam van deze pagina. Tot
+   * 15 november 2026 was dat `age`, en /leaving-home/ schreef onder diezelfde naam de
+   * leeftijd waarop je het huis uit ging. Dit formulier vulde die dan in als "I am 23
+   * years old", en /leaving-home/ deed het omgekeerde met de leeftijd van hier.
+   *
+   * `age` wordt daarom nergens meer gelezen, ook hier niet: wat er nog staat kan van
+   * beide pagina's komen. Het bedrag heeft geen sleutel en krijgt er geen.
+   */
+  const AGE_KEY = 'wealth-age';
+
   const byArea = Object.fromEntries(index.countries.map((c: any) => [c.area, c]));
   const ageByArea = Object.fromEntries(ageIndex.countries.map((c: any) => [c.area, c]));
 
@@ -90,7 +102,7 @@
 
     render(area, amount);
     renderAge(area, amount, age);
-    mergeProfile(age === null ? { country: area } : { country: area, age });
+    mergeProfile(age === null ? { country: area } : { country: area, [AGE_KEY]: age });
     track(EVENTS.valueSubmitted, { metric: 'wealth', country: area });
 
     // Naar het bovenste paneel dat werkelijk zichtbaar is. Zonder leeftijd is dat het
@@ -293,9 +305,9 @@
   }
 
   /**
-   * Land en leeftijd uit het profiel, als de bezoeker die elders op de site al heeft
-   * ingevuld. Het bedrag staat er bewust niet in: dat blijft in dit formulier en gaat
-   * nergens heen, ook niet naar localStorage.
+   * Het land uit het profiel, als de bezoeker dat elders op de site al heeft gekozen, en
+   * de leeftijd die hij hier eerder invulde. Het bedrag staat er bewust niet in: dat
+   * blijft in dit formulier en gaat nergens heen, ook niet naar localStorage.
    */
   (function restore() {
     const saved = readProfile();
@@ -303,7 +315,7 @@
     if (typeof saved.country === 'string' && [...select.options].some((o) => o.value === saved.country)) {
       select.value = saved.country;
     }
-    if (Number.isFinite(saved.age)) (el('age') as HTMLInputElement).value = String(saved.age);
+    if (Number.isFinite(saved[AGE_KEY])) (el('age') as HTMLInputElement).value = String(saved[AGE_KEY]);
   })();
 
   /**
