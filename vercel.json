@@ -3,6 +3,18 @@
   "github": {
     "silent": true
   },
+  "redirects": [
+    {
+      "source": "/methodology",
+      "destination": "/method/",
+      "permanent": true
+    },
+    {
+      "source": "/methodology/",
+      "destination": "/method/",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
