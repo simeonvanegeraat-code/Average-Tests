@@ -3,7 +3,6 @@
   "github": {
     "silent": true
   },
-  "trailingSlash": true,
   "redirects": [
     {
       "source": "/methodology",
