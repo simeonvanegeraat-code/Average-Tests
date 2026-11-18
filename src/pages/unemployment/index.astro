@@ -103,9 +103,14 @@ const breakDetail =
       "Each country's own line in the table runs the full series and simply breaks where its flag is.";
 
 const title = `Unemployment Rate by Country in Europe (${periodLabel(h.year, { locale: lang })})`;
+/**
+ * Met `withArticle`, net als de lead hieronder. Vandaag verandert dat niets, want de
+ * uitersten zijn Tsjechië en Finland; het is dezelfde zin die op /working-life/ als
+ * "44.0 in Netherlands" in Google stond zodra Nederland het uiterste was.
+ */
 const description =
   `Unemployment is ${euValue}% across the European Union — ${fmt(h.earliest.total)}% in ` +
-  `${h.earliest.name}, ${fmt(h.latest.total)}% in ${h.latest.name}. All ${h.countries} countries ` +
+  `${withArticle(h.earliest.name)}, ${fmt(h.latest.total)}% in ${withArticle(h.latest.name)}. All ${h.countries} countries ` +
   "on a map, from Eurostat's monthly series.";
 ---
 

@@ -9,7 +9,7 @@
  * bevroren Nederlandse cluster als statische bestanden in public/ staat. Dit script
  * loopt over de build en pakt dus allebei.
  */
-import { readdir, stat, writeFile, readFile } from 'node:fs/promises';
+import { readdir, writeFile, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
 const SITE = 'https://www.humanaverage.com';
@@ -58,14 +58,16 @@ const urls = files
   .map((path) => `${SITE}/${path}`)
   .sort();
 
-// De datum van de laatste wijziging per bestand, zodat lastmod iets betekent.
-const lastmod = new Map();
-for (const file of files) {
-  const rel = relative(DIST, file).split('\\').join('/');
-  const path = rel.endsWith('index.html') ? rel.slice(0, -'index.html'.length) : rel;
-  const info = await stat(file);
-  lastmod.set(`${SITE}/${path}`, info.mtime.toISOString().slice(0, 10));
-}
+/**
+ * Geen <lastmod>. Die stond er, uit de wijzigingstijd van het gebouwde bestand, en op
+ * Vercel is dat voor elk bestand het moment van de build: op 15 november 2026 droegen
+ * alle 40 URL's de datum van die dag. Google gebruikt het veld alleen als het klopt, en
+ * een datum die bij elke deploy verspringt leert hem dat het niets betekent.
+ *
+ * Een echte datum vraagt dat de pagina zelf zegt wanneer haar cijfers veranderden, net
+ * zoals ze hierboven zelf zegt dat ze op noindex staat. Tot dat er is: een lege plek in
+ * plaats van een datum die niet waar is.
+ */
 
 const xml = [
   '<?xml version="1.0" encoding="UTF-8"?>',
@@ -73,7 +75,6 @@ const xml = [
   ...urls.map((url) => [
     '  <url>',
     `    <loc>${url}</loc>`,
-    `    <lastmod>${lastmod.get(url)}</lastmod>`,
     '  </url>',
   ].join('\n')),
   '</urlset>',

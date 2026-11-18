@@ -29,6 +29,17 @@
   const send = (name: string, detail: object) =>
     document.dispatchEvent(new CustomEvent(name, { detail }));
 
+  /**
+   * Het getal van deze pagina staat in het profiel onder de naam van deze pagina, net
+   * als bij de acht pagina's op `MetricPersonal`. Tot 15 november 2026 stond het onder
+   * `age`, en /wealth/ schreef daar de leeftijd die je nú hebt. Wie daar 38 invulde,
+   * las hier dat hij op zijn 38e het huis uit was gegaan, met een uitslag erbij.
+   *
+   * `age` wordt daarom nergens meer gelezen. Een waarde die er nog staat kan van beide
+   * pagina's komen, en een getal waarvan je niet weet wat het betekent zet je niet terug.
+   */
+  const KEY = 'leaving-home';
+
   /** Het land zodra het gekozen wordt, niet pas bij versturen: een eis uit CLAUDE.md. */
   document.addEventListener('ha:country', (event) => {
     const { code, source } = (event as CustomEvent<{ code?: string; source?: string }>).detail ?? {};
@@ -40,7 +51,7 @@
     const { code, age, source } =
       (event as CustomEvent<{ code?: string; age?: number; source?: string }>).detail ?? {};
     if (!code || source === 'restore') return;
-    mergeProfile({ country: code, age });
+    mergeProfile({ country: code, [KEY]: age });
     track(EVENTS.valueSubmitted, { metric: 'leaving-home', country: code });
   });
 
@@ -56,7 +67,7 @@
 
     send('ha:country', { code, source: 'restore' });
 
-    const own = Number(saved.age);
+    const own = Number(saved[KEY]);
     if (validAge(own)) send('ha:submit', { code, age: own, source: 'restore' });
   }
 

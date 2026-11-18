@@ -24,9 +24,14 @@ const { index, metric, h, gender, movement, stale, euValue, exceptions, fmt, amt
   workingLifePage(lang);
 
 const title = `How Many Years Europeans Work, by Country (${h.year})`;
+/**
+ * Met `withArticle`, net als de lead hieronder. Zonder stond hier "44.0 in Netherlands",
+ * en dat is de zin die Google onder het zoekresultaat zet. Het viel alleen op deze
+ * pagina op omdat Nederland hier toevallig het uiterste is.
+ */
 const description =
   `A working life lasts ${euValue} years in the European Union — ${fmt(h.latest.total)} in ` +
-  `${h.latest.name} and ${fmt(h.earliest.total)} in ${h.earliest.name}. Compare all ` +
+  `${withArticle(h.latest.name)} and ${fmt(h.earliest.total)} in ${withArticle(h.earliest.name)}. Compare all ` +
   `${h.countries} countries on a map and see how your own years so far compare.`;
 ---
 
