@@ -10,9 +10,21 @@ import { wealthCountryPage } from '../../lib/pages/wealth-country.js';
  * De Engelse landpagina's onder /wealth/ — 21 stuks uit één bestand.
  *
  * Eigen bestand per taal sinds 3 november 2026; `src/pages/nl/wealth/[country].astro` is
- * de Nederlandse. Het rekenwerk staat in `src/lib/pages/wealth-country.js`, en de woorden
- * van de data (groepen, eigendomsvorm, balansposten, leeftijdsbanden) in
- * `src/locales/<taal>/wealth.json`.
+ * de Nederlandse. Het rekenwerk staat in `src/lib/pages/wealth-country.js` en
+ * `src/lib/wealth-standout.js`, en de woorden van de data (groepen, eigendomsvorm,
+ * balansposten, leeftijdsbanden) in `src/locales/<taal>/wealth.json`.
+ *
+ * VERBOUWD OP 18 NOVEMBER 2026
+ *
+ * De 21 pagina's deelden per paar 64% van hun tekst, en de zin die ze uit elkaar moest
+ * houden gaf in alle 21 landen hetzelfde antwoord. Nu begint elke pagina met de drie maten
+ * waarop dát land het dichtst bij een uiterste van de 21 staat, met de landen ernaast bij
+ * naam. Wat op alle 21 hetzelfde was — waarom gemiddelde en mediaan verschillen, de
+ * algemene methodetekst — staat één keer op /wealth/ en /method/. Het plan en de lat:
+ * research/wealth-country-pages-plan.md; de poort: scripts/check-country-pages.mjs.
+ *
+ * De Nederlandse versie is nog de oude vorm. Die volgt pas als Simeon drie Engelse
+ * landen heeft gelezen (stap 3 van het plan).
  */
 export async function getStaticPaths() {
   const files = import.meta.glob('../../../data/wealth/*.json', { eager: true });
@@ -31,6 +43,14 @@ export async function getStaticPaths() {
 
 const lang = localeOf(Astro.url.pathname);
 const {
+  picks,
+  measures,
+  measureCount,
+  shareOf,
+  euroAreaGap,
+  near,
+  line,
+  countryCount,
   ageIndex,
   c,
   byCode,
@@ -38,14 +58,10 @@ const {
   renters,
   housingGap,
   yearChange,
-  meanToMedian,
   ranked,
   position,
   euroArea,
   middle,
-  biggest,
-  secondBiggest,
-  totalDebt,
   bottomQuintile,
   negativeBottom,
   negativeBottomCount,
@@ -63,17 +79,130 @@ const {
 const where = withArticle(c.name);
 const Where = withArticle(c.name, { capitalise: true });
 
+/** "second", niet "2nd": het staat midden in een zin. Verder dan tiende komt een keuze niet. */
+const WORD = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'];
+const nth = (n: number) => WORD[n] ?? `${n}th`;
+
 const rank =
   position === 1
     ? 'highest'
     : position === ranked.length
       ? 'lowest'
-      : `${position}${position === 2 ? 'nd' : position === 3 ? 'rd' : 'th'}`;
+      : `${nth(position)} highest`;
 
-const title = `Household Wealth in ${Where} — Where You Stand`;
+/** Een procent met een echt minteken, zoals money() dat bij bedragen doet. */
+const percent = (v: number) => `${v < 0 ? '−' : ''}${pct(Math.abs(v) * 100)}%`;
+
+/** Een waarde in de eenheid van haar maat. */
+const show = (unit: string, value: number) => (unit === 'times' ? times(value) : percent(value));
+
+/** "2023-Q1" wordt "Q1 2023", zoals `period` elders op de pagina. */
+const quarter = (p: string) => (p ? p.split('-').reverse().join(' ') : '');
+const fromLabel = quarter(line.window.from);
+const toLabel = quarter(line.window.to);
+
+/**
+ * De woorden per maat. Het getal zelf komt uit de lib; hier staat alleen hoe je het zegt.
+ * `name` is de korte vorm voor de description, `say` de zin die het getal draagt, en
+ * `high`/`low` het bijvoeglijk naamwoord aan de kant van het uiterste waar het land staat.
+ */
+const WORDS: Record<string, { name: string; tag?: string; noun: string; high: string; low: string; say: (v: number) => string }> = {
+  meanToMedian: {
+    name: 'the gap between average and median',
+    tag: 'average against median',
+    noun: 'gap',
+    high: 'widest',
+    low: 'narrowest',
+    say: (v) => `The average household in ${where} is worth ${times(v)} the median household`,
+  },
+  ownersToRenters: {
+    name: 'the gap between owners and renters',
+    tag: 'owners against renters',
+    noun: 'gap',
+    high: 'widest',
+    low: 'narrowest',
+    say: (v) => `A household in ${where} that owns its home holds ${times(v)} what a renting household holds`,
+  },
+  topTenShare: {
+    name: 'the share of the richest tenth',
+    tag: 'the richest tenth',
+    noun: 'share',
+    high: 'largest',
+    low: 'smallest',
+    say: (v) => `The richest 10% of households in ${where} hold ${show('percent', v)} of all household wealth`,
+  },
+  bottomHalfShare: {
+    name: 'the share of the poorer half',
+    tag: 'the poorer half',
+    noun: 'share',
+    high: 'largest',
+    low: 'smallest',
+    say: (v) => `The poorer half of households in ${where} hold ${show('percent', v)} of all household wealth`,
+  },
+  housingShare: {
+    name: 'how much sits in housing',
+    tag: 'housing',
+    noun: 'share',
+    high: 'largest',
+    low: 'smallest',
+    say: (v) => `For a household in the middle fifth of ${where}, housing is ${show('percent', v)} of everything it owns`,
+  },
+  depositShare: {
+    name: 'how much sits in savings',
+    tag: 'savings',
+    noun: 'share',
+    high: 'largest',
+    low: 'smallest',
+    say: (v) => `For a household in the middle fifth of ${where}, cash and deposits are ${show('percent', v)} of everything it owns`,
+  },
+  debtToAssets: {
+    name: 'debt',
+    noun: 'debt load',
+    high: 'heaviest',
+    low: 'lightest',
+    say: (v) => `A household in the middle fifth of ${where} owes ${show('percent', v)} of the value of what it owns`,
+  },
+  growth: {
+    name: `how wealth moved since ${fromLabel}`,
+    tag: 'growth',
+    noun: 'growth',
+    high: 'strongest',
+    low: 'weakest',
+    say: (v) =>
+      `From ${fromLabel} to ${toLabel} the wealth of the median household in ${where} ${v >= 0 ? 'rose' : 'fell'} by ${pct(Math.abs(v) * 100)}% in nominal euros`,
+  },
+};
+
+const rankPhrase = (p: any, of = 'countries') => {
+  const w = WORDS[p.key];
+  return `the ${p.place === 1 ? '' : `${nth(p.place)} `}${w[p.end as 'high' | 'low']} ${w.noun} of the ${p.of} ${of}`;
+};
+
+/** Alleen als die maat niet al bovenaan staat, anders zegt de pagina hetzelfde twee keer. */
+const owning = picks.some((p: any) => p.key === 'ownersToRenters')
+  ? null
+  : measures.find((m: any) => m.key === 'ownersToRenters');
+
+const title = `Household Wealth in ${Where} vs ${countryCount - 1} Countries`;
+const tags = picks.map((p: any) => WORDS[p.key].tag ?? WORDS[p.key].name);
 const description =
-  `The median household in ${where} is worth ${money(c.median)}. See the full distribution, ` +
-  `the gap between owning and renting, and where your own household would sit.`;
+  `The median household in ${where} is worth ${money(c.median)}, ${rank} of ${ranked.length}. ` +
+  `Where it stands apart: ${tags.slice(0, -1).join(', ')} and ${tags.at(-1)}.`;
+
+/** De lijn: twee reeksen op 100 in het eerste kwartaal, in één vak. */
+const W = 640;
+const H = 200;
+const PAD = { l: 8, r: 64, t: 14, b: 26 };
+const allValues = [...line.country, ...line.euroArea].map((p: any) => p.value);
+const lo = Math.min(...allValues, 100) - 2;
+const hi = Math.max(...allValues, 100) + 2;
+const xs = (i: number, n: number) => PAD.l + (i / Math.max(n - 1, 1)) * (W - PAD.l - PAD.r);
+const ys = (v: number) => PAD.t + ((hi - v) / (hi - lo || 1)) * (H - PAD.t - PAD.b);
+const pathOf = (series: any[]) =>
+  series.map((p, i) => `${i ? 'L' : 'M'}${xs(i, series.length).toFixed(1)} ${ys(p.value).toFixed(1)}`).join('');
+const countryEnd = line.country.at(-1);
+const euroEnd = line.euroArea.at(-1);
+const signed = (v: number) => `${v >= 0 ? '+' : '−'}${pct(Math.abs(v) * 100)}%`;
 ---
 
 <BaseV2
@@ -92,58 +221,70 @@ const description =
         <span class="giant num">{money(c.median, { compact: true })}</span>
       </h1>
       <p class="unit mono" data-reveal>
-        Exactly <b>{money(c.median)}</b> · {period}
+        Exactly <b>{money(c.median)}</b> · {period}{yearChange != null && <>{' '}· {yearChange >= 0 ? '▲' : '▼'} {pct(Math.abs(yearChange))}% over the year</>}
       </p>
       <p class="lead" data-reveal>
-        That is the middle household — half of the country owns more, half owns less. It ranks
-        {' '}{rank} of the {ranked.length} countries the European Central Bank measures.
+        The {rank} of the {ranked.length} countries the ECB measures{near.above && near.below && <>, between{' '}<a href={linkTo(near.above.path, lang)}>{withArticle(near.above.name)}</a>{' '}and{' '}<a href={linkTo(near.below.path, lang)}>{withArticle(near.below.name)}</a></>}{!near.above && near.below && <>, ahead of{' '}<a href={linkTo(near.below.path, lang)}>{withArticle(near.below.name)}</a></>}{near.above && !near.below && <>, behind{' '}<a href={linkTo(near.above.path, lang)}>{withArticle(near.above.name)}</a></>}.
       </p>
       <div class="hero-cta" data-reveal>
-        <a class="btn" href={linkTo('/wealth/#compare', lang)}>
+        <a class="btn" href={linkTo('/wealth/#compare', lang)} data-compare-country={c.area}>
           Compare your own household
           <span class="arr"><svg class="arr-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"></path></svg></span>
         </a>
-        <span class="hint">Nothing is sent anywhere.</span>
+        <span class="hint">Opens on {where}. Nothing is sent anywhere.</span>
       </div>
     </div>
   </section>
 
-  <section class="block" aria-labelledby="middle-title">
+  <section class="block" aria-labelledby="apart-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">The middle and the average</p>
-        <h2 id="middle-title">Why the two figures differ</h2>
+        <p class="eyebrow mono">Against the other {countryCount - 1}</p>
+        <h2 id="apart-title">What sets {where} apart</h2>
+        <p>The three of {measureCount} ratios on which {where} sits furthest from the middle of the {countryCount}.</p>
       </header>
 
-      <div data-reveal>
-        <div class="statrow">
-          <div class="statblock">
-            <span class="k">Median household</span>
-            <b>{money(c.median)}</b>
-            {yearChange != null && (
-              <span class="d">
-                {yearChange >= 0 ? '▲' : '▼'} {pct(Math.abs(yearChange))}% over the year
-              </span>
-            )}
-          </div>
-          <div class="statblock">
-            <span class="k">Average household</span>
-            <b>{money(c.mean)}</b>
-            {meanToMedian && <span class="d">{times(meanToMedian)} the median</span>}
-          </div>
-        </div>
-
-        <div class="prose">
-          <p>
-            The average is {meanToMedian ? times(meanToMedian) : ''} the median, and that gap is
-            the whole story of wealth statistics. Averages are dragged upward by a small number of
-            very large fortunes; the median describes the household in the middle. Whenever a
-            headline quotes the average wealth of a country, it is describing almost nobody.
-          </p>
-        </div>
-      </div>
+      <ol class="apart" data-reveal>
+        {picks.map((p: any) => (
+          <li>
+            <p class="k mono">{WORDS[p.key].name}</p>
+            <p>{WORDS[p.key].say(p.value)}: {rankPhrase(p)}{p.beyond.length > 0 && p.beyond.length <= 2 && <>, after {p.beyond.map((x: any, i: number) => <>{i > 0 && (i === p.beyond.length - 1 ? ' and ' : ', ')}<a href={linkTo(x.path, lang)}>{withArticle(x.name)}</a> ({show(p.unit, x.value)})</>)}</>}{p.beyond.length > 2 && <>; <a href={linkTo(p.beyond[0].path, lang)}>{withArticle(p.beyond[0].name)}</a> ({show(p.unit, p.beyond[0].value)}) is at the far end</>}.{p.next.length > 0 && <>{' '}{p.place === 1 ? 'Next come' : 'Then comes'}{' '}{p.next.map((x: any, i: number) => <>{i > 0 && (i === p.next.length - 1 ? ' and ' : ', ')}<a href={linkTo(x.path, lang)}>{withArticle(x.name)}</a> ({show(p.unit, x.value)})</>)}.</>}</p>
+          </li>
+        ))}
+      </ol>
     </div>
   </section>
+
+  {
+    line.country.length > 1 && countryEnd && euroEnd && (
+      <section class="block" aria-labelledby="line-title">
+        <div class="wrap">
+          <header class="sec-head" data-reveal>
+            <p class="eyebrow mono">{fromLabel} to {toLabel}</p>
+            <h2 id="line-title">
+              {line.growth !== null && line.growth >= 0 ? 'How far the middle has risen' : 'How far the middle has fallen'}
+            </h2>
+            <p>{Where} against the euro area, both at 100 in {fromLabel}. Nominal euros.</p>
+          </header>
+
+          <figure class="wline" data-reveal>
+            <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-labelledby="wline-cap">
+              <line x1={PAD.l} x2={W - PAD.r} y1={ys(100)} y2={ys(100)} class="base" />
+              <path d={pathOf(line.euroArea)} class="ea" />
+              <path d={pathOf(line.country)} class="own" />
+              <text x={W - PAD.r + 6} y={ys(countryEnd.value) + 4} class="own-t">{c.area} {Math.round(countryEnd.value)}</text>
+              <text x={W - PAD.r + 6} y={ys(euroEnd.value) + 4} class="ea-t">EA {Math.round(euroEnd.value)}</text>
+              <text x={PAD.l} y={H - 6} class="ax">{fromLabel}</text>
+              <text x={W - PAD.r} y={H - 6} class="ax" text-anchor="end">{toLabel}</text>
+            </svg>
+            <figcaption id="wline-cap">
+              {line.growth !== null && <>{Where}: {signed(line.growth)}.{' '}</>}{line.euroAreaGrowth !== null && <>Euro area: {signed(line.euroAreaGrowth)}.</>}
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    )
+  }
 
   {
     housingGap && (
@@ -169,9 +310,7 @@ const description =
 
             <div class="prose">
               <p>
-                A homeowning household in {where} holds {times(housingGap)} what a renting
-                household holds. Comparing yourself to the average household here, without knowing
-                which side of that line you are on, tells you very little.
+                A homeowning household in {where} holds {times(housingGap)} what a renting household holds{owning && <> — {rankPhrase(owning, 'countries that publish this split')}</>}.
               </p>
             </div>
           </div>
@@ -185,34 +324,34 @@ const description =
       <header class="sec-head" data-reveal>
         <p class="eyebrow mono">The whole distribution</p>
         <h2 id="dist-title">What each fifth owns</h2>
-        <p>
-          These are group averages, not the boundaries between groups — the ECB publishes the
-          former and not the latter.
-        </p>
+        <p>Group averages, not boundaries, and each group's share of the total.</p>
       </header>
 
       <div class="tablewrap" tabindex="0" role="region" aria-label="Net wealth by group" data-reveal>
         <table>
           <caption class="vh">
-            Average net wealth per household by group, {Where}, {period}
+            Average net wealth per household by group, and its share of all wealth, {Where}, {period}
           </caption>
           <thead>
             <tr>
               <th scope="col">Group</th>
               <th scope="col" class="n">Average net wealth</th>
+              <th scope="col" class="n">Share of all wealth</th>
             </tr>
           </thead>
           <tbody>
-            {c.groups.filter((g) => g.kind === 'quintile').map((g) => (
+            {c.groups.filter((g: any) => g.kind === 'quintile').map((g: any) => (
               <tr>
                 <th scope="row">{g.label}</th>
                 <td class:list={['n', g.netWealth < 0 && 'negative']}>{money(g.netWealth)}</td>
+                <td class:list={['n', g.netWealth < 0 && 'negative']}>{shareOf(g) === null ? '—' : percent(shareOf(g))}</td>
               </tr>
             ))}
             {byCode.D10 && (
               <tr class="emphasis">
                 <th scope="row">{byCode.D10.label}</th>
                 <td class="n">{money(byCode.D10.netWealth)}</td>
+                <td class="n">{shareOf(byCode.D10) === null ? '—' : percent(shareOf(byCode.D10))}</td>
               </tr>
             )}
           </tbody>
@@ -224,10 +363,8 @@ const description =
           <div class="limits" data-reveal>
             <b>The bottom fifth of households in {where} has negative net wealth</b>
             <p>
-              On average {money(bottomQuintile.netWealth)}. They owe more than they own. The same is
-              true in {negativeBottomCount} of the {ranked.length} countries here, and it is not a
-              rounding artefact: mortgages, student loans and consumer credit can exceed everything
-              a young household has managed to accumulate.
+              On average {money(bottomQuintile.netWealth)}: they owe more than they own. The same is
+              true in {negativeBottomCount} of the {ranked.length} countries here.
             </p>
           </div>
         )
@@ -236,23 +373,20 @@ const description =
   </section>
 
   {
-    biggest && (
+    middle.length > 0 && (
       <section class="block" aria-labelledby="comp-title">
         <div class="wrap">
           <header class="sec-head" data-reveal>
             <p class="eyebrow mono">Where the middle keeps its money</p>
             <h2 id="comp-title">The balance sheet of a middle household</h2>
-            <p>
-              Everything below adds up to the net wealth of a household in the middle fifth of
-              {' '}{where} — assets first, then what is owed against them.
-            </p>
+            <p>The middle fifth of {where}, per household.</p>
           </header>
 
           <div class="tablewrap" tabindex="0" role="region" aria-label="Balance sheet of the middle fifth" data-reveal>
             <table>
               <caption class="vh">Middle 20% of households, average per household</caption>
               <tbody>
-                {middle.map((p) => (
+                {middle.map((p: any) => (
                   <tr class={p.side === 'liability' ? 'liability' : undefined}>
                     <th scope="row">{p.label}</th>
                     <td class:list={['n', p.value < 0 && 'negative']}>{money(p.value)}</td>
@@ -266,17 +400,16 @@ const description =
             </table>
           </div>
 
-          <div class="prose" data-reveal>
-            {/*
-              Eén regel, geen regelafbrekingen tussen de stukken. Afgebroken stond er
-              "…assets  at €308,192 , followed by…": de afbreking na </strong> werd een
-              spatie bovenop de {' '}, en de afbreking vóór het tweede stuk werd een
-              spatie vóór de komma. Op alle 21 landpagina's tegelijk.
-            */}
-            <p>
-              For this household the largest holding is <strong>{biggest.label.toLowerCase()}</strong> at {money(biggest.value)}{secondBiggest && <>, followed by {secondBiggest.label.toLowerCase()} at {money(secondBiggest.value)}</>}.{totalDebt > 0 && <> Against that sits {money(totalDebt)} of debt.</>}
-            </p>
-          </div>
+          {euroAreaGap && (
+            <div class="prose" data-reveal>
+              <p>
+                Set against the middle household of the euro area as a whole, the largest difference is
+                {' '}<strong>{euroAreaGap.label.toLowerCase()}</strong>: {pct(euroAreaGap.here * 100)}% of
+                everything a middle household owns in {where}, against {pct(euroAreaGap.there * 100)}%
+                across the euro area.
+              </p>
+            </div>
+          )}
         </div>
       </section>
     )
@@ -293,17 +426,12 @@ const description =
                 ? `In ${where}, age barely moves this`
                 : `In ${where}, wealth peaks at ${curve.peak.label}`}
             </h2>
-            <p>
-              Every figure in this section comes from the ECB's household survey, which is a
-              different measurement from the rest of this page: households interviewed in their
-              own fieldwork period, not accounts for a single quarter. The two cannot be read
-              against each other, so this section compares only within itself.
-            </p>
+            <p>From the ECB's household survey: a separate measurement, not comparable with the figures above.</p>
           </header>
 
           <div data-reveal>
             <ul class="agebars">
-              {curve.bands.map((band) => (
+              {curve.bands.map((band: any) => (
                 <li class:list={[{ 'is-peak': band.code === survey.peak }]}>
                   <span class="k mono">{band.code}</span>
                   <span class="bar">
@@ -346,17 +474,12 @@ const description =
                 {sharePeak === 1
                   ? `${Where} is the only country in this survey whose highest group is ${curve.peak.label}.`
                   : `${sharePeak} of the ${ageIndex.countries.length} countries here peak at ${curve.peak.label}.`}
-                {' '}The average for each group sits above the middle everywhere — in the
-                {' '}{curve.youngest.label} group it is {times(curve.youngest.mean / curve.youngest.median)} the
-                middle, because a small number of large fortunes pull it up.
                 {' '}<a href={linkTo('/wealth/by-age/', lang)}>All {ageIndex.countries.length} countries side by side</a>.
               </p>
             </div>
 
             <p class="panel-source panel-source--light" style="margin-top:22px">
-              {ageIndex.source.publisher}, {ageIndex.source.survey}, wave {ageIndex.source.wave}.
-              Fieldwork in {where} ran {fieldwork}. Age is that of the
-              household's reference person.
+              Fieldwork in {where}: {fieldwork}.
             </p>
           </div>
         </div>
@@ -364,66 +487,116 @@ const description =
     )
   }
 
-  <section class="block" id="method" aria-labelledby="method-title">
-    <div class="wrap method-grid">
-      <header class="sec-head" data-reveal style="margin: 0">
-        <p class="eyebrow mono">Method</p>
-        <h2 id="method-title">How this is measured</h2>
-        <p>
-          Every number on this page is published by the European Central Bank or counted from
-          those published numbers.
-        </p>
+  <section class="block" aria-labelledby="near-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">Next to {where}</p>
+        <h2 id="near-title">The countries either side of it</h2>
       </header>
 
-      <div data-reveal>
-        <dl>
-          <div>
-            <dt>What the figures are</dt>
-            <dd>
-              Net wealth is all assets minus all liabilities, per household. Group figures are
-              averages within each group, not the boundaries between them. Every component on this
-              page reconciles against the ECB's own published net wealth total. The ECB flags
-              every figure in these accounts as an estimate.
-            </dd>
-          </div>
-          {euroArea && (
-            <div>
-              <dt>For context</dt>
-              <dd>
-                The median household across the whole euro area is worth {money(euroArea.median)}.
-              </dd>
-            </div>
-          )}
-        </dl>
-
-        <ul class="source-list">
-          <li>
-            <strong>Source</strong>
-            <span>
-              <a href="https://data.ecb.europa.eu/" data-method-link>European Central Bank</a>,
-              Distributional Wealth Accounts, {period}
-            </span>
-          </li>
-          {survey && (
-            <li>
-              <strong>Age section only</strong>
-              <span>
-                <a href={ageIndex.source.url} data-method-link>{ageIndex.source.survey}</a>, wave
-                {' '}{ageIndex.source.wave}, fieldwork {fieldwork}. A separate
-                measurement, not comparable with the figures above.
-              </span>
-            </li>
-          )}
-        </ul>
+      <div class="nearlist" data-reveal>
+        {near.above && (
+          <a class="nearitem" href={linkTo(near.above.path, lang)}>
+            <span class="k mono">One place higher</span>
+            <p>The median household in {withArticle(near.above.name)} is worth {money(near.above.median)}.</p>
+            <span class="arr">{withArticle(near.above.name, { capitalise: true })} in full{' '}<span aria-hidden="true">→</span></span>
+          </a>
+        )}
+        {near.below && (
+          <a class="nearitem" href={linkTo(near.below.path, lang)}>
+            <span class="k mono">One place lower</span>
+            <p>The median household in {withArticle(near.below.name)} is worth {money(near.below.median)}.</p>
+            <span class="arr">{withArticle(near.below.name, { capitalise: true })} in full{' '}<span aria-hidden="true">→</span></span>
+          </a>
+        )}
+        <a class="nearitem" href={linkTo('/wealth/', lang)}>
+          <span class="k mono">All {ranked.length}</span>
+          <p>The euro area: {money(euroArea?.median)}.</p>
+          <span class="arr">European wealth{' '}<span aria-hidden="true">→</span></span>
+        </a>
       </div>
+    </div>
+  </section>
+
+  <section class="block" id="method" aria-labelledby="method-title">
+    <div class="wrap">
+      <h2 id="method-title" class="vh">Source</h2>
+      <p class="panel-source panel-source--light" data-reveal>
+        <a href="https://data.ecb.europa.eu/" data-method-link>ECB</a> Distributional Wealth Accounts,
+        {' '}{period} for {where}; over time {fromLabel} to {toLabel}, the quarters all
+        {' '}{countryCount} countries have. Estimates.{survey && <> Age: <a href={ageIndex.source.url} data-method-link>{ageIndex.source.survey}</a>, wave {ageIndex.source.wave}.</>}
+        {' '}<a href={linkTo('/method/', lang)} data-method-link>Method</a>.
+      </p>
     </div>
   </section>
 
   <script>
     import { track, EVENTS } from '../../lib/analytics.js';
+    import { mergeProfile } from '../../lib/profile.js';
 
     for (const link of document.querySelectorAll('[data-method-link]')) {
       link.addEventListener('click', () => track(EVENTS.methodologyOpened, { from: 'wealth-country' }));
     }
+
+    /**
+     * De knop neemt het land mee: het formulier op /wealth/ leest `country` uit het profiel
+     * en staat dan al op dit land. Zonder script werkt de link gewoon, alleen zonder land.
+     */
+    for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-compare-country]')) {
+      link.addEventListener('click', () => {
+        const code = link.dataset.compareCountry;
+        if (code) mergeProfile({ country: code });
+      });
+    }
   </script>
+
+  <style>
+    .apart { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: apart; }
+    .apart li {
+      counter-increment: apart;
+      padding: 22px 24px 22px 64px;
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--surface);
+    }
+    .apart li::before {
+      content: counter(apart);
+      position: absolute;
+      left: 22px;
+      top: 20px;
+      font: 800 1.6rem/1 var(--font-display);
+      color: var(--data);
+    }
+    .apart .k { margin: 0 0 8px; font-size: 0.7rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-2); }
+    .apart p:last-child { margin: 0; max-width: 72ch; line-height: 1.65; }
+
+    .wline { margin: 0; }
+    .wline svg { display: block; width: 100%; height: auto; max-width: 760px; overflow: visible; }
+    .wline .base { stroke: var(--line-strong); stroke-dasharray: 3 4; }
+    .wline .ea { fill: none; stroke: var(--text-2); stroke-width: 2; vector-effect: non-scaling-stroke; }
+    .wline .own { fill: none; stroke: var(--data); stroke-width: 3; vector-effect: non-scaling-stroke; }
+    .wline text { font: 600 12px/1 var(--font-mono); }
+    .wline .own-t { fill: var(--data); }
+    .wline .ea-t, .wline .ax { fill: var(--text-2); font-weight: 500; }
+    .wline figcaption { margin-top: 12px; color: var(--text-2); font-size: 0.9rem; max-width: 72ch; }
+
+    .nearlist { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+    .nearitem {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 22px 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      transition: border-color 0.3s, transform 0.3s var(--ease);
+    }
+    .nearitem:hover { border-color: color-mix(in oklab, var(--glow) 55%, var(--line)); transform: translateY(-3px); text-decoration: none; }
+    .nearitem .k { font-size: 0.7rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-2); }
+    .nearitem p { margin: 0; flex: 1 1 auto; color: var(--text-2); line-height: 1.6; }
+    .nearitem .arr { font-weight: 600; font-size: 0.92rem; color: var(--data); }
+  </style>
 </BaseV2>

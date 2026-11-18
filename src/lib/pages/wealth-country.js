@@ -26,8 +26,24 @@ import { localiseWealthCountry, localiseWealthAge } from '../wealth-names.js';
 import { decimal } from '../format.js';
 import { euro, formatPeriod, multiple, percentChange } from '../wealth.js';
 import { curveOf, fieldworkLabel } from '../wealth-age.js';
+import { standsOut, medianNeighbours, commonWindow, MEASURES } from '../wealth-standout.js';
 import rawIndex from '../../../data/wealth/index.json';
 import rawAgeIndex from '../../../data/wealth-age/index.json';
+import rawEuroArea from '../../../data/wealth/i9.json';
+
+/**
+ * Alle 21 landbestanden, want wat aan één land opvalt is een vergelijking met de andere
+ * twintig. De index heeft geen samenstelling en geen tijdreeks, dus die volstaat niet.
+ * I9 en I10 zijn eurozone-aggregaten en vallen af op hun code: twee letters is een land.
+ */
+const FILES = import.meta.glob('../../../data/wealth/*.json', { eager: true, import: 'default' });
+const ALL = Object.entries(FILES)
+  .filter(([path]) => /\/[a-z]{2}\.json$/.test(path))
+  .map(([, country]) => country);
+
+/** Eén keer per build, niet per pagina: dezelfde uitkomst voor alle 42. */
+const STANDOUT = standsOut(ALL, rawEuroArea);
+const MEASURE_COUNT = MEASURES.length;
 
 export function wealthCountryPage(rawCountry, lang) {
   const index = localise(rawIndex, lang);
@@ -81,7 +97,64 @@ export function wealthCountryPage(rawCountry, lang) {
    */
   const survey = ageIndex.countries.find((a) => a.area === c.area) ?? null;
 
+  /**
+   * Wat aan dit land opvalt, met de namen van de landen die erbij genoemd worden al in de
+   * taal van de pagina. De rekenkunde staat in src/lib/wealth-standout.js.
+   */
+  const pickNames = (list) =>
+    list.map((v) => ({ ...v, name: names[v.area] ?? v.area, path: `/wealth/${v.area.toLowerCase()}/` }));
+  const own = STANDOUT.byArea[c.area];
+  const picks = own.picks.map((p) => ({ ...p, beyond: pickNames(p.beyond), next: pickNames(p.next) }));
+  const gap = own.euroAreaGap;
+  const euroAreaGap = gap
+    ? { ...gap, label: c.composition?.Q3?.find((p) => p.code === gap.code)?.label ?? gap.code }
+    : null;
+
+  /** De buren op de mediaan, voor de kaartjes onderaan. */
+  const near = medianNeighbours(c.area, index.countries);
+  const neighbour = (x) =>
+    x ? { area: x.area, name: names[x.area] ?? x.name, median: x.median, path: `/wealth/${x.area.toLowerCase()}/` } : null;
+
+  /**
+   * De lijn: de mediaan van dit land en die van de eurozone, allebei op 100 in het eerste
+   * kwartaal, over het venster dat elk land heeft. Een index en geen bedrag, zodat de
+   * twee lijnen in één vak passen zonder dat de eurozone als een land leest.
+   *
+   * De ECB-download kent een kolom PRE_BREAK_VALUE voor reeksbreuken. Op 17 november 2026
+   * was die in alle 250.680 waarnemingen leeg; zou er ooit een breuk in komen, dan moet de
+   * pijplijn hem doorgeven en deze lijn hem respecteren, zoals sparkline.js dat bij Eurostat
+   * doet.
+   */
+  const window = commonWindow(ALL);
+  const indexed = (history) => {
+    const inWindow = (history ?? []).filter((h) => h.period >= window.from && h.period <= window.to);
+    const base = inWindow[0]?.value;
+    return base > 0 ? inWindow.map((h) => ({ period: h.period, value: (h.value / base) * 100 })) : [];
+  };
+  const line = {
+    window,
+    country: indexed(rawCountry.medianHistory),
+    euroArea: indexed(rawEuroArea.medianHistory),
+    growth: own.all.find((m) => m.key === 'growth')?.value ?? null,
+    euroAreaGrowth: STANDOUT.euroAreaGrowth,
+  };
+
+  /**
+   * Het aandeel van elke groep in al het vermogen: groepsgemiddelde maal de omvang van de
+   * groep, gedeeld door het gemiddelde van iedereen. Zie MEASURES in wealth-standout.js.
+   */
+  const SIZE = { Q1: 0.2, Q2: 0.2, Q3: 0.2, Q4: 0.2, Q5: 0.2, D10: 0.1 };
+  const shareOf = (g) => (SIZE[g.code] && c.mean > 0 ? (g.netWealth * SIZE[g.code]) / c.mean : null);
+
   return {
+    picks,
+    measures: own.all,
+    measureCount: MEASURE_COUNT,
+    shareOf,
+    euroAreaGap,
+    near: { above: neighbour(near.above), below: neighbour(near.below) },
+    line,
+    countryCount: ALL.length,
     index,
     ageIndex,
     c,
