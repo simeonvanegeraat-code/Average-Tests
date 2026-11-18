@@ -22,9 +22,9 @@
     "WSX": "Other"
   },
   "composition": {
-    "NUN": { "label": "Property and other non-financial assets", "short": "property" },
+    "NUN": { "label": "Housing wealth", "short": "housing" },
     "NUB": { "label": "Business wealth", "short": "business" },
-    "F62": { "label": "Pensions and insurance", "short": "pensions" },
+    "F62": { "label": "Life insurance and annuities", "short": "life insurance" },
     "F2M": { "label": "Cash and deposits", "short": "deposits" },
     "F52": { "label": "Investment funds", "short": "funds" },
     "F511": { "label": "Listed shares", "short": "listed shares" },

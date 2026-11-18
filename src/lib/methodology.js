@@ -202,8 +202,8 @@ function wealth(lang) {
 
 /**
  * De ECB-enquête onder /wealth/by-age/. Dezelfde uitgever als de rekeningen hierboven
- * en toch een eigen regel, want het is een andere meting: **publieke en
- * bedrijfspensioenen tellen er niet in mee**. Dat verschil is op de site de reden dat
+ * en toch een eigen regel, want het is **een andere meting**, met een eigen veldwerk per
+ * land. Dat verschil is op de site de reden dat
  * de leeftijdscijfers in een eigen paneel staan, en het hoort dus ook hier te staan en
  * niet als voetnoot bij vermogen.
  */

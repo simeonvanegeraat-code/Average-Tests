@@ -13,8 +13,8 @@
  *
  * TWEE BRONNEN, TWEE GROEPEN ZINNEN
  *
- * `country` hangt aan de kwartaalrekeningen (met pensioenaanspraken), `age` aan de
- * enquête (zonder publieke en bedrijfspensioenen). Geen zin hier zet een cijfer uit de
+ * `country` hangt aan de kwartaalrekeningen, `age` aan de enquête: twee metingen die niet
+ * hetzelfde meten (research/wealth-country-pages-plan.md §2b). Geen zin hier zet een cijfer uit de
  * ene groep in een zin van de andere. Les 5 uit CLAUDE.md, en op deze pagina staat het
  * verschil zelf ook uitgelegd.
  */
@@ -110,9 +110,9 @@ export default {
     /** Waar dit vandaan komt, en waarom het niet naast het paneel erboven mag liggen. */
     source: ({ wave, name, fieldwork, g }) =>
       `ECB Household Finance and Consumption Survey, wave ${wave}. Fieldwork in ` +
-      `${g.withArticle(name)} ran ${fieldwork}. The survey does not count ` +
-      'the value of public or occupational pension plans, so these figures sit at a different level ' +
-      'from the quarterly accounts in the panel above — the two are not comparable with each other.',
+      `${g.withArticle(name)} ran ${fieldwork}. The survey is measured differently and at a different ` +
+      'moment from the quarterly accounts in the panel above, so these figures sit at a different level ' +
+      '— the two are not comparable with each other.',
 
     caption: ({ name, g }) =>
       `Net wealth by age of the reference person in ${g.withArticle(name)}: the middle (bar) and the average (line). ` +

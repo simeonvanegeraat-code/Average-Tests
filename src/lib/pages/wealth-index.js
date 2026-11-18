@@ -5,8 +5,9 @@
  *
  * TWEE BRONNEN, EN DE PAGINA LEGT ZELF UIT WAAROM
  *
- * Boven staat de kwartaalrekening (DWA) mét pensioenaanspraken; de leeftijdslaag komt uit
- * de enquête (HFCS) zónder publieke en bedrijfspensioenen. `sourceGap` rekent uit hoe ver
+ * Boven staat de kwartaalrekening (DWA); de leeftijdslaag komt uit de enquête (HFCS). Ze
+ * meten anders en op een ander moment. Dat de DWA pensioenaanspraken meetelt, zoals hier
+ * stond, klopt niet: research/wealth-country-pages-plan.md §2b. `sourceGap` rekent uit hoe ver
  * de twee uiteenlopen, zodat de waarschuwing in het formulier echte cijfers draagt en
  * niet een vage "ze verschillen". Les 5 uit CLAUDE.md.
  *

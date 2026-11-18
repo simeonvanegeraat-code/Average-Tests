@@ -46,7 +46,7 @@ const {
 const title = 'Where Does Your Household Stand? — European Wealth';
 const description =
   'Enter what your household is worth, your age, and see where it sits among households in 21 ' +
-  'European countries. Official ECB figures.';
+  'European countries, from figures the European Central Bank publishes.';
 ---
 
 <BaseV2 title={title} description={description} canonical="/wealth/" hue={STAGES.money}>
@@ -90,8 +90,9 @@ const description =
         <p class="eyebrow mono">Your turn</p>
         <h2 id="compare-title">Where does your household stand?</h2>
         <p>
-          Everything you own minus everything you owe — home, savings, investments and pension
-          pot, less mortgage and other debt. A rough figure is fine.
+          Everything you own minus everything you owe — home, savings, investments and life
+          insurance, less mortgage and other debt. Leave out pension rights from work or the state:
+          neither set of figures here counts them. A rough figure is fine.
         </p>
       </header>
 
@@ -157,7 +158,8 @@ const description =
 
           Dat het er twee zijn en geen paneel met een extra regel is geen opmaakkeuze:
           hier staat de enquête, hieronder de kwartaalrekeningen, en die meten niet
-          hetzelfde — publieke en bedrijfspensioenen tellen hierboven niet mee. Eén
+          hetzelfde: een enquête met een eigen veldwerkperiode per land tegenover rekeningen
+          over één kwartaal. Eén
           paneel met beide cijfers erin zou dat verschil onzichtbaar maken.
         */}
         <figure class="panel hued panel--survey" id="age-result" hidden aria-labelledby="age-label">
@@ -217,8 +219,8 @@ const description =
               paneel die ook te hebben. Anders leest de bovenste bronregel als de bron
               van allebei, en dat is precies de verwarring die we willen voorkomen. */}
           <p class="panel-source">
-            {index.source}, {period}. These are quarterly national
-            accounts, and they do include pension entitlements — which the survey above does not.
+            {index.source}, {period}. These are quarterly accounts, measured differently and at a
+            different moment from the survey above, and the ECB publishes them as estimates.
           </p>
         </figure>
 
@@ -238,8 +240,9 @@ const description =
           <p>
             Age comes from a different ECB source, and it has to. The quarterly accounts behind
             the first panel carry no age split at all. The survey behind the second one does, but
-            it leaves out the value of public and occupational pension plans — so its national
-            median is not the same figure. Across the {sourceGap.of} countries here the two differ
+            it is a different measurement — households interviewed in a fieldwork period of their
+            own country, against accounts for a single quarter — so its national median is not the
+            same figure, and it is not higher or lower by any fixed amount. Across the {sourceGap.of} countries here the two differ
             by {times(sourceGap.middle.ratio)} in the middle case, from{' '}
             {times(sourceGap.lowest.ratio)} in {sourceGap.lowest.name} to{' '}
             {times(sourceGap.highest.ratio)} in {sourceGap.highest.name}. That is why each panel
@@ -292,8 +295,8 @@ const description =
         <h2 id="age-facts-title">Which country you live in matters. When you were born matters more.</h2>
         <p>
           These figures come from the ECB's household survey, not from the quarterly accounts
-          above, and they are not comparable with them: the survey leaves out public and
-          occupational pensions. Everything in this section is measured inside the survey alone.
+          above, and they are not comparable with them: the two are measured differently and at
+          different moments. Everything in this section is measured inside the survey alone.
         </p>
       </header>
 

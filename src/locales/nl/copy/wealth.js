@@ -109,9 +109,9 @@ export default {
     /** Waar dit vandaan komt, en waarom het niet naast het paneel erboven mag liggen. */
     source: ({ wave, name, fieldwork, g }) =>
       `ECB Household Finance and Consumption Survey, golf ${wave}. Het veldwerk in ` +
-      `${g.withArticle(name)} liep ${fieldwork}. De enquête telt de waarde van publieke en ` +
-      'bedrijfspensioenen niet mee, dus deze cijfers liggen op een ander niveau dan de ' +
-      'kwartaalrekeningen in het paneel hierboven — de twee zijn niet met elkaar vergelijkbaar.',
+      `${g.withArticle(name)} liep ${fieldwork}. De enquête is anders en op een ander moment gemeten ` +
+      'dan de kwartaalrekeningen in het paneel hierboven, dus deze cijfers liggen op een ander niveau ' +
+      '— de twee zijn niet met elkaar vergelijkbaar.',
 
     caption: ({ name, g }) =>
       `Nettovermogen naar leeftijd van de referentiepersoon in ${g.withArticle(name)}: het midden (balk) en het gemiddelde (lijn). ` +

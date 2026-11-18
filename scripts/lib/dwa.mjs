@@ -54,9 +54,9 @@ export const COUNTRIES = {
  *    Die horen er niet bij, anders tel je dubbel.
  */
 export const INSTRUMENTS = {
-  NUN: { label: 'Property and other non-financial assets', short: 'property', side: 'asset', order: 1 },
+  NUN: { label: 'Housing wealth', short: 'housing', side: 'asset', order: 1 },
   NUB: { label: 'Business wealth', short: 'business', side: 'asset', order: 2 },
-  F62: { label: 'Pensions and insurance', short: 'pensions', side: 'asset', order: 3 },
+  F62: { label: 'Life insurance and annuities', short: 'life insurance', side: 'asset', order: 3 },
   F2M: { label: 'Cash and deposits', short: 'deposits', side: 'asset', order: 4 },
   F52: { label: 'Investment funds', short: 'funds', side: 'asset', order: 5 },
   F511: { label: 'Listed shares', short: 'listed shares', side: 'asset', order: 6 },
