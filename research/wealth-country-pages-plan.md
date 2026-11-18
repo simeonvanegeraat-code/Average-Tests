@@ -126,13 +126,19 @@ Nageteld over de 21 landen, laatste kwartaal per land.
 | Vastgoed in het bezit van het midden | 54,8% (Duitsland) | 86,6% (Hongarije) | `composition.Q3` |
 | Spaargeld in het bezit van het midden | 6,7% (Hongarije) | 28,5% (Oostenrijk) | `composition.Q3` |
 | Schuld ÷ bezit van het midden | 7,0% (Hongarije) | 43,0% (Nederland) | `composition.Q3` |
-| Groei mediaan sinds 2023-Q1 | −3,1% (Finland) | +45,4% (Hongarije) | `medianHistory`; eurozone +13,8% |
+| Groei mediaan 2023-Q1 tot 2025-Q4 | −6,5% (Luxemburg) | +47,8% (Hongarije) | `medianHistory`; eurozone +13,8% |
 | Onderste vijfde negatief | 7 landen wel | 14 niet | `groups` Q1 |
 
 **De aandelen zijn een afgeleide som, geen schatting.** Het gemiddelde van een groep maal
 haar omvang, gedeeld door het gemiddelde van iedereen, is haar aandeel in het totaal. De
 controle: de vijf vijfden tellen per land op tot 0,999–1,003 van het gemiddelde. Het is
 geen percentiel en heet ook niet zo.
+
+**Correctie, 18 november.** De groei stond hier eerst als −3,1% tot +45,4%, gemeten tot het
+laatste kwartaal van elk land. Dat is les 4 overtreden: Nederland en de eurozone stoppen in
+deze download in 2025-Q4, de rest in 2026-Q1. De code rekent nu over het venster dat élk
+land heeft (`commonWindow()` in `src/lib/wealth-standout.js`), en dan is het −6,5% tot
++47,8%.
 
 Twee dingen die de data níet draagt:
 
