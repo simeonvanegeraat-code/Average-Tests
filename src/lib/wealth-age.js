@@ -6,9 +6,11 @@
  *
  * De site toont op /wealth/ de Distributional Wealth Accounts: kwartaalcijfers uit de
  * nationale rekeningen. Die kennen geen leeftijd. De enquête hiernaast kent die wel,
- * maar telt **publieke en bedrijfspensioenen niet mee**. Dat is geen detail: de mediaan
+ * maar is **een andere meting**, op een ander moment. Dat is geen detail: de mediaan
  * voor Nederland is €232k in de ene bron en €144k in de andere, voor Kroatië €59k tegen
- * €117k. In het middelste land scheelt het 1,09x, aan de randen 0,51x en 1,69x.
+ * €117k. In het middelste land scheelt het 1,09x, aan de randen 0,51x en 1,69x. Wat dat
+ * verschil verklaart is niet uitgezocht; pensioen is het niet, want ook de DWA telt
+ * pensioenaanspraken niet mee (research/wealth-country-pages-plan.md §2b).
  *
  * Daarom rekent alles hier binnen één bron. Een bedrag wordt tegen de totaalmediaan
  * uit déze enquête gezet en tegen de leeftijdsgroepen daaruit, nooit tegen het cijfer

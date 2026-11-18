@@ -52,7 +52,7 @@ const {
 const title = 'Waar staat jouw huishouden? — Vermogen in Europa';
 const description =
   'Vul in wat je huishouden waard is en hoe oud je bent, en zie waar dat ligt tussen de ' +
-  'huishoudens in 21 Europese landen. Officiële cijfers van de ECB.';
+  'huishoudens in 21 Europese landen, uit cijfers die de Europese Centrale Bank publiceert.';
 ---
 
 <BaseV2 title={title} description={description} canonical="/wealth/" hue={STAGES.money}>
@@ -97,7 +97,8 @@ const description =
         <h2 id="compare-title">Waar staat jouw huishouden?</h2>
         <p>
           Alles wat je bezit min alles wat je schuldig bent — huis, spaargeld, beleggingen en
-          pensioenpot, min hypotheek en andere schuld. Een ruwe schatting is genoeg.
+          levensverzekeringen, min hypotheek en andere schuld. Laat pensioenopbouw via werk of
+          AOW weg: geen van beide reeksen cijfers hier telt die mee. Een ruwe schatting is genoeg.
         </p>
       </header>
 
@@ -163,7 +164,8 @@ const description =
 
           Dat het er twee zijn en geen paneel met een extra regel is geen opmaakkeuze:
           hier staat de enquête, hieronder de kwartaalrekeningen, en die meten niet
-          hetzelfde — publieke en bedrijfspensioenen tellen hierboven niet mee. Eén
+          hetzelfde: een enquête met een eigen veldwerkperiode per land tegenover rekeningen
+          over één kwartaal. Eén
           paneel met beide cijfers erin zou dat verschil onzichtbaar maken.
         */}
         <figure class="panel hued panel--survey" id="age-result" hidden aria-labelledby="age-label">
@@ -223,8 +225,8 @@ const description =
               paneel die ook te hebben. Anders leest de bovenste bronregel als de bron
               van allebei, en dat is precies de verwarring die we willen voorkomen. */}
           <p class="panel-source">
-            {index.source}, {period}. Dit zijn kwartaalrekeningen uit de nationale rekeningen, en
-            die tellen pensioenaanspraken wél mee — wat de enquête hierboven niet doet.
+            {index.source}, {period}. Dit zijn kwartaalrekeningen, anders gemeten en op een ander
+            moment dan de enquête hierboven, en de ECB publiceert ze als schattingen.
           </p>
         </figure>
 
@@ -245,8 +247,10 @@ const description =
           <p>
             Leeftijd komt uit een andere bron van de ECB, en dat moet ook. De kwartaalrekeningen
             achter het eerste paneel kennen geen enkele leeftijdssplitsing. De enquête achter het
-            tweede wel, maar die laat de waarde van publieke en bedrijfspensioenen buiten
-            beschouwing — dus haar nationale mediaan is niet hetzelfde cijfer. Over de
+            tweede wel, maar dat is een andere meting — huishoudens ondervraagd in een
+            veldwerkperiode van hun eigen land, tegenover rekeningen over één kwartaal — dus haar
+            nationale mediaan is niet hetzelfde cijfer, en ligt er ook niet een vast stuk boven of
+            onder. Over de
             {' '}{sourceGap.of} landen hier verschillen de twee {times(sourceGap.middle.ratio)} in
             het middelste geval, van {times(sourceGap.lowest.ratio)} in {sourceGap.lowest.name} tot
             {' '}{times(sourceGap.highest.ratio)} in {sourceGap.highest.name}. Daarom vergelijkt elk
@@ -299,9 +303,8 @@ const description =
         <h2 id="age-facts-title">In welk land je woont maakt uit. Wanneer je geboren bent maakt meer uit.</h2>
         <p>
           Deze cijfers komen uit de huishoudenquête van de ECB, niet uit de kwartaalrekeningen
-          hierboven, en ze zijn er niet mee vergelijkbaar: de enquête laat publieke en
-          bedrijfspensioenen buiten beschouwing. Alles in deze sectie is binnen de enquête alleen
-          gemeten.
+          hierboven, en ze zijn er niet mee vergelijkbaar: de twee zijn anders en op een ander
+          moment gemeten. Alles in deze sectie is binnen de enquête alleen gemeten.
         </p>
       </header>
 

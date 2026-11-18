@@ -19,8 +19,8 @@
  *
  * TWEE BRONNEN, STRENG APART
  *
- * `index` is de kwartaalrekening (met pensioenaanspraken), `ageIndex` de enquête (zonder
- * publieke en bedrijfspensioenen). Nergens worden ze samengevoegd, en de twee panelen
+ * `index` is de kwartaalrekening, `ageIndex` de enquête: anders gemeten, op een ander
+ * moment, en ze verschillen in beide richtingen. Nergens worden ze samengevoegd, en de twee panelen
  * dragen elk hun eigen bronregel. Les 5 uit CLAUDE.md.
  *
  * De haken zitten in de pagina: `#wealth-form`, `#result`, `#age-result`, de velden en
@@ -194,7 +194,7 @@
    * Het tweede paneel: jouw bedrag tegenover je eigen leeftijdsgroep.
    *
    * Elke waarde hier komt uit `ageIndex` en geen enkele uit `index`. Dat is geen netheid
-   * maar noodzaak: de enquête telt publieke en bedrijfspensioenen niet mee, dus haar
+   * maar noodzaak: de enquête is een andere meting dan de kwartaalrekening, dus haar
    * middelpunt ligt op een ander niveau dan dat van het paneel erboven.
    */
   function renderAge(area: string, amount: number, age: number | null) {

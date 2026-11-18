@@ -5,8 +5,8 @@
  * Twaalfde pagina in de vorm van 3 november 2026.
  *
  * Deze pagina staat volledig op de ECB-enquête en raakt de kwartaalrekeningen van
- * /wealth/ nergens aan. Dat is geen voorzichtigheid maar noodzaak: de enquête telt
- * publieke en bedrijfspensioenen niet mee, dus haar cijfers liggen op een ander niveau.
+ * /wealth/ nergens aan. Dat is geen voorzichtigheid maar noodzaak: de enquête is een
+ * andere meting dan de kwartaalrekeningen, dus haar cijfers liggen op een ander niveau.
  * Eén tabel met beide erin zou een vergelijking suggereren die niet bestaat. Les 5 uit
  * CLAUDE.md.
  *

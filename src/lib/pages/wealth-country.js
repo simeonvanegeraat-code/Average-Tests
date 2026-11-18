@@ -4,16 +4,22 @@
  *
  * Elfde pagina in de vorm van 3 november 2026, en de enige die 21 pagina's oplevert.
  *
- * Deze pagina's zijn geen varianten van hetzelfde sjabloon met een ander cijfer: landen
- * verschillen werkelijk. Duitsland heeft een lagere mediaan dan Italië ondanks een hoger
- * inkomen, in Zuid-Europa zit het vermogen in stenen en in Nederland in pensioen. Deze
- * lib leest die verschillen uit de data; de twee paginabestanden benoemen ze.
+ * Deze lib leest per land uit de data wat de pagina benoemt. Let op wat de data níet
+ * zegt: het grootste bezit van het middelste huishouden is in alle 21 landen woningbezit
+ * en het tweede in alle 21 spaargeld. Een zin daarover onderscheidt geen enkel land. Het
+ * plan om de pagina's werkelijk uit elkaar te laten lopen staat in
+ * research/wealth-country-pages-plan.md.
  *
  * TWEE BRONNEN OP ÉÉN PAGINA, EN DAT VRAAGT OM STRENGHEID
  *
- * Boven staat de kwartaalrekening (DWA) mét pensioenaanspraken; de leeftijdssectie komt
- * uit de enquête (HFCS) zónder publieke en bedrijfspensioenen. Les 5 uit CLAUDE.md: geen
- * enkele zin zet die twee naast elkaar, en de sectie zegt zelf waar ze vandaan komt.
+ * Boven staat de kwartaalrekening (DWA), de leeftijdssectie komt uit de enquête (HFCS).
+ * Ze meten anders en op een ander moment, en verschillen in beide richtingen. Les 5 uit
+ * CLAUDE.md: geen enkele zin zet die twee naast elkaar.
+ *
+ * Wat hier tot 17 november 2026 stond — "DWA mét pensioenaanspraken" — klopt niet. De
+ * post F62 heet bij de ECB "Life insurance and annuity entitlements", een reeks voor
+ * pensioenaanspraken (F63) zit niet in de download, en de ECB schrijft dat die nu niet
+ * in de DWA zitten. Zie het plan, §2b.
  */
 import { countryNames, localise } from '../country-names.js';
 import { localiseWealthCountry, localiseWealthAge } from '../wealth-names.js';
@@ -61,6 +67,14 @@ export function wealthCountryPage(rawCountry, lang) {
   const bottomQuintile = byCode.Q1;
 
   /**
+   * In hoeveel landen het onderste vijfde negatief staat. Hier stond "This is not unusual
+   * across Europe", met de hand getypt; nu zegt de zin hoeveel het er zijn.
+   */
+  const negativeBottomCount = index.countries.filter((x) =>
+    (x.groups ?? []).some((g) => g.code === 'Q1' && g.netWealth < 0),
+  ).length;
+
+  /**
    * De leeftijdscurve van dit land, uit de ECB-enquête. Dit is ook wat deze landpagina's
    * van elkaar onderscheidt: de piek ligt niet overal bij dezelfde groep en de klim
    * ernaartoe verschilt van 1,6x tot 31,6x.
@@ -86,6 +100,7 @@ export function wealthCountryPage(rawCountry, lang) {
     totalDebt: debts.reduce((sum, d) => sum + Math.abs(d.value), 0),
     bottomQuintile,
     negativeBottom: bottomQuintile && bottomQuintile.netWealth < 0,
+    negativeBottomCount,
     survey,
     curve: survey ? curveOf(survey) : null,
     /** Hoeveel andere landen hun hoogtepunt bij dezelfde groep hebben. */

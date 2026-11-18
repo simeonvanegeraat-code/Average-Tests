@@ -48,6 +48,7 @@ const {
   totalDebt,
   bottomQuintile,
   negativeBottom,
+  negativeBottomCount,
   survey,
   curve,
   sharePeak,
@@ -150,10 +151,7 @@ const description =
         <div class="wrap">
           <header class="sec-head" data-reveal>
             <p class="eyebrow mono">Owning versus renting</p>
-            <h2 id="housing-title">The sharpest divide in the data</h2>
-            <p>
-              In {where} this is wider than any difference between age groups or professions.
-            </p>
+            <h2 id="housing-title">Whether a household owns its home</h2>
           </header>
 
           <div data-reveal>
@@ -226,9 +224,10 @@ const description =
           <div class="limits" data-reveal>
             <b>The bottom fifth of households in {where} has negative net wealth</b>
             <p>
-              On average {money(bottomQuintile.netWealth)}. They owe more than they own. This is not
-              unusual across Europe and it is not a rounding artefact: mortgages, student loans and
-              consumer credit can exceed everything a young household has managed to accumulate.
+              On average {money(bottomQuintile.netWealth)}. They owe more than they own. The same is
+              true in {negativeBottomCount} of the {ranked.length} countries here, and it is not a
+              rounding artefact: mortgages, student loans and consumer credit can exceed everything
+              a young household has managed to accumulate.
             </p>
           </div>
         )
@@ -296,9 +295,9 @@ const description =
             </h2>
             <p>
               Every figure in this section comes from the ECB's household survey, which is a
-              different measure from the rest of this page: it leaves the value of public and
-              occupational pension plans out. The two cannot be read against each other, so this
-              section compares only within itself.
+              different measurement from the rest of this page: households interviewed in their
+              own fieldwork period, not accounts for a single quarter. The two cannot be read
+              against each other, so this section compares only within itself.
             </p>
           </header>
 
@@ -383,7 +382,8 @@ const description =
             <dd>
               Net wealth is all assets minus all liabilities, per household. Group figures are
               averages within each group, not the boundaries between them. Every component on this
-              page reconciles against the ECB's own published net wealth total.
+              page reconciles against the ECB's own published net wealth total. The ECB flags
+              every figure in these accounts as an estimate.
             </dd>
           </div>
           {euroArea && (
@@ -410,7 +410,7 @@ const description =
               <span>
                 <a href={ageIndex.source.url} data-method-link>{ageIndex.source.survey}</a>, wave
                 {' '}{ageIndex.source.wave}, fieldwork {fieldwork}. A separate
-                measure: public and occupational pensions are not counted in it.
+                measurement, not comparable with the figures above.
               </span>
             </li>
           )}

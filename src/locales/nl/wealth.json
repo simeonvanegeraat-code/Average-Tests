@@ -22,9 +22,9 @@
     "WSX": "Overig"
   },
   "composition": {
-    "NUN": { "label": "Vastgoed en ander niet-financieel bezit", "short": "vastgoed" },
+    "NUN": { "label": "Woningvermogen", "short": "woningen" },
     "NUB": { "label": "Bedrijfsvermogen", "short": "bedrijfsvermogen" },
-    "F62": { "label": "Pensioenen en verzekeringen", "short": "pensioenen" },
+    "F62": { "label": "Levensverzekeringen en lijfrentes", "short": "levensverzekeringen" },
     "F2M": { "label": "Contanten en deposito's", "short": "deposito's" },
     "F52": { "label": "Beleggingsfondsen", "short": "fondsen" },
     "F511": { "label": "Beursgenoteerde aandelen", "short": "beursgenoteerde aandelen" },
