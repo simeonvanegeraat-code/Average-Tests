@@ -645,7 +645,7 @@ if (pages.length === 0) {
      * terug op het Engels komen. Een build die slaagt vindt dat niet.
      *
      * Wat hier wél een link naar een andere taal mag zijn: de taalkiezer. Die wijst
-     * per definitie naar de andere talen, dus zijn `nav` gaat er eerst uit. Zonder dat
+     * per definitie naar de andere talen, dus het uitklapmenu gaat er eerst uit. Zonder dat
      * gaat deze poort af op precies de code die goed is — en een poort die onterecht
      * afgaat, wordt uitgezet.
      *
@@ -654,7 +654,7 @@ if (pages.length === 0) {
      * voorvoegsel te dragen.
      */
     if (prefix !== DEFAULT) {
-      const zonderKiezer = html.replace(/<nav class="lang-switch"[\s\S]*?<\/nav>/g, '');
+      const zonderKiezer = html.replace(/<details class="lang-menu"[\s\S]*?<\/details>/g, '');
       const mis = new Set();
 
       for (const hit of zonderKiezer.matchAll(/href="(\/[^"\/][^"]*|\/)"/g)) {

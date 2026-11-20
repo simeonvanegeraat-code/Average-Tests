@@ -78,6 +78,13 @@ const breakPeriods = [...new Set(rows.flatMap(notchedIn))].sort(
  * alleen wat voor déze dataset geldt.
  */
 const hasSexes = rows.some((row) => row.men !== null && row.women !== null);
+
+/**
+ * Een trendkolom heeft alleen zin met meer dan één periode. Woninggrootte en
+ * pensioenleeftijd hebben er één, en daar stond tot 20 november 2026 een kolom "Trend
+ * 2023–2023" met in elke rij een streepje.
+ */
+const hasTrend = (index.years ?? []).length > 1;
 const oneYear = (index.years as string[]).length === 1;
 const publisher = index.source?.publisher ?? 'The publisher';
 
@@ -132,16 +139,25 @@ const caption =
         <th scope="col" class="n sortable" aria-sort="ascending">
           <button type="button" data-sort="total" data-type="number">{t.everyone}</button>
         </th>
-        <th scope="col" class="n sortable" aria-sort="none">
-          <button type="button" data-sort="men" data-type="number">{t.men}</button>
-        </th>
-        <th scope="col" class="n sortable" aria-sort="none">
-          <button type="button" data-sort="women" data-type="number">{t.women}</button>
-        </th>
-        <th scope="col" class="n sortable" aria-sort="none">
-          <button type="button" data-sort="gap" data-type="number">{t.gap}<span class="vh">{' '}{t.gapBetween}</span></button>
-        </th>
-        <th scope="col">{fill(t.trendColumn, { from: periodShort(yearMin, { locale: lang }), to: periodShort(yearMax, { locale: lang }) })}</th>
+        {/*
+          Alleen als de bron mannen en vrouwen apart publiceert. Huishoudgrootte,
+          woninggrootte en leeftijd bij het eerste kind doen dat niet, en daar stonden tot
+          20 november 2026 drie kolommen met alleen streepjes.
+        */}
+        {hasSexes && (
+          <>
+            <th scope="col" class="n sortable" aria-sort="none">
+              <button type="button" data-sort="men" data-type="number">{t.men}</button>
+            </th>
+            <th scope="col" class="n sortable" aria-sort="none">
+              <button type="button" data-sort="women" data-type="number">{t.women}</button>
+            </th>
+            <th scope="col" class="n sortable" aria-sort="none">
+              <button type="button" data-sort="gap" data-type="number">{t.gap}<span class="vh">{' '}{t.gapBetween}</span></button>
+            </th>
+          </>
+        )}
+        {hasTrend && <th scope="col">{fill(t.trendColumn, { from: periodShort(yearMin, { locale: lang }), to: periodShort(yearMax, { locale: lang }) })}</th>}
       </tr>
     </thead>
     <tbody>
@@ -156,10 +172,10 @@ const caption =
                 {row.year !== latestYear && <span class="stale-year">{periodShort(row.year, { locale: lang })}</span>}
               </th>
               <td class="n strong">{formatValue(row.total, metric)}</td>
-              <td class="n">{formatValue(row.men, metric)}</td>
-              <td class="n">{formatValue(row.women, metric)}</td>
-              <td class="n">{gap === null ? '—' : formatAmount(gap, metric, { sign: true })}</td>
-              <td class="trend">
+              {hasSexes && <td class="n">{formatValue(row.men, metric)}</td>}
+              {hasSexes && <td class="n">{formatValue(row.women, metric)}</td>}
+              {hasSexes && <td class="n">{gap === null ? '—' : formatAmount(gap, metric, { sign: true })}</td>}
+              {hasTrend && <td class="trend">
                 {
                   spark ? (
                     <>
@@ -182,7 +198,7 @@ const caption =
                     '—'
                   )
                 }
-              </td>
+              </td>}
             </tr>
           );
         })
