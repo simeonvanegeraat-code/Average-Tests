@@ -226,20 +226,27 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
            * main. Zie de commitboodschap van 894e21d, waar dat gedrag is nagemeten.
            */
           alternates.length > 1 && (
-          <nav class="lang-switch" aria-label={t.language}>
-            {alternates.map(({ lang: alt, path }) => (
-              <a
-                href={path}
-                hreflang={alt}
-                lang={alt}
-                aria-label={languageName(alt)}
-                aria-current={alt === lang ? 'page' : undefined}
-              >
-                <span class="lang-long">{languageName(alt)}</span>
-                <span class="lang-short">{alt.toUpperCase()}</span>
-              </a>
-            ))}
-          </nav>
+          <details class="lang-menu" data-lang-menu>
+            <summary aria-label={`${t.language}: ${languageName(lang)}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path>
+              </svg>
+              <span>{lang.toUpperCase()}</span>
+            </summary>
+            <nav aria-label={t.language}>
+              <ul>
+                {alternates.map(({ lang: alt, path }) => (
+                  <li>
+                    <a href={path} hreflang={alt} lang={alt} aria-current={alt === lang ? 'page' : undefined}>
+                      <span>{languageName(alt)}</span>
+                      <span class="code mono">{alt.toUpperCase()}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </details>
           )
         }
 
@@ -435,6 +442,23 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
               ),
             )
             .catch(() => {});
+        });
+      }
+
+      /**
+       * De taalkiezer is een <details>: open en dicht werkt zonder script. Dit sluit hem
+       * ook bij een klik ernaast of Escape, zoals je van een uitklapmenu verwacht.
+       */
+      const langMenu = document.querySelector<HTMLDetailsElement>('[data-lang-menu]');
+      if (langMenu) {
+        document.addEventListener('click', (event) => {
+          if (langMenu.open && !langMenu.contains(event.target as Node)) langMenu.open = false;
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && langMenu.open) {
+            langMenu.open = false;
+            langMenu.querySelector('summary')?.focus();
+          }
         });
       }
 
