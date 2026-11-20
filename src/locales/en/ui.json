@@ -282,7 +282,93 @@
     "pickHeading": "{count} questions, answered for every country",
     "honestLead": "Where a source publishes one figure per country — which is almost always — a page tells you which side of it you are on, and says so plainly instead of dressing it up as a percentile.",
     "methodPageLink": "The method page",
-    "honestTail": "has the whole argument, per dataset."
+    "honestTail": "has the whole argument, per dataset.",
+    "newTitle": "How does your country compare?",
+    "newLead": "{count} questions about how Europeans live — when they leave home, how long they work, what they own — answered for every country from figures Eurostat, the OECD and the ECB publish.",
+    "pickYourCountry": "Pick your country",
+    "nothingLeaves": "Nothing you pick leaves your browser.",
+    "lifeEyebrow": "A European life, in ages",
+    "lifeTitleEurope": "Four moments in a European life",
+    "lifeTitleCountry": "Four moments in a life in {where}",
+    "lifeLead": "Each dot is the age at which it happens, on one line from {from} to {to}.",
+    "lifeNote": "Four different measures on one line: the age by which half have left home, the average age of mothers at their first child, the average age at which people started drawing an old-age pension, and the healthy years a newborn can expect.",
+    "youLabel": "Your country",
+    "stops": {
+      "leaving-home": "Half have left home",
+      "first-child": "First child",
+      "pension-age": "Pension starts",
+      "healthy-years": "Healthy years at birth"
+    },
+    "sameAsEu": "the same as the EU",
+    "ranksEyebrow": "Every figure",
+    "ranksTitleEurope": "Europe in {count} figures",
+    "ranksTitleCountry": "{where}, figure by figure",
+    "ranksLeadEurope": "The European figure, and the lowest and highest country. Pick a country above to see where it ranks.",
+    "ranksLeadCountry": "Where {where} ranks among the countries with a figure for the latest year.",
+    "phases": {
+      "home": "Home",
+      "work": "Work",
+      "family": "Family and health",
+      "money": "Money"
+    },
+    "range": "{low} {lowValue} to {high} {highValue}",
+    "rankFirst": "the {word} of {of}",
+    "rankNth": "{nth} {word} of {of}",
+    "rankWords": {
+      "leaving-home": {
+        "low": "earliest",
+        "high": "latest"
+      },
+      "household-size": {
+        "low": "smallest",
+        "high": "largest"
+      },
+      "dwelling-size": {
+        "low": "smallest",
+        "high": "largest"
+      },
+      "working-life": {
+        "low": "shortest",
+        "high": "longest"
+      },
+      "working-hours": {
+        "low": "shortest",
+        "high": "longest"
+      },
+      "unemployment": {
+        "low": "lowest",
+        "high": "highest"
+      },
+      "pension-age": {
+        "low": "earliest",
+        "high": "latest"
+      },
+      "first-child": {
+        "low": "youngest",
+        "high": "oldest"
+      },
+      "healthy-years": {
+        "low": "lowest",
+        "high": "highest"
+      },
+      "wealth": {
+        "low": "lowest",
+        "high": "highest"
+      }
+    },
+    "notRanked": "latest figure from {year}, so not ranked",
+    "noFigure": "no figure published",
+    "eu": "EU",
+    "euroArea": "Euro area",
+    "wealthLabel": "Wealth",
+    "wealthUnit": "median",
+    "factsEyebrow": "What stands out",
+    "factsTitleEurope": "Where Europe is furthest apart",
+    "factsTitleCountry": "Where {where} stands out",
+    "factEurope": "{high} {highValue} against {low} {lowValue}: {ratio} times as much.",
+    "factCountry": "{value}: {rank}.",
+    "openIt": "Open it",
+    "comparedWithEu": "{years} years {word} than the EU"
   },
   "metricLabels": {
     "wealth": "Wealth"

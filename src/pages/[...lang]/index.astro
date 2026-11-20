@@ -2,80 +2,52 @@
 import { localeOf, localePaths, linkTo } from '../../lib/locales.js';
 import { ui, fill } from '../../lib/ui.js';
 import { siteIdentity } from '../../lib/schema.js';
-import { localise } from '../../lib/country-names.js';
-import { decimal } from '../../lib/format.js';
 import BaseV2 from '../../layouts/BaseV2.astro';
-import Globe from '../../components/Globe.astro';
-import rawLeaving from '../../../data/leaving-home/index.json';
-import { headline, age } from '../../lib/leaving-home.js';
-import { catalogue } from '../../lib/catalogue.js';
-import { homeCountries } from '../../lib/home-countries.js';
+import { frontDoor, AXIS } from '../../lib/front-door.js';
 import { notes, NOTES_LINK, noteDate } from '../../lib/notes.js';
 
-
 /**
- * De Engelse homepage. De voordeur.
+ * De voordeur.
  *
- * Herbouwd op 26 oktober 2026. De versie daarvoor was op 24 oktober geschreven voor
- * een site van twee metrieken en meegroeien deed hij niet: de kop van de tweede
- * sectie zei "Two questions so far" terwijl er negen stonden, en van de negen
- * pagina's werden er twee genoemd. Het mega menu was daarmee de enige echte ingang.
+ * Herbouwd op 20 november 2026, na Simeons oordeel: "de indeling is niet logisch en ik
+ * voel me niet geroepen om ergens op te klikken". De oude versie opende met een stelling
+ * ("A European average describes almost nobody"), een bol die versiering was, en een
+ * keuzelijst met een knop die op de plek zelf niets veranderde. Plan:
+ * research/next-round-plan.md §2.
  *
- * Twee dingen zorgen dat dat niet nog eens gebeurt:
+ * Nu, van boven naar beneden:
  *
- * 1. **De negen kaarten komen uit `CATALOGUE`**, hetzelfde bestand dat het paneel in
- *    de balk vult. Een tiende metriek verschijnt hier dus vanzelf, en de voordeur kan
- *    niet afwijken van het menu.
- * 2. **De kiezer komt uit `HOME_COUNTRIES`**, dat de landen uit de databestanden
- *    haalt. Geen handmatige lijst die veroudert.
+ *  1. Een vraag en de landkeuze, meteen. Wie een land kiest, ziet alles eronder omslaan.
+ *  2. De levenslijn: vier leeftijden op één as, de EU en je eigen land. Stond al in de
+ *     ontwerpnotitie van oktober en was nooit gebouwd.
+ *  3. Elk cijfer per levensfase: zonder land de EU met het laagste en hoogste land, met
+ *     een land de rang ("7th earliest of 31").
+ *  4. Drie feiten: waar Europa het verst uiteenloopt, of waar je land opvalt.
+ *  5. De artikelen, en wat deze site niet doet.
  *
- * Elk getal komt uit een lib. Type hier nooit een getal met de hand in.
+ * Alle getallen en zinnen komen uit src/lib/front-door.js, op de server. Het script
+ * onderaan verzet alleen tekst en posities die daar al klaarstaan.
  */
 
 const lang = localeOf(Astro.url.pathname);
-/** De artikelen in de taal van deze pagina. */
 const NOTES = notes(lang);
-
-/**
- * De identiteit van de site, uit src/lib/schema.js in plaats van hier uitgetypt.
- * Dit blok had `url` en `publisher.url` hardgecodeerd op de Engelse wortel staan, en
- * `inLanguage: 'en-US'` — op /nl/ zou de voordeur dus in zijn structured data naar de
- * Engelse site wijzen en beweren dat hij Engels is.
- */
 const site = siteIdentity(lang, Astro.site);
-/** De tekst van deze pagina in haar eigen taal. Zie src/lib/ui.js. */
 const t = ui(lang).home;
-const leaving = localise(rawLeaving, lang);
-
-/**
- * Beide waren imports van constanten en zijn nu functies van de taal. De namen
- * blijven staan zodat de rest van dit bestand ongewijzigd blijft — wat hier
- * verandert is waar ze vandaan komen, niet wat ze betekenen.
- */
-const CATALOGUE = catalogue(lang);
-const {
-  countries: HOME_COUNTRIES,
-  countryData: COUNTRY_DATA,
-  metricCount: METRIC_COUNT,
-} = homeCountries(lang);
-
-const h = headline(leaving);
-
-const clientJson = JSON.stringify(COUNTRY_DATA).replace(/</g, '\\u003c');
-
-/** Alleen --h: de rest van de tintvariabelen leidt ha.css zelf af op .hued. */
-const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
-  [`--i:${i}`, `--h:${metric.hue}`, metric.at === null ? '' : `--at:${metric.at.toFixed(1)}%`]
-    .filter(Boolean)
-    .join(';');
+const door = frontDoor(lang);
+const { europe } = door;
 
 const title = t.pageTitle;
-const description = fill(t.pageDescription, { count: METRIC_COUNT });
-/** Eén pad per taal. Zolang LOCALES alleen Engels bevat is dat precies dit pad. */
+const description = fill(t.pageDescription, { count: door.metricCount });
+const clientJson = JSON.stringify({ europe, countries: door.countries }).replace(/</g, '\\u003c');
+
+/** De maatstreepjes op de as: elke tien jaar. */
+const ticks: number[] = [];
+for (let age = Math.ceil(AXIS.from / 10) * 10; age <= AXIS.to; age += 10) ticks.push(age);
+const tickAt = (age: number) => ((age - AXIS.from) / (AXIS.to - AXIS.from)) * 100;
+
 export function getStaticPaths() {
   return localePaths();
 }
-
 ---
 
 <BaseV2 title={title} description={description} canonical="/">
@@ -93,105 +65,116 @@ export function getStaticPaths() {
     />
   </Fragment>
 
-  {/*
-    Twee kolommen, want in één kolom stond de kiezer op 810px en begonnen de kaarten
-    621px onder de vouw — gemeten op 1280x900. Dan is de voordeur weer een pagina
-    waar je langs moet scrollen voordat je iets kunt. `.hero-grid` bestaat al in
-    ha.css (StatHero gebruikt hem) en valt onder 1040px vanzelf terug naar één kolom.
-  */}
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div>
-        <p class="eyebrow mono">{fill(t.eyebrow, { count: METRIC_COUNT })}</p>
-
-        <h1 data-reveal>{t.title}</h1>
-
-        <p class="lead">
-          {
-          fill(t.lead, {
-            low: h.earliest.name,
-            lowAge: age(h.earliest.total, { locale: lang }),
-            high: h.latest.name,
-            highAge: age(h.latest.total, { locale: lang }),
-            gap: decimal(h.gap, 1, { locale: lang }),
-          })
-        }
-        </p>
-      </div>
-
-      {/*
-        Hier stond het kopcijfer 10,2: de kloof bij leaving-home. Eén metriek die voor
-        de hele site stond — dezelfde fout in het klein als de "Two questions so far"
-        die hierboven weg is. De bol toont alle negen, en de kloof zelf staat nog in de
-        lead ernaast.
-      */}
-      <Globe />
-    </div>
-
+  <section class="hero door-hero">
     <div class="wrap">
-      <form class="pick" data-pick autocomplete="off">
-        <label class="pick-label" for="pick-country">{t.startWithYourCountry}</label>
-        <div class="pick-row">
-          <select id="pick-country" name="country" data-pick-country>
-            <option value="">{t.europe}</option>
-            {HOME_COUNTRIES.map((country) => <option value={country.code}>{country.name}</option>)}
-          </select>
-          <button class="btn" type="submit">
-            Show me <span class="arr" aria-hidden="true">→</span>
-          </button>
-        </div>
-        <p class="hint" data-pick-note>
-          {t.everyFigureBelowSwitches}
-        </p>
+      <p class="eyebrow mono">{fill(t.eyebrow, { count: door.metricCount })}</p>
+      <h1 data-reveal>{t.newTitle}</h1>
+      <p class="lead">{fill(t.newLead, { count: door.metricCount })}</p>
+
+      <form class="pick" data-pick autocomplete="off" onsubmit="return false">
+        <label class="pick-label" for="pick-country">{t.pickYourCountry}</label>
+        <select id="pick-country" name="country" data-pick-country>
+          <option value="">{t.europe}</option>
+          {door.codes.map((c) => <option value={c.code}>{c.name}</option>)}
+        </select>
+        <p class="hint">{t.nothingLeaves}</p>
       </form>
     </div>
   </section>
 
-  <section class="block" aria-labelledby="metrics-title">
+  <section class="block" aria-labelledby="life-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
-        <p class="eyebrow mono">{t.whatIsHere}</p>
-        <h2 id="metrics-title">
-          <span data-pick-heading>{fill(t.pickHeading, { count: METRIC_COUNT })}</span>
-        </h2>
-        <p>
-          {t.eachOneIsA}
-        </p>
+        <p class="eyebrow mono">{t.lifeEyebrow}</p>
+        <h2 id="life-title" data-life-title data-europe={t.lifeTitleEurope} data-country={t.lifeTitleCountry}>{t.lifeTitleEurope}</h2>
+        <p>{fill(t.lifeLead, { from: AXIS.from, to: AXIS.to })}</p>
       </header>
 
-      <div class="cat-grid" data-reveal data-pick-grid>
-        {
-          CATALOGUE.map((metric, i) => (
-            <a class="cat-card hued" href={linkTo(metric.path, lang)} style={cardStyle(metric, i)} data-metric={metric.key}>
-              <span class="name">{metric.label}</span>
-              {metric.value && (
-                <span class="val">
-                  <span data-count>{metric.value}</span>
-                  <small>{metric.unit}</small>
-                </span>
-              )}
-              {metric.at !== null && (
-                <span class="bar">
-                  <span class="track"><i /></span>
-                  <span class="ends">
-                    <span>{metric.low}</span>
-                    <span>{metric.high}</span>
-                  </span>
-                </span>
-              )}
-            </a>
-          ))
-        }
+      <figure class="life" data-reveal>
+        <div class="life-axis" aria-hidden="true">
+          <div class="life-track life-track--eu">
+            <span class="life-who mono">{t.eu}</span>
+            {europe.stops.map((s, i) => s.at !== null && (
+              <span class="life-dot hued" style={`--h:${s.hue};left:${s.at}%`} data-eu-dot={s.key}>{i + 1}</span>
+            ))}
+          </div>
+          <div class="life-track life-track--you" data-you-track hidden>
+            <span class="life-who mono" data-you-name>{t.youLabel}</span>
+            {europe.stops.map((s, i) => (
+              <span class="life-dot life-dot--you hued" style={`--h:${s.hue};left:${s.at ?? 0}%`} data-you-dot={s.key}>{i + 1}</span>
+            ))}
+          </div>
+          <div class="life-ticks">
+            {ticks.map((age) => <span style={`left:${tickAt(age)}%`}>{age}</span>)}
+          </div>
+        </div>
 
-        <a class="cat-card cat-method" href={linkTo('/method/', lang)} style={`--i:${CATALOGUE.length}`}>
-          <span class="cue">{t.howWeReadIt}</span>
-          <span class="name">{t.sourcesAndBreaks}</span>
-          <span class="go" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 12h13M12 5l7 7-7 7"></path>
-            </svg>
-          </span>
-        </a>
+        <ol class="life-stops">
+          {europe.stops.map((s, i) => (
+            <li>
+              <a class="life-stop hued" href={s.path} style={`--h:${s.hue}`} data-stop={s.key}>
+                <span class="n">{i + 1}</span>
+                <span class="k">{s.label}</span>
+                <span class="v num"><span data-stop-value>{s.value}</span> <small>{t.eu}</small></span>
+                <span class="you" data-stop-you hidden>
+                  <b data-stop-you-value></b> <span data-stop-you-diff></span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ol>
+
+        <figcaption>{t.lifeNote}</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="ranks-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{t.ranksEyebrow}</p>
+        <h2 id="ranks-title" data-ranks-title data-europe={fill(t.ranksTitleEurope, { count: door.metricCount })} data-country={t.ranksTitleCountry}>
+          {fill(t.ranksTitleEurope, { count: door.metricCount })}
+        </h2>
+        <p data-ranks-lead data-europe={t.ranksLeadEurope} data-country={t.ranksLeadCountry}>{t.ranksLeadEurope}</p>
+      </header>
+
+      <div class="phases" data-reveal>
+        {europe.phases.map((phase) => (
+          <div class="phase">
+            <h3 class="mono">{phase.label}</h3>
+            <ul>
+              {phase.rows.map((row) => (
+                <li>
+                  <a class="rankrow hued" href={row.path} style={`--h:${row.hue}`} data-row={row.key}>
+                    <span class="k">{row.label}</span>
+                    <span class="v num"><span data-row-value>{row.value}</span> <small>{row.unit}</small></span>
+                    <span class="rank-note" data-row-note>{row.note}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="facts-title">
+    <div class="wrap">
+      <header class="sec-head" data-reveal>
+        <p class="eyebrow mono">{t.factsEyebrow}</p>
+        <h2 id="facts-title" data-facts-title data-europe={t.factsTitleEurope} data-country={t.factsTitleCountry}>{t.factsTitleEurope}</h2>
+      </header>
+
+      <div class="facts" data-reveal data-facts data-open-it={t.openIt}>
+        {europe.facts.map((f) => (
+          <a class="fact hued" href={f.path} style={`--h:${f.hue}`}>
+            <span class="k mono">{f.label}</span>
+            <p>{f.text}</p>
+            <span class="arr">{t.openIt}{' '}<span aria-hidden="true">→</span></span>
+          </a>
+        ))}
       </div>
     </div>
   </section>
@@ -203,9 +186,7 @@ export function getStaticPaths() {
           <header class="sec-head" data-reveal>
             <p class="eyebrow mono">{t.latest}</p>
             <h2 id="latest-title">{t.whatWeWorkedOut}</h2>
-            <p>
-              {t.whereADatasetTurned}
-            </p>
+            <p>{t.whereADatasetTurned}</p>
           </header>
 
           <div class="notelist" data-reveal>
@@ -214,13 +195,13 @@ export function getStaticPaths() {
                 <p class="eyebrow mono">{noteDate(note.published, { locale: lang })}</p>
                 <h3>{note.title}</h3>
                 <p>{note.teaser}</p>
-                <span class="arr">Read it <span aria-hidden="true">→</span></span>
+                <span class="arr">{t.openIt}{' '}<span aria-hidden="true">→</span></span>
               </a>
             ))}
           </div>
 
           {NOTES.length > 3 && (
-            <p class="more"><a href={linkTo(NOTES_LINK, lang)}>All {NOTES.length} notes <span aria-hidden="true">→</span></a></p>
+            <p class="more"><a href={linkTo(NOTES_LINK, lang)}>{fill(ui(lang).shell.allNotesCount, { count: NOTES.length })}{' '}<span aria-hidden="true">→</span></a></p>
           )}
         </div>
       </section>
@@ -240,84 +221,105 @@ export function getStaticPaths() {
     </div>
   </section>
 
-  <script type="application/json" id="country-data" set:html={clientJson} />
+  <script type="application/json" id="door-data" set:html={clientJson} />
 
   <script>
-    import { readCounter, animate } from '../../lib/countup.js';
     import { readProfile, mergeProfile } from '../../lib/profile.js';
 
     /**
-     * De landenkiezer. Zonder JavaScript staat hier een werkende pagina met de
-     * Europese cijfers en een keuzelijst die niets doet; dit script maakt hem levend.
-     *
-     * Het rekent niets uit. Alle cijfers staan al opgemaakt in het JSON-blok
-     * (src/lib/home-countries.js); hier wordt alleen tekst verzet en een balkje
-     * verschoven. Een tweede rekenpad zou van het eerste kunnen afwijken.
+     * De landkeuze. Alles wat hier verandert, staat al klaar in #door-data: per land de
+     * tekst, de rang en de positie op de as. Dit script rekent niets uit.
      */
-    const holder = document.getElementById('country-data');
-    const form = document.querySelector<HTMLFormElement>('[data-pick]');
+    const holder = document.getElementById('door-data');
     const select = document.querySelector<HTMLSelectElement>('[data-pick-country]');
-    const grid = document.querySelector<HTMLElement>('[data-pick-grid]');
-    const heading = document.querySelector<HTMLElement>('[data-pick-heading]');
-    const note = document.querySelector<HTMLElement>('[data-pick-note]');
 
-    if (holder && form && select && grid && heading && note) {
+    if (holder && select) {
       const data = JSON.parse(holder.textContent ?? '{}');
-      const cards = [...grid.querySelectorAll<HTMLElement>('[data-metric]')];
-      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const $ = <T extends Element = HTMLElement>(sel: string) => document.querySelector<T>(sel);
+      const $$ = <T extends Element = HTMLElement>(sel: string) => [...document.querySelectorAll<T>(sel)];
+      const fill = (text: string, values: Record<string, string | number>) =>
+        text.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
+      const titled = (el: HTMLElement | null, country: any, extra: Record<string, string | number> = {}) => {
+        if (!el) return;
+        el.textContent = country
+          ? fill(el.dataset.country ?? '', { where: country.where, ...extra })
+          : (el.dataset.europe ?? '');
+        if (country) el.textContent = el.textContent.charAt(0).toUpperCase() + el.textContent.slice(1);
+      };
 
-      /** Wat de server schreef: het Europese beeld, om naar terug te kunnen. */
-      const europe = cards.map((card) => ({
-        card,
-        metric: card.dataset.metric ?? '',
-        value: card.querySelector<HTMLElement>('[data-count]')?.textContent ?? '',
-        at: card.style.getPropertyValue('--at'),
-        href: card.getAttribute('href') ?? '',
-      }));
-      const headingEurope = heading.textContent ?? '';
-      const noteEurope = note.textContent ?? '';
+      /** Het Europese beeld zoals de server het schreef, om naar terug te kunnen. */
+      const europeRows = Object.fromEntries(
+        $$('[data-row]').map((a) => [
+          a.dataset.row,
+          {
+            value: a.querySelector('[data-row-value]')?.textContent ?? '',
+            note: a.querySelector('[data-row-note]')?.textContent ?? '',
+            href: a.getAttribute('href') ?? '',
+          },
+        ]),
+      );
+      const factsBox = $('[data-facts]');
+      const europeFacts = factsBox?.innerHTML ?? '';
 
       function show(code: string) {
-        const country = code ? data[code] : null;
-        const counters = [];
+        const country = code ? data.countries[code] : null;
 
-        for (const base of europe) {
-          const cell = country?.m?.[base.metric];
-          const slot = base.card.querySelector<HTMLElement>('[data-count]');
-
-          // Een land zonder cijfer houdt zijn kaart; hij zegt alleen dat hij leeg is.
-          base.card.toggleAttribute('data-empty', Boolean(country) && !cell);
-          base.card.setAttribute('href', cell?.p ?? base.href);
-
-          if (!slot) continue;
-          if (country && !cell) {
-            slot.textContent = '—';
-            base.card.style.removeProperty('--at');
-            continue;
+        // De levenslijn: het tweede spoor en de tweede regel per stop.
+        const track = $('[data-you-track]');
+        if (track) track.hidden = !country;
+        const who = $('[data-you-name]');
+        if (who && country) who.textContent = code;
+        for (const stop of country?.stops ?? []) {
+          const dot = $(`[data-you-dot="${stop.key}"]`);
+          if (dot) {
+            dot.hidden = stop.at === null;
+            if (stop.at !== null) dot.style.left = `${stop.at}%`;
           }
-
-          const value = cell ? cell.v : base.value;
-          const at = cell ? (cell.at === null ? '' : `${cell.at}%`) : base.at;
-          slot.textContent = value;
-          if (at) base.card.style.setProperty('--at', at);
-          else base.card.style.removeProperty('--at');
-
-          const counter = readCounter(slot);
-          if (counter) counters.push(counter);
         }
-
-        if (country) {
-          heading.textContent = `${country.have} of the ${europe.length} figures cover ${country.n}`;
-          note.textContent =
-            country.have === europe.length
-              ? `Every figure below is ${country.n}. Pick Europe to switch back.`
-              : `The cards without a figure are the ones no source publishes for ${country.n}.`;
-        } else {
-          heading.textContent = headingEurope;
-          note.textContent = noteEurope;
+        for (const card of $$('[data-stop]')) {
+          const stop = country?.stops.find((s: any) => s.key === card.dataset.stop);
+          const you = card.querySelector<HTMLElement>('[data-stop-you]');
+          if (!you) continue;
+          you.hidden = !stop;
+          if (!stop) continue;
+          you.querySelector('[data-stop-you-value]')!.textContent = `${country.name} ${stop.value}${stop.year ? ` (${stop.year})` : ''}`;
+          you.querySelector('[data-stop-you-diff]')!.textContent = stop.value === '—' ? '' : stop.diff;
         }
+        titled($('[data-life-title]'), country);
 
-        if (!still && counters.length) animate(counters);
+        // Elk cijfer: de rang in plaats van de spreiding.
+        for (const row of $$('[data-row]')) {
+          const key = row.dataset.row ?? '';
+          const cell = country?.phases.flatMap((p: any) => p.rows).find((r: any) => r.key === key);
+          const base = europeRows[key];
+          row.querySelector('[data-row-value]')!.textContent = cell ? cell.value : base.value;
+          row.querySelector('[data-row-note]')!.textContent = cell ? cell.note : base.note;
+          row.setAttribute('href', cell ? cell.path : base.href);
+          row.toggleAttribute('data-top', Boolean(cell?.top));
+          row.toggleAttribute('data-empty', Boolean(country && cell && cell.value === '—'));
+        }
+        const ranksTitle = $('[data-ranks-title]');
+        titled(ranksTitle, country);
+        titled($('[data-ranks-lead]'), country);
+
+        // Drie feiten.
+        titled($('[data-facts-title]'), country);
+        if (factsBox) {
+          if (!country) factsBox.innerHTML = europeFacts;
+          else {
+            factsBox.innerHTML = '';
+            const template = document.createElement('template');
+            for (const f of country.facts) {
+              template.innerHTML = '<a class="fact"><span class="k mono"></span><p></p><span class="arr"></span></a>';
+              const a = template.content.firstElementChild as HTMLAnchorElement;
+              a.href = f.path;
+              a.querySelector('.k')!.textContent = f.label;
+              a.querySelector('p')!.textContent = f.text;
+              a.querySelector('.arr')!.textContent = `${factsBox.dataset.openIt ?? ''} →`;
+              factsBox.append(a);
+            }
+          }
+        }
       }
 
       select.addEventListener('change', () => {
@@ -326,41 +328,98 @@ export function getStaticPaths() {
         document.dispatchEvent(new CustomEvent('ha:country', { detail: { code: select.value } }));
       });
 
-      // De knop is er voor wie hem verwacht; de lijst doet het werk al.
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        show(select.value);
-      });
-
       const saved = readProfile();
-      if (typeof saved.country === 'string' && data[saved.country]) {
+      if (typeof saved.country === 'string' && data.countries[saved.country]) {
         select.value = saved.country;
         show(saved.country);
       }
     }
   </script>
 
-  <style>
-    /* De hero draagt onderaan tot 168px lucht; hier mag dat minder, want eronder
-       staat geen tekst maar de ingang tot de site. */
-    .hero { padding-bottom: clamp(36px, 5vw, 64px); }
-    @media (max-width: 1040px) { .globe { margin-top: 28px; } }
+  {/*
+    Globaal en niet scoped: de feitkaartjes van een gekozen land maakt het script, en die
+    dragen het kenmerk niet waarmee Astro scoped stijlen aan elementen koppelt. Op 20
+    november stonden ze daardoor als kale onderstreepte links. De namen zijn uniek voor
+    deze pagina.
+  */}
+  <style is:global>
+    .door-hero { padding-bottom: clamp(28px, 4vw, 48px); }
+    .door-hero h1 { max-width: 16ch; }
+    .door-hero .lead { max-width: 60ch; }
 
-    .pick { margin-top: 34px; max-width: 42rem; }
+    .pick { margin-top: 30px; max-width: 34rem; }
     .pick-label { display: block; margin-bottom: 10px; font: 500 0.72rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
-    .pick-row { display: flex; flex-wrap: wrap; gap: 10px; }
-    .pick-row select {
-      flex: 1 1 14rem; min-width: 0; padding: 13px 16px; border: 1px solid var(--line-strong);
+    .pick select {
+      width: 100%; padding: 16px 20px; border: 2px solid var(--line-strong);
       border-radius: 999px; background: var(--surface); color: var(--text);
-      font: 600 1rem/1.2 var(--font-sans); cursor: pointer;
+      font: 700 1.15rem/1.2 var(--font-sans); cursor: pointer;
     }
-    .pick-row select:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; }
-    .pick .hint { margin-top: 12px; }
+    .pick select:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; }
+    .pick .hint { margin-top: 10px; }
 
-    /* Een kaart zonder cijfer voor dit land: gedempt, maar hij blijft staan zodat de
-       rij niet verspringt en zodat zichtbaar is wát er ontbreekt. */
-    .cat-card[data-empty] { opacity: 0.45; }
-    .cat-card[data-empty] .bar { visibility: hidden; }
+    /* De levenslijn */
+    .life { margin: 0; }
+    .life-axis { position: relative; padding: 8px 0 0; margin-bottom: 28px; }
+    .life-track { position: relative; height: 44px; margin-left: 3.6rem; border-bottom: 2px solid var(--line-strong); }
+    .life-track--you { border-bottom-style: dashed; margin-top: 10px; }
+    .life-who { position: absolute; right: calc(100% + 12px); bottom: -6px; font-size: .72rem; color: var(--text-2); white-space: nowrap; }
+    .life-dot {
+      position: absolute; bottom: -13px; translate: -50% 0; width: 24px; height: 24px; border-radius: 50%;
+      display: grid; place-items: center; font: 700 .72rem/1 var(--font-mono);
+      background: var(--surface); color: var(--text-2); border: 2px solid var(--text-3, var(--line-strong));
+    }
+    .life-dot--you { background: var(--data); border-color: var(--data); color: var(--bg); }
+    .life-dot[hidden] { display: none; }
+    /* Het huis uit en het eerste kind liggen dicht bij elkaar, net als pensioen en gezonde
+       jaren. Op een smal scherm overlappen ze; de tweede van elk paar gaat dan omhoog. */
+    @media (max-width: 700px) {
+      .life-dot { width: 20px; height: 20px; bottom: -11px; font-size: .66rem; }
+      .life-dot:nth-of-type(odd) { bottom: 9px; }
+    }
+    .life-ticks { position: relative; height: 22px; margin: 14px 0 0 3.6rem; font: 500 .7rem/1 var(--font-mono); color: var(--text-2); }
+    .life-ticks span { position: absolute; translate: -50% 0; }
+
+    .life-stops { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+    .life-stop {
+      display: grid; gap: 6px; height: 100%; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius-md);
+      background: var(--surface); color: var(--text); text-decoration: none; transition: border-color .3s, transform .3s var(--ease);
+    }
+    .life-stop:hover { border-color: color-mix(in oklab, var(--data) 55%, var(--line)); transform: translateY(-3px); text-decoration: none; }
+    .life-stop .n { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 700 .72rem/1 var(--font-mono); background: var(--data); color: var(--bg); }
+    .life-stop .k { font-weight: 700; }
+    .life-stop .v { font: 800 clamp(1.8rem, 1.3rem + 1.6vw, 2.4rem)/1 var(--font-display); color: var(--data); letter-spacing: -.03em; }
+    .life-stop .v small, .rankrow .v small { font: 500 .72rem/1 var(--font-mono); color: var(--text-2); letter-spacing: .04em; }
+    .life-stop .you { font-size: .92rem; color: var(--text-2); line-height: 1.45; }
+    .life-stop .you b { color: var(--text); }
+    .life-stop .you[hidden] { display: none; }
+    .life figcaption { margin-top: 16px; max-width: 72ch; color: var(--text-2); font-size: .88rem; line-height: 1.55; }
+
+    /* Elk cijfer, per levensfase */
+    .phases { display: grid; gap: 28px 32px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+    .phase h3 { margin: 0 0 10px; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase; color: var(--text-2); }
+    .phase ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .rankrow {
+      display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: baseline; padding: 14px 18px;
+      border: 1px solid var(--line); border-left: 4px solid var(--data); border-radius: var(--radius-md);
+      background: var(--surface); color: var(--text); text-decoration: none; transition: border-color .3s, transform .3s var(--ease);
+    }
+    .rankrow:hover { transform: translateX(3px); text-decoration: none; }
+    .rankrow .k { font-weight: 700; }
+    .rankrow .v { font: 800 1.35rem/1 var(--font-display); color: var(--data); text-align: right; white-space: nowrap; }
+    .rankrow .rank-note { grid-column: 1 / -1; color: var(--text-2); font-size: .9rem; }
+    .rankrow[data-top] .rank-note { color: var(--text); font-weight: 600; }
+    .rankrow[data-empty] { opacity: .55; }
+
+    /* Drie feiten */
+    .facts { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+    .fact {
+      display: flex; flex-direction: column; gap: 10px; padding: 22px 24px; border: 1px solid var(--line); border-radius: var(--radius-md);
+      background: var(--surface); color: var(--text); text-decoration: none; transition: border-color .3s, transform .3s var(--ease);
+    }
+    .fact:hover { border-color: color-mix(in oklab, var(--data) 55%, var(--line)); transform: translateY(-3px); text-decoration: none; }
+    .fact .k { font-size: .7rem; letter-spacing: .09em; text-transform: uppercase; color: var(--text-2); }
+    .fact p { margin: 0; flex: 1 1 auto; font-size: 1.08rem; line-height: 1.5; }
+    .fact .arr { font-weight: 600; font-size: .92rem; color: var(--data); }
 
     .notelist { display: grid; gap: 12px; }
     .noteitem { display: block; padding: 22px 24px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); color: var(--text); text-decoration: none; transition: border-color .3s, transform .3s var(--ease); }
