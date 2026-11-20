@@ -96,6 +96,16 @@ const pick = (row: any) => ({
 // `cfg` reist mee zodat het script hieronder met dezelfde beschrijving rekent.
 const data = { latestYear, yearMin: index.years[0], eu: eu ? pick(eu) : null, rows: index.countries.map(pick), cfg: metric };
 
+/**
+ * Publiceert de bron mannen en vrouwen apart? Huishoudgrootte, woninggrootte en leeftijd
+ * bij het eerste kind niet. Daar stonden tot 20 november 2026 drie vakjes met streepjes in
+ * het paneel, en een knoppenrij met één knop ("Everyone") die niets te kiezen gaf.
+ */
+const hasSexes = index.countries.some((row: any) => row.men != null && row.women != null);
+const hasLenses = metric.lenses.length > 1;
+/** Eén periode is geen lijn: dan geen lijntje en geen bijschrift erbij. */
+const hasSeries = (index.years ?? []).length > 1;
+
 /** 'year' bij de jaarreeksen, 'month' bij werkloosheid: alleen de woorden hangen ervan af. */
 /**
  * Het woord voor de periode-eenheid, in de taal van deze pagina. periodUnit() geeft
@@ -138,11 +148,13 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
       <p>{lede}</p>
     </header>
 
-    <div class="controls" data-reveal>
-      <div class="seg" role="group" aria-label={t.showFiguresFor}>
-        {metric.lenses.map((lens: any, i: number) => <button type="button" data-lens={lens.key} aria-pressed={i === 0 ? 'true' : 'false'}>{lens.label}</button>)}
+    {hasLenses && (
+      <div class="controls" data-reveal>
+        <div class="seg" role="group" aria-label={t.showFiguresFor}>
+          {metric.lenses.map((lens: any, i: number) => <button type="button" data-lens={lens.key} aria-pressed={i === 0 ? 'true' : 'false'}>{lens.label}</button>)}
+        </div>
       </div>
-    </div>
+    )}
 
     <div class="map-grid">
       <figure class="mapcol">
@@ -253,7 +265,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
                 <small>{metric.unitShort ?? metric.unit}</small>
               </div>
               <p class="rk" data-f="note">{start.note}</p>
-              <dl>
+              {hasSexes && <dl>
                 <div>
                   <dt>{t.men}</dt>
                   <dd data-f="men">{formatValue(start.men, metric)}</dd>
@@ -266,8 +278,8 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
                   <dt>{t.menWomen}</dt>
                   <dd data-f="gap">{start.gapText}</dd>
                 </div>
-              </dl>
-              <div class="sparkwrap" aria-hidden="true">
+              </dl>}
+              <div class="sparkwrap" aria-hidden="true" style={hasSeries ? undefined : 'display:none'}>
                 <svg
                   class="spark"
                   data-f-spark
@@ -288,7 +300,7 @@ const countries = [...(index.countries as any[])].sort((a, b) => a.name.localeCo
                   style={startSpark ? `left:${(startSpark.last.x / startSpark.width) * 100}%;top:${(startSpark.last.y / startSpark.height) * 100}%` : 'display:none'}
                 ></i>
               </div>
-              <p class="brkcap" data-f="sparkNote">{start.sparkNote}</p>
+              <p class="brkcap" data-f="sparkNote" style={hasSeries ? undefined : 'display:none'}>{start.sparkNote}</p>
             </div>
           )
         }
