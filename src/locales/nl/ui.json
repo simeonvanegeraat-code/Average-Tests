@@ -290,9 +290,7 @@
     "lifeEyebrow": "Een Europees leven, in leeftijden",
     "lifeTitleEurope": "Vier momenten in een Europees leven",
     "lifeTitleCountry": "Vier momenten in een leven in {where}",
-    "lifeLead": "Elke stip is de leeftijd waarop het gebeurt, op één lijn van {from} tot {to}.",
     "lifeNote": "Vier verschillende metingen op één lijn: de leeftijd waarop de helft het huis uit is, de gemiddelde leeftijd van moeders bij hun eerste kind, de gemiddelde leeftijd waarop mensen een ouderdomspensioen kregen, en de gezonde jaren die een pasgeborene mag verwachten.",
-    "youLabel": "Jouw land",
     "stops": {
       "leaving-home": "De helft is het huis uit",
       "first-child": "Eerste kind",
@@ -368,7 +366,15 @@
     "factEurope": "{high} {highValue} tegenover {low} {lowValue}: {ratio} keer zoveel.",
     "factCountry": "{value}: {rank}.",
     "openIt": "Openen",
-    "comparedWithEu": "{years} jaar {word} dan de EU"
+    "comparedWithEu": "{years} jaar {word} dan de EU",
+    "lifeLeadFigures": "In de volgorde waarin ze gebeuren. Kies een land en de figuurtjes draaien rond, en wisselen van plek waar dat land de momenten in een andere volgorde leeft.",
+    "storyEurope": "In de Europese Unie komen de vier momenten in deze volgorde. Kies een land om te zien waar het anders is.",
+    "storyHealthFirst": "In {where} zijn de gezonde jaren die een pasgeborene mag verwachten op bij {health}, {years} jaar vóór de leeftijd waarop het pensioen begint ({pension}).",
+    "storyChildFirst": "In {where} krijgen moeders hun eerste kind gemiddeld op {child}, jonger dan de leeftijd waarop de helft van de jongeren het huis uit is ({leave}). Twee verschillende metingen: een gemiddelde voor moeders, een middelpunt voor iedereen.",
+    "storySameOrder": "{Where} leeft de vier momenten in dezelfde volgorde als de EU.",
+    "storyMissing": "{Where} heeft niet voor alle vier de momenten een cijfer, dus de volgorde is onvolledig.",
+    "euWord": "EU",
+    "yearsUnit": "jaar"
   },
   "metricLabels": {
     "wealth": "Vermogen"

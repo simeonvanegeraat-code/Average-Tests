@@ -63,9 +63,44 @@ const STOPS = [
   [healthyYears, healthyYearsData],
 ];
 
-/** De as van de levenslijn in jaren. Ruim om de uitersten heen (21,3 en 73,4 in november 2026). */
-export const AXIS = { from: 15, to: 80 };
-const at = (age) => Math.round(((age - AXIS.from) / (AXIS.to - AXIS.from)) * 1000) / 10;
+/**
+ * De volgorde waarin een land de vier momenten leeft: op leeftijd, en een stop zonder
+ * cijfer achteraan. De figuurtjes op de voordeur staan in deze volgorde, en wisselen van
+ * plek als een land een andere volgorde heeft dan de EU (21 november 2026).
+ */
+const orderOf = (stops) =>
+  [...stops]
+    .map((s, i) => ({ s, i }))
+    .sort((a, b) => (a.s.age ?? Infinity) - (b.s.age ?? Infinity) || a.i - b.i)
+    .map(({ s }) => s.key);
+
+/**
+ * Wat er aan die volgorde opvalt, in één zin. Twee wissels komen in de data voor: gezonde
+ * jaren vóór het pensioen (7 van de 28 landen) en het eerste kind vóór het huis uit (4).
+ * Die tweede zet twee verschillende metingen naast elkaar, een gemiddelde voor moeders en
+ * een middelpunt voor alle jongeren, en de zin zegt dat; anders leest hij als "ze krijgen
+ * kinderen terwijl ze nog thuis wonen", en dat zegt de data niet.
+ */
+function storyOf(stopsFor, where, lang) {
+  const t = ui(lang).home;
+  const age = Object.fromEntries(stopsFor.map((s) => [s.key, s.age]));
+  const text = Object.fromEntries(stopsFor.map((s) => [s.key, s.value]));
+  const Where = where.charAt(0).toUpperCase() + where.slice(1);
+  if (Object.values(age).some((a) => a == null)) return fill(t.storyMissing, { Where });
+  const lines = [];
+  if (age['healthy-years'] < age['pension-age']) {
+    lines.push(fill(t.storyHealthFirst, {
+      where,
+      health: text['healthy-years'],
+      pension: text['pension-age'],
+      years: formatValue(age['pension-age'] - age['healthy-years'], { decimals: 1, locale: lang }),
+    }));
+  }
+  if (age['first-child'] < age['leaving-home']) {
+    lines.push(fill(t.storyChildFirst, { where, child: text['first-child'], leave: text['leaving-home'] }));
+  }
+  return lines.length ? lines.join(' ') : fill(t.storySameOrder, { Where });
+}
 
 /** Eurostat schrijft Griekenland als EL, de ECB als GR. */
 const canonical = (code) => (code === 'GR' ? 'EL' : code);
@@ -167,7 +202,7 @@ export function frontDoor(lang = DEFAULT_LOCALE) {
 
   /** Het Europese beeld, zoals de server het schrijft. */
   const europe = {
-    stops: stops.map((s) => ({ key: s.key, label: t.stops[s.key], path: linkTo(s.path, lang), hue: s.hue, value: s.eu?.text ?? '—', at: s.eu ? at(s.eu.value) : null })),
+    stops: stops.map((s) => ({ key: s.key, label: t.stops[s.key], path: linkTo(s.path, lang), hue: s.hue, value: s.eu?.text ?? '—', age: s.eu?.value ?? null })),
     phases: tables.map((p) => ({
       key: p.key,
       label: p.label,
@@ -184,6 +219,8 @@ export function frontDoor(lang = DEFAULT_LOCALE) {
     })),
     facts: europeFacts(all, lang),
   };
+  europe.order = orderOf(europe.stops);
+  europe.story = t.storyEurope;
 
   /** Per land: dezelfde vorm, met de rang in plaats van de spreiding. */
   const countries = {};
@@ -199,7 +236,7 @@ export function frontDoor(lang = DEFAULT_LOCALE) {
       return {
         key: s.key,
         value: row ? s.format(row.value) : '—',
-        at: row ? at(row.value) : null,
+        age: row ? row.value : null,
         year: row && !row.ranked ? row.year : null,
         diff: diff === null ? '' : Math.abs(diff) < 0.05 ? t.sameAsEu : fill(t.comparedWithEu, { years: formatValue(Math.abs(diff), { decimals: 1, locale: lang }), word: diff > 0 ? words.above : words.below }),
       };
@@ -225,6 +262,8 @@ export function frontDoor(lang = DEFAULT_LOCALE) {
       name,
       where,
       stops: stopsFor,
+      order: orderOf(stopsFor),
+      story: storyOf(stopsFor, where, lang),
       phases,
       facts: countryFacts(ranks, where, lang),
     };

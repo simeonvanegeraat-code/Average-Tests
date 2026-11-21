@@ -1,0 +1,68 @@
+---
+/**
+ * Eén figuurtje van de levensloop op de voordeur: een lijntekening op een draaischijf.
+ *
+ * Simeon, 21 november 2026: geen poppetje dat over de lijn loopt, maar figuurtjes die
+ * blijven staan en ronddraaien, en van plek wisselen als een land de momenten in een
+ * andere volgorde leeft. Die volgorde verschilt echt: in 7 van de 28 landen eindigen de
+ * gezonde jaren vóór het pensioen begint.
+ *
+ * De kleur is currentColor, dus de tint van de stop (zie de kaart eromheen). Versiering:
+ * aria-hidden, want de leeftijd en het label staan als tekst ernaast.
+ */
+interface Props {
+  stop: 'leaving-home' | 'first-child' | 'pension-age' | 'healthy-years';
+}
+const { stop } = Astro.props;
+---
+
+<svg class="lf" viewBox="0 0 130 130" aria-hidden="true" focusable="false">
+  <ellipse class="lf-disk" cx="65" cy="114" rx="50" ry="9"></ellipse>
+  {
+    stop === 'leaving-home' && (
+      <>
+        <path d="M14 112 V70 L38 52 L62 70 V112 Z M32 112 V90 H44 V112" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" opacity=".45"></path>
+        <g transform="translate(88 112)" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="0" cy="-58" r="9" fill="currentColor" stroke="none"></circle>
+          <path d="M0 -48 L0 -18 M0 -40 L-12 -26 M0 -40 L14 -30 M0 -18 L-12 0 M0 -18 L12 0"></path>
+          <rect x="12" y="-34" width="12" height="16" rx="3" fill="currentColor" stroke="none"></rect>
+        </g>
+      </>
+    )
+  }
+  {
+    stop === 'first-child' && (
+      <>
+        <g transform="translate(46 112)" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="0" cy="-58" r="9" fill="currentColor" stroke="none"></circle>
+          <path d="M0 -48 L0 -18 M0 -40 L-12 -26 M0 -40 L20 -28 M0 -18 L-10 0 M0 -18 L10 0"></path>
+        </g>
+        <g transform="translate(84 112) scale(.6)" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="0" cy="-58" r="9" fill="currentColor" stroke="none"></circle>
+          <path d="M0 -48 L0 -18 M0 -40 L-26 -32 M0 -40 L10 -28 M0 -18 L-8 0 M0 -18 L8 0"></path>
+        </g>
+      </>
+    )
+  }
+  {
+    stop === 'pension-age' && (
+      <>
+        <circle cx="96" cy="34" r="13" fill="currentColor" opacity=".55"></circle>
+        <path d="M96 12 V6 M96 56 V62 M74 34 H68 M118 34 H124 M80 18 L76 14 M112 50 L116 54 M112 18 L116 14 M80 50 L76 54" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".55"></path>
+        <g transform="translate(52 112)" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="0" cy="-58" r="9" fill="currentColor" stroke="none"></circle>
+          <path d="M0 -48 L0 -18 M0 -40 L-16 -58 M0 -40 L16 -58 M0 -18 L-12 0 M0 -18 L12 0"></path>
+        </g>
+      </>
+    )
+  }
+  {
+    stop === 'healthy-years' && (
+      <g transform="translate(60 112)" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="10" cy="-55" r="9" fill="currentColor" stroke="none"></circle>
+        <path d="M8 -45 Q0 -32 -2 -18 M6 -38 L22 -30 M-2 -18 L-12 0 M-2 -18 L8 0"></path>
+        <path d="M22 -30 L24 0 M18 -32 Q22 -38 26 -32" stroke-width="3.5"></path>
+      </g>
+    )
+  }
+</svg>
