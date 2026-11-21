@@ -357,7 +357,7 @@ const cardStyle = (metric: (typeof CATALOGUE)[number], i: number) =>
           </div>
           <div>
             <h3>{t.everyMetric}</h3>
-            <div class="foot-links">
+            <div class="foot-links foot-links--two">
               {CATALOGUE.map((metric) => <a href={linkTo(metric.path, lang)}>{metric.label}</a>)}
               <a href={linkTo('/method/', lang)}>{t.howWeCalculateIt}</a>
             </div>
