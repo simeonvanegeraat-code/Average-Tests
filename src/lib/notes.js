@@ -68,13 +68,35 @@ const ENTRIES = [
  */
 const perLang = new Map();
 
+/**
+ * In welke talen een artikel bestaat. Zonder `langs` in alle talen, zoals het eerste.
+ *
+ * De tien artikelen per metriek van 21 november 2026 zijn er eerst alleen in het Engels.
+ * Zonder deze filter stonden ze ook op /nl/notes/ en in het Nederlandse menu, met een
+ * link naar /nl/notes/<slug>/ — een pagina die niet bestaat.
+ */
+const availableIn = (entry, lang) => !entry.langs || entry.langs.includes(lang);
+
 export function notes(lang = DEFAULT_LOCALE) {
   let found = perLang.get(lang);
   if (!found) {
-    found = ENTRIES.map(({ text, ...rest }) => ({ ...rest, ...(text[lang] ?? text[DEFAULT_LOCALE]) }));
+    found = ENTRIES.filter((entry) => availableIn(entry, lang)).map(({ text, ...rest }) => ({
+      ...rest,
+      ...(text[lang] ?? text[DEFAULT_LOCALE]),
+    }));
     perLang.set(lang, found);
   }
   return found;
+}
+
+/** Het artikel over één metriek, in deze taal, of null. Voor het kaartje op de metriekpagina. */
+export function noteForMetric(key, lang = DEFAULT_LOCALE) {
+  return notes(lang).find((note) => note.metric === key) ?? null;
+}
+
+/** De talen waarin het artikel op dit pad bestaat, voor de taalkiezer en hreflang. */
+export function noteLanguages(path) {
+  return ENTRIES.find((entry) => entry.path === path)?.langs ?? null;
 }
 
 /** Waar "Notes" in de balk en in het paneel heen wijst. */
