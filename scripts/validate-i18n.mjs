@@ -59,6 +59,7 @@ import { METRIC_LANGUAGES, metricWords } from '../src/lib/metric-names.js';
 import { UI_LANGUAGES, uiRaw } from '../src/lib/ui.js';
 import { COPY_LANGUAGES as MAP_COPY } from '../src/lib/metric-map.js';
 import { COPY_LANGUAGES as HOME_COPY } from '../src/lib/leaving-home-copy.js';
+import { noteLanguages } from '../src/lib/notes.js';
 import { join, relative, sep } from 'node:path';
 
 const problems = [];
@@ -565,7 +566,14 @@ if (pages.length === 0) {
 
     const alternates = [...html.matchAll(/<link[^>]*rel="alternate"[^>]*hreflang="([^"]*)"[^>]*>/g)].map((m) => m[1]);
 
-    if (LOCALES.length < 2) {
+    /**
+     * Een artikel kan in minder talen bestaan dan de site (`langs` in src/lib/notes.js).
+     * Dan telt alleen die lijst: een Engels artikel zonder Nederlandse versie hoort geen
+     * hreflang naar een /nl/-pagina te hebben die niet bestaat.
+     */
+    const pageLocales = noteLanguages(url) ?? LOCALES;
+
+    if (pageLocales.length < 2) {
       /**
        * Met één taal hoort er geen enkele alternate te staan. `alternatesOf()` geeft
        * dan een lege lijst, en een hreflang die alleen naar zichzelf wijst zegt Google
@@ -573,7 +581,7 @@ if (pages.length === 0) {
        */
       if (alternates.length) fail(`${url}: ${alternates.length} hreflang-regel(s) terwijl er één taal actief is.`);
     } else {
-      for (const lang of LOCALES) {
+      for (const lang of pageLocales) {
         if (!alternates.includes(lang)) fail(`${url}: hreflang voor "${lang}" ontbreekt.`);
       }
       const xDefault = alternates.filter((a) => a === 'x-default').length;

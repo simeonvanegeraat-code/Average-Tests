@@ -1,0 +1,75 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { claim, articleFacts, andList } from '../../lib/articles.js';
+import { withArticle } from '../../lib/grammar.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: gezonde levensjaren. Het nieuws in de data: twintig jaar verschil tussen landen,
+ * en een sprong in het Europese cijfer waarvan de data niet zegt waar hij vandaan komt.
+ */
+const { idx, h, g, y, lastStep, biggestBefore, flagged, first, source, fmt } = articleFacts('healthy-years');
+const W = (name: string) => withArticle(name);
+const Cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const biggestRise = y.rows.at(-1);
+const womenMore = g.womenAbove.length;
+
+// Zinnen die niet uit één getal volgen; zie claim() in src/lib/articles.js.
+claim(lastStep.change > 0 && (!biggestBefore || lastStep.change > Math.abs(biggestBefore.change)), 'A jump in the European figure: the largest one-year move');
+
+const title = `A newborn in ${W(h.latest.name)} can expect ${fmt(h.gap)} more healthy years than in ${W(h.earliest.name)}`;
+const description =
+  `Healthy life years at birth range from ${fmt(h.earliest.total)} in ${W(h.earliest.name)} to ${fmt(h.latest.total)} in ${W(h.latest.name)} (${h.year}). ` +
+  `The EU figure jumped to ${fmt(h.eu.total)}; the data does not say why.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/healthy-life-years-europe-gap/"
+  hue={STAGES.healthy}
+  published="2026-11-21"
+  metricPath="/healthy-years/"
+  metricLabel="Healthy years"
+  cta="See the healthy life years in every country"
+  source={source}
+>
+  <p slot="lead">
+    A child born in {W(h.latest.name)} in {h.year} can expect <b>{fmt(h.latest.total)}</b> years without a
+    health problem that limits daily life, according to Eurostat. In {W(h.earliest.name)} it is
+    {' '}<b>{fmt(h.earliest.total)}</b>. That is {fmt(h.gap)} years of difference inside one continent.
+  </p>
+
+  <h2>A jump in the European figure</h2>
+  <p>
+    Across the European Union the figure was {fmt(h.eu.total)} years in {h.year}, against {fmt(y.euPrev)} a year
+    earlier. A rise of {fmt(lastStep.change)} years in twelve months is the largest one-year move in the
+    European series since it began in {first}{biggestBefore && <>; the largest before it was {fmt(Math.abs(biggestBefore.change))} years, from {biggestBefore.from} to {biggestBefore.to}</>}.
+  </p>
+  <p>
+    It went up in {y.up.length} of the {y.rows.length} countries with a comparable figure and down in {y.down.length}.
+    The biggest rise was in {W(biggestRise.name)}: from {fmt(biggestRise.series[y.prev])} to {fmt(biggestRise.total)}.
+  </p>
+  <div class="limits">
+    <p>
+      The data does not say why the European figure jumped. Healthy life years come from a survey
+      question in which people say whether a health problem limits them, so a change can come from
+      health, from how people answer, or from the survey itself.
+      {flagged.length > 0 && <> Eurostat flags a break in {h.year} for {flagged.length}{' '}{flagged.length === 1 ? 'country' : 'countries'} ({andList(flagged.map((c: any) => W(c.name)))}), which are left out of the count above.</>}
+      {' '}A single year is not a trend, and this note does not call it one.
+    </p>
+  </div>
+
+  <h2>{womenMore > g.womenLower ? "In most countries, women can expect more healthy years" : "In most countries, men can expect more healthy years"}</h2>
+  <p>
+    In {womenMore} of the {g.of} countries women can expect more healthy years than men. In {g.womenLower} it
+    is the other way round; the widest gap in that direction is in {W(g.widest.name)}, at {fmt(g.widestGap)} years.
+  </p>
+
+  <h2>What this figure is, and what it is not</h2>
+  <p>
+    Healthy life years are an expectation for a newborn, calculated from today's health and death rates
+    at every age. They are not the age at which someone alive today will become ill. And they rest on
+    what people report about themselves.
+  </p>
+</ArticleShell>

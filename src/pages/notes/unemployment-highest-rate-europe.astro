@@ -1,0 +1,104 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { claim, articleFacts, andList } from '../../lib/articles.js';
+import { withArticle, ordinal } from '../../lib/grammar.js';
+import { periodLabel } from '../../lib/period.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: werkloosheid. Het nieuws in de data: het land met de hoogste werkloosheid is
+ * niet meer een zuidelijk land. De kop noemt het land dat nu bovenaan staat, uit de data;
+ * schuift dat, dan schuift de kop mee.
+ */
+const { idx, h, cur, u, from, then, source, fmt } = articleFacts('unemployment');
+const W = (name: string) => withArticle(name);
+const Cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const top = cur[0];
+const second = cur[1];
+const month = periodLabel(idx.latestYear);
+const fromLabel = from ? periodLabel(from) : '';
+const thenRank = (code: string) => then.findIndex((c: any) => c.code === code) + 1;
+const nowRank = (code: string) => cur.findIndex((c: any) => c.code === code) + 1;
+const riser = u?.rose[0];
+const faller = u?.fell[0];
+const topThen = then[0];
+
+// Zinnen die niet uit één getal volgen; zie claim() in src/lib/articles.js.
+claim(thenRank(top.code) > then.length / 4 && thenRank(top.code) < (then.length * 3) / 4, 'A country that used to sit in the middle');
+
+const title = `${Cap(W(top.name))} now has the highest unemployment rate in Europe`;
+const description =
+  `In ${month} unemployment was ${fmt(top.total)}% in ${W(top.name)}, the highest of ${cur.length} countries. ` +
+  `In ${fromLabel} it was ${fmt(top.series[from])}%. The EU rate is ${fmt(h.eu.total)}%.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/unemployment-highest-rate-europe/"
+  hue={STAGES.jobless}
+  published="2026-11-21"
+  metricPath="/unemployment/"
+  metricLabel="Unemployment"
+  cta="See the unemployment rate in every country, month by month"
+  source={source}
+>
+  <p slot="lead">
+    {W(top.name).charAt(0).toUpperCase() + W(top.name).slice(1)} had the highest unemployment rate of the {cur.length} European countries
+    in Eurostat's figures for {month}: <b>{fmt(top.total)}%</b> of its labour force was out of work and
+    looking for it. Next came {W(second.name)}, at {fmt(second.total)}%. Across the European Union the
+    rate was {fmt(h.eu.total)}%.
+  </p>
+
+  <h2>A country that used to sit in the middle</h2>
+  {from && (
+    <p>
+      In {fromLabel}, the first month in this series, {W(top.name)} had a rate of {fmt(top.series[from])}%
+      and stood {ordinal(thenRank(top.code))} of {then.length} countries. The
+      highest rate then was in {W(topThen.name)}, at {fmt(topThen.series[from])}%.
+    </p>
+  )}
+  {riser && (
+    <p>
+      Of the {u.countries} countries with an unbroken series since {fromLabel}, the rate rose most in
+      {' '}{W(riser.name)}: by {fmt(riser.change)} percentage points. Unemployment rose in {u.rose.length} of
+      them by at least half a point and fell by that much in {u.fell.length}.
+    </p>
+  )}
+
+  {faller && (
+    <>
+      <h2>The other way: {Cap(W(faller.name))}</h2>
+      <p>
+        The biggest fall was in {W(faller.name)}: from {fmt(faller.began)}% in {fromLabel} to {fmt(faller.total)}% in
+        {' '}{month}, a drop of {fmt(Math.abs(faller.change))} points. It now stands {ordinal(nowRank(faller.code))} of {cur.length}.
+      </p>
+    </>
+  )}
+
+  <h2>The lowest rate</h2>
+  <p>
+    At the other end, {W(h.earliest.name)} had a rate of {fmt(h.earliest.total)}% in {month}. That is
+    {' '}{fmt(h.latest.total - h.earliest.total)} points below {W(h.latest.name)}.
+  </p>
+
+  <h2>What these figures do not say</h2>
+  <p>
+    The unemployment rate counts people without work who are looking for it and could start, as a
+    share of everyone working or looking. People who have stopped looking are not in it, and neither
+    are people in part-time work who want more hours.
+  </p>
+  <p>
+    The figures also do not say why a country's rate rose or fell. That would need data on the
+    economy, on sectors and on who lost or found work, which is not in this dataset.
+  </p>
+  {u?.excluded?.length > 0 && (
+    <div class="limits">
+      <p>
+        {Cap(andList(u.excluded.map((c: any) => W(c.name))))} {u.excluded.length === 1 ? 'is' : 'are'} left out of the comparison over time:
+        Eurostat flags a break in {u.excluded.length === 1 ? 'its' : 'their'} series within this period, and a
+        change across a break is a change in how the figure is measured.
+      </p>
+    </div>
+  )}
+</ArticleShell>

@@ -1,0 +1,76 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { claim, articleFacts } from '../../lib/articles.js';
+import { withArticle, ordinal } from '../../lib/grammar.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: woninggrootte, ook in vierkante voet. De SEO-audit van 26 oktober vond dat
+ * concurrenten op deze zoekvraag ft² geven en deze site niet. Omrekenen is geen statistiek:
+ * 1 m² is per definitie 10,7639 ft² (zie src/lib/articles.js).
+ */
+const { idx, h, space, sqft, source, fmt } = articleFacts('dwelling-size');
+const W = (name: string) => withArticle(name);
+const Cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Zinnen die niet uit één getal volgen; zie claim() in src/lib/articles.js.
+claim(!space || space.biggest.personRank > 1, 'The biggest homes do not give the most room');
+
+const title = `The average home in the EU is ${fmt(h.eu.total)} m², or ${sqft(h.eu.total)} sq ft`;
+const description =
+  `Homes in the EU average ${fmt(h.eu.total)} m² (${sqft(h.eu.total)} sq ft) in ${h.year}: from ${fmt(h.earliest.total)} m² in ${W(h.earliest.name)} ` +
+  `to ${fmt(h.latest.total)} m² in ${W(h.latest.name)}. And why the biggest homes do not give people the most room.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/home-size-europe-square-feet/"
+  hue={STAGES.dwelling}
+  published="2026-11-21"
+  metricPath="/dwelling-size/"
+  metricLabel="Home size"
+  cta="See the average home size in every country"
+  source={source}
+>
+  <p slot="lead">
+    The average home in the European Union had <b>{fmt(h.eu.total)} square metres</b> of floor space in
+    {' '}{h.year}, according to Eurostat. In square feet that is {sqft(h.eu.total)}.
+  </p>
+
+  <h2>From {fmt(h.earliest.total)} to {fmt(h.latest.total)} square metres</h2>
+  <p>
+    The smallest homes are in {W(h.earliest.name)}, at {fmt(h.earliest.total)} m² ({sqft(h.earliest.total)} sq ft).
+    The largest are in {W(h.latest.name)}, at {fmt(h.latest.total)} m² ({sqft(h.latest.total)} sq ft):
+    {' '}{fmt(h.latest.total / h.earliest.total)} times the size.
+  </p>
+
+  {space && (
+    <>
+      <h2>The biggest homes do not give the most room</h2>
+      <p>
+        Floor space alone says little about how people live, because it is shared. Divide it by the number of
+        people in a household and the order changes. {Cap(W(space.biggest.name))} has the biggest homes but ranks
+        {' '}{space.biggest.personRank === 1 ? 'first' : ordinal(space.biggest.personRank)} of {space.of} on space per person.
+        {' '}{Cap(W(space.mostSpace.name))} comes first, at {fmt(space.mostSpace.per)} m² ({sqft(space.mostSpace.per)} sq ft) for each person.
+      </p>
+      <p>
+        At the bottom is {W(space.leastSpace.name)}, with {fmt(space.leastSpace.per)} m² ({sqft(space.leastSpace.per)} sq ft)
+        per person. Across the EU it is {fmt(space.eu?.per)} m² ({sqft(space.eu?.per ?? 0)} sq ft).
+      </p>
+    </>
+  )}
+
+  <h2>Measured once</h2>
+  <p>
+    Eurostat measured floor space for {h.year}. There is no yearly series on the same footing, so this note does not say whether homes are
+    getting bigger or smaller. Comparisons with the United States, Canada or Australia are not possible
+    either: Eurostat does not cover them.
+  </p>
+
+  <h2>What these figures do not say</h2>
+  <p>
+    An average home size hides the mix of flats and houses, cities and countryside, owners and renters.
+    The figures also do not say anything about quality, age or price.
+  </p>
+</ArticleShell>

@@ -35,9 +35,15 @@ interface Props {
   hue?: number;
   /** Pad naar een voorbeeldafbeelding voor links in sociale media. Zonder: geen og:image. */
   ogImage?: string;
+  /**
+   * De talen waarin deze pagina bestaat, als dat niet alle talen zijn. Een artikel dat er
+   * alleen in het Engels is, mag geen hreflang en geen taalkeuze naar /nl/ aanbieden: die
+   * pagina geeft 404.
+   */
+  languages?: string[];
 }
 
-const { title, description, canonical, noindex = false, hue = 262, ogImage } = Astro.props;
+const { title, description, canonical, noindex = false, hue = 262, ogImage, languages } = Astro.props;
 /**
  * De taal komt uit het pad, niet uit een prop. Zo hoeft geen van de twintig pagina's
  * ervan te weten: die geven hun canonieke pad zonder voorvoegsel door ("/wealth/") en
@@ -57,7 +63,9 @@ const CATALOGUE = catalogue(lang);
 const NOTES = notes(lang);
 
 /** Leeg zolang er één taal is; zie alternatesOf() in src/lib/locales.js. */
-const alternates = alternatesOf(canonical);
+const allAlternates = alternatesOf(canonical).filter(({ lang: alt }) => !languages || languages.includes(alt));
+/** Eén taal is geen keuze: dan geen hreflang en geen kiezer. */
+const alternates = allAlternates.length > 1 ? allAlternates : [];
 
 const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : null;
 

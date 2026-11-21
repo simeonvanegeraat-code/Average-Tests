@@ -30,6 +30,181 @@ import { DEFAULT_LOCALE } from './locales.js';
  * stelt die de lezer zelf heeft.
  */
 const ENTRIES = [
+  /*
+   * Tien artikelen per metriek, 21 november 2026: elk bespreekt de nieuwste cijfers van één
+   * metriek en linkt ernaar. Schrijfregels in research/writing-rules.md, cijfers uit
+   * src/lib/articles.js. Ze staan in de volgorde van de levenslijn.
+   */
+  {
+    slug: 'leaving-home-europe-converging',
+    path: '/notes/leaving-home-europe-converging/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'leaving-home',
+    hue: 262,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "Europe's leaving-home age is flat. Its countries are not",
+        card: "Leaving home: countries converge",
+        teaser: "The European figure has barely moved since the survey was rebuilt, but the distance between the earliest and the latest country has shrunk. Who moved, and what the figures cannot tell you.",
+      },
+    },
+  },
+  {
+    slug: 'household-size-europe',
+    path: '/notes/household-size-europe/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'household-size',
+    hue: 25,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "Europe's households, from the smallest to the largest",
+        card: "How big is a household?",
+        teaser: "Average household size in every European country, and what is left once you divide a home by the people living in it.",
+      },
+    },
+  },
+  {
+    slug: 'home-size-europe-square-feet',
+    path: '/notes/home-size-europe-square-feet/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'dwelling-size',
+    hue: 350,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "How big is the average home in Europe, in m² and square feet",
+        card: "Home size in square feet",
+        teaser: "Floor space per home in every European country, converted to square feet, and why the biggest homes do not give people the most room.",
+      },
+    },
+  },
+  {
+    slug: 'working-life-longer-europe',
+    path: '/notes/working-life-longer-europe/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'working-life',
+    hue: 145,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "Working lives are longer in almost every European country",
+        card: "Working lives keep growing",
+        teaser: "One of the few European series without a single break shows working life growing almost everywhere. Where it grew most, and where women work longer than men.",
+      },
+    },
+  },
+  {
+    slug: 'working-week-usual-actual-hours',
+    path: '/notes/working-week-usual-actual-hours/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'working-hours',
+    hue: 310,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "Europe's working week: why you see two different numbers",
+        card: "Two working weeks",
+        teaser: "Usual hours and actual hours measure different weeks. Which one this site shows, which one makes the news, and why neither is wrong.",
+      },
+    },
+  },
+  {
+    slug: 'unemployment-highest-rate-europe',
+    path: '/notes/unemployment-highest-rate-europe/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'unemployment',
+    hue: 175,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "Which European country has the highest unemployment now",
+        card: "Who has the highest jobless rate",
+        teaser: "The country at the top of Europe's unemployment table is not the one that used to be there. How the order changed, month by month.",
+      },
+    },
+  },
+  {
+    slug: 'pension-age-europe',
+    path: '/notes/pension-age-europe/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'pension-age',
+    hue: 280,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "The age Europeans actually start drawing a pension",
+        card: "The real pension age",
+        teaser: "Not the age in the law, but the age people say they started receiving an old-age pension, in every country, and what that figure can and cannot tell you.",
+      },
+    },
+  },
+  {
+    slug: 'healthy-life-years-europe-gap',
+    path: '/notes/healthy-life-years-europe-gap/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'healthy-years',
+    hue: 205,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "Healthy life years: the gap between European countries",
+        card: "The gap in healthy years",
+        teaser: "How many years without a limiting health problem a newborn can expect, country by country, and a jump in the European figure that the data does not explain.",
+      },
+    },
+  },
+  {
+    slug: 'first-child-mothers-older',
+    path: '/notes/first-child-mothers-older/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'first-child',
+    hue: 50,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "First-time mothers got older across Europe",
+        card: "Mothers are older at their first child",
+        teaser: "The average age of mothers at their first child rose in almost every country in a single year. Where it rose most, and why this note compares one year rather than ten.",
+      },
+    },
+  },
+  {
+    slug: 'household-wealth-growth-europe',
+    path: '/notes/household-wealth-growth-europe/',
+    /** De metriek waar het over gaat; de metriekpagina toont er een kaartje naar. */
+    metric: 'wealth',
+    hue: 110,
+    published: '2026-11-21',
+    /** Alleen Engels, voorlopig. Zie availableIn() hieronder. */
+    langs: ['en'],
+    text: {
+      en: {
+        title: "Where the middle household got richer fastest",
+        card: "Wealth: who got richer",
+        teaser: "How the wealth of the middle household changed in each country the ECB covers, over the same quarters, in nominal euros, and why growth and level tell different stories.",
+      },
+    },
+  },
   {
     slug: 'eurostat-2021-series-break',
     path: '/notes/eurostat-2021-series-break/',
@@ -68,13 +243,35 @@ const ENTRIES = [
  */
 const perLang = new Map();
 
+/**
+ * In welke talen een artikel bestaat. Zonder `langs` in alle talen, zoals het eerste.
+ *
+ * De tien artikelen per metriek van 21 november 2026 zijn er eerst alleen in het Engels.
+ * Zonder deze filter stonden ze ook op /nl/notes/ en in het Nederlandse menu, met een
+ * link naar /nl/notes/<slug>/ — een pagina die niet bestaat.
+ */
+const availableIn = (entry, lang) => !entry.langs || entry.langs.includes(lang);
+
 export function notes(lang = DEFAULT_LOCALE) {
   let found = perLang.get(lang);
   if (!found) {
-    found = ENTRIES.map(({ text, ...rest }) => ({ ...rest, ...(text[lang] ?? text[DEFAULT_LOCALE]) }));
+    found = ENTRIES.filter((entry) => availableIn(entry, lang)).map(({ text, ...rest }) => ({
+      ...rest,
+      ...(text[lang] ?? text[DEFAULT_LOCALE]),
+    }));
     perLang.set(lang, found);
   }
   return found;
+}
+
+/** Het artikel over één metriek, in deze taal, of null. Voor het kaartje op de metriekpagina. */
+export function noteForMetric(key, lang = DEFAULT_LOCALE) {
+  return notes(lang).find((note) => note.metric === key) ?? null;
+}
+
+/** De talen waarin het artikel op dit pad bestaat, voor de taalkiezer en hreflang. */
+export function noteLanguages(path) {
+  return ENTRIES.find((entry) => entry.path === path)?.langs ?? null;
 }
 
 /** Waar "Notes" in de balk en in het paneel heen wijst. */

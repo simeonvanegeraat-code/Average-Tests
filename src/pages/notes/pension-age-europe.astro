@@ -1,0 +1,66 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { articleFacts } from '../../lib/articles.js';
+import { withArticle } from '../../lib/grammar.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: de leeftijd waarop mensen een ouderdomspensioen kregen. De aanleiding: de
+ * discussie over de wettelijke pensioenleeftijd. Dit artikel noemt geen wettelijke
+ * leeftijden, want die staan niet in de repo; het zegt wat de gemeten leeftijd wél is.
+ */
+const { idx, h, g, source, fmt } = articleFacts('pension-age');
+const W = (name: string) => withArticle(name);
+const womenLater = g.womenAbove.length;
+
+const title = `Europeans start drawing a pension at ${fmt(h.eu.total)} on average`;
+const description =
+  `In the EU people started receiving an old-age pension at ${fmt(h.eu.total)} on average (${h.year}): from ` +
+  `${fmt(h.earliest.total)} in ${W(h.earliest.name)} to ${fmt(h.latest.total)} in ${W(h.latest.name)}. Not the statutory age, but the real one.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/pension-age-europe/"
+  hue={STAGES.pension}
+  published="2026-11-21"
+  metricPath="/pension-age/"
+  metricLabel="Pension age"
+  cta="See the pension age in every country"
+  source={source}
+>
+  <p slot="lead">
+    People in the European Union started receiving an old-age pension at <b>{fmt(h.eu.total)}</b> on
+    average, according to a Eurostat survey for {h.year}. In {W(h.earliest.name)} it was {fmt(h.earliest.total)};
+    in {W(h.latest.name)}, {fmt(h.latest.total)}. That is {fmt(h.gap)} years apart.
+  </p>
+
+  <h2>Not the age in the law</h2>
+  <p>
+    Debates about pensions usually turn on the statutory pension age: the age the law names. This
+    figure is something else. It is the age at which people who receive an old-age pension say they
+    started receiving it. Early retirement, special schemes and the rules that applied when they
+    retired are all in it.
+  </p>
+  <p>
+    It also describes the past rather than the future. Someone who retired ten years ago did so under
+    the rules of ten years ago.
+  </p>
+
+  <h2>{g.womenLower > womenLater ? 'Women start earlier in most countries' : g.womenLower < womenLater ? 'Men start earlier in most countries' : 'Men and women start at similar ages'}</h2>
+  <p>
+    In {g.womenLower} of the {g.of} countries women started drawing their pension earlier than men; in
+    {' '}{womenLater} they started later. On average the difference is {fmt(Math.abs(g.mean))} years. The
+    widest gap is in {W(g.widest.name)}, where women started {fmt(g.widestGap)} years earlier.
+  </p>
+
+  <h2>One survey, one year</h2>
+  <p>
+    These figures come from a one-off module of the European labour force survey, run in {h.year}.
+    There is no earlier figure on the same footing, so this note does not say whether pensions start
+    earlier or later than they used to. The pension age page also shows a second measure from the
+    OECD: the age at which people actually leave the labour market. The two answer different
+    questions and cannot be subtracted from each other.
+  </p>
+</ArticleShell>

@@ -11,6 +11,7 @@
 import { ui, fill } from '../lib/ui.js';
 import { localeOf, linkTo } from '../lib/locales.js';
 import { related, breakNote } from '../lib/related.js';
+import { noteForMetric } from '../lib/notes.js';
 
 /** De taal van deze pagina; elke interne link hieronder draagt haar voorvoegsel. */
 const lang = localeOf(Astro.url.pathname);
@@ -24,6 +25,8 @@ interface Props {
 const { metric } = Astro.props;
 const neighbours = related(metric, lang);
 const note = breakNote(metric, lang);
+/** Het artikel over deze metriek, als dat er in deze taal is (21 november 2026). */
+const article = noteForMetric(metric, lang);
 ---
 
 {
@@ -43,6 +46,14 @@ const note = breakNote(metric, lang);
               <span class="arr">{t.openIt}{' '}<span aria-hidden="true">→</span></span>
             </a>
           ))}
+
+          {article && (
+            <a class="nextitem nextitem--note" href={linkTo(article.path, lang)}>
+              <span class="k mono">{t.theNote}</span>
+              <p>{article.title}</p>
+              <span class="arr">{t.readIt}{' '}<span aria-hidden="true">→</span></span>
+            </a>
+          )}
 
           {note && (
             <a class="nextitem nextitem--note" href={linkTo(note.path, lang)}>

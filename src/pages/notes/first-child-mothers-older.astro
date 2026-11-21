@@ -1,0 +1,74 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { claim, articleFacts } from '../../lib/articles.js';
+import { withArticle } from '../../lib/grammar.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: leeftijd van moeders bij het eerste kind. Het nieuws in de data: in vrijwel elk
+ * land was een moeder bij haar eerste kind in het laatste jaar ouder dan het jaar ervoor.
+ */
+const { idx, h, y, source, fmt } = articleFacts('first-child');
+const W = (name: string) => withArticle(name);
+
+// Zinnen die niet uit één getal volgen; zie claim() in src/lib/articles.js.
+claim(y.up.length > y.rows.length / 2, 'First-time mothers got older across Europe');
+const biggestRise = y.rows.at(-1);
+const biggestFall = y.rows[0];
+const euBreaks = (idx.aggregates.find((a: any) => /^EU27/.test(a.code))?.breaks ?? []) as string[];
+
+const title = `First-time mothers got older in ${y.up.length} of ${y.rows.length} European countries`;
+const description =
+  `Women in the EU had their first child at ${fmt(h.eu.total)} on average in ${h.year}. In ${y.up.length} of ` +
+  `${y.rows.length} countries that age went up in a year; it ranges from ${fmt(h.earliest.total)} in ${W(h.earliest.name)} to ${fmt(h.latest.total)} in ${W(h.latest.name)}.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/first-child-mothers-older/"
+  hue={STAGES.child}
+  published="2026-11-21"
+  metricPath="/first-child/"
+  metricLabel="First child"
+  cta="See the age at first child in every country"
+  source={source}
+>
+  <p slot="lead">
+    Women in the European Union who had their first child in {h.year} were <b>{fmt(h.eu.total)}</b> years old
+    on average, according to Eurostat. A year earlier it was {fmt(y.euPrev)}. The rise was not limited to a
+    few countries: in {y.up.length} of the {y.rows.length} countries with a comparable figure, first-time mothers
+    were older than the year before.
+  </p>
+
+  <h2>{y.up.length >= y.rows.length * 0.75 ? "Up almost everywhere" : y.up.length > y.down.length ? "Up in most countries" : "Not a common direction"}</h2>
+  <p>
+    The age fell in {y.down.length} {y.down.length === 1 ? 'country' : 'countries'}
+    {y.same.length > 0 && <> and stayed the same in {y.same.length}</>}. The biggest rise was in
+    {' '}{W(biggestRise.name)}, from {fmt(biggestRise.series[y.prev])} to {fmt(biggestRise.total)}.
+    {biggestFall.change < 0 && <> The biggest fall was in {W(biggestFall.name)}, from {fmt(biggestFall.series[y.prev])} to {fmt(biggestFall.total)}.</>}
+  </p>
+
+  <h2>{fmt(h.gap)} years between the youngest and the oldest</h2>
+  <p>
+    The oldest first-time mothers are in {W(h.latest.name)}, at {fmt(h.latest.total)}. The youngest are in
+    {' '}{W(h.earliest.name)}, at {fmt(h.earliest.total)}: {fmt(h.gap)} years earlier. Across the
+    {' '}{h.countries} countries with a figure for {h.year}, that is the full range.
+  </p>
+
+  <h2>Why this note compares one year, not ten</h2>
+  <p>
+    This note compares one year with the next, not with a decade ago, and that is a choice. The
+    European series carries breaks in
+    {' '}{euBreaks.join(' and ')}: points where the way the figure is put together changed. A rise measured
+    across those points mixes real change with a change in method, and there is no way to tell how much
+    is which. One year to the next, without a break in between, is a comparison the data can carry.
+  </p>
+
+  <h2>What these figures do not say</h2>
+  <p>
+    This is the average age of mothers at the birth of their first child. Eurostat does not publish the
+    same figure for fathers, so this note says nothing about them. And the figures do not say why women
+    have children later: that would need data on education, work and housing that is not in this dataset.
+  </p>
+</ArticleShell>

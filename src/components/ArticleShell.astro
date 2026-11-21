@@ -1,0 +1,118 @@
+---
+/**
+ * De vorm van een artikel per metriek op /notes/ (21 november 2026).
+ *
+ * Kop, opening, de tekst (de slot), en onderaan de weg naar de metriekpagina en de bron.
+ * De schrijfregels staan in research/writing-rules.md; de cijfers komen uit
+ * src/lib/articles.js. Deze component bevat geen enkel getal.
+ *
+ * De artikelen bestaan voorlopig alleen in het Engels. `languages` zorgt dat de pagina
+ * geen hreflang en geen taalkeuze naar /nl/ aanbiedt, want die pagina bestaat niet.
+ */
+import BaseV2 from '../layouts/BaseV2.astro';
+import { siteIdentity, pageUrl } from '../lib/schema.js';
+import { localeOf, linkTo } from '../lib/locales.js';
+import { noteDate } from '../lib/notes.js';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  hue: number;
+  published: string;
+  /** De metriekpagina waar het artikel over gaat. */
+  metricPath: string;
+  metricLabel: string;
+  /** "Find your own country" of iets dat beter past. */
+  cta: string;
+  source: { publisher: string; dataset: string; updated?: string };
+}
+
+const { title, description, path, hue, published, metricPath, metricLabel, cta, source } = Astro.props;
+const lang = localeOf(Astro.url.pathname);
+const site = siteIdentity(lang, Astro.site);
+const url = pageUrl(path, lang, Astro.site);
+---
+
+<BaseV2 title={title} description={description} canonical={path} hue={hue} languages={['en']}>
+  <Fragment slot="head">
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: title,
+        description,
+        datePublished: published,
+        dateModified: published,
+        inLanguage: lang,
+        isPartOf: site.website,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+        author: site.organisation,
+        publisher: site.organisation,
+        about: {
+          '@type': 'Dataset',
+          name: `${source.publisher}, ${source.dataset}`,
+          creator: { '@type': 'Organization', name: source.publisher },
+        },
+      })}
+    />
+  </Fragment>
+
+  <article>
+    <section class="hero art-hero" aria-labelledby="art-title">
+      <div class="wrap">
+        <p class="eyebrow mono" data-reveal>
+          Note · {noteDate(published, { locale: lang })} · <a href={linkTo(metricPath, lang)}>{metricLabel}</a>
+        </p>
+        <h1 id="art-title" data-reveal>{title}</h1>
+        <div class="lead art-lead" data-reveal><slot name="lead" /></div>
+      </div>
+    </section>
+
+    <section class="block art-body-wrap">
+      <div class="wrap prose art-body" data-reveal>
+        <slot />
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="art-next">
+      <div class="wrap">
+        <a class="art-cta hued" href={linkTo(metricPath, lang)} style={`--h:${hue}`}>
+          <span class="k mono" id="art-next">{metricLabel}</span>
+          <span class="t">{cta}</span>
+          <span class="arr">Open the page <span aria-hidden="true">→</span></span>
+        </a>
+        <p class="panel-source panel-source--light art-source">
+          Figures: {source.publisher}, {source.dataset}{source.updated && <>, last updated by the publisher on {noteDate(source.updated, { locale: lang })}</>}.
+          Every number in this note is calculated from the same data as the <a href={linkTo(metricPath, lang)}>{metricLabel.toLowerCase()} page</a>, when the site is built, so it moves when the source publishes again.
+          {' '}<a href={linkTo('/method/', lang)}>How we work</a>.
+        </p>
+      </div>
+    </section>
+  </article>
+
+  <style is:global>
+    .art-hero { padding-bottom: clamp(20px, 3vw, 36px); }
+    .art-hero h1 { max-width: 20ch; font-size: clamp(2.2rem, 1.3rem + 3.4vw, 4rem); }
+    .art-lead { max-width: 62ch; }
+    .art-lead p { margin: 0; }
+    .art-body-wrap { padding-top: clamp(16px, 2vw, 32px); }
+    .art-body { max-width: 68ch; }
+    .art-body h2 { margin: 2em 0 .5em; font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem); letter-spacing: -.03em; line-height: 1.15; }
+    .art-body h2:first-child { margin-top: 0; }
+    .art-body p { line-height: 1.7; font-size: 1.08rem; }
+    .art-body .limits { margin-top: 1.6em; }
+    .art-cta {
+      display: grid; gap: 8px; max-width: 46rem; padding: 26px 28px; border: 1px solid color-mix(in oklab, var(--data) 40%, var(--line));
+      border-radius: var(--radius-lg); background: color-mix(in oklab, var(--data) 8%, var(--surface)); color: var(--text); text-decoration: none;
+      transition: transform .3s var(--ease), border-color .3s;
+    }
+    .art-cta:hover { transform: translateY(-3px); text-decoration: none; }
+    .art-cta .k { font-size: .72rem; letter-spacing: .09em; text-transform: uppercase; color: var(--text-2); }
+    .art-cta .t { font: 700 clamp(1.3rem, 1.1rem + .8vw, 1.7rem)/1.2 var(--font-display); letter-spacing: -.02em; }
+    .art-cta .arr { font-weight: 600; color: var(--data); }
+    .art-source { margin-top: 22px; max-width: 72ch; }
+  </style>
+</BaseV2>

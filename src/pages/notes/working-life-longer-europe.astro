@@ -1,0 +1,85 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { claim, articleFacts } from '../../lib/articles.js';
+import { withArticle } from '../../lib/grammar.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: duur van het werkzame leven. Het nieuws in de data: een reeks zonder breuk sinds
+ * 2000, en het werkzame leven is in vrijwel elk land langer geworden.
+ */
+const { h, u, g, y, source, fmt } = articleFacts('working-life');
+const W = (name: string) => withArticle(name);
+const top = u.rose[0];
+const fell = u.fell;
+const womenLonger = g.womenAbove.map((c: any) => W(c.name));
+const euChange = y && y.euPrev !== null ? h.eu.total - y.euPrev : null;
+/** De tussenkop noemt de Baltische staten alleen als de data precies die drie aanwijst. */
+const baltic = g.womenAbove.map((c: any) => c.code).sort().join() === 'EE,LT,LV';
+
+// Zinnen die niet uit één getal volgen; zie claim() in src/lib/articles.js.
+claim(u.rose.length >= u.countries * 0.9, 'Almost every country went the same way');
+
+const title = `Working lives are longer in ${u.rose.length} of ${u.countries} European countries than in ${u.from}`;
+const description =
+  `Someone starting out in the EU can now expect ${fmt(h.eu.total)} years of working life (${h.year}). ` +
+  `Since ${u.from} it has grown in ${u.rose.length} of ${u.countries} countries, most in ${W(top.name)}.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/working-life-longer-europe/"
+  hue={STAGES.retire}
+  published="2026-11-21"
+  metricPath="/working-life/"
+  metricLabel="Working life"
+  cta="See the expected working life in every country"
+  source={source}
+>
+  <p slot="lead">
+    A 15-year-old in the European Union can now expect <b>{fmt(h.eu.total)} years</b> in the labour
+    market, according to Eurostat's figures for {h.year}.
+    {euChange !== null && <> That is {fmt(Math.abs(euChange))} years {euChange >= 0 ? 'more' : 'less'} than a year earlier.</>}
+    {' '}And in {u.rose.length} of the {u.countries} countries with an unbroken series, working life is longer
+    than it was in {u.from}.
+  </p>
+
+  <h2>Almost every country went the same way</h2>
+  <p>
+    Few European figures move this uniformly. Eurostat has measured the expected duration of working
+    life without a single series break since {u.from}. Over that period it grew in {u.rose.length} countries
+    {fell.length === 0 ? <> and fell in none.</> : fell.length === 1 ? <> and fell in one: {W(fell[0].name)}, by {fmt(Math.abs(fell[0].change))} years.</> : <> and fell in {fell.length}.</>}
+  </p>
+  <p>
+    The biggest change was in {W(top.name)}, where it went from {fmt(top.began)} to {fmt(top.total)} years: a
+    rise of {fmt(top.change)} years.
+    {y && <> Over the last year alone it rose in {y.up.length} of {y.rows.length} countries and fell in {y.down.length}.</>}
+  </p>
+
+  <h2>From {fmt(h.earliest.total)} to {fmt(h.latest.total)} years</h2>
+  <p>
+    The longest expected working life is in {W(h.latest.name)}, at {fmt(h.latest.total)} years. The shortest
+    is in {W(h.earliest.name)}, at {fmt(h.earliest.total)}. That is a difference of {fmt(h.gap)} years in
+    the same continent.
+  </p>
+
+  <h2>{baltic ? "Women's working lives are shorter, except in the Baltic states" : "Women's working lives are shorter in most countries"}</h2>
+  <p>
+    In {g.womenLower} of the {g.of} countries women can expect a shorter working life than men, by
+    {' '}{fmt(g.mean)} years on average. The widest gap is in {W(g.widest.name)}: {fmt(g.widestGap)} years.
+    {womenLonger.length > 0 && <> Women can expect to work longer than men in {womenLonger.join(', ').replace(/, ([^,]*)$/, ' and $1')}.</>}
+  </p>
+
+  <h2>What this figure is, and what it is not</h2>
+  <p>
+    This is an expectation, not a count of finished careers. Eurostat calculates how many years a
+    15-year-old would spend in the labour market if today's pattern of work at every age stayed the
+    same, the way life expectancy is calculated. It counts years in work or looking for work, not
+    hours, and it says nothing about the age at which people retire.
+  </p>
+  <p>
+    Nor do the figures say why working lives grew. That would need data on pensions, education and
+    employment that is not in this dataset, so this note does not guess.
+  </p>
+</ArticleShell>
