@@ -69,10 +69,18 @@ export function getStaticPaths() {
 
       <form class="pick" data-pick autocomplete="off" onsubmit="return false">
         <label class="pick-label" for="pick-country">{t.pickYourCountry}</label>
-        <select id="pick-country" name="country" data-pick-country>
-          <option value="">{t.europe}</option>
-          {door.codes.map((c) => <option value={c.code}>{c.name}</option>)}
-        </select>
+        {/*
+          Een lichtstreep die om de rand loopt, elke 3,5 seconden opnieuw (Simeon, 21
+          november 2026): de keuzelijst is de ingang van de hele pagina, en zo zie je hem.
+          Alleen CSS. Hij pauzeert zolang de lijst de focus heeft, en staat uit voor wie
+          "minder beweging" aan heeft.
+        */}
+        <span class="pick-ring">
+          <select id="pick-country" name="country" data-pick-country>
+            <option value="">{t.europe}</option>
+            {door.codes.map((c) => <option value={c.code}>{c.name}</option>)}
+          </select>
+        </span>
         <p class="hint">{t.nothingLeaves}</p>
       </form>
     </div>
@@ -376,6 +384,42 @@ export function getStaticPaths() {
       font: 700 1.15rem/1.2 var(--font-sans); cursor: pointer;
     }
     .pick select:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; }
+
+    /*
+     * De lichtstreep. Een conische kleurovergang die alleen op de rand zichtbaar is (het
+     * masker snijdt het midden eruit), en een hoek die rondloopt. Die hoek is een
+     * geregistreerde eigenschap (@property), anders kan een browser hem niet animeren; waar
+     * dat niet kan, staat er gewoon geen streep.
+     *
+     * Van de 3,5 seconden loopt hij er 1,4 rond en is hij de rest weg: een flits, geen
+     * draaiend wiel.
+     */
+    @property --pick-sweep { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+    .pick-ring { position: relative; display: block; border-radius: 999px; }
+    .pick-ring::before,
+    .pick-ring::after {
+      content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 3px; pointer-events: none;
+      background: conic-gradient(from var(--pick-sweep), transparent 0deg 290deg, var(--sp0) 315deg, #fff 340deg, var(--sp2) 352deg, transparent 360deg);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+      opacity: 0;
+      animation: pick-sweep 3.5s cubic-bezier(.45, .05, .35, 1) infinite;
+    }
+    /* Dezelfde streep nog een keer, wazig: de gloed eromheen. */
+    .pick-ring::after { inset: -4px; padding: 6px; filter: blur(6px); }
+    @keyframes pick-sweep {
+      0% { --pick-sweep: 0deg; opacity: 0; }
+      6% { opacity: 1; }
+      34% { opacity: 1; }
+      40% { --pick-sweep: 360deg; opacity: 0; }
+      100% { --pick-sweep: 360deg; opacity: 0; }
+    }
+    .pick-ring:focus-within::before,
+    .pick-ring:focus-within::after { animation-play-state: paused; opacity: 0; }
+    @media (prefers-reduced-motion: reduce) {
+      .pick-ring::before, .pick-ring::after { animation: none; }
+    }
     .pick .hint { margin-top: 10px; }
 
     /* De levensloop in vier figuurtjes */
