@@ -1,0 +1,91 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { claim, articleFacts } from '../../lib/articles.js';
+import { withArticle } from '../../lib/grammar.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: de leeftijd waarop jongeren het huis uit gaan. Het nieuws in de data: het
+ * Europese cijfer staat stil sinds de reeksbreuk, maar de landen kruipen naar elkaar toe.
+ * Alle getallen uit src/lib/articles.js; schrijfregels in research/writing-rules.md.
+ */
+const { h, t, g, source, fmt } = articleFacts('leaving-home');
+const W = (name: string) => withArticle(name);
+const first = t.moved[0];
+const last = t.moved.at(-1);
+const exceptions = g.exceptions.map((c: any) => c.name);
+
+// Zinnen die niet uit één getal volgen; zie claim() in src/lib/articles.js.
+claim(Math.abs(h.eu.total - t.euThen) < 0.5, "Europe's leaving-home age is flat");
+claim(t.spreadNow < t.spreadThen, 'The gap between countries is closing');
+claim(g.exceptions.length <= g.of / 10, 'Young women leave first, almost everywhere');
+
+const title = `Europe's leaving-home age is flat. Its countries are not`;
+const description =
+  `Half of young people in the EU had left home by ${fmt(h.eu.total)} in ${h.year}, almost the same as in ${t.since}. ` +
+  `Behind that flat figure, the gap between countries shrank from ${fmt(t.spreadThen)} to ${fmt(t.spreadNow)} years.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/leaving-home-europe-converging/"
+  hue={STAGES.leave}
+  published="2026-11-21"
+  metricPath="/leaving-home/"
+  metricLabel="Leaving home"
+  cta="See the age for every country, and where your own age falls"
+  source={source}
+>
+  <p slot="lead">
+    Half of young people in the European Union had left their parents' home by the age of
+    {' '}<b>{fmt(h.eu.total)}</b> in {h.year}, according to Eurostat. That is almost exactly where it
+    stood in {t.since} ({fmt(t.euThen)}). The countries behind that average have moved a lot more.
+  </p>
+
+  <h2>The gap between countries is closing</h2>
+  <p>
+    In {t.since} the earliest and the latest country were {fmt(t.spreadThen)} years apart. In {t.until}
+    it was {fmt(t.spreadNow)} years. Over those years the age fell by at least half a year in
+    {' '}{t.earlier.length} of the {t.countries} countries and rose by that much in {t.later.length}. In the
+    other {t.stable} it barely moved.
+  </p>
+  <p>
+    The biggest fall was in {W(first.name)}, from {fmt(first.series[t.since])} to {fmt(first.total)}.
+    The biggest rise was in {W(last.name)}, from {fmt(last.series[t.since])} to {fmt(last.total)}. A
+    European figure that stands still can hide exactly this: countries that leave late leaving a
+    little earlier, and countries that leave early leaving a little later.
+  </p>
+
+  <h2>Still {fmt(h.gap)} years between the earliest and the latest country</h2>
+  <p>
+    The distance is still large. In {W(h.earliest.name)} half of young people had left home by
+    {' '}{fmt(h.earliest.total)} in {h.year}. In {W(h.latest.name)} that point came at {fmt(h.latest.total)}:
+    {' '}{fmt(h.gap)} years later, for the same step in life.
+  </p>
+
+  <h2>Young women leave first, almost everywhere</h2>
+  <p>
+    In {g.womenLower} of the {g.of} countries young women reach that point earlier than young men, by
+    {' '}{fmt(g.mean)} years on average. The widest gap is in {W(g.widest.name)}, at {fmt(g.widestGap)}
+    {' '}years. {exceptions.length === 1 ? <>The only exception is {W(exceptions[0])}.</> : exceptions.length > 1 ? <>The exceptions are {exceptions.map(W).join(', ')}.</> : null}
+  </p>
+
+  <h2>What these figures do not say</h2>
+  <p>
+    Eurostat calls this figure an average age, but its own definition describes a midpoint: the age
+    by which half of young people no longer live with their parents. That is not the same thing, and
+    it matters most where the spread is lopsided.
+  </p>
+  <p>
+    The figures also do not say why people leave when they do. That would need data on housing,
+    study and work that is not in this dataset, so this note does not guess.
+  </p>
+  <div class="limits">
+    <p>
+      The comparison starts in {t.since}, not earlier. Eurostat rebuilt the survey behind these figures
+      in 2021, and almost every country carries a break there. Comparing across it would show changes
+      that happened to the survey, not to young people. <a href="/notes/eurostat-2021-series-break/">Why that break matters more than a footnote.</a>
+    </p>
+  </div>
+</ArticleShell>

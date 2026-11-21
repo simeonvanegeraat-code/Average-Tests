@@ -1,0 +1,76 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { articleFacts } from '../../lib/articles.js';
+import { withArticle } from '../../lib/grammar.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: werkuren. De aanleiding: Eurostat meldde in mei 2026 een kortere werkweek dan
+ * deze site toont. Dat is geen tegenspraak maar een andere maat: werkelijk gewerkte uren
+ * tegenover gebruikelijke uren. Het getal uit dat persbericht staat niet in de repo en
+ * dus niet in dit artikel; er staat een link.
+ */
+const { idx, h, g, first, euFirst, source, fmt } = articleFacts('working-hours');
+const W = (name: string) => withArticle(name);
+const lastBreak = idx.lastBreak;
+
+const title = `Europe's working week: why you see two different numbers`;
+const description =
+  `A usual working week in the EU is ${fmt(h.eu.total)} hours (${h.year}), from ${fmt(h.earliest.total)} in ${W(h.earliest.name)} ` +
+  `to ${fmt(h.latest.total)} in ${W(h.latest.name)}. Why Eurostat's own headline figure is lower.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/working-week-usual-actual-hours/"
+  hue={STAGES.hours}
+  published="2026-11-21"
+  metricPath="/working-hours/"
+  metricLabel="Working hours"
+  cta="See the usual working week in every country"
+  source={source}
+>
+  <p slot="lead">
+    People in work in the European Union usually work <b>{fmt(h.eu.total)} hours</b> a week in their main
+    job, according to Eurostat's figures for {h.year}. If you saw a lower number in the news this year,
+    neither is wrong. They measure two different weeks.
+  </p>
+
+  <h2>Usual hours and actual hours</h2>
+  <p>
+    Eurostat asks people in its labour force survey about two things. Usual hours are what someone
+    normally works in a typical week. Actual hours are what they worked in one specific week, including
+    the weeks with holidays, sick days or a bank holiday in them. Over a year, actual hours come out lower.
+  </p>
+  <p>
+    In May 2026 Eurostat's news item on the working week reported actual hours
+    (<a href="https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20260527-1" rel="noopener">Eurostat, 27 May 2026</a>).
+    This site shows usual hours, because they describe what a normal working week looks like in each
+    country. Both count people aged 20 to 64, full-time and part-time together.
+  </p>
+
+  <h2>From {fmt(h.earliest.total)} to {fmt(h.latest.total)} hours</h2>
+  <p>
+    The shortest usual week is in {W(h.earliest.name)}, at {fmt(h.earliest.total)} hours. The longest is in
+    {' '}{W(h.latest.name)}, at {fmt(h.latest.total)}: {fmt(h.gap)} hours more every week. Across the
+    {' '}{h.countries} countries with a figure for {h.year}, that is the full range.
+  </p>
+
+  <h2>{g.womenLower === g.of ? 'Women work fewer paid hours in every country' : 'Women work fewer paid hours in most countries'}</h2>
+  <p>
+    In {g.womenLower === g.of ? `all ${g.of}` : `${g.womenLower} of the ${g.of}`} countries women usually work fewer paid hours than men, by
+    {' '}{fmt(g.mean)} hours a week on average. The widest gap is in {W(g.widest.name)}: {fmt(g.widestGap)}
+    {' '}hours. These figures include part-time work, and they do not count unpaid work at home. They do
+    not say why the gap exists.
+  </p>
+
+  <h2>Why this note does not say the week got shorter</h2>
+  <p>
+    The European figure was {fmt(euFirst)} hours in {first} and is {fmt(h.eu.total)} now. It is tempting to
+    call that a shorter working week. But the series breaks, most recently in {lastBreak}: the survey
+    changed, and a difference across that point is partly a difference in measurement. This site only
+    compares years that sit on the same side of a break, and for working hours that window is too short
+    to show a trend.
+  </p>
+</ArticleShell>

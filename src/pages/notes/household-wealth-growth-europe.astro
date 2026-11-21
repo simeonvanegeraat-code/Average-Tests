@@ -1,0 +1,81 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { claim, articleFacts } from '../../lib/articles.js';
+import { withArticle } from '../../lib/grammar.js';
+import { euro } from '../../lib/wealth.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: huishoudvermogen. Het nieuws in de data: hoe het middelste huishouden er per
+ * land op vooruit of achteruit ging over het venster dat elk land heeft, in nominale
+ * euro's. Les 5: alleen de kwartaalrekeningen (DWA), niets uit de enquête.
+ */
+const { window, growth, euroAreaGrowth, median, euroArea, rose, fell, source, pct } = articleFacts('wealth');
+const W = (name: string) => withArticle(name);
+const Cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const q = (p: string) => p.split('-').reverse().join(' ');
+const top = growth[0];
+const bottom = growth.at(-1);
+const money = (v: number) => euro(v, { compact: true });
+
+// Zinnen die niet uit één getal volgen; zie claim() in src/lib/articles.js.
+claim(median[0].name !== top.name, 'The level is a different story: the fastest riser is not the richest');
+
+const title = `Since ${q(window.from)}, the middle household got richer fastest in ${W(top.name)}`;
+const description =
+  `From ${q(window.from)} to ${q(window.to)} the median household's wealth rose ${pct(top.change)}% in ${W(top.name)} and ` +
+  `${bottom.change < 0 ? `fell ${pct(bottom.change)}%` : `rose ${pct(bottom.change)}%`} in ${W(bottom.name)}. Euro area: ${euroAreaGrowth >= 0 ? '+' : '−'}${pct(euroAreaGrowth)}%.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/household-wealth-growth-europe/"
+  hue={STAGES.money}
+  published="2026-11-21"
+  metricPath="/wealth/"
+  metricLabel="Wealth"
+  cta="See the middle household in every country, and place your own"
+  source={source}
+>
+  <p slot="lead">
+    The wealth of the middle household in {W(top.name)} grew by <b>{pct(top.change)}%</b> between {q(window.from)}
+    {' '}and {q(window.to)}, according to the European Central Bank. That is the fastest of the {growth.length}
+    {' '}countries the ECB measures. Across the euro area the middle household's wealth
+    {' '}{euroAreaGrowth >= 0 ? 'grew' : 'fell'} by {pct(euroAreaGrowth)}%.
+  </p>
+
+  <h2>{fell > 0 ? `Up in ${rose} countries, down in ${fell}` : `Up in all ${rose} countries`}</h2>
+  <p>
+    The middle household's wealth went up in {rose} of the {growth.length} countries over these quarters
+    {fell > 0 ? <> and down in {fell}</> : null}. {bottom.change < 0
+      ? <>The biggest fall was in {W(bottom.name)}: {pct(bottom.change)}%.</>
+      : <>The smallest rise was in {W(bottom.name)}: {pct(bottom.change)}%.</>}
+  </p>
+  <p>
+    These are nominal euros: amounts as they were in each quarter, not corrected for rising prices. Part of
+    every rise is inflation, and this note does not separate the two, because there is no price series in
+    this site's data. For a country outside the euro, the amounts in euros also move with its exchange rate.
+  </p>
+
+  <h2>The level is a different story</h2>
+  <p>
+    Growth and level do not line up. The richest middle household is in {W(median[0].name)}, worth
+    {' '}{money(median[0].median)}. The poorest is in {W(median.at(-1).name)}, at {money(median.at(-1).median)}. Across the
+    euro area the middle household is worth {money(euroArea.median)}. A fast rise from a low level can still
+    leave a country far behind.
+  </p>
+
+  <h2>What these figures do not say</h2>
+  <p>
+    The ECB publishes these figures as estimates in its experimental Distributional Wealth Accounts. They
+    count homes, savings, shares and business wealth, minus debt, but not pension entitlements. And they do
+    not say why wealth rose or fell: house prices, savings and debt all move it, and this note does not pick
+    between them.
+  </p>
+  <p>
+    The comparison runs from {q(window.from)} to {q(window.to)}, the quarters every one of the {growth.length}
+    {' '}countries has. A country with a later figure is compared over the same window, so no country is measured
+    over more time than another.
+  </p>
+</ArticleShell>

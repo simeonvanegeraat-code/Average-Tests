@@ -1,0 +1,74 @@
+---
+import ArticleShell from '../../components/ArticleShell.astro';
+import { articleFacts } from '../../lib/articles.js';
+import { withArticle, ordinal } from '../../lib/grammar.js';
+import { STAGES } from '../../lib/hue.js';
+
+/**
+ * Artikel: huishoudgrootte. Wat dit toevoegt aan de metriekpagina: de koppeling met
+ * woninggrootte, zodat zichtbaar wordt hoeveel ruimte er per persoon overblijft.
+ */
+const { idx, h, space, source, fmt } = articleFacts('household-size');
+const W = (name: string) => withArticle(name);
+const Cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const title = `Europe's households: from ${fmt(h.earliest.total)} people in ${W(h.earliest.name)} to ${fmt(h.latest.total)} in ${W(h.latest.name)}`;
+const description =
+  `The average household in the EU had ${fmt(h.eu.total)} people in ${h.year}, from ${fmt(h.earliest.total)} in ${W(h.earliest.name)} ` +
+  `to ${fmt(h.latest.total)} in ${W(h.latest.name)}. And how much floor space each person gets.`;
+---
+
+<ArticleShell
+  title={title}
+  description={description}
+  path="/notes/household-size-europe/"
+  hue={STAGES.household}
+  published="2026-11-21"
+  metricPath="/household-size/"
+  metricLabel="Household size"
+  cta="See the average household in every country"
+  source={source}
+>
+  <p slot="lead">
+    The average household in the European Union had <b>{fmt(h.eu.total)} people</b> in {h.year}, according to
+    Eurostat. The smallest households are in {W(h.earliest.name)}, at {fmt(h.earliest.total)} people. The largest
+    are in {W(h.latest.name)}, at {fmt(h.latest.total)}.
+  </p>
+
+  <h2>Small differences, large consequences</h2>
+  <p>
+    A gap of {fmt(h.gap)} people per household sounds small. It is not: in {W(h.latest.name)} the average household
+    is {fmt(h.latest.total / h.earliest.total)} times the size of one in {W(h.earliest.name)}. More people per
+    household means fewer households for the same population, and every household needs a home.
+  </p>
+
+  {space && (
+    <>
+      <h2>How much room each person gets</h2>
+      <p>
+        Put household size next to the size of homes and you get the floor space per person. For {space.year},
+        the last year Eurostat measured home sizes, that is {fmt(space.eu?.per)} m² per person across the EU.
+      </p>
+      <p>
+        {Cap(W(space.mostSpace.name))} gives each person the most room, at {fmt(space.mostSpace.per)} m²: a home of
+        {' '}{fmt(space.mostSpace.m2)} m² shared by {fmt(space.mostSpace.people)} people on average. {Cap(W(space.leastSpace.name))}
+        {' '}gives the least, at {fmt(space.leastSpace.per)} m²: {fmt(space.leastSpace.m2)} m² for {fmt(space.leastSpace.people)} people.
+        The country with the biggest homes, {W(space.biggest.name)}, ranks {space.biggest.personRank === 1 ? 'first' : ordinal(space.biggest.personRank)} of {space.of} on space per person.
+      </p>
+    </>
+  )}
+
+  <h2>Why this note does not compare years</h2>
+  <p>
+    Eurostat has published household size since {idx.years[0]}, but most countries' series break at least
+    once since then: the survey behind the figure changed. A trend measured across those breaks would mix
+    real change with a change in method, so this note sticks to {h.year}.
+  </p>
+
+  <h2>What these figures do not say</h2>
+  <p>
+    The average household is not the most common one. A country with many people living alone and many
+    large families can have the same average as one where nearly every household has two or three people.
+    The figures do not show that mix, and they do not say why households are the size they are.
+  </p>
+</ArticleShell>
