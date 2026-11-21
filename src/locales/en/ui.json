@@ -290,9 +290,7 @@
     "lifeEyebrow": "A European life, in ages",
     "lifeTitleEurope": "Four moments in a European life",
     "lifeTitleCountry": "Four moments in a life in {where}",
-    "lifeLead": "Each dot is the age at which it happens, on one line from {from} to {to}.",
     "lifeNote": "Four different measures on one line: the age by which half have left home, the average age of mothers at their first child, the average age at which people started drawing an old-age pension, and the healthy years a newborn can expect.",
-    "youLabel": "Your country",
     "stops": {
       "leaving-home": "Half have left home",
       "first-child": "First child",
@@ -368,7 +366,15 @@
     "factEurope": "{high} {highValue} against {low} {lowValue}: {ratio} times as much.",
     "factCountry": "{value}: {rank}.",
     "openIt": "Open it",
-    "comparedWithEu": "{years} years {word} than the EU"
+    "comparedWithEu": "{years} years {word} than the EU",
+    "lifeLeadFigures": "In the order they happen. Pick a country and the figures turn round, and swap places where that country lives the moments in a different order.",
+    "storyEurope": "Across the European Union the four moments come in this order. Pick a country to see where it differs.",
+    "storyHealthFirst": "In {where} the healthy years a newborn can expect run out at {health}, {years} years before the age at which pensions start ({pension}).",
+    "storyChildFirst": "In {where} mothers have their first child at {child} on average, younger than the age by which half of young people have left home ({leave}). Two different measures: an average for mothers, a midpoint for everyone.",
+    "storySameOrder": "{Where} lives the four moments in the same order as the EU.",
+    "storyMissing": "{Where} does not have a figure for all four moments, so the order is incomplete.",
+    "euWord": "EU",
+    "yearsUnit": "years"
   },
   "metricLabels": {
     "wealth": "Wealth"

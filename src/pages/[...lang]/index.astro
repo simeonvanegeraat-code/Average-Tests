@@ -3,7 +3,8 @@ import { localeOf, localePaths, linkTo } from '../../lib/locales.js';
 import { ui, fill } from '../../lib/ui.js';
 import { siteIdentity } from '../../lib/schema.js';
 import BaseV2 from '../../layouts/BaseV2.astro';
-import { frontDoor, AXIS } from '../../lib/front-door.js';
+import { frontDoor } from '../../lib/front-door.js';
+import LifeFigure from '../../components/LifeFigure.astro';
 import { notes, NOTES_LINK, noteDate } from '../../lib/notes.js';
 
 /**
@@ -39,11 +40,6 @@ const { europe } = door;
 const title = t.pageTitle;
 const description = fill(t.pageDescription, { count: door.metricCount });
 const clientJson = JSON.stringify({ europe, countries: door.countries }).replace(/</g, '\\u003c');
-
-/** De maatstreepjes op de as: elke tien jaar. */
-const ticks: number[] = [];
-for (let age = Math.ceil(AXIS.from / 10) * 10; age <= AXIS.to; age += 10) ticks.push(age);
-const tickAt = (age: number) => ((age - AXIS.from) / (AXIS.to - AXIS.from)) * 100;
 
 export function getStaticPaths() {
   return localePaths();
@@ -82,48 +78,40 @@ export function getStaticPaths() {
     </div>
   </section>
 
+  {/*
+    De levensloop als vier figuurtjes (21 november 2026, Simeons idee): ze blijven staan,
+    draaien rond, en wisselen van plek als een land de momenten in een andere volgorde
+    leeft. Dat gebeurt echt: in 7 van de 28 landen eindigen de gezonde jaren vóór het
+    pensioen begint, in 4 komt het eerste kind vóór de helft het huis uit is. De volgorde
+    en de zin eronder komen uit src/lib/front-door.js.
+  */}
   <section class="block" aria-labelledby="life-title">
     <div class="wrap">
       <header class="sec-head" data-reveal>
         <p class="eyebrow mono">{t.lifeEyebrow}</p>
         <h2 id="life-title" data-life-title data-europe={t.lifeTitleEurope} data-country={t.lifeTitleCountry}>{t.lifeTitleEurope}</h2>
-        <p>{fill(t.lifeLead, { from: AXIS.from, to: AXIS.to })}</p>
+        <p>{t.lifeLeadFigures}</p>
       </header>
 
-      <figure class="life" data-reveal>
-        <div class="life-axis" aria-hidden="true">
-          <div class="life-track life-track--eu">
-            <span class="life-who mono">{t.eu}</span>
-            {europe.stops.map((s, i) => s.at !== null && (
-              <span class="life-dot hued" style={`--h:${s.hue};left:${s.at}%`} data-eu-dot={s.key}>{i + 1}</span>
-            ))}
-          </div>
-          <div class="life-track life-track--you" data-you-track hidden>
-            <span class="life-who mono" data-you-name>{t.youLabel}</span>
-            {europe.stops.map((s, i) => (
-              <span class="life-dot life-dot--you hued" style={`--h:${s.hue};left:${s.at ?? 0}%`} data-you-dot={s.key}>{i + 1}</span>
-            ))}
-          </div>
-          <div class="life-ticks">
-            {ticks.map((age) => <span style={`left:${tickAt(age)}%`}>{age}</span>)}
-          </div>
-        </div>
-
-        <ol class="life-stops">
-          {europe.stops.map((s, i) => (
-            <li>
-              <a class="life-stop hued" href={s.path} style={`--h:${s.hue}`} data-stop={s.key}>
-                <span class="n">{i + 1}</span>
-                <span class="k">{s.label}</span>
-                <span class="v num"><span data-stop-value>{s.value}</span> <small>{t.eu}</small></span>
-                <span class="you" data-stop-you hidden>
-                  <b data-stop-you-value></b> <span data-stop-you-diff></span>
-                </span>
-              </a>
-            </li>
-          ))}
+      <figure class="figs" data-reveal>
+        <ol class="figs-row" data-figs data-eu-word={t.euWord} data-eu-name={ui(lang).metricPage.europeanUnion}>
+          {europe.order.map((key, n) => {
+            const s = europe.stops.find((x) => x.key === key)!;
+            return (
+              <li class="fig-card hued" style={`--h:${s.hue}`} data-fig={s.key}>
+                <a href={s.path}>
+                  <span class="fig-n mono" data-fig-n>{n + 1}</span>
+                  <span class="fig-turn"><LifeFigure stop={s.key as any} /></span>
+                  <span class="fig-age num"><span data-fig-value>{s.value}</span>{' '}<small>{t.yearsUnit}</small></span>
+                  <span class="fig-label">{s.label}</span>
+                  <span class="fig-sub" data-fig-sub>{ui(lang).metricPage.europeanUnion}</span>
+                  <span class="fig-diff" data-fig-diff></span>
+                </a>
+              </li>
+            );
+          })}
         </ol>
-
+        <p class="figs-story" data-figs-story aria-live="polite">{europe.story}</p>
         <figcaption>{t.lifeNote}</figcaption>
       </figure>
     </div>
@@ -261,30 +249,52 @@ export function getStaticPaths() {
       const factsBox = $('[data-facts]');
       const europeFacts = factsBox?.innerHTML ?? '';
 
-      function show(code: string) {
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /** Eén draai om de as, de opmaak van het figuurtje blijft staan. */
+      function spin(li: HTMLElement, delay: number, duration = 800) {
+        li.querySelector('.lf')?.animate([{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(360deg)' }], { duration, delay, easing: 'cubic-bezier(.3,.7,.2,1)' });
+      }
+
+      function show(code: string, animateIt = true) {
         const country = code ? data.countries[code] : null;
 
-        // De levenslijn: het tweede spoor en de tweede regel per stop.
-        const track = $('[data-you-track]');
-        if (track) track.hidden = !country;
-        const who = $('[data-you-name]');
-        if (who && country) who.textContent = code;
-        for (const stop of country?.stops ?? []) {
-          const dot = $(`[data-you-dot="${stop.key}"]`);
-          if (dot) {
-            dot.hidden = stop.at === null;
-            if (stop.at !== null) dot.style.left = `${stop.at}%`;
+        // De figuurtjes: waarde, volgorde, en draaien waar de volgorde verandert.
+        const figRow = $('[data-figs]');
+        if (figRow) {
+          const cards = Object.fromEntries($$('[data-fig]').map((li) => [li.dataset.fig, li]));
+          const before = new Map(Object.entries(cards).map(([k, el]) => [k, el.getBoundingClientRect()]));
+          const was = $$('[data-fig]').map((li) => li.dataset.fig);
+          const order: string[] = country ? country.order : data.europe.order;
+          order.forEach((key, n) => {
+            const li = cards[key];
+            if (!li) return;
+            figRow.append(li);
+            const eu = data.europe.stops.find((s: any) => s.key === key);
+            const own = country?.stops.find((s: any) => s.key === key);
+            li.querySelector('[data-fig-n]')!.textContent = String(n + 1);
+            li.querySelector('[data-fig-value]')!.textContent = own ? own.value : eu.value;
+            li.querySelector('[data-fig-sub]')!.textContent = own ? `${figRow.dataset.euWord} ${eu.value}` : (figRow.dataset.euName ?? '');
+            li.querySelector('[data-fig-diff]')!.textContent = own && own.value !== '—' ? own.diff : '';
+            li.toggleAttribute('data-swapped', data.europe.order.indexOf(key) !== n);
+            li.toggleAttribute('data-empty', Boolean(own && own.value === '—'));
+          });
+          if (animateIt && !still) {
+            order.forEach((key, n) => {
+              const li = cards[key];
+              if (!li) return;
+              const from = before.get(key)!;
+              const to = li.getBoundingClientRect();
+              const moved = was.indexOf(key) !== n;
+              if (from.left !== to.left || from.top !== to.top) {
+                li.animate([{ transform: `translate(${from.left - to.left}px, ${from.top - to.top}px)` }, { transform: 'none' }], { duration: 650, easing: 'cubic-bezier(.2,.8,.2,1)' });
+              }
+              spin(li, moved ? 450 : n * 90, moved ? 900 : 700);
+            });
           }
         }
-        for (const card of $$('[data-stop]')) {
-          const stop = country?.stops.find((s: any) => s.key === card.dataset.stop);
-          const you = card.querySelector<HTMLElement>('[data-stop-you]');
-          if (!you) continue;
-          you.hidden = !stop;
-          if (!stop) continue;
-          you.querySelector('[data-stop-you-value]')!.textContent = `${country.name} ${stop.value}${stop.year ? ` (${stop.year})` : ''}`;
-          you.querySelector('[data-stop-you-diff]')!.textContent = stop.value === '—' ? '' : stop.diff;
-        }
+        const story = $('[data-figs-story]');
+        if (story) story.textContent = country ? country.story : data.europe.story;
         titled($('[data-life-title]'), country);
 
         // Elk cijfer: de rang in plaats van de spreiding.
@@ -322,6 +332,17 @@ export function getStaticPaths() {
         }
       }
 
+      /** Eén keer ronddraaien als de figuurtjes in beeld komen. */
+      const figRowForEntrance = $('[data-figs]');
+      if (figRowForEntrance && !still && 'IntersectionObserver' in window) {
+        const seen = new IntersectionObserver((entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          seen.disconnect();
+          $$('[data-fig]').forEach((li, n) => spin(li, 200 + n * 260));
+        }, { threshold: 0.35 });
+        seen.observe(figRowForEntrance);
+      }
+
       select.addEventListener('change', () => {
         show(select.value);
         if (select.value) mergeProfile({ country: select.value });
@@ -331,7 +352,7 @@ export function getStaticPaths() {
       const saved = readProfile();
       if (typeof saved.country === 'string' && data.countries[saved.country]) {
         select.value = saved.country;
-        show(saved.country);
+        show(saved.country, false);
       }
     }
   </script>
@@ -357,42 +378,30 @@ export function getStaticPaths() {
     .pick select:focus-visible { outline: 2px solid var(--data); outline-offset: 2px; }
     .pick .hint { margin-top: 10px; }
 
-    /* De levenslijn */
-    .life { margin: 0; }
-    .life-axis { position: relative; padding: 8px 0 0; margin-bottom: 28px; }
-    .life-track { position: relative; height: 44px; margin-left: 3.6rem; border-bottom: 2px solid var(--line-strong); }
-    .life-track--you { border-bottom-style: dashed; margin-top: 10px; }
-    .life-who { position: absolute; right: calc(100% + 12px); bottom: -6px; font-size: .72rem; color: var(--text-2); white-space: nowrap; }
-    .life-dot {
-      position: absolute; bottom: -13px; translate: -50% 0; width: 24px; height: 24px; border-radius: 50%;
-      display: grid; place-items: center; font: 700 .72rem/1 var(--font-mono);
-      background: var(--surface); color: var(--text-2); border: 2px solid var(--text-3, var(--line-strong));
+    /* De levensloop in vier figuurtjes */
+    .figs { margin: 0; }
+    .figs-row { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    @media (max-width: 760px) { .figs-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+    .fig-card a {
+      position: relative; display: grid; justify-items: center; align-content: start; gap: 4px; height: 100%;
+      padding: 14px 12px 18px; border: 1px solid var(--line); border-radius: var(--radius-md);
+      background: var(--surface); color: var(--text); text-align: center; text-decoration: none;
+      transition: border-color .3s, transform .3s var(--ease);
     }
-    .life-dot--you { background: var(--data); border-color: var(--data); color: var(--bg); }
-    .life-dot[hidden] { display: none; }
-    /* Het huis uit en het eerste kind liggen dicht bij elkaar, net als pensioen en gezonde
-       jaren. Op een smal scherm overlappen ze; de tweede van elk paar gaat dan omhoog. */
-    @media (max-width: 700px) {
-      .life-dot { width: 20px; height: 20px; bottom: -11px; font-size: .66rem; }
-      .life-dot:nth-of-type(odd) { bottom: 9px; }
-    }
-    .life-ticks { position: relative; height: 22px; margin: 14px 0 0 3.6rem; font: 500 .7rem/1 var(--font-mono); color: var(--text-2); }
-    .life-ticks span { position: absolute; translate: -50% 0; }
-
-    .life-stops { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
-    .life-stop {
-      display: grid; gap: 6px; height: 100%; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius-md);
-      background: var(--surface); color: var(--text); text-decoration: none; transition: border-color .3s, transform .3s var(--ease);
-    }
-    .life-stop:hover { border-color: color-mix(in oklab, var(--data) 55%, var(--line)); transform: translateY(-3px); text-decoration: none; }
-    .life-stop .n { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 700 .72rem/1 var(--font-mono); background: var(--data); color: var(--bg); }
-    .life-stop .k { font-weight: 700; }
-    .life-stop .v { font: 800 clamp(1.8rem, 1.3rem + 1.6vw, 2.4rem)/1 var(--font-display); color: var(--data); letter-spacing: -.03em; }
-    .life-stop .v small, .rankrow .v small { font: 500 .72rem/1 var(--font-mono); color: var(--text-2); letter-spacing: .04em; }
-    .life-stop .you { font-size: .92rem; color: var(--text-2); line-height: 1.45; }
-    .life-stop .you b { color: var(--text); }
-    .life-stop .you[hidden] { display: none; }
-    .life figcaption { margin-top: 16px; max-width: 72ch; color: var(--text-2); font-size: .88rem; line-height: 1.55; }
+    .fig-card a:hover { border-color: color-mix(in oklab, var(--data) 55%, var(--line)); transform: translateY(-3px); text-decoration: none; }
+    .fig-card[data-swapped] a { outline: 2px solid var(--data); outline-offset: 3px; }
+    .fig-card[data-empty] a { opacity: .5; }
+    .fig-n { position: absolute; top: 12px; left: 12px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: .76rem; font-weight: 700; background: var(--data); color: var(--bg); }
+    .fig-turn { display: block; width: 100%; perspective: 600px; }
+    .lf { display: block; width: 100%; max-width: 150px; height: auto; margin: 4px auto 0; color: var(--data); transform-style: preserve-3d; }
+    .lf-disk { fill: color-mix(in oklab, var(--data) 18%, transparent); }
+    .fig-age { margin-top: 4px; font: 800 clamp(1.7rem, 1.2rem + 1.6vw, 2.5rem)/1 var(--font-display); color: var(--data); letter-spacing: -.03em; }
+    .fig-age small { font: 500 .72rem/1 var(--font-mono); color: var(--text-2); letter-spacing: .04em; }
+    .fig-label { font-weight: 700; line-height: 1.25; }
+    .fig-sub, .fig-diff { color: var(--text-2); font-size: .86rem; line-height: 1.4; }
+    .fig-diff:empty { display: none; }
+    .figs-story { margin-top: 20px; max-width: 62ch; min-height: 3.2em; font-size: 1.1rem; line-height: 1.5; }
+    .figs figcaption { margin-top: 14px; max-width: 72ch; color: var(--text-2); font-size: .88rem; line-height: 1.55; }
 
     /* Elk cijfer, per levensfase */
     .phases { display: grid; gap: 28px 32px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
